@@ -1,0 +1,83 @@
+{
+	"name": "betterfountain",
+	"displayName": "Better Fountain",
+	"description": "Fountain autocomplete, syntax highlighting, and export to PDF",
+	"author": "Piers Deseilligny",
+	"license": "MIT",
+	"icon": "icon.png",
+	"version": "1.0.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/piersdeseilligny/betterfountain"
+	},
+	"publisher": "piersdeseilligny",
+	"categories": ["Programming Languages"],
+	"keywords": [
+		"screenwriting",
+		"fountain",
+		"screenplay"
+	],
+	"engines": {
+		"vscode": "^1.23.0"
+	},
+	"activationEvents": [
+		"onLanguage:fountain",
+		"onCommand:fountain.livepreview",
+		"onCommand:fountain.exportpdf"
+	],
+	"main": "./client/out/extension",
+	"contributes": {
+		"commands": [
+			{
+				"command": "fountain.livepreview",
+				"title": "Show screenplay live preview",
+				"category": "Fountain"
+			},
+			{
+				"command": "fountain.exportpdf",
+				"title": "Export screenplay PDF",
+				"category": "Fountain"
+			}
+		],
+		"languages": [
+			{
+				"id": "fountain",
+				"aliases": [
+					"Fountain",
+					"fountain"
+				],
+				"extensions": [
+					".fountain",
+					".spmd"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "fountain",
+				"scopeName": "text.source.fountain",
+				"path": "./syntaxes/fountain.tmLanguage"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
+		"compile:client": "./node_modules/.bin/tsc -p ./client/tsconfig.json",
+		"compile:server": "./node_modules/.bin/tsc -p ./server/tsconfig.json",
+		"watch:client": "./node_modules/.bin/tsc -w -p ./client/tsconfig.json",
+		"watch:server": "./node_modules/.bin/tsc -w -p ./server/tsconfig.json",
+		"compile": "npm run compile:client && npm run compile:server",
+		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
+		"test": "sh ./scripts/e2e.sh"
+	},
+	"devDependencies": {
+		"@types/mocha": "^5.2.0",
+		"@types/node": "^8.0.0",
+		"typescript": "2.8.3"
+	},
+	"dependencies": {
+		"@tibas.london/fountain": "^0.1.0",
+		"afterwriting": "^1.11.0"
+	}
+}
