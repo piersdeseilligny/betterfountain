@@ -5,17 +5,21 @@
 	"author": "Piers Deseilligny",
 	"license": "MIT",
 	"icon": "icon.png",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
 	},
+	"bugs":{
+		"url": "https://github.com/piersdeseilligny/betterfountain/issues"
+	},
 	"publisher": "piersdeseilligny",
-	"categories": ["Programming Languages"],
+	"categories": ["Programming Languages", "Other"],
 	"keywords": [
 		"screenwriting",
 		"fountain",
-		"screenplay"
+		"screenplay",
+		"pdf"
 	],
 	"engines": {
 		"vscode": "^1.23.0"
@@ -27,6 +31,124 @@
 	],
 	"main": "./client/out/extension",
 	"contributes": {
+		"configurationDefaults": {
+			"[fountain]":{
+				"editor.wordWrap": "on"
+			}
+		},
+		"configuration":[
+			{
+				"title": "Fountain PDF Export",
+				"type":"object",
+				"properties": {
+					"fountain.pdf.emboldenSceneHeaders": {
+						"type": "boolean",
+						"default": false,
+						"description": "Make the scene headers bold"
+					},
+					"fountain.pdf.showPageNumbers": {
+						"type": "boolean",
+						"default": true,
+						"description": "Show page numbers"
+					},
+					"fountain.pdf.splitDialog": {
+						"type": "boolean",
+						"default": true,
+						"description": "Split dialog between pages"
+					},
+					"fountain.pdf.printTitlePage": {
+						"type": "boolean",
+						"default": true,
+						"description": "Print the title page"
+					},
+					"fountain.pdf.printProfile": {
+						"type": "string",
+						"description": "The printing dimensions",
+						"enum": [
+							"a4",
+							"uspaper"
+						],
+						"default": "a4"
+					},
+					"fountain.pdf.doubleSpaceBetweenScenes": {
+						"type": "boolean",
+						"default": false,
+						"description": "Double the space between scenes"
+					},
+					"fountain.pdf.printSections": {
+						"type": "boolean",
+						"default": false,
+						"description": "Print sections (marked with #)"
+					},
+					"fountain.pdf.printSynopsis": {
+						"type": "boolean",
+						"default": false,
+						"description": "Print synopsis (marked with =)"
+					},
+					"fountain.pdf.printActions": {
+						"type": "boolean",
+						"default": true,
+						"description": "Print action blocks"
+					},
+					"fountain.pdf.printHeaders": {
+						"type": "boolean",
+						"default": true,
+						"description": "Print scene headers"
+					},
+					"fountain.pdf.printDialogues": {
+						"type": "boolean",
+						"default": true,
+						"description": "Print dialogue"
+					},
+					"fountain.pdf.numberSections": {
+						"type": "boolean",
+						"default": false,
+						"description": "Automatically number sections"
+					},
+					"fountain.pdf.useDualDialogue": {
+						"type": "boolean",
+						"default": true,
+						"description": "Print dual dialogue in two columns"
+					},
+					"fountain.pdf.printNotes": {
+						"type": "boolean",
+						"default": false,
+						"description": "Print notes (text enclosed between [[two brackets]])"
+					},
+					"fountain.pdf.pageHeader": {
+						"type": "string",
+						"default": "",
+						"description": "Text to be inserted at the top of each page"
+					},
+					"fountain.pdf.pageFooter": {
+						"type": "string",
+						"default": "",
+						"description": "Text to be inserted at the bottom of each page"
+					},
+					"fountain.pdf.watermark": {
+						"type": "string",
+						"default": "",
+						"description": "Watermark displayed across each page"
+					},
+					"fountain.pdf.sceneNumbers": {
+						"type":"string",
+						"enum":[
+							"none",
+							"left",
+							"right",
+							"both"
+						],
+						"default": "none",
+						"description": "Location of scene numbers"
+					},
+					"fountain.pdf.eachSceneOnNewPage": {
+						"type": "boolean",
+						"default": false,
+						"description": "Systematically break page after a scene"
+					}
+				}
+			}
+		],
 		"commands": [
 			{
 				"command": "fountain.livepreview",

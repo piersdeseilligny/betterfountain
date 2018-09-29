@@ -13,13 +13,15 @@
     "autoClosingPairs": [
         ["(", ")"],
         ["*", "*"],
-        ["_", "_"]
+        ["_", "_"],
+        ["[", "]"]
     ],
     // symbols that that can be used to surround a selection
     "surroundingPairs": [
         ["*", "*"],
         ["(", ")"],
         ["\"", "\""],
-        ["'", "'"]
+        ["'", "'"],
+        ["[","]"]
     ]
 }

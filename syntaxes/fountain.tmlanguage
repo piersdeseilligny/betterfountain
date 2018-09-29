@@ -242,11 +242,11 @@
       <key>notes</key>
       <dict>
          <key>name</key>
-         <string>entity.other.note.fountain</string>
+         <string>comment.block</string>
          <key>begin</key>
          <string>\[\[</string>
          <key>end</key>
-         <string>(^$|\]\])</string>
+         <string>\]\]</string>
       </dict>
 
       <!-- Pagebreak -->

@@ -11,7 +11,7 @@ import {
 } from 'vscode-languageclient';
 var fountain = require('@tibas.london/fountain');
 
-
+const fs = require("fs");
 /*
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	onDidChangeTreeData?: vscode.Event<any>;	
@@ -74,11 +74,43 @@ export function activate(context: ExtensionContext) {
 			)});
 		if(filepath == undefined) return;
 		const { exec } = require('child_process');
-		exec('afterwriting --source \"' + vscode.window.activeTextEditor.document.fileName + '\" --pdf \"'+filepath.fsPath+'\" --overwrite', (err:any) => {
-			if (err)
-				vscode.window.showErrorMessage("Failed to export PDF: " + err);
-			else
-				vscode.window.showInformationMessage("Exported PDF!");
+		var config = vscode.workspace.getConfiguration("fountain.pdf", vscode.window.activeTextEditor.document.uri);
+		var outputconfig = {
+			embolden_scene_headers: config.emboldenSceneHeaders,
+			show_page_numbers: config.showPageNumbers,
+			split_dialogue: config.splitDialog,
+			print_title_page: config.printTitlePage,
+			print_profile: config.printProfile,
+			double_space_between_scenes: config.doubleSpaceBetweenScenes,
+			print_sections: config.printSections,
+			print_synopsis: config.printSynopsis,
+			print_actions: config.printActions,
+			print_headers: config.printHeaders,
+			print_dialogues: config.printDialogues,
+			number_sections: config.numberSections,
+			use_dual_dialogue: config.useDualDialogue,
+			print_notes: config.printNotes,
+			print_header: config.pageHeader,
+			print_footer: config.pageFooter,
+			print_watermark: config.watermark,
+			scenes_numbers: config.sceneNumbers,
+			each_scene_on_new_page: config.eachSceneOnNewPage
+		}
+		var outputjson = JSON.stringify(outputconfig);
+		var configlocation = filepath.fsPath.substring(0,filepath.fsPath.lastIndexOf(path.sep))+path.sep+"betterfountain.pdf.json";
+		console.log("config location = "+ configlocation);
+		fs.writeFile(configlocation, outputjson, (err:any)=>{
+			if(err) vscode.window.showErrorMessage("Failed to apply custom configuration (" + err + ")");
+			exec('afterwriting --source \"' + vscode.window.activeTextEditor.document.fileName + '\" --pdf \"'+filepath.fsPath+'\" --overwrite' + ' --config \"'+configlocation+"\"", (err:any, stdout:any) => {
+				console.log(stdout);
+				if (err)
+					vscode.window.showErrorMessage("Failed to export PDF: " + err);
+				else
+					vscode.window.showInformationMessage("Exported PDF!");
+				fs.unlink(configlocation, (err:any)=>{
+						if(err) vscode.window.showErrorMessage("Failed to remove custom configuration file (" + err + ")");
+					});
+			});
 		});
 	}));
 

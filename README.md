@@ -23,6 +23,7 @@ Writing with fountain lets you focus on the essential. With the addition of auto
 
 Just open a `.fountain` file in Visual Studio Code, and everything should work as expected. You can open the live preview and export to PDF by opening the command palette (`Ctrl+Shift+P` or `F1`) and searching for "Fountain".
 
+You can modify various options related to PDF Export in the settings, under "Fountain PDF Export".
 
 ## TODO
 
@@ -49,8 +50,6 @@ Here are some features I would like to add, but don't really have time to right 
 )?)
 
 * Some sort of system that would allow the storage of character information alongside the script
-
-* Enable changing the various export to PDF options
 
 * Synchronized scrolling of the live preview with the markup.
 
