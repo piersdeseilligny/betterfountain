@@ -48,7 +48,39 @@ function updateWebView(titlepage:string, script:string){
 	});
 	</script></body></html>`;
 }
+function padZero(i:any) {
+    if (i < 10) {
+        i = "0" + i;
+    }
+    return i;
+}
+function updateStatus(): void {
+	//THIS IS CURRENTLY A VERY VAGUE APPROXIMATION OF THE ACTUAL RUNTIME
+	//In the future, it should ignore the title page, scene headers, notes, comments, character names, and measure only based on the dialogue and action.
+	//(Maybe even take into account parenthicals below character names?)
+	if(durationStatus!=undefined){
+		if(vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document.languageId == "fountain"){
+			durationStatus.show();
+			//This value is based on the average calculated from various different scripts (see script_to_time.txt)
+			var secondcount = vscode.window.activeTextEditor.document.getText().replace(/ |\n|\t/g, "").length/16.304;
+			var time = new Date(null);
+			time.setSeconds(secondcount);
+			durationStatus.text = padZero(time.getHours())+":"+padZero(time.getMinutes())+":"+padZero(time.getSeconds());
+		}
+		else{
+			durationStatus.hide();
+		}
+	}
+}
+
+
+var durationStatus:vscode.StatusBarItem;
 export function activate(context: ExtensionContext) {
+
+	//Register for line duration length
+	durationStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+	context.subscriptions.push(durationStatus);
+	updateStatus();
 
 	//Register for live preview
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreview', () => {
@@ -185,6 +217,16 @@ vscode.workspace.onDidChangeTextDocument(change => {
 		previewpanel.webview.postMessage({ command: 'updateTitle', content: output.html.title_page });
 		previewpanel.webview.postMessage({ command: 'updateScript', content: output.html.script });
 	}
+	updateStatus();
+})
+
+vscode.window.onDidChangeActiveTextEditor(change =>{
+	if(previewpanel != null && change.document.languageId=="fountain"){
+		var output = fountain.parse(change.document.getText());
+		previewpanel.webview.postMessage({ command: 'updateTitle', content: output.html.title_page });
+		previewpanel.webview.postMessage({ command: 'updateScript', content: output.html.script });
+	}
+	updateStatus();
 })
 
 var scenePositions:string[] = [];

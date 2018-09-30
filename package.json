@@ -10,11 +10,14 @@
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
 	},
-	"bugs":{
+	"bugs": {
 		"url": "https://github.com/piersdeseilligny/betterfountain/issues"
 	},
 	"publisher": "piersdeseilligny",
-	"categories": ["Programming Languages", "Other"],
+	"categories": [
+		"Programming Languages",
+		"Other"
+	],
 	"keywords": [
 		"screenwriting",
 		"fountain",
@@ -32,14 +35,14 @@
 	"main": "./client/out/extension",
 	"contributes": {
 		"configurationDefaults": {
-			"[fountain]":{
+			"[fountain]": {
 				"editor.wordWrap": "on"
 			}
 		},
-		"configuration":[
+		"configuration": [
 			{
 				"title": "Fountain PDF Export",
-				"type":"object",
+				"type": "object",
 				"properties": {
 					"fountain.pdf.emboldenSceneHeaders": {
 						"type": "boolean",
@@ -131,8 +134,8 @@
 						"description": "Watermark displayed across each page"
 					},
 					"fountain.pdf.sceneNumbers": {
-						"type":"string",
-						"enum":[
+						"type": "string",
+						"enum": [
 							"none",
 							"left",
 							"right",
