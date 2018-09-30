@@ -12,6 +12,7 @@ import {
 var fountain = require('@tibas.london/fountain');
 
 const fs = require("fs");
+
 /*
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	onDidChangeTreeData?: vscode.Event<any>;	
@@ -30,7 +31,8 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 		return undefined;
 	}
 
-  }*/
+  }
+  */
 let client: LanguageClient;
 
 var previewpanel : vscode.WebviewPanel;
@@ -75,7 +77,13 @@ function updateStatus(): void {
 
 
 var durationStatus:vscode.StatusBarItem;
+//const outlineViewProvider:FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
 export function activate(context: ExtensionContext) {
+	//Register for outline tree view
+	//vscode.window.registerTreeDataProvider("fountain-outline", outlineViewProvider)
+	//const treeDataProvider = new FountainOutlineTreeDataProvider();
+	//vscode.window.createTreeView("fountain-outline", { treeDataProvider });
+	
 
 	//Register for line duration length
 	durationStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -155,7 +163,7 @@ export function activate(context: ExtensionContext) {
 				const position = editor.selection.active;
 				var linetext = editor.document.getText(new vscode.Range(new vscode.Position(position.line,0), new vscode.Position(position.line, 256)));
 				if(position.character == linetext.length-1){
-					if(linetext.match(/^\s*\(.*\)$/g)){
+					if(linetext.match(/^\s*\(.*\)$/g) || linetext.match(/^\s*((([A-Z0-9 ]+|@.*)(\([A-z0-9 '\-.()]+\))+|)$)/)){
 						var newpos = new vscode.Position(position.line, linetext.length);
 						editor.selection = new vscode.Selection(newpos,newpos);
 					}

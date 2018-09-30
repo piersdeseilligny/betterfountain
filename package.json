@@ -36,7 +36,8 @@
 	"contributes": {
 		"configurationDefaults": {
 			"[fountain]": {
-				"editor.wordWrap": "on"
+				"editor.wordWrap": "on",
+				"editor.wordBasedSuggestions": false
 			}
 		},
 		"configuration": [
