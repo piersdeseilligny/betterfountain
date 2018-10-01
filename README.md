@@ -2,7 +2,7 @@
 
 This is an extension for Visual Studio Code, written in a few hours, which allows you to write screenplays using the [fountain](https://fountain.io/) syntax quickly and efficiently. [(Confused?)](https://github.com/piersdeseilligny/betterfountain#why-visual-studio-code-i-thought-this-was-about-screenwriting)
 
-![Screenshot of BetterFountain](https://i.imgur.com/fjVinnf.png)
+![Screenshot of BetterFountain](https://i.imgur.com/mNDQMa7.png)
 
 ## Features
 
@@ -11,6 +11,7 @@ This is an extension for Visual Studio Code, written in a few hours, which allow
 * "Folding" scenes
 * Live preview of the formatted screenplay
 * Exporting the screenplay to a PDF File
+* Approximation of a screenplay's duration (in the status bar)
 * Other cool stuff
     * Go straight to writing dialog after a parenthetical by pressing enter, while the cursor is still inside it
 
@@ -24,6 +25,8 @@ Writing with fountain lets you focus on the essential. With the addition of auto
 Just open a `.fountain` file in Visual Studio Code, and everything should work as expected. You can open the live preview and export to PDF by opening the command palette (`Ctrl+Shift+P` or `F1`) and searching for "Fountain".
 
 You can modify various options related to PDF Export in the settings, under "Fountain PDF Export".
+
+And to get an approximate duration of your screenplay, just look at your status bar, in the bottom right corner.
 
 ## TODO
 
