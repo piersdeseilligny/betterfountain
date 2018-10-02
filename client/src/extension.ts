@@ -9,7 +9,10 @@ import {
 	ServerOptions,
 	TransportKind
 } from 'vscode-languageclient';
-var fountain = require('@tibas.london/fountain');
+
+import * as fountainjs from "./fountain";
+
+//var fountain = require('@tibas.london/fountain');
 
 const fs = require("fs");
 
@@ -102,7 +105,7 @@ export function activate(context: ExtensionContext) {
             { enableScripts: true } // Webview options. More on these later.
 		);
 		var rawcontent = vscode.window.activeTextEditor.document.getText();
-		var output = fountain.parse(rawcontent);
+		var output = fountainjs.parse(rawcontent);
 		updateWebView(output.html.title_page, output.html.script);
 	}));
 
@@ -221,7 +224,7 @@ export function activate(context: ExtensionContext) {
 
 vscode.workspace.onDidChangeTextDocument(change => {
 	if(previewpanel != null && change.document.languageId=="fountain"){
-		var output = fountain.parse(change.document.getText());
+		var output = fountainjs.parse(change.document.getText());
 		previewpanel.webview.postMessage({ command: 'updateTitle', content: output.html.title_page });
 		previewpanel.webview.postMessage({ command: 'updateScript', content: output.html.script });
 	}
@@ -230,7 +233,7 @@ vscode.workspace.onDidChangeTextDocument(change => {
 
 vscode.window.onDidChangeActiveTextEditor(change =>{
 	if(previewpanel != null && change.document.languageId=="fountain"){
-		var output = fountain.parse(change.document.getText());
+		var output = fountainjs.parse(change.document.getText());
 		previewpanel.webview.postMessage({ command: 'updateTitle', content: output.html.title_page });
 		previewpanel.webview.postMessage({ command: 'updateScript', content: output.html.script });
 	}
