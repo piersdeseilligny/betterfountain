@@ -49,21 +49,36 @@
                  .replace(regex.cleaner, '')
                  .replace(regex.whitespacer, '');
   };
-     
+  class TokenizedLine{
+    line:string;
+    position:number;
+  }
   var tokenize = function (script:string) {
-    var src    = lexer(script).split(regex.splitter)
-      , i      = src.length, line, match, parts, text, meta, x, xlen, dual
+    var rawsrc    = lexer(script).split("\n")
+      , i      = rawsrc.length, line, match, parts, text, meta, x, xlen, dual
       , tokens = [];
 
+    var src:TokenizedLine[] = []
+    for (let index = 0; index < rawsrc.length; index++) {
+      if(rawsrc[index] != ""){
+        src.push({line:rawsrc[index], position:index});
+      }
+    }
+    i = src.length;
     while (i--) {
-      line = src[i];
-      
+      line = src[i].line;
+
+      if(line == ""){
+        //Just an empty line, continue
+        continue;
+      }
+
       // title page
       if (regex.title_page.test(line)) {
         match = line.replace(regex.title_page, '\n$1').split(regex.splitter).reverse();
         for (x = 0, xlen = match.length; x < xlen; x++) {
           parts = match[x].replace(regex.cleaner, '').split(/\:\n*/);
-          tokens.push({ type: parts[0].trim().toLowerCase().replace(' ', '_'), text: parts[1].trim() });
+          tokens.push({ type: parts[0].trim().toLowerCase().replace(' ', '_'), text: parts[1].trim(), position:src[i].position });
         }
         continue;
       }
@@ -77,7 +92,7 @@
             meta = meta[2];
             text = text.replace(regex.scene_number, '');
           }
-          tokens.push({ type: 'scene_heading', text: text, scene_number: meta || undefined });
+          tokens.push({ type: 'scene_heading', text: text, scene_number: meta || undefined, position:src[i].position });
         }
         continue;
       }
@@ -85,13 +100,13 @@
 
       // centered
       if (match = line.match(regex.centered)) {
-        tokens.push({ type: 'centered', text: match[0].replace(/>|</g, '') });
+        tokens.push({ type: 'centered', text: match[0].replace(/>|</g, ''), position:src[i].position });
         continue;
       }
 
       // transitions
       if (match = line.match(regex.transition)) {
-        tokens.push({ type: 'transition', text: match[1] || match[2] });
+        tokens.push({ type: 'transition', text: match[1] || match[2], position:src[i].position });
         continue;
       }
 
@@ -101,10 +116,10 @@
         if (match[1].indexOf('  ') !== match[1].length - 2) {
           // we're iterating from the bottom up, so we need to push these backwards
           if (match[2]) {
-            tokens.push({ type: 'dual_dialogue_end' });
+            tokens.push({ type: 'dual_dialogue_end',position:src[i].position });
           }
 
-          tokens.push({ type: 'dialogue_end' });
+          tokens.push({ type: 'dialogue_end', position:src[i].position });
 
           parts = match[3].split(/(\(.+\))(?:\n+)/).reverse();
 
@@ -112,15 +127,15 @@
             text = parts[x];
 
             if (text.length > 0) {
-              tokens.push({ type: regex.parenthetical.test(text) ? 'parenthetical' : 'dialogue', text: text });
+              tokens.push({ type: regex.parenthetical.test(text) ? 'parenthetical' : 'dialogue', text: text, position:src[i].position });
             }
           }
 
             tokens.push({ type: 'character', text: match[1].replace(/\@/g, '').trim() });
-          tokens.push({ type: 'dialogue_begin', dual: match[2] ? 'right' : dual ? 'left' : undefined });
+          tokens.push({ type: 'dialogue_begin', dual: match[2] ? 'right' : dual ? 'left' : undefined, position:src[i].position });
 
           if (dual) {
-            tokens.push({ type: 'dual_dialogue_begin' });
+            tokens.push({ type: 'dual_dialogue_begin', position:src[i].position });
           }
 
           dual = match[2] ? true : false;
@@ -132,54 +147,51 @@
       
       // section
       if (match = line.match(regex.section)) {
-        tokens.push({ type: 'section', text: match[2], depth: match[1].length });
+        tokens.push({ type: 'section', text: match[2], depth: match[1].length, position:src[i].position });
         continue;
       }
 
 
       // lyric
       if (match = line.match(regex.lyric)) {
-        tokens.push({ type: 'lyric', text: match[0].replace(/\~/, '') });
+        tokens.push({ type: 'lyric', text: match[0].replace(/\~/, ''), position:src[i].position });
         continue;
       }
 
       
       // synopsis
       if (match = line.match(regex.synopsis)) {
-        tokens.push({ type: 'synopsis', text: match[1] });
+        tokens.push({ type: 'synopsis', text: match[1], position:src[i].position });
         continue;
       }
 
       // notes
       if (match = line.match(regex.note)) {
-        tokens.push({ type: 'note', text: match[1]});
+        tokens.push({ type: 'note', text: match[1], position:src[i].position});
         continue;
       }      
 
       // boneyard
       if (match = line.match(regex.boneyard)) {
-        tokens.push({ type: match[0][0] === '/' ? 'boneyard_begin' : 'boneyard_end' });
+        tokens.push({ type: match[0][0] === '/' ? 'boneyard_begin' : 'boneyard_end', position:src[i].position});
         continue;
       }      
 
       // page breaks
       if (regex.page_break.test(line)) {
-        tokens.push({ type: 'page_break' });
+        tokens.push({ type: 'page_break', position:src[i].position });
         continue;
       }
       
       // line breaks
       if (regex.line_break.test(line)) {
-        tokens.push({ type: 'line_break' });
+        tokens.push({ type: 'line_break', position:src[i].position });
         continue;
       }
 
 
-        tokens.push({ type: 'action', text: line.replace(/\!/, '') });
-  
-
+        tokens.push({ type: 'action', text: line.replace(/\!/, ''), position:src[i].position });
     }
-
     return tokens;
   };
 

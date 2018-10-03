@@ -223,21 +223,24 @@ export function activate(context: ExtensionContext) {
 }
 
 vscode.workspace.onDidChangeTextDocument(change => {
-	if(previewpanel != null && change.document.languageId=="fountain"){
-		var output = fountainjs.parse(change.document.getText());
-		previewpanel.webview.postMessage({ command: 'updateTitle', content: output.html.title_page });
-		previewpanel.webview.postMessage({ command: 'updateScript', content: output.html.script });
-	}
-	updateStatus();
+	parseDocument(change.document);
 })
 
-vscode.window.onDidChangeActiveTextEditor(change =>{
-	if(previewpanel != null && change.document.languageId=="fountain"){
-		var output = fountainjs.parse(change.document.getText());
-		previewpanel.webview.postMessage({ command: 'updateTitle', content: output.html.title_page });
-		previewpanel.webview.postMessage({ command: 'updateScript', content: output.html.script });
+var documentTokens:any;
+function parseDocument(document:TextDocument){
+	if(vscode.window.activeTextEditor.document.uri==document.uri){
+		var output = fountainjs.parse(document.getText(), true);
+		if(previewpanel != null && document.languageId=="fountain"){
+			previewpanel.webview.postMessage({ command: 'updateTitle', content: output.html.title_page });
+			previewpanel.webview.postMessage({ command: 'updateScript', content: output.html.script });
+		}
+		documentTokens = output.tokens;
 	}
 	updateStatus();
+}
+
+vscode.window.onDidChangeActiveTextEditor(change =>{
+	parseDocument(change.document);
 })
 
 var scenePositions:string[] = [];
@@ -245,10 +248,10 @@ function GetRanges(re: RegExp, document: TextDocument/*, preranges:  FoldingRang
 		var match;
 		var matchlines = [];
 		var ranges = [];
-		while ((match = re.exec(document.getText())) != null) {
-			var lineposition = document.positionAt(match.index).line;
-			matchlines.push(lineposition);
-			scenePositions.push(document.getText(new vscode.Range(document.positionAt(match.index),document.positionAt(match.index+match.length))));
+		for (let index = 0; index < documentTokens.length; index++) {
+			if(documentTokens[index].type=="scene_heading"){
+				matchlines.push(documentTokens[index].position);
+			}
 		}
 		for (let index = 0; index < matchlines.length; index++) {
 			if(index == matchlines.length-1) 
