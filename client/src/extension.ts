@@ -243,9 +243,8 @@ vscode.window.onDidChangeActiveTextEditor(change =>{
 	parseDocument(change.document);
 })
 
-var scenePositions:string[] = [];
-function GetRanges(re: RegExp, document: TextDocument/*, preranges:  FoldingRange[]*/) : FoldingRange[]{
-		var match;
+/*
+function GetSceneRanges(document: TextDocument) : FoldingRange[]{
 		var matchlines = [];
 		var ranges = [];
 		for (let index = 0; index < documentTokens.length; index++) {
@@ -262,26 +261,64 @@ function GetRanges(re: RegExp, document: TextDocument/*, preranges:  FoldingRang
 			}
 		}
 		return ranges;
+}*/
+function GetFoldingRange(matchlines:number[], lineCount:number, higherRange?:FoldingRange[]):FoldingRange[]{
+	var ranges:FoldingRange[] = [];
+	for (let index = 0; index < matchlines.length; index++) {
+		if(index == matchlines.length-1) 
+			ranges.push(new FoldingRange(matchlines[index], lineCount-1));
+		else if(matchlines[index+1]-matchlines[index] <= 1) continue;
+		else{
+			ranges.push(new FoldingRange(matchlines[index], matchlines[index+1]-1));
+		}
+	}
+	return ranges;
 }
-
+function GetFullRanges(document:TextDocument) : FoldingRange[]{
+	var h1matches = []; //#
+	var h2matches = []; //##
+	var h3matches = []; //###
+	var hmmatches = []; //#### (or more)
+	var scenematches = []; //scene headings
+	var ranges:FoldingRange[] = [];
+	for (let index = 0; index < documentTokens.length; index++) {
+		if(documentTokens[index].type=="section"){
+			var linetext = documentTokens[index].text;
+			if(linetext.startsWith("####")){
+				hmmatches.push(documentTokens[index].position);
+			}
+			else if(linetext.startsWith("###")){
+				h3matches.push(documentTokens[index].position);
+			}
+			else if(linetext.startsWith("##")){
+				h2matches.push(documentTokens[index].position);
+			}
+			else if(linetext.startsWith("#")){
+				h1matches.push(documentTokens[index].position);
+			}
+		}
+		else if(documentTokens[index].type=="scene_heading"){
+			scenematches.push(documentTokens[index].position);
+		}
+	}
+//  TODO: Enable folding for headers:
+//	ranges = ranges.concat(GetFoldingRange(h1matches, document.lineCount));
+//	ranges = ranges.concat(GetFoldingRange(h2matches, document.lineCount));
+//	ranges = ranges.concat(GetFoldingRange(h3matches, document.lineCount));
+//	ranges = ranges.concat(GetFoldingRange(hmmatches, document.lineCount));
+	ranges = GetFoldingRange(scenematches, document.lineCount);
+	return ranges;
+}
 class MyFoldingRangeProvider implements FoldingRangeProvider {
     provideFoldingRanges(document: TextDocument): FoldingRange[] {
 		var ranges: FoldingRange[] = [];
 
-		//TODO: Fix ranges
-		/*
-		//Add the header 1
-		ranges = ranges.concat(GetRanges(/^#[^\n\r#]+$/gm, document, ranges));
-
-		//Add the header 2
-		ranges = ranges.concat(GetRanges(/^##[^\n\r#]+$/gm, document, ranges));
+		//Get the sections
+		//ranges = ranges.concat(GetSectionRanges("section", document));
 		
-		//Add the header 3
-		ranges = ranges.concat(GetRanges(/^###[^\n\r#]+$/gm, document, ranges));
-		*/
-
 		//Add the scenes
-		ranges = ranges.concat(GetRanges(/^((?:\*{0,3}_?)?(?:(?:int|ext|est|i\/e)[. ]).+)|^(?:\.(?!\.+))(.+)/gim, document/*, ranges*/));
+		//ranges = ranges.concat(GetFullRanges(document));
+		ranges = GetFullRanges(document);
 		return ranges;
     }
 }
