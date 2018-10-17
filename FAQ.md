@@ -22,8 +22,9 @@ Here are a few super simple steps to get started:
 * Everything in visual studio code is done through the "command palette" which you can bring up by clicking on `View`>`Command Palette` or by pressing on the F1 key.
 
 * Here are some useful commands:
-  * "Fold all" > Folds all the scenes so that you can only see the header. "Unfold all" does the contrary.
   * "Fountain: Show Screenplay Live Preview": Show a preview of what the printed script would look like, in real-time.
   * "Fountain: Export Screenplay PDF": Export your screenplay to a pdf file.
+  * "Fold all" > Folds all the scenes so that you can only see the header. "Unfold all" does the contrary.
+
 
 * If you want to know how long your screenplay is (very approximately) just look in the bottom right corner. See the "00:00:00" next to the Line and Column positions? That's more or less the length of your screenplay (in hours:minutes:seconds).
