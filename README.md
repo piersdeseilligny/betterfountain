@@ -4,6 +4,8 @@
 
 This is an extension for Visual Studio Code, written in a few hours, which allows you to write screenplays using the [fountain](https://fountain.io/) syntax quickly and efficiently. [(If you're already confused click here)](https://github.com/piersdeseilligny/betterfountain/blob/master/FAQ.md)
 
+[Install it here](https://marketplace.visualstudio.com/items?itemName=piersdeseilligny.betterfountain)
+
 
 ## Features
 
