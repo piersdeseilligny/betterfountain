@@ -10,9 +10,9 @@ I'm not going to do a good job at explaining it, so just [look at this page](htt
 
 Here are a few super simple steps to get started:
 
-1. Download and install Visual Studio Code [here](https://code.visualstudio.com/). It's a really nice text editor, primarily designed for programming. But it's really flexible and powerful, so it can be used for lots of other things (including screenwriting)
+1. [Download and install Visual Studio Code](https://code.visualstudio.com/).
 
-2. Go [here](https://marketplace.visualstudio.com/items?itemName=piersdeseilligny.betterfountain) and click on install.
+2. [Go here and click on install.](https://marketplace.visualstudio.com/items?itemName=piersdeseilligny.betterfountain)
 
 3. That's it! Now you can create a new file which finishes with the ".fountain" file extension (to do this in visual studio code, go to `File`>`New File` and then `File`>`Save as`).
 
