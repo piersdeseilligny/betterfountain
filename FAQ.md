@@ -25,3 +25,5 @@ Here are a few super simple steps to get started:
   * "Fold all" > Folds all the scenes so that you can only see the header. "Unfold all" does the contrary.
   * "Fountain: Show Screenplay Live Preview": Show a preview of what the printed script would look like, in real-time.
   * "Fountain: Export Screenplay PDF": Export your screenplay to a pdf file.
+
+* If you want to know how long your screenplay is (very approximately) just look in the bottom right corner. See the "00:00:00" next to the Line and Column positions? That's more or less the length of your screenplay (in hours:minutes:seconds).
