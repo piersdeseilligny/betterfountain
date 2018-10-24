@@ -44,7 +44,7 @@
 			"activitybar": [
 				{
 					"id": "fountain-view",
-					"icon": "icon.png",
+					"icon": "flaticon.svg",
 					"title": "Fountain"
 				}
 			]
