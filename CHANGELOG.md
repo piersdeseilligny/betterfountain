@@ -1,3 +1,6 @@
+## **1.03**
+    + Screenplay structure treeview
+
 ## **1.02** - *2018-10-01*
     + Enter key auto skips-to-new-line at the end of character extensions ("O.S.", "CONT'D", etc...)
     + New icon

@@ -40,6 +40,25 @@
 				"editor.wordBasedSuggestions": false
 			}
 		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "fountain-view",
+					"icon": "icon.png",
+					"title": "Fountain"
+				}
+			]
+		},
+		"views": {
+			"fountain-view":[{
+				"id": "fountain-outline",
+				"name": "Outline"
+			},
+			{
+				"id": "fountain-commands",
+				"name": "Commands"
+			}]
+		},
 		"configuration": [
 			{
 				"title": "Fountain PDF Export",
@@ -162,6 +181,11 @@
 			{
 				"command": "fountain.exportpdf",
 				"title": "Export screenplay PDF",
+				"category": "Fountain"
+			},
+			{
+				"command": "fountain.jumpto",
+				"title": "Jump to line",
 				"category": "Fountain"
 			}
 		],
