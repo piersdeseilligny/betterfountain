@@ -1,8 +1,11 @@
+![Screenshot of BetterFountain](https://i.imgur.com/mNDQMa7.png)
+
 # Better fountain
 
-This is an extension for Visual Studio Code, written in a few hours, which allows you to write screenplays using the [fountain](https://fountain.io/) syntax quickly and efficiently. [(Confused?)](https://github.com/piersdeseilligny/betterfountain#why-visual-studio-code-i-thought-this-was-about-screenwriting)
+This is an extension for Visual Studio Code, written in a few hours, which allows you to write screenplays using the [fountain](https://fountain.io/) syntax quickly and efficiently. [(If you're already confused click here)](https://github.com/piersdeseilligny/betterfountain/blob/master/FAQ.md)
 
-![Screenshot of BetterFountain](https://i.imgur.com/mNDQMa7.png)
+[Install it here](https://marketplace.visualstudio.com/items?itemName=piersdeseilligny.betterfountain)
+
 
 ## Features
 
