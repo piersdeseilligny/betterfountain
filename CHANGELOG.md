@@ -1,7 +1,7 @@
-## **1.03**
-    + Screenplay structure treeview
+## **1.1.0**
+    + Fountain section in the activity bar, with a clickable screenplay structure
 
-## **1.02** - *2018-10-01*
+## **1.0.2** - *2018-10-01*
     + Enter key auto skips-to-new-line at the end of character extensions ("O.S.", "CONT'D", etc...)
     + New icon
     + Approximate screenplay duration in the status bar

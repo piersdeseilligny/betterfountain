@@ -1,4 +1,4 @@
-![Screenshot of BetterFountain](https://i.imgur.com/mNDQMa7.png)
+![Screenshot of BetterFountain](https://i.imgur.com/mEAK9Xj.jpg)
 
 # Better fountain
 
@@ -11,12 +11,14 @@ This is an extension for Visual Studio Code, written in a few hours, which allow
 
 * Full syntax highlighting (even for stuff like lyrics!)
 * Autocompletion for recurring characters and scenes, as well as title page keys.
+* Full screenplay outline, broken down by sections and scenes
 * "Folding" scenes
 * Live preview of the formatted screenplay
 * Exporting the screenplay to a PDF File
 * Approximation of a screenplay's duration (in the status bar)
 * Other cool stuff
     * Go straight to writing dialog after a parenthetical by pressing enter, while the cursor is still inside it
+    * Jump to scenes/sections in the .fountain and live preview when clicking on the outline
 
 
 ## Why?
@@ -35,20 +37,9 @@ And to get an approximate duration of your screenplay, just look at your status 
 
 Here are some features I would like to add, but don't really have time to right now, in an approximate order of difficulty/priority:
 
-* An outline view and folding for [sections](https://fountain.io/syntax#section-sections)
-    * This would be implemented with the following simple logic:
-        * Find every act (#), sequence (##), and scene (###) in the document
-        * The end of the folding range for each section is whatever comes first between the end of a hierarchly higher one, the next section of the same type, or the end of the document.
-        * If ever an explicit scene (starting with INT./EXT.) is split by a section header, then it cannot be folded. The outline shows the second half of the scene as "...<name of scene>"
-
-* A fountain view container in the sidebar, with the following views:
-    * **Outline** as specified above
-    * **Cheat sheet** for the more advanced features of the fountain syntax
-    * **Stats** about the screenplay, such as the page count, the approximate duration in minutes, but also how fast the scenes switch throughout it, and how long has been spent thinking vs. writing, etc... Some of these could also go in the status bar.
-
 * Built-in screenplay templates (such as Blake Snyder's beat sheet)
 
-* Internally representing the character names and scenes as symbols, rather than using a naive regex approach (enabling stuff such as info on hover)
+* Folding for sections
 
 * More and smarter auto-complete, for stuff like the times of day in scene headers, transitions, etc...
 
