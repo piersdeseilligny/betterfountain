@@ -60,18 +60,21 @@
 
     var src:TokenizedLine[] = []
     for (let index = 0; index < rawsrc.length; index++) {
-      if(rawsrc[index] != ""){
-        src.push({line:rawsrc[index], position:index});
-      }
+        if(index > 0 && rawsrc[index-1].trim()){
+          src[src.length-1].line+="\n"+rawsrc[index];
+        }
+        else{
+          src.push({line:rawsrc[index], position:index});
+        }
     }
     i = src.length;
     while (i--) {
       line = src[i].line;
 
-      if(line == ""){
-        //Just an empty line, continue
-        continue;
-      }
+      //if(line == ""){
+      //  //Just an empty line, continue
+      //  continue;
+      //}
 
       // title page
       if (regex.title_page.test(line)) {
@@ -258,7 +261,7 @@
         case 'contact': title_page.push('<p class=\"contact\">' + token.text + '</p>'); break;
         case 'copyright': title_page.push('<p class=\"copyright\">' + token.text + '</p>'); break;
 
-        case 'scene_heading': html.push('<h3' + (token.scene_number ? ' id=\"' + token.scene_number + '\">' : '>') + token.text + '</h3>'); break;
+        case 'scene_heading': html.push('<h3  data-position=\"' + token.position + '\" ' + (token.scene_number ? ' id=\"' + token.scene_number + '\">' : '>') + token.text + '</h3>'); break;
         case 'transition': html.push('<h2>' + token.text + '</h2>'); break;
 
         case 'dual_dialogue_begin': html.push('<div class=\"dual-dialogue\">'); break;
@@ -269,7 +272,7 @@
         case 'dialogue_end': html.push('</div> '); break;
         case 'dual_dialogue_end': html.push('</div> '); break;
 
-        case 'section': html.push('<p class=\"section\" data-depth=\"' + token.depth + '\">' + token.text + '</p>'); break;
+        case 'section': html.push('<p class=\"section\" data-position=\"' + token.position + '\" data-depth=\"' + token.depth + '\">' + token.text + '</p>'); break;
         case 'synopsis': html.push('<p class=\"synopsis\">' + token.text + '</p>'); break;
         case 'lyric': html.push('<p class=\"lyric\">' + token.text + '</p>'); break;
 

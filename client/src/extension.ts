@@ -160,6 +160,8 @@ function updateWebView(titlepage: string, script: string) {
 		document.getElementById('mainpage').innerHTML = event.data.content;
 	}else if(event.data.command == 'updateTitle'){
 		document.getElementById('titlepage').innerHTML = event.data.content;
+	}else if(event.data.command == 'scrollTo'){
+		document.querySelectorAll("[data-position='"+event.data.content+"']")[0].scrollIntoView();
 	}
 	});
 	</script></body></html>`;
@@ -227,9 +229,13 @@ export function activate(context: ExtensionContext) {
 	//Jump to line command
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.jumpto', (args) => {
 		let editor = vscode.window.activeTextEditor;
-	let range = editor.document.lineAt(Number(args)).range;
-	editor.selection =  new vscode.Selection(range.start, range.start);
-	editor.revealRange(range, vscode.TextEditorRevealType.AtTop);
+		let range = editor.document.lineAt(Number(args)).range;
+		editor.selection =  new vscode.Selection(range.start, range.start);
+		editor.revealRange(range, vscode.TextEditorRevealType.AtTop);
+		//If live screenplay is visible scroll to it with 
+		if (previewpanel != null) {
+			previewpanel.webview.postMessage({ command: 'scrollTo', args });
+		}
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => {
