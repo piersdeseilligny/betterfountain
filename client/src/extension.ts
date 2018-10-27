@@ -158,9 +158,11 @@ function updateWebView(titlepage: string, script: string) {
 	window.addEventListener('message', event => {
 	if(event.data.command == 'updateScript'){
 		document.getElementById('mainpage').innerHTML = event.data.content;
+		console.log(event.data.content);
 	}else if(event.data.command == 'updateTitle'){
 		document.getElementById('titlepage').innerHTML = event.data.content;
 	}else if(event.data.command == 'scrollTo'){
+		console.log("data position " + event.data.content);
 		document.querySelectorAll("[data-position='"+event.data.content+"']")[0].scrollIntoView();
 	}
 	});
@@ -234,7 +236,7 @@ export function activate(context: ExtensionContext) {
 		editor.revealRange(range, vscode.TextEditorRevealType.AtTop);
 		//If live screenplay is visible scroll to it with 
 		if (previewpanel != null) {
-			previewpanel.webview.postMessage({ command: 'scrollTo', args });
+			previewpanel.webview.postMessage({ command: 'scrollTo', content: args });
 		}
 	}));
 
