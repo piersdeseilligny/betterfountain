@@ -1,3 +1,6 @@
+## **1.1.1**
+    + Fixed bug where estimated runtime would be wrong in any non-GMT timezone (Thank you Henry Quinn!)
+
 ## **1.1.0**
     + Fountain section in the activity bar, with a clickable screenplay structure
 
