@@ -184,6 +184,8 @@ function updateStatus(): void {
 			//This value is based on the average calculated from various different scripts (see script_to_time.txt)
 			var secondcount = vscode.window.activeTextEditor.document.getText().replace(/ |\n|\t/g, "").length / 16.304;
 			var time = new Date(null);
+			time.setHours(0);
+			time.setMinutes(0);
 			time.setSeconds(secondcount);
 			durationStatus.text = padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
 		}
