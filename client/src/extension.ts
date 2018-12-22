@@ -243,11 +243,13 @@ export function activate(context: ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => {
+		var saveuri = vscode.Uri.file(vscode.window.activeTextEditor.document.fileName.replace('.fountain', '.pdf'));
+		console.log(saveuri);
 		var filepath = await vscode.window.showSaveDialog(
 			{
-				filters: { "PDF File": [".pdf"] },
-				defaultUri: vscode.Uri.file(vscode.window.activeTextEditor.document.fileName.replace('.fountain', '.pdf')
-				)
+				//filters: { "PDF File": [".pdf"] },
+				defaultUri: saveuri
+				
 			});
 		if (filepath == undefined) return;
 		const { exec } = require('child_process');
