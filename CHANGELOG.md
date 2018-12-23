@@ -1,3 +1,7 @@
+## **1.1.2**
+    + Fixed syntax highlighting on Linux (Thank you zoltair for reporting it!)
+    + Fixed PDF save dialog on Mac OS (Thank you Mark Ainsworth!)
+
 ## **1.1.1**
     + Fixed bug where estimated runtime would be wrong in any non-GMT timezone (Thank you Henry Quinn!)
 
