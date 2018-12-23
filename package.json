@@ -207,7 +207,7 @@
 			{
 				"language": "fountain",
 				"scopeName": "text.source.fountain",
-				"path": "./syntaxes/fountain.tmLanguage"
+				"path": "./syntaxes/fountain.tmlanguage"
 			}
 		]
 	},
