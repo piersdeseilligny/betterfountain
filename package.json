@@ -50,14 +50,16 @@
 			]
 		},
 		"views": {
-			"fountain-view":[{
-				"id": "fountain-outline",
-				"name": "Outline"
-			},
-			{
-				"id": "fountain-commands",
-				"name": "Commands"
-			}]
+			"fountain-view": [
+				{
+					"id": "fountain-outline",
+					"name": "Outline"
+				},
+				{
+					"id": "fountain-commands",
+					"name": "Commands"
+				}
+			]
 		},
 		"configuration": [
 			{
