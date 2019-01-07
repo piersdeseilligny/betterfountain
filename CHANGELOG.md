@@ -1,3 +1,6 @@
+## **1.1.3**
+    + Notes now show in the live preview
+
 ## **1.1.2**
     + Fixed syntax highlighting on Linux (Thank you zoltair for reporting it!)
     + Fixed PDF save dialog on Mac OS (Thank you Mark Ainsworth!)
