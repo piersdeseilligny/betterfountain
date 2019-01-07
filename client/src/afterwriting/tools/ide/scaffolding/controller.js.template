@@ -1,0 +1,14 @@
+define(function(require) {
+
+    var Protoplast = require('protoplast');
+
+    var ${CONTROLLER_NAME} = Protoplast.Object.extend({
+
+        init: function() {
+
+        }
+
+    });
+
+    return ${CONTROLLER_NAME};
+});

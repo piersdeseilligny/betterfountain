@@ -1,0 +1,11 @@
+<html>
+	<body onload="send_message()">
+		<span id="alert" />
+		<script>
+			function send_message() {
+				window.opener.postMessage(window.location.href, 'https://afterwriting.com');
+			}
+		</script>
+	</body>
+
+</html>

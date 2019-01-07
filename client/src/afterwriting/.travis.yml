@@ -1,0 +1,28 @@
+language: node_js
+node_js: 6
+branches:
+  except: /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+script:
+  - npm run eslint
+  - npm test
+before_install:
+  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git checkout $TRAVIS_BRANCH; fi
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: /bin/bash tools/release.sh
+    on:
+      branch: master
+  - provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_API_KEY
+    on:
+      branch: master
+      condition: -e tmp/flags/gh-pages
+  - provider: npm
+    skip_cleanup: true
+    email: $NPM_EMAIL
+    api_key: $NPM_API_KEY
+    on:
+      branch: master
+      condition: -e tmp/flags/npm

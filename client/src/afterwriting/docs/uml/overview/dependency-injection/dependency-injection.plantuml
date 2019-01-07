@@ -1,0 +1,18 @@
+@startuml
+
+skinparam monochrome true
+
+title Context - Dependency Injection Container
+
+package Context {
+ rectangle ControllerB
+ rectangle ModelB
+ rectangle ControllerA
+ rectangle ModelA
+}
+
+ControllerB -down-> ModelB
+ControllerA -down-> ModelA
+ControllerA -right-> ControllerB
+
+@enduml

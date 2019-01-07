@@ -1,0 +1,11 @@
+<html>
+<body onload="pass_token()">
+<script>
+function pass_token() {
+	var url = window.location.href,
+		hashIndex = url.indexOf('#');
+	var l = window.opener.postMessage(url, '*');
+}
+</script>
+</body>
+</html>

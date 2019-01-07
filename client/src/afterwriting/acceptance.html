@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>[TEST] 'afterwriting</title>
+    <link rel="icon" type="image/x-icon" href="gfx/favicon.ico">
+    <link rel="stylesheet" href="css/reset.css"/>
+    <link rel="stylesheet" href="css/layout.css"/>
+    <link rel="stylesheet" href="css/widgets.css"/>
+    <link rel="stylesheet" href="css/jstree.css"/>
+    <link rel="stylesheet" href="css/codemirror.css"/>
+    <link rel="stylesheet" href="css/jquery-impromptu.min.css"/>
+    <link rel="stylesheet" href="js/libs/codemirror/addon/hint/show-hint.css"/>
+
+    <!-- only for acceptance test purposes so far; sinon does not play well with PhantomJS's Blob -->
+    <script type="text/javascript">
+        var ACCEPTANCE = true;
+
+        // XXX: if you turn the workers on, the acceptance test will fail because
+        // call executed by workers is asynchronous and the test does not take this
+        // into account
+        var JS_TREE_WORKERS_ENABLED = false;
+    </script>
+    <script type="text/javascript" src="js/libs/Blob.js"></script>
+    <script type="text/javascript" src="js/libs/sinon.js"></script>
+    <script type="text/javascript" src="node_modules/chai/chai.js"></script>
+    <script type="text/javascript" src="node_modules/mocha/mocha.js"></script>
+    <script type="text/javascript" src="test/phantomjs-polyfills.js"></script>
+
+    <script type="text/javascript">
+        mocha.setup({
+            ui: 'bdd',
+            reporter: 'spec'
+        });
+    </script>
+
+    <script src="js/libs/pdfjs/build/pdf.js"></script>
+    <script type="text/javascript">
+        PDFJS.disableWorker = true;
+    </script>
+
+    <script src="js/libs/require.js" defer></script>
+    <script src="js/main.js" defer></script>
+    <script src="js/bootstrap/acceptance.js" defer></script>
+</head>
+<body>
+<p class="loader">Loading...</p>
+</body>
+
+</html>

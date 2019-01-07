@@ -1,0 +1,24 @@
+@startuml
+
+skinparam monochrome true
+
+title View Layer
+
+package Context {
+  rectangle ControllerA
+  rectangle ModelA
+}
+
+
+rectangle RootView
+rectangle View
+rectangle Presenter
+
+RootView -down-> View
+
+View -> Presenter : sends events
+Presenter -> View : binds data
+ModelA -> Presenter : bind data
+Presenter -> ControllerA : maps view events
+
+@enduml

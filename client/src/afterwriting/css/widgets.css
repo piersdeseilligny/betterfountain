@@ -1,0 +1,267 @@
+h1 {
+    font-size: 19px;
+    font-weight: bold;
+    margin: 20px 10px 10px 10px;
+}
+
+h2 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px;
+}
+
+p {
+    margin: 10px;
+}
+
+em {
+    font-style: oblique;
+}
+
+strong {
+    font-weight: bold;
+}
+
+a {
+    color: #777777;
+}
+
+a:hover {
+    color: #111111;
+}
+
+table {
+    margin: 10px;
+    border: 1px solid #999;
+}
+
+th {
+    padding: 5px;
+    border: 1px solid #999;
+    background-color: #eee;
+    font-weight: bold;
+}
+
+td {
+    border: 1px solid #999;
+    padding: 10px;
+}
+
+tr {
+    border: 1px solid #999;
+}
+
+p.error {
+    padding: 5px;
+    font-style: italic;
+    border: 1px dashed red;
+    text-align: center;
+}
+
+.content ul, .content ol {
+    margin-left: 40px;
+}
+
+.content ul {
+    list-style-type: disc;
+}
+
+.content ol {
+    list-style-type: decimal;
+}
+
+.content-parent {
+    width: 100%;
+    clear: both;
+    overflow: auto;
+}
+
+.content-parent > * {
+    margin-right: 20px; /** for scrollbar **/
+}
+
+.tooltip {
+    position: absolute;
+    z-index: 100;
+    background-color: #111111;
+    color: #eeeeee;
+    padding: 3px;
+    font-size: 13px;
+    border-radius: 3px;
+    border: 1px solid #777777;
+}
+
+.info-icon, .content-expander {
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: normal;
+    padding: 0px;
+    margin: 0px;
+    display: inline-block;
+    color: #aaaaaa;
+}
+
+.info-icon:before {
+    content: "[?]";
+}
+
+.info-icon:hover {
+    color: #111111;
+}
+
+.info-content {
+    color: #777777;
+    font-style: oblique;
+    border: 1px dotted #aaaaaa;
+    padding: 4px;
+    margin: 4px;
+}
+
+ul.no-bullets {
+    list-style-type: none;
+    position: relative;
+    left: -25px;
+}
+
+.icon {
+    position: relative;
+    top: 5px;
+    width: 25px;
+    height: 25px;
+    margin: 0px 10px 0 0;
+    opacity: 0.8;
+}
+
+a .icon:hover {
+    opacity: 1.0;
+}
+
+.small-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 2px;
+}
+
+.header-menu {
+    float: right;
+    margin: 20px 0 0 0;
+}
+
+#jstree-parent {
+    overflow: auto;
+    margin-right: 10px;
+}
+
+#jstree {
+    max-height: 250px;
+}
+
+sup {
+    vertical-align: super;
+    font-size: smaller;
+}
+
+sub {
+    vertical-align: sub;
+    font-size: smaller;
+}
+
+.pdfjs-viewer {
+    overflow: auto;
+    background-color: #aaaaaa;
+    text-align: center;
+}
+
+/** small screens **/
+@media (max-device-width: 800px) {
+
+    h1 {
+        font-size: 38px;
+    }
+
+    h2 {
+        font-size: 32px;
+    }
+
+    body {
+        font-size: 32px;
+    }
+
+}
+
+.in-progress {
+    opacity: 0.4;
+}
+
+.settings-panel table {
+    width: 100%;
+}
+
+.settings-panel table td {
+    width: 50%;
+    border: 0;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.settings-panel td.label {
+    text-align: right;
+    border-right: 0;
+}
+
+/** rotate **/
+@-webkit-keyframes rotation1 {
+    from {
+        -webkit-transform: rotate(360deg);
+    }
+    to {
+        -webkit-transform: rotate(0deg);
+    }
+}
+
+@-moz-keyframes rotation1 {
+    from {
+        -moz-transform: rotate(360deg);
+    }
+    to {
+        -moz-transform: rotate(0deg);
+    }
+}
+
+@-o-keyframes rotation1 {
+    from {
+        -o-transform: rotate(3600deg);
+    }
+    to {
+        -o-transform: rotate(0deg);
+    }
+}
+
+@keyframes rotation1 {
+    from {
+        transform: rotate(360deg);
+    }
+    to {
+        transform: rotate(0deg);
+    }
+}
+
+.rotate {
+    -moz-animation: rotation1 2s linear infinite;
+    -o-animation: rotation1 2s linear infinite;
+    -webkit-animation: rotation1 2s linear infinite;
+    animation: rotation1 2s linear infinite
+}
+
+.night-mode th {
+    background-color: #111111;
+}
+
+.night-mode input, .night-mode select {
+    background-color: #111111;
+    color: #7f7f7f;
+}
+
+.night-mode svg text {
+    fill: #7f7f7f;
+}

@@ -1,0 +1,10 @@
+define(function(require) {
+
+    var Protoplast = require('protoplast');
+
+    var ${MODEL_NAME} = Protoplast.Model.extend({
+
+    });
+
+    return ${MODEL_NAME};
+});

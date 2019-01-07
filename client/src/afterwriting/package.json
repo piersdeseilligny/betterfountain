@@ -1,0 +1,75 @@
+{
+  "name": "afterwriting",
+  "version": "1.11.0",
+  "description": "Screewriting tools",
+  "keywords": [
+    "screenwriting",
+    "screenplay",
+    "fountain",
+    "text analysis"
+  ],
+  "author": {
+    "name": "Piotr Jamroz",
+    "email": "pm.jamroz@gmail.com",
+    "url": "http://about.me/piotr.jamroz"
+  },
+  "bin": "./awc.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ifrost/afterwriting-labs.git"
+  },
+  "scripts": {
+    "eslint": "node_modules/.bin/eslint js/**/*.js -c .eslintrc.json",
+    "debt": "node tools/debt",
+    "test": "npm run eslint && grunt test && git reset --hard",
+    "preversion": "git fetch --tags && node tools/changelog.js https://github.com/ifrost/afterwriting-labs console",
+    "build": "./node_modules/.bin/grunt build",
+    "version": "npm run build && git add .",
+    "postversion": "git push --follow-tags"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "docdash": "^0.4.0",
+    "eslint": "^3.17.1",
+    "express": "^4.14.0",
+    "findit": "^2.0.0",
+    "grunt": "~1.0.1",
+    "grunt-bumpup": "^0.6.1",
+    "grunt-cli": "~1.2.0",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-compress": "^1.4.1",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-cssmin": "^2.0.0",
+    "grunt-contrib-handlebars": "^1.0.0",
+    "grunt-contrib-requirejs": "^1.0.0",
+    "grunt-express-server": "^0.5.3",
+    "grunt-git": "^1.0.3",
+    "grunt-mocha-istanbul": "^5.0.2",
+    "grunt-mocha-phantom-istanbul": "^0.2.1",
+    "grunt-shell": "^2.1.0",
+    "grunt-simple-mocha": "~0.4.0",
+    "grunt-template": "^1.0.0",
+    "grunt-text-replace": "^0.4.0",
+    "istanbul": "^0.4.5",
+    "jsdoc": "^3.4.3",
+    "mocha": "^3.2.0",
+    "sinon": "^1.14.0"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "aw-liner": "0.0.2",
+    "aw-parser": "0.1.1",
+    "d3": "^3.4.1",
+    "grunt": "~1.0.1",
+    "handlebars": "^4.0.6",
+    "jquery": "^3.1.1",
+    "lodash": "^4.17.4",
+    "protoplast": "2.0.3",
+    "stdio": "^0.2.7",
+    "text": "requirejs/text"
+  }
+}

@@ -1,0 +1,174 @@
+Title: 
+	_Screenplay title_
+	Second line
+Credit: written by
+Author: 
+	Author 1,
+	**Author 2** & Author 3
+Source: script based on...
+Notes: 
+	Additional notes (1)
+	Additional notes (2)
+Date: 01/12/2010
+Contact:
+	e-mail: email@email.com
+    phone: +12 34 567 89
+Copyright: Licence info
+
+# Act 1: basic blocks
+
+## Sequence 1: scene heading, action, dialogue, parenthetical
+
+INT. BASIC BLOCKS - DAY
+
+Action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action.
+
+Action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action. action.
+
+HERO 1
+Blah blah blah blah.
+
+HERO 2
+Blah blah.
+(parenthetical)
+Blah blah.
+
+Action. action. action. action.
+
+## Sequence 2: boneyard and notes
+
+EXT. BASIC BLOCKS - NIGHT
+
+Action. Action. Action[[ (inline note)]]. Action.
+
+/*
+
+Ignored.
+Ignored. /* nested */
+Ignored.
+
+*/
+
+Action. action. action. action. /*ignored*/action. action. action. action. action. action. action. action. action. /*ignored /*nested*/ */action. action. action. action. action. action. action.
+
+[[Long long long long long long long long long long long long long long long long long long long long long long long long long long long long long...
+
+...multiline note]]
+
+## Sequence 3: Formatting
+
+INT. FORMATTING - DAY
+
+Normal test, _underline test_, *italic test*, **bold test**, ***bold and italic test***, _*underline and italic test*_, _**underline and bold test_**, _***underline, bold and italic test***_.
+
+_Long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long long **(with nested bold)** long long long long underlined text._
+
+> CENTERED, **BOLD**, _UNDERLINE_ <
+
+> TRANSITION:
+
+Page break test...
+
+===
+
+.FORCED HEADER
+
+Action.
+
+# Act 2: Dialogue
+
+INT. SPLIT DIALOGUE - DUSK
+
+Action.
+
+HERO 1
+Blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah. Blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah. Blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah blah.
+
+Action.
+
+INT. DUAL DIALOGUE - NIGHT
+
+Action action.
+
+HERO 1
+Blah!
+
+HERO 2 ^
+Blah!
+
+HERO 3
+Blah?
+
+Action action.
+
+# Act 3: edge cases
+
+INT. LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG LONG SCENE HEADER.
+
+Action.
+
+VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY VERY LONG NAME
+Hello, my name is Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Very Long Name.
+
+# Act 4: Misc
+
+## Latin characters
+
+INT. LATIN TEST - DAWN
+
+Latin characters.
+
+POLISH
+Pchnąć w tę łódź jeża lub osiem skrzyń fig.
+
+GERMAN
+Falsches Üben von Xylophonmusik quält jeden größeren Zwerg.
+
+NORWEGIAN
+Blåbærsyltetøy
+
+SPANISH
+El pingüino Wenceslao hizo kilómetros bajo exhaustiva lluvia y frío, añoraba a su querido cachorro.
+
+## Forced elements
+
+.WNĘTRZE. FORCED ELEMENTS - NIGHT
+
+!INT. ACTION
+
+@McCABE
+~Happy birthday to you!
+
+> FADE TO GREEN.
+
+## Sections and synopsis
+
+= Section synopsis
+
+### Subsection
+
+= Subsection synopsis
+
+= Additional synopsis
+
+INT. SCENE - DAY
+
+= Scene synopsis
+
+Action.
+
+# Act 5: Variables
+
+INT. $LOCATION - DAY
+
+$PROTAGONIST enters the $location. $Antagonist attacks him.
+
+$ANTAGONIST
+Aaaaa!
+
+$Protagonists kills $Antagonist.
+
+$BOND.LAST
+My name is $bond.last, $bond.name.
+
+> THE END.

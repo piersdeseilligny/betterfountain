@@ -1,0 +1,48 @@
+<style>
+	.plugin-content[plugin="facts"] li span {
+		font-weight: bold;
+	}
+	
+</style>
+<ul>
+	<li>Title:
+		<span id="facts-title"></span>
+	</li>
+	<li>Pages:
+		<span id="facts-pages"></span>
+	</li>
+	<li>Time:
+		<span id="facts-time"></span>
+	</li>
+	<li>Scenes:
+		<span id="facts-scenes"></span>
+	</li>
+	<li>Action time:
+		<span id="facts-action-time"></span>
+	</li>
+	<li>Dialogue time:
+		<span id="facts-dialogue-time"></span>
+	</li>
+	<li>Primary characters:
+		<span id="facts-primary-characters"></span>
+	</li>
+	<li>Secondary characters:
+		<span id="facts-secondary-characters"></span>
+	</li>
+</ul>
+<div id="facts-time-of-speaking-container">
+<h2>Time of speaking</h2>
+<span class="content-expander expand-dialogue show-all-dialogues" data-prop="$expandDialogues" style="margin-left: 20px">Top 10 characters shown. Click here to show all&nbsp;
+	<span class="nof-dialogues"></span>.</span>
+<span class="content-expander expand-dialogue show-top-dialogues" style="display:none; margin-left: 20px">All&nbsp;
+	<span class="nof-dialogues"></span>&nbsp;characters shown. Click here to show Top 10 only.</span>
+<ol id="facts-characters"></ol>
+</div>
+<div id="facts-locations-contaner">
+<h2>Locations</h2>
+<span class="content-expander expand-locations show-all-locations" data-prop="$expandLocations" style="margin-left: 20px">Top 10 locations shown. Click here to show all&nbsp;
+	<span class="nof-locations"></span>.</span>
+<span class="content-expander expand-locations show-top-locations" style="display:none; margin-left: 20px">All
+	<span class="nof-locations"></span>&nbsp;locations shown. Click here to show Top 10 only.</span>
+<ol id="facts-locations"></ol>
+</div>

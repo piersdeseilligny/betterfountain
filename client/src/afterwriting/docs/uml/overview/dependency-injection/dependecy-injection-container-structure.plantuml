@@ -1,0 +1,31 @@
+@startuml
+
+skinparam monochrome true
+
+title DI Container Structure
+left to right direction
+
+package Context {
+
+ package Core {
+  rectangle AppController
+  rectangle AppModel
+  rectangle ThemeController
+  rectangle ThemeModel
+  rectangle ScriptMode
+  rectangle Storage
+  rectangle PdfController
+ }
+
+ package PluginA {
+  rectangle ControllerA
+  rectangle ModelA
+ }
+
+ package PluginB {
+  rectangle ControllerB
+  rectangle ModelB
+ }
+
+}
+@enduml
