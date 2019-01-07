@@ -1,3 +1,5 @@
+import { stringify } from "querystring";
+
 // fountain-js 0.1.10
 // http://www.opensource.org/licenses/mit-license.php
 // Copyright (c) 2012 Matt Daly
@@ -69,12 +71,13 @@
     }
     i = src.length;
     while (i--) {
-      line = src[i].line;
+      line = src[i].line.trim();
 
-      //if(line == ""){
-      //  //Just an empty line, continue
-      //  continue;
-      //}
+      if(line == ""){
+        //Just an empty line, continue
+        continue;
+      }
+
 
       // title page
       if (regex.title_page.test(line)) {
@@ -89,8 +92,16 @@
       // scene headings
       if (match = line.match(regex.scene_heading)) {
         text = match[1] || match[2];
-
         if (text.indexOf('  ') !== text.length - 2) {
+          if(text.length<line.length){
+            //There's potentially a note after the scene heading
+            var lines = line.split('\n');
+            for(var subline in lines){
+              if(lines[subline].match(regex.note)){
+                tokens.push({type: 'note', text: lines[subline], position:src[i].position});
+              }
+            }
+          }
           if (meta = text.match(regex.scene_number)) {
             meta = meta[2];
             text = text.replace(regex.scene_number, '');
@@ -113,8 +124,6 @@
         continue;
       }
 
-    
-
       if (match = line.match(regex.dialogue)) {
         if (match[1].indexOf('  ') !== match[1].length - 2) {
           // we're iterating from the bottom up, so we need to push these backwards
@@ -134,7 +143,7 @@
             }
           }
 
-            tokens.push({ type: 'character', text: match[1].replace(/\@/g, '').trim() });
+          tokens.push({ type: 'character', text: match[1].replace(/\@/g, '').trim(), position:src[i].position });
           tokens.push({ type: 'dialogue_begin', dual: match[2] ? 'right' : dual ? 'left' : undefined, position:src[i].position });
 
           if (dual) {
@@ -172,7 +181,7 @@
       if (match = line.match(regex.note)) {
         tokens.push({ type: 'note', text: match[1], position:src[i].position});
         continue;
-      }      
+      }
 
       // boneyard
       if (match = line.match(regex.boneyard)) {
@@ -191,15 +200,13 @@
         tokens.push({ type: 'line_break', position:src[i].position });
         continue;
       }
-
-
-        tokens.push({ type: 'action', text: line.replace(/\!/, ''), position:src[i].position });
+      tokens.push({ type: 'action', text: line.replace(/\!/, ''), position:src[i].position });
     }
     return tokens;
   };
 
   var inline:{[index:string]:any} = {
-    note: '<!-- $1 -->',
+    note: '<span class=\"note\">$1</span>',
 
     line_break: '<br />',
 
@@ -276,7 +283,7 @@
         case 'synopsis': html.push('<p class=\"synopsis\">' + token.text + '</p>'); break;
         case 'lyric': html.push('<p class=\"lyric\">' + token.text + '</p>'); break;
 
-        case 'note': html.push('<!-- ' + token.text + '-->'); break;
+        case 'note': html.push('<p class=\"note\">' + token.text + '</p>'); break;
         case 'boneyard_begin': html.push('<!-- '); break;
         case 'boneyard_end': html.push(' -->'); break;
 
