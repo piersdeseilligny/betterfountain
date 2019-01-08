@@ -1,3 +1,7 @@
+## **1.1.4**
+    + Warning when trying to export PDF of unsaved file
+    + Completely fixed pdf save dialog filter
+
 ## **1.1.3**
     + Notes now show in the live preview
 
