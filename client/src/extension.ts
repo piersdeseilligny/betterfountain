@@ -243,6 +243,21 @@ export function activate(context: ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => {
+		var canceled = false;
+		if(vscode.window.activeTextEditor.document.isDirty){
+			await vscode.window.showWarningMessage("The PDF will not include unsaved changes!", {modal:true}, "Export anyway", "Save document first").then((value:any)=>{
+				canceled = (value==undefined);
+				switch (value) {
+					case "Export anyway":
+						break;
+					case "Save document first":
+						if(!vscode.window.activeTextEditor.document.save() && vscode.window.activeTextEditor.document.isDirty)
+						vscode.window.showInformationMessage("Document could not be saved!")
+						break;
+				}
+			});
+		}
+		if(canceled) return;
 		var saveuri = vscode.Uri.file(vscode.window.activeTextEditor.document.fileName.replace('.fountain', '.pdf'));
 		console.log(saveuri);
 		var filepath = await vscode.window.showSaveDialog(
