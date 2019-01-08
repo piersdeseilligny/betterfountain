@@ -11,7 +11,7 @@ import {
 } from 'vscode-languageclient';
 
 import * as fountainjs from "./fountain";
-import * as afterwriting from './afterwriting/js/client/client-controller';
+import { exec } from 'child_process';
 const fs = require("fs");
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
@@ -267,7 +267,7 @@ export function activate(context: ExtensionContext) {
 			});
 		if (filepath == undefined) return;
 		var config = vscode.workspace.getConfiguration("fountain.pdf", vscode.window.activeTextEditor.document.uri);
-		var exportConfig = {
+		var outputconfig = {
 			embolden_scene_headers: config.emboldenSceneHeaders,
 			show_page_numbers: config.showPageNumbers,
 			split_dialogue: config.splitDialog,
@@ -288,12 +288,22 @@ export function activate(context: ExtensionContext) {
 			scenes_numbers: config.sceneNumbers,
 			each_scene_on_new_page: config.eachSceneOnNewPage
 		}
-		var exportOptions = new afterwriting.Options();
-		exportOptions.source = vscode.window.activeTextEditor.document.fileName;
-		exportOptions.pdf = filepath.fsPath;
-
-		var controller = afterwriting.default;
-		controller.render(exportOptions, exportConfig);
+		var outputjson = JSON.stringify(outputconfig);
+		var configlocation = filepath.fsPath.substring(0, filepath.fsPath.lastIndexOf(path.sep)) + path.sep + "betterfountain.pdf.json";
+		console.log("config location = " + configlocation);
+		fs.writeFile(configlocation, outputjson, (err: any) => {
+			if (err) vscode.window.showErrorMessage("Failed to apply custom configuration (" + err + ")");
+			exec('afterwriting --source \"' + vscode.window.activeTextEditor.document.fileName + '\" --pdf \"' + filepath.fsPath + '\" --overwrite' + ' --config \"' + configlocation + "\"", (err: any, stdout: any) => {
+				console.log(stdout);
+				if (err)
+					vscode.window.showErrorMessage("Failed to export PDF: " + err);
+				else
+					vscode.window.showInformationMessage("Exported PDF!");
+				fs.unlink(configlocation, (err: any) => {
+					if (err) vscode.window.showErrorMessage("Failed to remove custom configuration file (" + err + ")");
+				});
+			});
+		});
 	}));
 
 	vscode.commands.registerCommand('type', (args) => {

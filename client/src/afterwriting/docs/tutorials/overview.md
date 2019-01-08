@@ -1,5 +1,0 @@
-# Overview
-
-## Dependency Injection
-
-WIP
