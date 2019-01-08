@@ -258,13 +258,12 @@ export function activate(context: ExtensionContext) {
 			});
 		}
 		if(canceled) return;
-		var saveuri = vscode.Uri.file(vscode.window.activeTextEditor.document.fileName.replace('.fountain', '.pdf'));
+		var saveuri = vscode.Uri.file(vscode.window.activeTextEditor.document.fileName.replace('.fountain', ''));
 		console.log(saveuri);
 		var filepath = await vscode.window.showSaveDialog(
 			{
-				//filters: { "PDF File": [".pdf"] },
+				filters: { "PDF File": ["pdf"] },
 				defaultUri: saveuri
-				
 			});
 		if (filepath == undefined) return;
 		var config = vscode.workspace.getConfiguration("fountain.pdf", vscode.window.activeTextEditor.document.uri);
