@@ -1,5 +1,5 @@
 'use strict';
-
+import { getFountainConfig } from "./configloader";
 import * as path from 'path';
 import { workspace, ExtensionContext, languages, FoldingRangeProvider, TextDocument, FoldingRange } from 'vscode';
 import * as vscode from 'vscode';
@@ -12,6 +12,8 @@ import {
 
 import * as fountainjs from "./fountain";
 import { exec } from 'child_process';
+import { performance } from 'perf_hooks';
+import * as afterparser from "./afterwriting-parser";
 const fs = require("fs");
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
@@ -226,7 +228,41 @@ export function activate(context: ExtensionContext) {
 			{ enableScripts: true } // Webview options. More on these later.
 		);
 		var rawcontent = vscode.window.activeTextEditor.document.getText();
+		
+		var t0 = performance.now();
 		var output = fountainjs.parse(rawcontent);
+		var t1 = performance.now();
+		console.log("fountain-js took " + (t1 - t0) + "ms")
+
+		var config = vscode.workspace.getConfiguration("fountain.pdf", vscode.window.activeTextEditor.document.uri);
+		var outputconfig = {
+			embolden_scene_headers: config.emboldenSceneHeaders,
+			show_page_numbers: config.showPageNumbers,
+			split_dialogue: config.splitDialog,
+			print_title_page: config.printTitlePage,
+			print_profile: config.printProfile,
+			double_space_between_scenes: config.doubleSpaceBetweenScenes,
+			print_sections: config.printSections,
+			print_synopsis: config.printSynopsis,
+			print_actions: config.printActions,
+			print_headers: config.printHeaders,
+			print_dialogues: config.printDialogues,
+			number_sections: config.numberSections,
+			use_dual_dialogue: config.useDualDialogue,
+			print_notes: config.printNotes,
+			print_header: config.pageHeader,
+			print_footer: config.pageFooter,
+			print_watermark: config.watermark,
+			scenes_numbers: config.sceneNumbers,
+			each_scene_on_new_page: config.eachSceneOnNewPage
+		}
+
+		var t2 = performance.now();
+		console.log("Starting afterparser");
+	    afterparser.parse(rawcontent, config);
+		var t3 = performance.now();
+		console.log("afterparser took " + (t3 - t2) + "ms")
+
 		updateWebView(output.html.title_page, output.html.script);
 	}));
 
@@ -266,29 +302,7 @@ export function activate(context: ExtensionContext) {
 				defaultUri: saveuri
 			});
 		if (filepath == undefined) return;
-		var config = vscode.workspace.getConfiguration("fountain.pdf", vscode.window.activeTextEditor.document.uri);
-		var outputconfig = {
-			embolden_scene_headers: config.emboldenSceneHeaders,
-			show_page_numbers: config.showPageNumbers,
-			split_dialogue: config.splitDialog,
-			print_title_page: config.printTitlePage,
-			print_profile: config.printProfile,
-			double_space_between_scenes: config.doubleSpaceBetweenScenes,
-			print_sections: config.printSections,
-			print_synopsis: config.printSynopsis,
-			print_actions: config.printActions,
-			print_headers: config.printHeaders,
-			print_dialogues: config.printDialogues,
-			number_sections: config.numberSections,
-			use_dual_dialogue: config.useDualDialogue,
-			print_notes: config.printNotes,
-			print_header: config.pageHeader,
-			print_footer: config.pageFooter,
-			print_watermark: config.watermark,
-			scenes_numbers: config.sceneNumbers,
-			each_scene_on_new_page: config.eachSceneOnNewPage
-		}
-		var outputjson = JSON.stringify(outputconfig);
+		var outputjson = JSON.stringify(getFountainConfig());
 		var configlocation = filepath.fsPath.substring(0, filepath.fsPath.lastIndexOf(path.sep)) + path.sep + "betterfountain.pdf.json";
 		console.log("config location = " + configlocation);
 		fs.writeFile(configlocation, outputjson, (err: any) => {
@@ -388,10 +402,20 @@ function last(array: any[]): any {
 
 function parseDocument(document: TextDocument) {
 	if (vscode.window.activeTextEditor.document.uri == document.uri) {
-		var output = fountainjs.parse(document.getText(), true);
+		var t0 = performance.now();
+		//var output = fountainjs.parse(document.getText(), true);
+		var t1 = performance.now();
+		console.log("fountain-js took " + (t1 - t0) + "ms")
+		
+		var t2 = performance.now();
+		
+		var output = afterparser.parse(document.getText(), getFountainConfig());
+		var t3 = performance.now();
+		console.log("afterparser took " + (t3 - t2) + "ms")
+
 		if (previewpanel != null && document.languageId == "fountain") {
-			previewpanel.webview.postMessage({ command: 'updateTitle', content: output.html.title_page });
-			previewpanel.webview.postMessage({ command: 'updateScript', content: output.html.script });
+			previewpanel.webview.postMessage({ command: 'updateTitle', content: output.titleHtml });
+			previewpanel.webview.postMessage({ command: 'updateScript', content: output.scriptHtml });
 		}
 		documentTokens = output.tokens;
 		var tokenlength = 0;
@@ -402,21 +426,21 @@ function parseDocument(document: TextDocument) {
 			var cobj: StructToken = new StructToken();
 			if (token.type == "section") {
 				cobj.text = token.text;
-				currentdepth = token.depth;
+				currentdepth = token.level;
 				cobj.children = [];
-				if (token.depth == 1) {
-					cobj.id = '/' + token.position;
+				if (token.level == 1) {
+					cobj.id = '/' + token.line;
 					docStructure.push(cobj)
 				}
-				else if (token.depth == 2) {
+				else if (token.level == 2) {
 					var level1 = last(docStructure);
-					cobj.id = level1.id + '/' + token.position;
+					cobj.id = level1.id + '/' + token.line;
 					level1.children.push(cobj);
 				}
-				else if (token.depth == 3) {
+				else if (token.level == 3) {
 					var level1 = last(docStructure);
 					var level2 = last(level1.children);
-					cobj.id = level2.id + '/' + token.position;
+					cobj.id = level2.id + '/' + token.line;
 					level2.children.push(cobj);
 				}
 			}
@@ -424,25 +448,25 @@ function parseDocument(document: TextDocument) {
 				cobj.text = token.text;
 				cobj.children = null;
 				if (currentdepth == 0) {
-					cobj.id = '/' + token.position;
+					cobj.id = '/' + token.line;
 					docStructure.push(cobj);
 				}
 				else if (currentdepth == 1) {
 					var level1 = last(docStructure);
-					cobj.id = level1.id + '/' + token.position;
+					cobj.id = level1.id + '/' + token.line;
 					level1.children.push(cobj);
 				}
 				else if (currentdepth == 2) {
 					var level1 = last(docStructure);
 					var level2 = last(level1.children);
-					cobj.id = level2.id + '/' + token.position;
+					cobj.id = level2.id + '/' + token.line;
 					level2.children.push(cobj);
 				}
 				else if (currentdepth >= 3) {
 					var level1 = last(docStructure);
 					var level2 = last(level1.children);
 					var level3 = last(level2.children);
-					cobj.id = level3.id + '/' + token.position;
+					cobj.id = level3.id + '/' + token.line;
 					level3.children.push(cobj);
 				}
 			}

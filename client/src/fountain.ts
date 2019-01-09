@@ -104,7 +104,7 @@
             meta = meta[2];
             text = text.replace(regex.scene_number, '');
           }
-          tokens.push({ type: 'scene_heading', text: text, scene_number: meta || undefined, position:src[i].position });
+          tokens.push({ type: 'scene_heading', text: text, scene_number: meta || undefined, position:src[i].position, });
         }
         continue;
       }

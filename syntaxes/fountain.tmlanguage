@@ -326,7 +326,7 @@
          <key>end</key>
          <string>\s*(=*)$\n?</string>
          <key>name</key>
-         <string>markup.synopsis.fountain</string>
+         <string>comment.block</string>
          <key>patterns</key>
          <array>
             <dict>
