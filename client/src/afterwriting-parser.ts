@@ -1,5 +1,5 @@
 import * as helpers from "./helpers";
-var regex = {
+var regex:{[index:string] : RegExp} = {
     title_page: /(title|credit|author[s]?|source|notes|draft date|date|contact|copyright)\:.*/i,
 
     section: /^(#+)(?: *)(.*)/,
@@ -18,8 +18,57 @@ var regex = {
     centered: /^(?:> *)(.+)(?: *<)(\n.+)*/g,
 
     page_break: /^\={3,}$/,
-    line_break: /^ {2}$/
+    line_break: /^ {2}$/,
+    
+    note_inline: /(?:\[{2}(?!\[+))([\s\S]+?)(?:\]{2}(?!\[+))/g,
+        
+    emphasis: /(_|\*{1,3}|_\*{1,3}|\*{1,3}_)(.+)(_|\*{1,3}|_\*{1,3}|\*{1,3}_)/g,
+    bold_italic_underline: /(_{1}\*{3}(?=.+\*{3}_{1})|\*{3}_{1}(?=.+_{1}\*{3}))(.+?)(\*{3}_{1}|_{1}\*{3})/g,
+    bold_underline: /(_{1}\*{2}(?=.+\*{2}_{1})|\*{2}_{1}(?=.+_{1}\*{2}))(.+?)(\*{2}_{1}|_{1}\*{2})/g,
+    italic_underline: /(?:_{1}\*{1}(?=.+\*{1}_{1})|\*{1}_{1}(?=.+_{1}\*{1}))(.+?)(\*{1}_{1}|_{1}\*{1})/g,
+    bold_italic: /(\*{3}(?=.+\*{3}))(.+?)(\*{3})/g,
+    bold: /(\*{2}(?=.+\*{2}))(.+?)(\*{2})/g,
+    italic: /(\*{1}(?=.+\*{1}))(.+?)(\*{1})/g,
+    lyric: /^(\~.+)/g,
+    underline: /(_{1}(?=.+_{1}))(.+?)(_{1})/g,
 };
+var inline:{[index:string]:any} = {
+    note: '<span class=\"note\">$1</span>',
+
+    line_break: '<br />',
+
+    bold_italic_underline: '<span class=\"bold italic underline\">$2</span>',
+    bold_underline: '<span class=\"bold underline\">$2</span>',
+    italic_underline: '<span class=\"italic underline\">$2</span>',
+    bold_italic: '<span class=\"bold italic\">$2</span>',
+    bold: '<span class=\"bold\">$2</span>',
+    italic: '<span class=\"italic\">$2</span>',
+    underline: '<span class=\"underline\">$2</span>',
+    lexer: function (s:string) {
+      if (!s) {
+        return undefined;
+      }  
+  
+      var styles = [ 'underline', 'italic', 'bold', 'bold_italic', 'italic_underline', 'bold_underline', 'bold_italic_underline' ]
+             , i = styles.length, style, match;
+  
+      s = s.replace(regex.note_inline, inline.note).replace(/\\\*/g, '[star]').replace(/\\_/g, '[underline]').replace(/\n/g, inline.line_break);
+  
+     // if (regex.emphasis.test(s)) {                         // this was causing only every other occurence of an emphasis syntax to be parsed
+        while (i--) {
+          style = styles[i];
+          match = regex[style];
+     
+          if (match.test(s)) {
+            s = s.replace(match, inline[style]);
+          }
+        }
+     // }
+  
+      return s.replace(/\[star\]/g, '*').replace(/\[underline\]/g, '_').trim();
+    }
+  };
+
 export var parse = function(original_script:string, cfg:any){
 
     var script = original_script,
@@ -102,11 +151,14 @@ export var parse = function(original_script:string, cfg:any){
         token = create_token(text, current, i);
         current = token.end + 1;
 
- 
+
         if (text.trim().length === 0 && text !== "  ") {
             var skip_separator = cfg.merge_multiple_empty_lines && last_was_separator;
 
+            if(state == "dialogue")
+                result.tokens.push({type:"dialogue_end"})
             state = "normal";
+            
 
             if (skip_separator || state === "title_page") {
                 continue;
@@ -186,6 +238,7 @@ export var parse = function(original_script:string, cfg:any){
                     token.type = "shot";
                 } else {
                     state = "dialogue";
+                    result.tokens.push({type:"dialogue_begin"});
                     token.type = "character";
                     token.text = token.text.replace(/^@/, "");
                     if (token.text[token.text.length - 1] === "^") {
@@ -196,7 +249,6 @@ export var parse = function(original_script:string, cfg:any){
                                 result.tokens[last_character_index].dual = "left";
                                 last_character_index++;
                             }
-                            token.dual = "right";
                             dual_right = true;
                         }
                         token.text = token.text.replace("^", "");
@@ -234,47 +286,63 @@ export var parse = function(original_script:string, cfg:any){
 
     }
 
+    
+
     var current_index = 0, previous_type = null;
     // tidy up separators
     var html =[];
     var titlehtml=[];
-    
+
+    //Generate html for title page
+    while(current_index < result.title_page.length){
+        var current_token = result.title_page[current_index];
+        if(current_token.text != "")
+            current_token.html = inline.lexer(current_token.text);
+        switch (current_token.type) {
+            case 'title': titlehtml.push('<h1>' + current_token.html + '</h1>'); 
+            //title = token.text.replace('<br />', ' ').replace(/<(?:.|\n)*?>/g, ''); break;
+            case 'credit': titlehtml.push('<p class=\"credit\">' + current_token.html + '</p>'); break;
+            case 'author': titlehtml.push('<p class=\"authors\">' + current_token.html + '</p>'); break;
+            case 'authors': titlehtml.push('<p class=\"authors\">' + current_token.html + '</p>'); break;
+            case 'source': titlehtml.push('<p class=\"source\">' + current_token.html + '</p>'); break;
+            case 'notes': titlehtml.push('<p class=\"notes\">' + current_token.html + '</p>'); break;
+            case 'draft_date': titlehtml.push('<p class=\"draft-date\">' + current_token.html + '</p>'); break;
+            case 'date': titlehtml.push('<p class=\"date\">' + current_token.html + '</p>'); break;
+            case 'contact': titlehtml.push('<p class=\"contact\">' + current_token.html + '</p>'); break;
+            case 'copyright': titlehtml.push('<p class=\"copyright\">' + current_token.html + '</p>'); break;
+        }
+        current_index++;
+    }
+
+    //Generate html for script
+    current_index=0;
     while (current_index < result.tokens.length) {
         var current_token = result.tokens[current_index];
-      switch (current_token.type) {
-        case 'title': titlehtml.push('<h1>' + current_token.text + '</h1>'); 
-        //title = token.text.replace('<br />', ' ').replace(/<(?:.|\n)*?>/g, ''); break;
-        case 'credit': titlehtml.push('<p class=\"credit\">' + current_token.text + '</p>'); break;
-        case 'author': titlehtml.push('<p class=\"authors\">' + current_token.text + '</p>'); break;
-        case 'authors': titlehtml.push('<p class=\"authors\">' + current_token.text + '</p>'); break;
-        case 'source': titlehtml.push('<p class=\"source\">' + current_token.text + '</p>'); break;
-        case 'notes': titlehtml.push('<p class=\"notes\">' + current_token.text + '</p>'); break;
-        case 'draft_date': titlehtml.push('<p class=\"draft-date\">' + current_token.text + '</p>'); break;
-        case 'date': titlehtml.push('<p class=\"date\">' + current_token.text + '</p>'); break;
-        case 'contact': titlehtml.push('<p class=\"contact\">' + current_token.text + '</p>'); break;
-        case 'copyright': titlehtml.push('<p class=\"copyright\">' + current_token.text + '</p>'); break;
+        if(current_token.text != "")
+            current_token.html = inline.lexer(current_token.text);
 
+      switch (current_token.type) {
         case 'scene_heading': html.push('<h3  data-position=\"' + current_token.line + '\" ' + (current_token.scene_number ? ' id=\"' + current_token.scene_number + '\">' : '>') + current_token.text + '</h3>'); break;
         case 'transition': html.push('<h2>' + current_token.text + '</h2>'); break;
 
         case 'dual_dialogue_begin': html.push('<div class=\"dual-dialogue\">'); break;
         case 'dialogue_begin': html.push('<div class=\"dialogue' + (current_token.dual ? ' ' + current_token.dual : '') + '\">'); break;
         case 'character': html.push('<h4>' + current_token.text + '</h4>'); break;
-        case 'parenthetical': html.push('<p class=\"parenthetical\">' + current_token.text + '</p>'); break;
-        case 'dialogue': html.push('<p>' + current_token.text + '</p>'); break;
+        case 'parenthetical': html.push('<p class=\"parenthetical\">' + current_token.html + '</p>'); break;
+        case 'dialogue': html.push('<p>' + current_token.html + '</p>'); break;
         case 'dialogue_end': html.push('</div> '); break;
         case 'dual_dialogue_end': html.push('</div> '); break;
 
         case 'section': html.push('<p class=\"section\" data-position=\"' + current_token.line + '\" data-depth=\"' + current_token.level + '\">' + current_token.text + '</p>'); break;
-        case 'synopsis': html.push('<p class=\"synopsis\">' + current_token.text + '</p>'); break;
-        case 'lyric': html.push('<p class=\"lyric\">' + current_token.text + '</p>'); break;
+        case 'synopsis': html.push('<p class=\"synopsis\">' + current_token.html + '</p>'); break;
+        case 'lyric': html.push('<p class=\"lyric\">' + current_token.html + '</p>'); break;
 
-        case 'note': html.push('<p class=\"note\">' + current_token.text + '</p>'); break;
+        case 'note': html.push('<p class=\"note\">' + current_token.html + '</p>'); break;
         case 'boneyard_begin': html.push('<!-- '); break;
         case 'boneyard_end': html.push(' -->'); break;
 
-        case 'action': html.push('<p>' + current_token.text + '</p>'); break;
-        case 'centered': html.push('<p class=\"centered\">' + current_token.text + '</p>'); break;
+        case 'action': html.push('<p>' + current_token.html + '</p>'); break;
+        case 'centered': html.push('<p class=\"centered\">' + current_token.html + '</p>'); break;
         
         case 'page_break': html.push('<hr />'); break;
         case 'line_break': html.push('<br />'); break;
@@ -293,7 +361,9 @@ export var parse = function(original_script:string, cfg:any){
             result.tokens.splice(current_index, 1);
             continue;
         }
-        */ //This has to be tidied up later
+        */ 
+       
+       //This has to be dealt with later, the tokens HAVE to stay, to keep track of the structure
         if (cfg.double_space_between_scenes && current_token.is("scene_heading") && current_token.number !== 1) {
             var additional_separator = helpers.default.create_separator(token.start, token.end);
             result.tokens.splice(current_index, 0, additional_separator);
