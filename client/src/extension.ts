@@ -237,32 +237,9 @@ export function activate(context: ExtensionContext) {
 		var t1 = performance.now();
 		console.log("fountain-js took " + (t1 - t0) + "ms")
 
-		var config = vscode.workspace.getConfiguration("fountain.pdf", vscode.window.activeTextEditor.document.uri);
-		var outputconfig = {
-			embolden_scene_headers: config.emboldenSceneHeaders,
-			show_page_numbers: config.showPageNumbers,
-			split_dialogue: config.splitDialog,
-			print_title_page: config.printTitlePage,
-			print_profile: config.printProfile,
-			double_space_between_scenes: config.doubleSpaceBetweenScenes,
-			print_sections: config.printSections,
-			print_synopsis: config.printSynopsis,
-			print_actions: config.printActions,
-			print_headers: config.printHeaders,
-			print_dialogues: config.printDialogues,
-			number_sections: config.numberSections,
-			use_dual_dialogue: config.useDualDialogue,
-			print_notes: config.printNotes,
-			print_header: config.pageHeader,
-			print_footer: config.pageFooter,
-			print_watermark: config.watermark,
-			scenes_numbers: config.sceneNumbers,
-			each_scene_on_new_page: config.eachSceneOnNewPage
-		}
-
 		var t2 = performance.now();
 		console.log("Starting afterparser");
-	    afterparser.parse(rawcontent, config);
+	    afterparser.parse(rawcontent, getFountainConfig(), true);
 		var t3 = performance.now();
 		console.log("afterparser took " + (t3 - t2) + "ms")
 
@@ -409,17 +386,17 @@ function parseDocument(document: TextDocument) {
 	    var oldoutput = fountainjs.parse(document.getText(), true);
 		var t1 = performance.now();
 		console.log("fountain-js took " + (t1 - t0) + "ms")
-		console.log(oldoutput.html.script);
 		
 		var t2 = performance.now();
 		
-		var output = afterparser.parse(document.getText(), getFountainConfig());
+		var updatehtml = (previewpanel != null && document.languageId == "fountain");
+		var output = afterparser.parse(document.getText(), getFountainConfig(), updatehtml);
 		var t3 = performance.now();
 		console.log("afterparser took " + (t3 - t2) + "ms")
 		console.log(output.scriptHtml);
 
 		
-		if (previewpanel != null && document.languageId == "fountain") {
+		if (updatehtml) {
 			previewpanel.webview.postMessage({ command: 'updateTitle', content: output.titleHtml });
 			previewpanel.webview.postMessage({ command: 'updateScript', content: output.scriptHtml });
 		}
