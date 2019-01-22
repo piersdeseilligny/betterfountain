@@ -181,7 +181,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         if (state === "title_page") {
             if (regex.title_page.test(token.text)) {
                 var index = token.text.indexOf(":");
-                token.type = token.text.substr(0, index).toLowerCase();
+                token.type = token.text.substr(0, index).toLowerCase().replace(" ", "_");
                 token.text = token.text.substr(index + 1).trim();
                 last_title_page_token = token;
                 result.title_page.push(token);
@@ -299,8 +299,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             if (current_token.text != "")
                 current_token.html = inline.lexer(current_token.text);
             switch (current_token.type) {
-                case 'title': titlehtml.push('<h1>' + current_token.html + '</h1>');
-                //title = token.text.replace('<br />', ' ').replace(/<(?:.|\n)*?>/g, ''); break;
+                case 'title': titlehtml.push('<h1>' + current_token.html + '</h1>'); break;
                 case 'credit': titlehtml.push('<p class=\"credit\">' + current_token.html + '</p>'); break;
                 case 'author': titlehtml.push('<p class=\"authors\">' + current_token.html + '</p>'); break;
                 case 'authors': titlehtml.push('<p class=\"authors\">' + current_token.html + '</p>'); break;
