@@ -552,7 +552,7 @@ header::selection {
     position: relative;
 }
 
-#workspace #script .page h3:before {
+#workspace #script .page.numberonleft h3:before {
     color: #bbb;
     content: attr(id);
     font-weight: 700;
@@ -560,7 +560,7 @@ header::selection {
     position: absolute
 }
 
-#workspace #script .page h3:after {
+#workspace #script .page.numberonright h3:after {
     color: #bbb;
     content: attr(id);
     font-weight: 700;

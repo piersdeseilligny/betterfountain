@@ -355,7 +355,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
             var end_dual = false;
             switch (current_token.type) {
-                case 'scene_heading': html.push('<h3  data-position=\"' + current_token.line + '\" ' + (current_token.scene_number ? ' id=\"' + current_token.scene_number + '\">' : '>') + current_token.text + '</h3>'); break;
+                case 'scene_heading': html.push('<h3  data-position=\"' + current_token.line + '\" ' + (current_token.number ? ' id=\"' + current_token.number + '\">' : '>') + current_token.text + '</h3>'); break;
                 case 'transition': html.push('<h2>' + current_token.text + '</h2>'); break;
 
                 case 'dual_dialogue_begin': html.push('<div class=\"dual-dialogue\">'); break;
