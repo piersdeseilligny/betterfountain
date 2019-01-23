@@ -262,7 +262,7 @@
       <key>scene_headings</key>
       <dict>
          <key>match</key>
-         <string>^\s*(\..*?|(?:INT|int|EXT|ext|EST|est|INT|int\./EXT|ext|INT|int/EXT|ext|I/E|i/e)(?:\.| ))(.*?)(?&lt;!  )(#[A-Za-z0-9\-.]+#)?$</string>
+         <string>^\s*(\.(?!\.).*?|(?:INT|int|EXT|ext|EST|est|INT|int\./EXT|ext|INT|int/EXT|ext|I/E|i/e)(?:\.| ))(.*?)(?&lt;!  )(#[A-Za-z0-9\-.]+#)?$</string>
          <key>captures</key>
          <dict>
             <key>1</key>
@@ -326,7 +326,7 @@
          <key>end</key>
          <string>\s*(=*)$\n?</string>
          <key>name</key>
-         <string>markup.synopsis.fountain</string>
+         <string>comment.block</string>
          <key>patterns</key>
          <array>
             <dict>
