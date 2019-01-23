@@ -157,6 +157,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
             if (state == "dialogue")
                 result.tokens.push({ type: "dialogue_end" })
+            if(state == "dual_dialogue")
+                result.tokens.push({ type: "dual_dialogue_end" })
             state = "normal";
 
 
@@ -238,10 +240,10 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     token.type = "shot";
                 } else {
                     state = "dialogue";
-                    result.tokens.push({ type: "dialogue_begin" });
                     token.type = "character";
                     token.text = token.text.replace(/^@/, "");
                     if (token.text[token.text.length - 1] === "^") {
+                        state = "dual_dialogue"
                         if (cfg.use_dual_dialogue) {
                             // update last dialogue to be dual:left
                             var dialogue_tokens = ["dialogue", "character", "parenthetical"];
@@ -249,9 +251,35 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                                 result.tokens[last_character_index].dual = "left";
                                 last_character_index++;
                             }
+                            //update last dialogue_begin to be dual_dialogue_begin and remove last dialogue_end
+                            var foundmatch = false;
+                            var temp_index = result.tokens.length;
+                            temp_index = temp_index-1;
+                            while(!foundmatch){
+                                temp_index--;
+                                switch(result.tokens[temp_index].type){
+                                    case "dialogue_end":
+                                        result.tokens.splice(temp_index);
+                                        temp_index--;
+                                        break;
+                                    case "separator": break;
+                                    case "character": break;
+                                    case "dialogue": break;
+                                    case "parenthetical": break;
+                                    case "dialogue_begin":
+                                        result.tokens[temp_index].type = "dual_dialogue_begin";
+                                        foundmatch = true;
+                                        break;
+                                    default: foundmatch = true;
+                                }
+                            }
                             dual_right = true;
+                            token.dual = "right";
                         }
                         token.text = token.text.replace("^", "");
+                    }
+                    else{
+                        result.tokens.push({ type: "dialogue_begin" });
                     }
                     last_character_index = result.tokens.length;
                 }
@@ -285,6 +313,11 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         }
 
     }
+
+    if (state == "dialogue")
+        result.tokens.push({ type: "dialogue_end" })
+    if(state == "dual_dialogue")
+        result.tokens.push({ type: "dual_dialogue_end" })
 
     var current_index = 0, previous_type = null;
     // tidy up separators
@@ -320,17 +353,29 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             if (current_token.text != "")
                 current_token.html = inline.lexer(current_token.text);
 
+            var end_dual = false;
             switch (current_token.type) {
                 case 'scene_heading': html.push('<h3  data-position=\"' + current_token.line + '\" ' + (current_token.scene_number ? ' id=\"' + current_token.scene_number + '\">' : '>') + current_token.text + '</h3>'); break;
                 case 'transition': html.push('<h2>' + current_token.text + '</h2>'); break;
 
                 case 'dual_dialogue_begin': html.push('<div class=\"dual-dialogue\">'); break;
                 case 'dialogue_begin': html.push('<div class=\"dialogue' + (current_token.dual ? ' ' + current_token.dual : '') + '\">'); break;
-                case 'character': html.push('<h4>' + current_token.text + '</h4>'); break;
+                case 'character': 
+                    if(end_dual) html.push("</div>");
+                    if(current_token.dual == "left"){
+                        html.push('<div class=\"dialogue left\">');
+                    }
+                    else if(current_token.dual == "right"){
+                        html.push('</div><div class=\"dialogue right\">');
+                    }
+                    html.push('<h4>' + current_token.text + '</h4>'); 
+                    break;
                 case 'parenthetical': html.push('<p class=\"parenthetical\">' + current_token.html + '</p>'); break;
-                case 'dialogue': html.push('<p>' + current_token.html + '</p>'); break;
+                case 'dialogue': 
+                    html.push('<p>' + current_token.html + '</p>'); 
+                    break;
                 case 'dialogue_end': html.push('</div> '); break;
-                case 'dual_dialogue_end': html.push('</div> '); break;
+                case 'dual_dialogue_end': html.push('</div></div> '); break;
 
                 case 'section': html.push('<p class=\"section\" data-position=\"' + current_token.line + '\" data-depth=\"' + current_token.level + '\">' + current_token.text + '</p>'); break;
                 case 'synopsis': html.push('<p class=\"synopsis\">' + current_token.html + '</p>'); break;
@@ -378,5 +423,5 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         result.tokens.pop();
     }
 
-    return result;
+return result;
 };
