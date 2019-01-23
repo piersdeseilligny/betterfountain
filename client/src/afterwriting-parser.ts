@@ -350,6 +350,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
         //Generate html for script
         current_index = 0;
+    
         while (current_index < result.tokens.length) {
             var current_token = result.tokens[current_index];
             if (current_token.text != "")
@@ -357,7 +358,12 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
             var end_dual = false;
             switch (current_token.type) {
-                case 'scene_heading': html.push('<h3  data-position=\"' + current_token.line + '\" ' + (current_token.number ? ' id=\"' + current_token.number + '\">' : '>') + current_token.text + '</h3>'); break;
+                case 'scene_heading': 
+                var content = current_token.text;
+                if(cfg.embolden_scene_headers)
+                    content = '<span class=\"bold\">'+content+'</span>';
+                html.push('<h3 data-position=\"' + current_token.line + '\" ' + (current_token.number ? ' id=\"' + current_token.number + '\">' : '>') + content + '</h3>'); 
+                break;
                 case 'transition': html.push('<h2>' + current_token.text + '</h2>'); break;
 
                 case 'dual_dialogue_begin': html.push('<div class=\"dual-dialogue\">'); break;

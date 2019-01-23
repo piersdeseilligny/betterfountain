@@ -266,7 +266,7 @@
         case 'contact': title_page.push('<p class=\"contact\">' + token.text + '</p>'); break;
         case 'copyright': title_page.push('<p class=\"copyright\">' + token.text + '</p>'); break;
 
-        case 'scene_heading': html.push('<h3  data-position=\"' + token.position + '\" ' + (token.scene_number ? ' id=\"' + token.scene_number + '\">' : '>') + token.text + '</h3>'); break;
+        case 'scene_heading': html.push('<h3 class="bold" data-position=\"' + token.position + '\" ' + (token.scene_number ? ' id=\"' + token.scene_number + '\">' : '>') + token.text + '</h3>'); break;
         case 'transition': html.push('<h2>' + token.text + '</h2>'); break;
 
         case 'dual_dialogue_begin': html.push('<div class=\"dual-dialogue\">'); break;
