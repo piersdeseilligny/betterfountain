@@ -4,7 +4,8 @@ in extension.ts*/
 
 #workspace,
 body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    white-space: pre;
 }
 
 #workspace #inspector li a:hover,
@@ -292,7 +293,7 @@ header::selection {
 
 #workspace #script {
     margin: 25px auto 0;
-    width: 850px
+    width: 850px;
 }
 
 #workspace .page::-moz-selection,

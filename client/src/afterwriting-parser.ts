@@ -44,7 +44,7 @@ var inline: { [index: string]: any } = {
     bold: '<span class=\"bold\">$2</span>',
     italic: '<span class=\"italic\">$2</span>',
     underline: '<span class=\"underline\">$2</span>',
-    lexer: function (s: string) {
+    lexer: function (s: string, type:string) {
         if (!s) {
             return undefined;
         }
@@ -64,8 +64,10 @@ var inline: { [index: string]: any } = {
             }
         }
         // }
-
-        return s.replace(/\[star\]/g, '*').replace(/\[underline\]/g, '_').trim();
+        s = s.replace(/\[star\]/g, '*').replace(/\[underline\]/g, '_');
+        if(type != "action")
+            s = s.trim();
+        return s;
     }
 };
 
@@ -351,7 +353,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         while (current_index < result.tokens.length) {
             var current_token = result.tokens[current_index];
             if (current_token.text != "")
-                current_token.html = inline.lexer(current_token.text);
+                current_token.html = inline.lexer(current_token.text, current_token.type);
 
             var end_dual = false;
             switch (current_token.type) {
