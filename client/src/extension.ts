@@ -180,9 +180,6 @@ function updateWebView(titlepage: string, script: string) {
 	}
 	});
 	</script></body></html>`;
-	fs.writeFile("C:\\Users\\piers\\Desktop\\webview.html", previewpanel.webview.html, (err: any) => {
-
-	});
 	console.log(previewpanel.webview.html)
 }
 function padZero(i: any) {
