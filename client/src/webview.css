@@ -640,3 +640,6 @@ header::selection {
     opacity: 0.5;
     font-style: italic;
 }
+.underline{
+    text-decoration: underline;
+}
