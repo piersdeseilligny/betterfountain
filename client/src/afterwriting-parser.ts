@@ -11,7 +11,7 @@ var regex: { [index: string]: RegExp } = {
     transition: /^((?:FADE (?:TO BLACK|OUT)|CUT TO BLACK)\.|.+ TO\:|^TO\:$)|^(?:> *)(.+)/,
 
     dialogue: /^([A-Z*_]+[0-9A-Z (._\-')]*)(\^?)?(?:\n(?!\n+))([\s\S]+)/,
-    character: /^([A-Z*_]+[0-9A-Z (._\-')]*)\^?$|^@.*$/,
+    character: /^(([A-Z0-9 ]+(\([A-z0-9 '\-.()]+\))*|(@.*))(\s*\^)?$)/,
     parenthetical: /^(\(.+\))$/,
 
     action: /^(.+)/g,
@@ -235,7 +235,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             } else if (token.text.length && token.text[0] === "!") {
                 token.type = "action";
                 token.text = token.text.substr(1);
-            } else if ((token.text.length > 0 && token.text[0] === "@") || (token.text === token.text.toUpperCase() && top_or_separated)) {
+            } else if (token.text.match(regex.character)) {
                 if (i === lines_length || i === lines_length - 1 || lines[i + 1].trim().length === 0) {
                     token.type = "shot";
                 } else {
