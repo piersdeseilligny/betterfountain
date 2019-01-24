@@ -10,7 +10,6 @@ import {
 	TransportKind
 } from 'vscode-languageclient';
 
-import * as fountainjs from "./fountain";
 import { exec } from 'child_process';
 import { performance } from 'perf_hooks';
 import * as afterparser from "./afterwriting-parser";
@@ -240,19 +239,8 @@ export function activate(context: ExtensionContext) {
 			{ enableScripts: true } // Webview options. More on these later.
 		);
 		var rawcontent = vscode.window.activeTextEditor.document.getText();
-		
-		var t0 = performance.now();
-		var output = fountainjs.parse(rawcontent);
-		var t1 = performance.now();
-		console.log("fountain-js took " + (t1 - t0) + "ms")
-
-		var t2 = performance.now();
-		console.log("Starting afterparser");
-	    afterparser.parse(rawcontent, getFountainConfig(), true);
-		var t3 = performance.now();
-		console.log("afterparser took " + (t3 - t2) + "ms")
-
-		updateWebView(output.html.title_page, output.html.script);
+	    var output = afterparser.parse(rawcontent, getFountainConfig(), true);
+		updateWebView(output.titleHtml, output.scriptHtml);
 	}));
 
 	//Jump to line command
@@ -410,19 +398,8 @@ function last(array: any[]): any {
 function parseDocument(document: TextDocument) {
 	if (vscode.window.activeTextEditor.document.uri == document.uri) {
 		
-		var t0 = performance.now();
-	    var oldoutput = fountainjs.parse(document.getText(), true);
-		var t1 = performance.now();
-		console.log("fountain-js took " + (t1 - t0) + "ms")
-		
-		var t2 = performance.now();
-		
 		var updatehtml = (previewpanel != null && document.languageId == "fountain");
 		var output = afterparser.parse(document.getText(), getFountainConfig(), updatehtml);
-		var t3 = performance.now();
-		console.log("afterparser took " + (t3 - t2) + "ms")
-		console.log(output.scriptHtml);
-
 		
 		if (updatehtml) {
 			lastFountainDocument = document;
