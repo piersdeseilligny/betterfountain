@@ -13,6 +13,7 @@ import {
 import { exec } from 'child_process';
 import { performance } from 'perf_hooks';
 import * as afterparser from "./afterwriting-parser";
+import { GeneratePdf } from "./pdf/pdf";
 
 const fs = require("fs");
 
@@ -279,6 +280,11 @@ export function activate(context: ExtensionContext) {
 				defaultUri: saveuri
 			});
 		if (filepath == undefined) return;
+
+		var config = getFountainConfig();
+		var parsed = afterparser.parse(vscode.window.activeTextEditor.document.getText(), getFountainConfig(), false);
+		GeneratePdf(filepath.fsPath, config, parsed, null);
+		/*
 		var outputjson = JSON.stringify(getFountainConfig());
 		var configlocation = filepath.fsPath.substring(0, filepath.fsPath.lastIndexOf(path.sep)) + path.sep + "betterfountain.pdf.json";
 		console.log("config location = " + configlocation);
@@ -294,7 +300,7 @@ export function activate(context: ExtensionContext) {
 					if (err) vscode.window.showErrorMessage("Failed to remove custom configuration file (" + err + ")");
 				});
 			});
-		});
+		});*/
 	}));
 
 	vscode.commands.registerCommand('type', (args) => {

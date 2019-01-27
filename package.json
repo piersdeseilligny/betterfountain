@@ -170,6 +170,11 @@
 						"type": "boolean",
 						"default": false,
 						"description": "Systematically break page after a scene"
+					},
+					"fountain.pdf.mergeEmptyLines": {
+						"type": "boolean",
+						"default": true,
+						"description": "Merge multiple empty lines"
 					}
 				}
 			}
@@ -229,6 +234,9 @@
 		"typescript": "2.8.3"
 	},
 	"dependencies": {
-		"afterwriting": "^1.11.0"
+		"afterwriting": "^1.11.0",
+		"aw-liner": "0.0.9",
+		"blob": "0.0.5",
+		"pdfkit": "^0.8.3"
 	}
 }

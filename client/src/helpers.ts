@@ -51,6 +51,46 @@ class helperClass{
             type: "separator"
         });
     };
+    version_generator = function(current?:any) {
+        current = current || "0";
+
+        var numbers = current.split('.').concat([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
+        var bump = function(level:any) {
+            numbers[level - 1]++;
+            for (var i = level; i < numbers.length; i++) {
+                numbers[i] = 0;
+            }
+        };
+
+        var to_str = function() {
+            var copy = numbers.concat();
+            copy.reverse();
+            while (copy.length > 1 && copy[0] === 0) {
+                copy.shift();
+            }
+            copy.reverse();
+            return copy.join('.');
+        };
+
+        var increase = function(level:any) {
+            if (arguments.length === 0) {
+                return to_str();
+            }
+            bump(level);
+            return to_str();
+        };
+
+        return increase;
+    };
+    get_indentation = function(text:string) {
+        var match = (text || '').match(/^(\s+)/);
+        return match ? match[0] : '';
+    };
+    blank_text = function(text:string) {
+        return (text || '').replace(/./g, ' ');
+    };
+
     operators:operatorClass;
 }
 

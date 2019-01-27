@@ -1,4 +1,4 @@
-class FountainConfig{
+export class FountainConfig{
     embolden_scene_headers:boolean;
     show_page_numbers:boolean;
     split_dialogue:boolean;
@@ -18,6 +18,7 @@ class FountainConfig{
     print_watermark:string;
     scenes_numbers:string;
     each_scene_on_new_page:boolean;
+    merge_empty_lines:boolean;
 }
 import * as vscode from 'vscode';
 
@@ -42,6 +43,7 @@ export var getFountainConfig = function():FountainConfig{
         print_footer: config.pageFooter,
         print_watermark: config.watermark,
         scenes_numbers: config.sceneNumbers,
-        each_scene_on_new_page: config.eachSceneOnNewPage
+        each_scene_on_new_page: config.eachSceneOnNewPage,
+        merge_empty_lines: config.mergeEmptyLines
     }
 }
