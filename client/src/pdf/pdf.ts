@@ -11,13 +11,13 @@ export var GeneratePdf = function(outputpath:string, config:FountainConfig, pars
     for (let index = 0; index < parsedDocument.tokens.length; index++) {
         var type = parsedDocument.tokens[index].type;
         if (type == "dual_dialogue_begin" || type == "dialogue_begin" || type == "dialogue_end" || type == "dual_dialogue_end" ||
-            (config.print_actions && parsedDocument.tokens[index].is("action", "transition", "centered", "shot")) ||
-            (config.print_notes && type === "note") ||
-            (config.print_headers && type === "scene_heading") ||
-            (config.print_sections && type === "section") ||
-            (config.print_synopsis && type === "synopsis") ||
-            (config.print_dialogues && parsedDocument.tokens[index].is_dialogue()) ||
-            (config.merge_empty_lines && parsedDocument.tokens[index].is("separator") && previous_type === "separator")) {
+            (!config.print_actions && parsedDocument.tokens[index].is("action", "transition", "centered", "shot")) ||
+            (!config.print_notes && type === "note") ||
+            (!config.print_headers && type === "scene_heading") ||
+            (!config.print_sections && type === "section") ||
+            (!config.print_synopsis && type === "synopsis") ||
+            (!config.print_dialogues && parsedDocument.tokens[index].is_dialogue()) ||
+            (!config.merge_empty_lines && parsedDocument.tokens[index].is("separator") && previous_type === "separator")) {
             continue;
         }
         else{
