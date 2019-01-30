@@ -234,7 +234,6 @@
 		"typescript": "2.8.3"
 	},
 	"dependencies": {
-		"afterwriting": "^1.11.0",
 		"aw-liner": "0.0.9",
 		"blob": "0.0.5",
 		"pdfkit": "^0.8.3"

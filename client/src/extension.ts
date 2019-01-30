@@ -258,7 +258,7 @@ export function activate(context: ExtensionContext) {
 
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => {
 		var canceled = false;
-		if(vscode.window.activeTextEditor.document.isDirty){
+		/*if(vscode.window.activeTextEditor.document.isDirty){
 			await vscode.window.showWarningMessage("The PDF will not include unsaved changes!", {modal:true}, "Export anyway", "Save document first").then((value:any)=>{
 				canceled = (value==undefined);
 				switch (value) {
@@ -270,7 +270,7 @@ export function activate(context: ExtensionContext) {
 						break;
 				}
 			});
-		}
+		}*/
 		if(canceled) return;
 		var saveuri = vscode.Uri.file(vscode.window.activeTextEditor.document.fileName.replace('.fountain', ''));
 		console.log(saveuri);
@@ -291,25 +291,6 @@ export function activate(context: ExtensionContext) {
 				vscode.window.showInformationMessage("Exported PDF!");
 			}
 		});
-		
-		
-		/*
-		var outputjson = JSON.stringify(getFountainConfig());
-		var configlocation = filepath.fsPath.substring(0, filepath.fsPath.lastIndexOf(path.sep)) + path.sep + "betterfountain.pdf.json";
-		console.log("config location = " + configlocation);
-		fs.writeFile(configlocation, outputjson, (err: any) => {
-			if (err) vscode.window.showErrorMessage("Failed to apply custom configuration (" + err + ")");
-			exec('afterwriting --source \"' + vscode.window.activeTextEditor.document.fileName + '\" --pdf \"' + filepath.fsPath + '\" --overwrite' + ' --config \"' + configlocation + "\"", (err: any, stdout: any) => {
-				console.log(stdout);
-				if (err)
-					vscode.window.showErrorMessage("Failed to export PDF: " + err);
-				else
-					vscode.window.showInformationMessage("Exported PDF!");
-				fs.unlink(configlocation, (err: any) => {
-					if (err) vscode.window.showErrorMessage("Failed to remove custom configuration file (" + err + ")");
-				});
-			});
-		});*/
 	}));
 
 	vscode.commands.registerCommand('type', (args) => {

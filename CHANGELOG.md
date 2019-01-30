@@ -1,3 +1,9 @@
+## **1.2.0**
+    + Integrated the PDF Export functionality straight into the extension (rather than using afterwriting CLI)
+    + Replaced fountain-js parser with afterwriting-based parser
+    + Fixed syntax highlighting for forced screen headers
+    + Fixed boneyard showing up in the live preview
+
 ## **1.1.4**
     + Warning when trying to export PDF of unsaved file
     + Completely fixed pdf save dialog filter
