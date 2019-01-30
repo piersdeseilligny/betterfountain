@@ -3,6 +3,9 @@
     + Replaced fountain-js parser with afterwriting-based parser
     + Fixed syntax highlighting for forced screen headers
     + Fixed boneyard showing up in the live preview
+    + Reduced extension size from 14MB to 5MB
+    + Removed the warning added in 1.1.4 (export is now based on the current document, saved or not)
+    + Support for scene numbers and bold scene headers in live preview
 
 ## **1.1.4**
     + Warning when trying to export PDF of unsaved file
