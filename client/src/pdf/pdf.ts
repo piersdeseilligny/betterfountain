@@ -37,10 +37,15 @@ export var GeneratePdf = function(outputpath:string, config:FountainConfig, pars
         filepath: outputpath,
         parsed: parsedDocument,
         print:print.print_profiles[config.print_profile],
-        callback:function(something:any){
-            return something;
+        callback:function(output:any){
+            callback(output);
         },
         config:config
     }
-    pdfmaker.get_pdf(pdf_options);
+    try {
+        pdfmaker.get_pdf(pdf_options);
+    } catch (error) {
+        callback(error);
+    }
+    
 }

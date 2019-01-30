@@ -15,7 +15,7 @@ import helpers from "../helpers";
         //helper = require('../helpers'),
         Blob = require('blob');
 
-    var create_simplestream = function(filepath:string) {
+    var create_simplestream = function(filepath:string,callback:any) {
         var simplestream:any = {
             chunks: [],
             filepath: filepath,
@@ -34,7 +34,10 @@ import helpers from "../helpers";
                     var stream = fs.createWriteStream(simplestream.filepath, {
                         encoding: "binary"
                     });
-                    stream.on('finish', this.callback);
+                    //stream.on('finish', this.callback());
+                    stream.on('error', function(err:any){
+                        callback(err);
+                    });
                     stream.on('open', function(){
                         simplestream.chunks.forEach(function(buffer:any) {
                             stream.write(new Buffer(buffer.toString('base64'), 'base64'));
@@ -176,9 +179,13 @@ import helpers from "../helpers";
     }
 
     function finishDoc(doc:any, callback:any, filepath:string) {
-        var stream = doc.pipe(create_simplestream(filepath));
-        doc.end();
+        var stream = doc.pipe(create_simplestream(filepath, callback));
         stream.on('finish', callback);
+        stream.on('error', 
+        function(err:any){
+            callback(err)
+        });
+        doc.end();
     }
 
 

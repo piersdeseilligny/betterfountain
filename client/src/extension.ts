@@ -283,7 +283,16 @@ export function activate(context: ExtensionContext) {
 
 		var config = getFountainConfig();
 		var parsed = afterparser.parse(vscode.window.activeTextEditor.document.getText(), getFountainConfig(), false);
-		GeneratePdf(filepath.fsPath, config, parsed, null);
+		GeneratePdf(filepath.fsPath, config, parsed, function(output:any){
+			if(output.errno != undefined){
+				vscode.window.showErrorMessage("Failed to export PDF!")
+			}
+			else{
+				vscode.window.showInformationMessage("Exported PDF!");
+			}
+		});
+		
+		
 		/*
 		var outputjson = JSON.stringify(getFountainConfig());
 		var configlocation = filepath.fsPath.substring(0, filepath.fsPath.lastIndexOf(path.sep)) + path.sep + "betterfountain.pdf.json";
