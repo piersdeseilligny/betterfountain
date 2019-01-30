@@ -107,7 +107,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         scene_number = 1,
         match, text, last_title_page_token,
         token, last_was_separator = false,
-        top_or_separated = false,
+        //top_or_separated = false,
         token_category = "none",
         last_character_index,
         dual_right,
@@ -175,7 +175,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             continue;
         }
 
-        top_or_separated = last_was_separator || i === 0;
+        //top_or_separated = last_was_separator || i === 0;
         token_category = "script";
 
         if (!title_page_started && regex.title_page.test(token.text)) {
@@ -321,7 +321,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     if (state == "dual_dialogue")
         result.tokens.push({ type: "dual_dialogue_end" })
 
-    var current_index = 0, previous_type = null;
+    var current_index = 0/*, previous_type = null*/;
     // tidy up separators
 
 
@@ -452,7 +452,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 result.tokens.splice(current_index, 0, additional_separator);
                 current_index++;
             }
-            previous_type = current_token.type;
+            //previous_type = current_token.type;
             current_index++;
         }
         result.scriptHtml = html.join('');

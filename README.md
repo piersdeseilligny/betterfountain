@@ -6,9 +6,7 @@ This is an extension for Visual Studio Code, written in a few hours, which allow
 
 [Install it here](https://marketplace.visualstudio.com/items?itemName=piersdeseilligny.betterfountain)
 
-<a href="https://www.paypal.me/piersdeseilligny/">
-  <img alt="Support via PayPal" src="https://cdn.rawgit.com/twolfson/paypal-github-button/1.0.0/dist/button.svg"/>
-</a>
+[Support via PayPal](https://www.paypal.me/piersdeseilligny/)
 
 ## Features
 

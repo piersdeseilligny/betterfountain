@@ -10,12 +10,12 @@ import {
 	TransportKind
 } from 'vscode-languageclient';
 
-import { exec } from 'child_process';
-import { performance } from 'perf_hooks';
+//import { exec } from 'child_process';
+//import { performance } from 'perf_hooks';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 
-const fs = require("fs");
+//const fs = require("fs");
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
@@ -379,7 +379,7 @@ vscode.workspace.onDidChangeConfiguration(change => {
 	}
 })
 
-var lastFountainDocument:TextDocument;
+//var lastFountainDocument:TextDocument;
 var documentTokens: any;
 var docStructure: StructToken[] = [];
 class StructToken {
@@ -398,7 +398,7 @@ function parseDocument(document: TextDocument) {
 		var output = afterparser.parse(document.getText(), getFountainConfig(), updatehtml);
 		
 		if (updatehtml) {
-			lastFountainDocument = document;
+			//lastFountainDocument = document;
 			previewpanel.webview.postMessage({ command: 'updateTitle', content: output.titleHtml });
 			previewpanel.webview.postMessage({ command: 'updateScript', content: output.scriptHtml });
 		}

@@ -20,6 +20,7 @@ import helpers from "../helpers";
             chunks: [],
             filepath: filepath,
             on: function(event:any, callback:any) {
+                console.log(event);
                 this.callback = callback;
             },
             once: function(){},
