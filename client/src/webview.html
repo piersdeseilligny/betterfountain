@@ -331,7 +331,8 @@
 
         #workspace #script.dpi100 .page {
             font-size: 16px;
-            padding: 100px 100px 100px 150px
+            /*padding: 100px 100px 100px 150px*/
+            page-break-after: 100px 12px;
         }
 
         #workspace #script.dpi150 .page {
@@ -371,7 +372,7 @@
         }
 
         #workspace #script.us-letter.dpi100 {
-            width: 850px
+           /* width: 850px*/
         }
 
         #workspace #script.us-letter.dpi150 {
@@ -644,16 +645,21 @@
         .underline {
             text-decoration: underline;
         }
+
+        .innerpage{
+            width:650;
+            margin:auto;
+        }
     </style>
 </head>
 <body id='fountain-js'>
     <section id='workspace' style='display:block;'>
         <div id='script' class='us-letter dpi100'>
-            <div id='titlepage' class='page title-page'>$TITLEPAGE</div>
-            <div id='mainpage' class='$SCRIPTCLASS'>$SCRIPT</div>
+            <div id='titlepage' class='page title-page'><div class="innerpage">$TITLEPAGE$</div></div>
+            <div id='mainpage' class='$SCRIPTCLASS$'><div class="innerpage">$SCRIPT$</div></div>
         </div>
-    </section>" +
-    `<script>
+    </section>
+    <script>
         window.addEventListener('message', event => {
             if (event.data.command == 'updateScript') {
                 document.getElementById('mainpage').innerHTML = event.data.content;

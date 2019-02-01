@@ -166,7 +166,7 @@ function updateWebView(titlepage: string, script: string) {
 	else if(config.scenes_numbers == "both")
 		pageClasses = "page numberonleft numberonright";
 
-	previewpanel.webview.html = webviewHtml.replace("$TITLEPAGE", titlepage).replace("$SCRIPT", script).replace("$SCRIPTCLASS", pageClasses);
+	previewpanel.webview.html = webviewHtml.replace("$TITLEPAGE$", titlepage).replace("$SCRIPT$", script).replace("$SCRIPTCLASS$", pageClasses);
 	console.log(previewpanel.webview.html)
 }
 function padZero(i: any) {
