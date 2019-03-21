@@ -11,7 +11,7 @@ var regex: { [index: string]: RegExp } = {
     transition: /^((?:FADE (?:TO BLACK|OUT)|CUT TO BLACK)\.|.+ TO\:|^TO\:$)|^(?:> *)(.+)/,
 
     dialogue: /^([A-Z*_]+[0-9A-Z (._\-')]*)(\^?)?(?:\n(?!\n+))([\s\S]+)/,
-    character: /^(([A-Z0-9 ]+(\([A-z0-9 '\-.()]+\))*|(@.*))(\s*\^)?$)/,
+    character: /^(([A-Z0-9 -]+(\([A-z0-9 '\-.()]+\))*|(@.*))(\s*\^)?$)/,
     parenthetical: /^(\(.+\))$/,
 
     action: /^(.+)/g,
