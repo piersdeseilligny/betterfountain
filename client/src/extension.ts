@@ -215,6 +215,63 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(durationStatus);
 	updateStatus();
 
+	//Create a decorator type that we use to show CONT'D markings
+	const contdDecorator = vscode.window.createTextEditorDecorationType({
+		after: {
+			contentText: ' (CONT\'D)'
+		}
+	});
+	
+	let activeEditor = vscode.window.activeTextEditor;
+	function updateDecorations() {
+		if (!activeEditor) {
+			return;
+		}
+        const regEx = new RegExp(afterparser.regex["character"], "gm");
+		const text = activeEditor.document.getText();
+		const contdNames: vscode.DecorationOptions[] = [];
+		let match : RegExpExecArray;
+		let prevMatch : RegExpExecArray;
+
+		while (match = regEx.exec(text)) {
+            if (prevMatch && match[0] === prevMatch[0]) {
+                const startPos = activeEditor.document.positionAt(match.index);
+                const endPos = activeEditor.document.positionAt(match.index + match[0].length);
+                const decoration = { range: new vscode.Range(startPos, endPos) };
+                contdNames.push(decoration);
+            }
+            prevMatch = match;
+		}
+		activeEditor.setDecorations(contdDecorator, contdNames);
+	}
+
+	let timeout: NodeJS.Timer | undefined = undefined;
+	function triggerUpdateDecorations() {
+		if (timeout) {
+			clearTimeout(timeout);
+			timeout = undefined;
+		}
+		timeout = setTimeout(updateDecorations, 10);
+	}
+
+	if (activeEditor) {
+		triggerUpdateDecorations();
+	}
+
+	vscode.window.onDidChangeActiveTextEditor(editor => {
+		activeEditor = editor;
+		if (editor) {
+			triggerUpdateDecorations();
+		}
+	}, null, context.subscriptions);
+
+	vscode.workspace.onDidChangeTextDocument(change => {
+		parseDocument(change.document);
+		if (activeEditor && change.document === activeEditor.document) {
+			triggerUpdateDecorations();
+		}
+	}, null, context.subscriptions);
+
 	//Register for live preview
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreview', () => {
 
@@ -344,10 +401,6 @@ export function activate(context: ExtensionContext) {
 	// Start the client. This will also launch the server
 	client.start();
 }
-
-vscode.workspace.onDidChangeTextDocument(change => {
-	parseDocument(change.document);
-})
 
 vscode.workspace.onDidChangeConfiguration(change => {
 	if(change.affectsConfiguration("fountain.pdf")){

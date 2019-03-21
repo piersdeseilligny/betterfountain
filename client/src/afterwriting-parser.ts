@@ -1,5 +1,5 @@
 import * as helpers from "./helpers";
-var regex: { [index: string]: RegExp } = {
+export var regex: { [index: string]: RegExp } = {
     title_page: /(title|credit|author[s]?|source|notes|draft date|date|watermark|contact|copyright)\:.*/i,
 
     section: /^(#+)(?: *)(.*)/,
