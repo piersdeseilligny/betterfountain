@@ -181,7 +181,9 @@ import helpers from "../helpers";
 
     function finishDoc(doc:any, callback:any, filepath:string) {
         var stream = doc.pipe(create_simplestream(filepath, callback));
-        stream.on('finish', callback);
+        stream.on('finish', function(){
+            callback(true);
+        });
         stream.on('error', 
         function(err:any){
             callback(err)

@@ -8,6 +8,11 @@ export var GeneratePdf = function(outputpath:string, config:FountainConfig, pars
     var liner = new fliner.Liner(helpers.default);
     var filteredtokens:any[] = [];
     var previous_type = "";
+    var watermark = undefined;
+    for (let index = 0; index < parsedDocument.title_page.length; index++) {
+        if(parsedDocument.title_page[index].type=="watermark")
+            watermark = parsedDocument.title_page[index].text;
+    }
     for (let index = 0; index < parsedDocument.tokens.length; index++) {
         var type = parsedDocument.tokens[index].type;
         if (type == "dual_dialogue_begin" || type == "dialogue_begin" || type == "dialogue_end" || type == "dual_dialogue_end" ||
@@ -25,6 +30,8 @@ export var GeneratePdf = function(outputpath:string, config:FountainConfig, pars
             filteredtokens.push(parsedDocument.tokens[index]);
         }        
     }
+    if(config.print_watermark == "" && watermark!=undefined)
+        config.print_watermark = watermark;
     parsedDocument.tokens = filteredtokens;
     parsedDocument.lines = liner.line(parsedDocument.tokens, {
         print: print.print_profiles[config.print_profile],
