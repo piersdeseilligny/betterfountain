@@ -91,7 +91,7 @@
 						"description": "The printing dimensions",
 						"enum": [
 							"a4",
-							"uspaper"
+							"usletter"
 						],
 						"default": "a4"
 					},
