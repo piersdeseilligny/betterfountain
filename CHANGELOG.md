@@ -1,3 +1,8 @@
+## **1.2.1**
+    + Support for periods in character names
+    + Fixed exporting PDF to usletter size
+    + Support for "watermark" title page key
+
 ## **1.2.0**
     + Integrated the PDF Export functionality straight into the extension (rather than using afterwriting CLI)
     + Replaced fountain-js parser with afterwriting-based parser
