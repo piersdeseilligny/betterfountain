@@ -227,20 +227,20 @@ export function activate(context: ExtensionContext) {
 		if (!activeEditor) {
 			return;
 		}
-        const regEx = new RegExp(afterparser.regex["character"], "gm");
+		const regEx = new RegExp(afterparser.regex["character"], "gm");
 		const text = activeEditor.document.getText();
 		const contdNames: vscode.DecorationOptions[] = [];
 		let match : RegExpExecArray;
 		let prevMatch : RegExpExecArray;
 
 		while (match = regEx.exec(text)) {
-            if (prevMatch && match[0] === prevMatch[0]) {
-                const startPos = activeEditor.document.positionAt(match.index);
-                const endPos = activeEditor.document.positionAt(match.index + match[0].length);
-                const decoration = { range: new vscode.Range(startPos, endPos) };
-                contdNames.push(decoration);
-            }
-            prevMatch = match;
+			if (prevMatch && match[0] === prevMatch[0]) {
+				const startPos = activeEditor.document.positionAt(match.index);
+				const endPos = activeEditor.document.positionAt(match.index + match[0].length);
+				const decoration = { range: new vscode.Range(startPos, endPos) };
+				contdNames.push(decoration);
+			}
+			prevMatch = match;
 		}
 		activeEditor.setDecorations(contdDecorator, contdNames);
 	}
