@@ -168,7 +168,7 @@
          <key>contentName</key>
          <string>string</string>
          <key>begin</key>
-         <string>^\s*(([A-Z0-9 -]+(\([A-z0-9 '\-.()]+\))*|(@.*))(\s*\^)?$)</string>
+         <string>^\s*(([A-Z0-9 -\.]+(\([A-z0-9 '\-.()]+\))*|(@.*))(\s*\^)?$)</string>
          <key>end</key>
          <string>^$</string>
          <key>beginCaptures</key>
