@@ -218,7 +218,8 @@ export function activate(context: ExtensionContext) {
 	//Create a decorator type that we use to show CONT'D markings
 	const contdDecorator = vscode.window.createTextEditorDecorationType({
 		after: {
-			contentText: ' (CONT\'D)'
+			contentText: ' (CONT\'D)',
+			color:new vscode.ThemeColor("editorLineNumber.foreground")
 		}
 	});
 	

@@ -63,9 +63,20 @@
 		},
 		"configuration": [
 			{
-				"title": "Fountain PDF Export",
+				"title": "Better Fountain",
 				"type": "object",
 				"properties": {
+					"fountain.pdf.contdMode":{
+						"type":"string",
+						"enum": ["Auto-add to PDF (every time)", "Auto-add to PDF (page breaks only)", "No"],
+						"description": "The way CONT'D is added",
+						"default": "No"
+					},
+					"fountain.pdf.contdText":{
+						"type":"string",
+						"default":"CONT'D",
+						"description": "The text to be used for dialogue continuity (CONT'D)"
+					},
 					"fountain.pdf.emboldenSceneHeaders": {
 						"type": "boolean",
 						"default": false,
