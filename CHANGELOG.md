@@ -1,3 +1,6 @@
+## **1.2.2**
+    + Support for international character names (such as MAËLLE or АДРИАН)
+
 ## **1.2.1**
     + Support for periods in character names
     + Fixed exporting PDF to usletter size
