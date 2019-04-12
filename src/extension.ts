@@ -677,14 +677,27 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 				completes.push(TimeofDayCompletion("DUSK", addspace, "C"));
 				completes.push(TimeofDayCompletion("DAWN", addspace, "D"));
 			}
+			else{
+				var scenematch = currentline.match(/^((?:\*{0,3}_?)?(?:(?:int|ext|est|int\/ext|i\.?\/e\.?).? ))/gi);
+				if(scenematch){
+					for(let index in fountainDocProps.sceneNames){
+						var spacepos = fountainDocProps.sceneNames[index].indexOf(" ");
+						if(spacepos != -1){
+							var thisLocation = fountainDocProps.sceneNames[index].slice(fountainDocProps.sceneNames[index].indexOf(" ")).trimLeft();
+							if(fountainDocProps.sceneNames[index].toLowerCase().startsWith(scenematch[0].toLowerCase()))
+								completes.push({ label: thisLocation, documentation: "Scene name", sortText: "A" + (10-scenematch[0].length)});
+								//The (10-scenematch[0].length) is a hack to avoid a situation where INT. would be before INT./EXT. when it should be after
+							else
+								completes.push({ label: thisLocation, documentation: "Scene name", sortText: "B" });
+						}
+					}
+				}
+			}
 		}
 		//Other autocompletes
 		else if (position.line > 0 && document.getText(new vscode.Range(new vscode.Position(position.line - 1, 0), new vscode.Position(position.line - 1, 1))) == "") {
 			//We aren't on the first line, and the previous line is empty
 			if (position.character == 1) {
-				for(let index in fountainDocProps.sceneNames){
-					completes.push({ label: fountainDocProps.sceneNames[index], documentation: "Scene name", sortText: "A" })
-				}
 				completes.push({ label: "INT. ", documentation: "Interior", sortText: "B" });
 				completes.push({ label: "EXT. ", documentation: "Exterior", sortText: "C" });
 				completes.push({ label: "INT./EXT. ", documentation: "Interior/Exterior", sortText: "D" });
@@ -699,13 +712,12 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 				}
 				fountainDocProps.characters.forEach((value: number[], key: string) => {
 					if (value.indexOf(this_scene_nb) > -1) {
-						//This character is in the current scene
+						//This character is in the current scene, give it priority over the others
 						completes.push({ label: key, documentation: "Character", sortText: "B" });
 					}
 					else {
 						completes.push({ label: key, documentation: "Character", sortText: "C" });
 					}
-
 				});
 			}
 		}
