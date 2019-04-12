@@ -233,10 +233,10 @@
 		"@types/mocha": "^5.2.0",
 		"@types/node": "^8.0.0",
 		"copyfiles": "^2.1.0",
-		"typescript": "2.8.3"
+		"typescript": "2.8.3",
+		"vscode": "^1.1.21"
 	},
 	"dependencies": {
-		"vscode": "^1.1.21",
 		"@types/username": "^3.0.0",
 		"aw-liner": "0.0.9",
 		"blob": "0.0.5",
