@@ -32,7 +32,7 @@
 		"onCommand:fountain.livepreview",
 		"onCommand:fountain.exportpdf"
 	],
-	"main": "./client/out/extension",
+	"main": "./out/extension",
 	"contributes": {
 		"configurationDefaults": {
 			"[fountain]": {
@@ -155,6 +155,11 @@
 						"default": "",
 						"description": "Watermark displayed across each page"
 					},
+					"fountain.pdf.customfont": {
+						"type": "string",
+						"default": "Courier",
+						"description": "The default font to be used in the preview and pdf export"
+					},
 					"fountain.pdf.sceneNumbers": {
 						"type": "string",
 						"enum": [
@@ -219,14 +224,10 @@
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
-		"compile:client": "./node_modules/.bin/tsc -p ./client/tsconfig.json && copyfiles -u 2 client/src/webview.html client/out",
-		"compile:server": "./node_modules/.bin/tsc -p ./server/tsconfig.json",
-		"watch:client": "./node_modules/.bin/tsc -w -p ./client/tsconfig.json",
-		"watch:server": "./node_modules/.bin/tsc -w -p ./server/tsconfig.json",
-		"compile": "npm run compile:client && npm run compile:server",
-		"postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-		"test": "sh ./scripts/e2e.sh"
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./ && copyfiles -u 1 src/webview.html out",
+		"watch": "tsc -watch -p ./ && copyfiles -u 1 src/webview.html out",
+		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"devDependencies": {
 		"@types/mocha": "^5.2.0",
@@ -235,8 +236,11 @@
 		"typescript": "2.8.3"
 	},
 	"dependencies": {
+		"vscode": "^1.1.21",
+		"@types/username": "^3.0.0",
 		"aw-liner": "0.0.9",
 		"blob": "0.0.5",
-		"pdfkit": "^0.8.3"
+		"pdfkit": "^0.8.3",
+		"username": "^4.1.0"
 	}
 }
