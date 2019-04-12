@@ -678,7 +678,7 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 				completes.push(TimeofDayCompletion("DAWN", addspace, "D"));
 			}
 			else{
-				var scenematch = currentline.match(/^((?:\*{0,3}_?)?(?:(?:int|ext|est|int\/ext|i\.?\/e\.?).? ))/gi);
+				var scenematch = currentline.match(/^((?:\*{0,3}_?)?(?:(?:int|ext|est|int\.?\/ext|i\.?\/e\.?).? ))/gi);
 				if(scenematch){
 					for(let index in fountainDocProps.sceneNames){
 						var spacepos = fountainDocProps.sceneNames[index].indexOf(" ");
