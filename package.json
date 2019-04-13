@@ -226,7 +226,7 @@
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./ && copyfiles -u 1 src/webview.html out",
-		"watch": "tsc -watch -p ./ && copyfiles -u 1 src/webview.html out",
+		"watch": "tsc -watch -p ./ && copyfiles -u 1 src/webview.html out && copyfiles -u 1 src/courierprime/*.ttf out",
 		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"devDependencies": {
@@ -240,6 +240,8 @@
 		"@types/username": "^3.0.0",
 		"aw-liner": "0.0.9",
 		"blob": "0.0.5",
+		"font-finder": "^1.0.4",
+		"os-fonts": "^0.5.0",
 		"pdfkit": "^0.8.3",
 		"username": "^4.1.0"
 	}

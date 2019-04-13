@@ -2,6 +2,7 @@
 
     import * as fountainconfig from "../configloader";
     import * as print from "./print";
+    import * as path from 'path';
 import helpers from "../helpers";
    // import * as blobUtil from "blob-util";
     export class Options{
@@ -10,6 +11,7 @@ import helpers from "../helpers";
         config:fountainconfig.FountainConfig;
         parsed:any;
         print:print.PrintProfile;
+        font:string;
     }
     var PDFDocument = require('pdfkit'),
         //helper = require('../helpers'),
@@ -57,7 +59,7 @@ import helpers from "../helpers";
         return simplestream;
     };
 
-    function initDoc(opts:Options) {
+    async function initDoc(opts:Options) {
         var print = opts.print;
         //var fonts = opts.config.fonts || null;
         var options = {
@@ -79,11 +81,33 @@ import helpers from "../helpers";
             doc.registerFont('ScriptOblique', fonts.italic.src, fonts.italic.family);
         }
         else {*/
-            doc.registerFont('ScriptNormal', 'Courier');
-            doc.registerFont('ScriptBold', 'Courier-Bold');
-            doc.registerFont('ScriptBoldOblique', 'Courier-BoldOblique');
-            doc.registerFont('ScriptOblique','Courier-Oblique');
-        //}
+        const fontFinder = require('font-finder');
+
+        //Load Courier Prime by default, and replace the variants if requested and available
+        var fp = __dirname.slice(0, __dirname.lastIndexOf(path.sep)) + path.sep + 'courierprime' + path.sep
+        doc.registerFont('ScriptNormal', fp+'courier-prime.ttf');
+        doc.registerFont('ScriptBold', fp+'courier-prime-bold.ttf');
+        doc.registerFont('ScriptBoldOblique', fp+'courier-prime-bold-italic.ttf');
+        doc.registerFont('ScriptOblique', fp+'courier-prime-italic.ttf');
+        if(opts.font != "Courier Prime"){
+            var variants = await fontFinder.listVariants(opts.font);
+            variants.forEach((variant:any) => {
+                switch (variant.style) {
+                    case "regular":
+                        doc.registerFont('ScriptNormal', variant.path); 
+                        break;
+                    case "bold":
+                        doc.registerFont('ScriptBold', variant.path); 
+                        break;
+                    case "italic":
+                        doc.registerFont('ScriptOblique', variant.path); 
+                        break;
+                    case "boldItalic":
+                        doc.registerFont('ScriptBoldOblique', variant.path); 
+                        break;
+                }
+            });
+        }
 
         doc.font('ScriptNormal');
         doc.fontSize(print.font_size || 12);
@@ -165,7 +189,6 @@ import helpers from "../helpers";
 
 
         };
-
         return doc;
     }
 
@@ -218,7 +241,7 @@ import helpers from "../helpers";
 
         doc.info.Title = title_token ? clearFormatting(inline(title_token.text)) : '';
         doc.info.Author = author_token ? clearFormatting(inline(author_token.text)) : '';
-        doc.info.Creator = 'afterwriting.com';
+        doc.info.Creator = 'betterfountain';
 
         // helper
         var center = function(txt:string, y:number) {
@@ -513,8 +536,8 @@ import helpers from "../helpers";
 
     }
 
-export var get_pdf = function(opts:Options) {
-        var doc = initDoc(opts);
+export var get_pdf = async function(opts:Options) {
+        var doc = await initDoc(opts);
         generate(doc, opts);
         finishDoc(doc, opts.callback, opts.filepath);
     };

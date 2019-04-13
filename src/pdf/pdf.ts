@@ -9,9 +9,12 @@ export var GeneratePdf = function(outputpath:string, config:FountainConfig, pars
     var filteredtokens:any[] = [];
     var previous_type = "";
     var watermark = undefined;
+    var font = "Courier Prime";
     for (let index = 0; index < parsedDocument.title_page.length; index++) {
         if(parsedDocument.title_page[index].type=="watermark")
             watermark = parsedDocument.title_page[index].text;
+        if(parsedDocument.title_page[index].type=="font")
+            font = parsedDocument.title_page[index].text;
     }
     for (let index = 0; index < parsedDocument.tokens.length; index++) {
         var type = parsedDocument.tokens[index].type;
@@ -47,7 +50,8 @@ export var GeneratePdf = function(outputpath:string, config:FountainConfig, pars
         callback:function(output:any){
             callback(output);
         },
-        config:config
+        config:config,
+        font:font
     }
     try {
         pdfmaker.get_pdf(pdf_options);

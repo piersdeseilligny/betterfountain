@@ -3,12 +3,9 @@ import { getFountainConfig } from "./configloader";
 import * as path from 'path';
 import { ExtensionContext, languages, FoldingRangeProvider, TextDocument, FoldingRange } from 'vscode';
 import * as vscode from 'vscode';
-//import { exec } from 'child_process';
-//import { performance } from 'perf_hooks';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import * as username from 'username';
-//const fs = require("fs");
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
@@ -143,10 +140,9 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 
 var previewpanel: vscode.WebviewPanel;
 import fs = require('fs');
-//import { editor } from "./test/helper";
+const fontFinder = require('font-finder');
+
 const webviewHtml = fs.readFileSync(__dirname + path.sep + 'webview.html', 'utf8');
-//const css = `#workspace,body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;white-space: pre-wrap;}#workspace #inspector li a:hover,#workspace #toolbar li a:hover,a{text-decoration:none}.underline,a:hover{text-decoration:underline}body{color:#333;font-size:14px;margin:0}a{color:#ED303C}.container{margin:0 auto;position:relative;width:850px}header{background-color:#454545;color:#F0F0D8;font-size:13px;height:40px;line-height:40px;width:100%}header::-moz-selection,header::selection{background:#454545;color:#fff}#dock{margin:0}#dock header{margin-bottom:25px}#dock header h1{background:url(../images/fountain-24.png) 0 9px no-repeat;color:#fff;font-size:16px;margin:0;padding-left:34px}#dock blockquote{background:#fff;margin:0;padding:10px}#dock p.more-information{font-size:12px;margin:5px 0 25px;padding:0;text-align:right}#dock #file-api{background:#fff;border:3px dashed #454545;display:none;margin-top:75px;text-align:center}#dock #file-api.over{border-color:#ED303C;cursor:pointer}#dock #file-api p{font-weight:700;margin:125px auto}#dock p.error{background:url(../images/warning.png) 10px 10px no-repeat #fff;font-weight:700;margin-top:75px;padding:15px 15px 15px 50px}#workspace{color:#333;display:none;float:left;position:relative;width:100%}#workspace header.dimmed{background-color:transparent}#workspace header.dimmed p{color:#333;font-weight:700}#workspace header li,#workspace header p,#workspace header ul{display:inline;float:left;margin:0;padding:0}#workspace header p{color:#fff;font-size:15px;height:20px;line-height:20px;margin-top:10px;text-align:center;width:44%}#workspace header ul{padding:0;width:27%;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;-o-user-select:none;user-select:none}#workspace #toolbar{float:right;margin-right:3px}#workspace #inspector li,#workspace #toolbar li{height:16px;line-height:16px;margin:12px 12px 12px 0;position:relative;width:16px}#workspace #toolbar li{float:right;margin:12px 0 12px 12px;text-align:right}#workspace #inspector li a,#workspace #toolbar li a{cursor:pointer;color:#3C3D36;display:block;height:16px;text-indent:16px;overflow:hidden;width:16px}#workspace #inspector li a:hover:after,#workspace #toolbar li a:hover:after{background:#ED303C;border-radius:4px;color:#fff;content:attr(data-tooltip);left:-5px;padding:3px 7px 4px 30px;position:absolute;text-align:left;text-indent:0;top:-3px}#workspace #toolbar li a:hover:after{background-position:5px 3px;background-repeat:no-repeat}#workspace #toolbar li.resize{background:url(../images/toolbar/resize.small.png) top left no-repeat}#workspace #toolbar li.resize:hover{background-image:url(../images/toolbar/resize.small-hover.png)}#workspace #toolbar li.resize.large{background:url(../images/toolbar/resize.large.png) top left no-repeat}#workspace #toolbar li.resize.large:hover{background-image:url(../images/toolbar/resize.large-hover.png)}#workspace #toolbar li.resize a:hover:after{background-image:url(../images/toolbar/resize.small-hover.png);width:78px}#workspace #toolbar li.resize.large a:hover:after{background-image:url(../images/toolbar/resize.large-hover.png)}#workspace #toolbar li.dim{background:url(../images/toolbar/dim.reduce.png) top left no-repeat}#workspace #toolbar li.dim:hover{background-image:url(../images/toolbar/dim.reduce-hover.png)}#workspace #toolbar li.dim.increase{background:url(../images/toolbar/dim.increase.png) top left no-repeat}#workspace #toolbar li.dim.increase:hover{background-image:url(../images/toolbar/dim.increase-hover.png)}#workspace #toolbar li.dim a:hover:after{background-image:url(../images/toolbar/dim.reduce-hover.png);width:83px}#workspace #toolbar li.dim.increase a:hover:after{background-image:url(../images/toolbar/dim.increase-hover.png)}#workspace #toolbar li.dock{background:url(../images/toolbar/dock.png) top left no-repeat}#workspace #toolbar li.dock a:hover:after,#workspace #toolbar li.dock:hover{background-image:url(../images/toolbar/dock-hover.png)}#workspace #toolbar li.dock a:hover:after{width:90px}#workspace #toolbar li.dock.over{background:url(../images/toolbar/dock-drop.png) no-repeat;cursor:pointer}#workspace #inspector li a:hover:after{background-position:5px 3px;background-repeat:no-repeat}#workspace .notification::-moz-selection,#workspace .notification::selection{background:#454545}#workspace .notification{background:url(../images/notification.png) 6px 6px no-repeat #454545;border-radius:4px;color:#fff;display:none;font-size:13px;padding:6px 8px 6px 28px;position:absolute;right:5px;top:-8px}#workspace #script{margin:25px auto 0;width:850px}#workspace .page::-moz-selection,#workspace .page::selection{background:#ED303C;color:#fff}#workspace #script .page{background:#fff;border:1px solid #d2d2d2;border-radius:2px;color:#222;cursor:text;font:Courier,"Courier New",monospace;letter-spacing:0!important;font-family:'Courier Final Draft','Courier New',Courier,monospace,Courier New,monospace;line-height:107.5%;margin-bottom:25px;position:relative;text-align:left;width:100%;z-index:200;-webkit-box-shadow:0 0 5px rgba(0,0,0,.1);-moz-box-shadow:0 0 5px rgba(0,0,0,.1);box-shadow:0 0 5px rgba(0,0,0,.1);-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}#workspace #script .page span.italic,.note{font-style:italic}#workspace #script.dpi72 .page{font-size:12px;padding:72px 72px 72px 108px}#workspace #script.dpi100 .page{font-size:16px;padding:100px 100px 100px 150px}#workspace #script.dpi150 .page{font-size:33px;padding:150px 150px 150px 225px}#workspace #script.dpi72 .page h1,#workspace #script.dpi72 .page h2,#workspace #script.dpi72 .page h3,#workspace #script.dpi72 .page h4,#workspace #script.dpi72 .page p{font-size:12px;font-weight:400}#workspace #script.dpi100 .page h1,#workspace #script.dpi100 .page h2,#workspace #script.dpi100 .page h3,#workspace #script.dpi100 .page h4,#workspace #script.dpi100 .page p{font-size:17px;font-weight:400}#workspace #script.dpi150 .page h1,#workspace #script.dpi150 .page h2,#workspace #script.dpi150 .page h3,#workspace #script.dpi150 .page h4,#workspace #script.dpi150 .page p{font-size:33px;font-weight:400}#workspace #script.us-letter.dpi72{width:612px}#workspace #script.us-letter.dpi100{width:850px}#workspace #script.us-letter.dpi150{width:1275px}#workspace #script.us-letter.dpi72 .page{min-height:792px}#workspace #script.us-letter.dpi100 .page{min-height:1100px}#workspace #script.us-letter.dpi150 .page{min-height:1650px}#workspace #script.us-letter.dpi72 .page.title-page{height:792px}#workspace #script.us-letter.dpi100 .page.title-page{height:1100px}#workspace #script.us-letter.dpi150 .page.title-page{height:1650px}#workspace #script.a4.dpi72{width:595px}#workspace #script.a4.dpi100{width:827px}#workspace #script.a4.dpi150{width:1250px}#workspace #script.a4.dpi72 .page{height:842px}#workspace #script.a4.dpi100 .page{height:1169px}#workspace #script.a4.dpi150 .page{height:1754px}#workspace #script .title-page h1{margin-top:50%;margin-bottom:34px;text-align:center;width:90.5%}#workspace #script .title-page p.credit{text-align:center;width:90.5%}#workspace #script .title-page p.author,#workspace #script .title-page p.authors{margin-bottom:32px;margin-top:0;text-align:center;width:90.5%}#workspace #script .title-page p.source{margin-bottom:32px;text-align:center;width:90.5%}#workspace #script .title-page p.notes{bottom:350px;position:absolute;right:0;text-align:right}#workspace #script.dpi72 .title-page p.notes{bottom:252px;right:72px}#workspace #script.dpi100 .title-page p.notes{bottom:350px;right:100px}#workspace #script.dpi150 .title-page p.notes{bottom:525px;right:150px}#workspace #script .title-page p.date,#workspace #script .title-page p.draft-date{bottom:250px;position:absolute;right:0;text-align:right}#workspace #script.dpi72 .title-page p.date,#workspace #script.dpi72 .title-page p.draft-date{bottom:180px;right:72px}#workspace #script.dpi100 .title-page p.date,#workspace #script.dpi100 .title-page p.draft-date{bottom:250px;right:100px}#workspace #script.dpi150 .title-page p.date,#workspace #script.dpi150 .title-page p.draft-date{bottom:375px;right:150px}#workspace #script .title-page p.contact{bottom:100px;position:absolute;right:0;text-align:right}#workspace #script.dpi72 .title-page p.contact{bottom:72px;right:72px}#workspace #script.dpi100 .title-page p.contact{bottom:100px;right:100px}#workspace #script.dpi150 .title-page p.contact{bottom:150px;right:150px}#workspace #script .title-page p.copyright{bottom:100px;position:absolute;text-align:left}#workspace #script.dpi72 .title-page p.copyright{bottom:72px}#workspace #script.dpi100 .title-page p.copyright{bottom:100px}#workspace #script.dpi150 .title-page p.copyright{bottom:150px}#workspace #script .page h2{text-align:right}#workspace #script .page h2.left-aligned{text-align:left}#workspace #script .page h3{position:relative}#workspace #script .page.numberonleft h3:before{color:#bbb;content:attr(id);font-weight:700;left:-45px;position:absolute}#workspace #script .page.numberonright h3:after{color:#bbb;content:attr(id);font-weight:700;right:-45px;position:absolute}#workspace #script .page div.dialogue{margin-left:auto;margin-right:auto;width:68%}#workspace #script .page div.dialogue h4{margin-bottom:0;margin-left:23%}#workspace #script .page div.dialogue p.parenthetical{margin-bottom:0;margin-top:0;margin-left:11%}#workspace #script .page div.dialogue p{margin-bottom:0;margin-top:0}#workspace #script .page div.dual-dialogue{margin:2em 0 .9em 2%;width:95%}#workspace #script .page div.dual-dialogue div.dialogue{display:inline-block;margin:0;width:45%}#workspace #script .page div.dual-dialogue div.dialogue h4{margin-top:0}#workspace #script .page div.dual-dialogue div.dialogue.right{float:right}#workspace #script .page p.centered{text-align:center;width:92.5%}#workspace #script .page p.section{color:#bbb;margin-left:-30px}#workspace #script .page p.synopsis{color:#bbb;margin-left:-20px}
-//#workspace #script .page span.bold,.page h3{font-weight:700}.note{opacity:.5}`;
 function updateWebView(titlepage: string, script: string) {
 
 	var config = getFountainConfig();
@@ -157,8 +153,14 @@ function updateWebView(titlepage: string, script: string) {
 		pageClasses = "page numberonright";
 	else if (config.scenes_numbers == "both")
 		pageClasses = "page numberonleft numberonright";
-
-	previewpanel.webview.html = webviewHtml.replace("$TITLEPAGE$", titlepage).replace("$SCRIPT$", script).replace("$SCRIPTCLASS$", pageClasses);
+	var cleandir = __dirname.split(String.fromCharCode(92)).join("/");
+	previewpanel.webview.html = webviewHtml.replace("$TITLEPAGE$", titlepage)
+										   .replace("$SCRIPT$", script)
+										   .replace("$SCRIPTCLASS$", pageClasses)
+										   .replace("$FONTNORMAL$","vscode-resource:"+ cleandir + "/courierprime/courier-prime.ttf")
+										   .replace("$FONTBOLD$","vscode-resource:"+ cleandir + "/courierprime/courier-prime-bold.ttf")
+										   .replace("$FONTITALIC$","vscode-resource:"+ cleandir + "/courierprime/courier-prime-italic.ttf")
+										   .replace("$FONTBOLDITALIC$","vscode-resource:"+ cleandir + "/courierprime/courier-prime-bold-italic.ttf");
 	console.log(previewpanel.webview.html)
 }
 function padZero(i: any) {
@@ -194,6 +196,9 @@ const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutline
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
 
 var userfullname: string;
+let diagnosticCollection = languages.createDiagnosticCollection("fountain");
+let diagnostics : vscode.Diagnostic[] = [];
+var fontnames: any[];
 export function activate(context: ExtensionContext) {
 	//Register for outline tree view
 	vscode.window.registerTreeDataProvider("fountain-outline", outlineViewProvider)
@@ -207,6 +212,11 @@ export function activate(context: ExtensionContext) {
 	durationStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	context.subscriptions.push(durationStatus);
 	updateStatus();
+	
+	(async () => {
+		var fontlist = await fontFinder.list()
+		fontnames = Object.keys(fontlist);
+	})();
 
 	//Register for live preview
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreview', () => {
@@ -219,6 +229,20 @@ export function activate(context: ExtensionContext) {
 			vscode.ViewColumn.Three, // Editor column to show the new webview panel in.
 			{ enableScripts: true } // Webview options. More on these later.
 		);
+		previewpanel.webview.onDidReceiveMessage(message=>{
+			if(message.command == "updateFontResult"){
+				if(message.content == false && fountainDocProps.fontLine != -1){
+					//The font could not be rendered
+					diagnostics = []
+					diagnostics.push(new vscode.Diagnostic(new vscode.Range(new vscode.Position(fountainDocProps.fontLine,0), new vscode.Position(fountainDocProps.fontLine,5)), "This font could not be rendered in the live preview. Is it installed?", vscode.DiagnosticSeverity.Error));
+					diagnosticCollection.set(vscode.window.activeTextEditor.document.uri, diagnostics);
+				}
+				else{
+					//Yay, the font has been rendered
+					diagnosticCollection.set(vscode.window.activeTextEditor.document.uri, []);
+				}
+			}
+		});
 		var rawcontent = vscode.window.activeTextEditor.document.getText();
 		var output = afterparser.parse(rawcontent, getFountainConfig(), true);
 		updateWebView(output.titleHtml, output.scriptHtml);
@@ -304,51 +328,10 @@ export function activate(context: ExtensionContext) {
 	(async () => {
 		userfullname = await username();
 		if (userfullname.length > 0) {
-			userfullname.charAt(0).toUpperCase() + userfullname.slice(1)
+			userfullname = userfullname.charAt(0).toUpperCase() + userfullname.slice(1)
 		}
 		console.log("username is " + userfullname);
 	})();
-
-	/*
-		// The server is implemented in node
-		let serverModule = context.asAbsolutePath(
-			path.join('server', 'out', 'server.js')
-		);
-		// The debug options for the server
-		// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-		let debugOptions = { execArgv: ['--nolazy', '--inspect=6009'] };
-	
-		// If the extension is launched in debug mode then the debug server options are used
-		// Otherwise the run options are used
-		let serverOptions: ServerOptions = {
-			run: { module: serverModule, transport: TransportKind.ipc },
-			debug: {
-				module: serverModule,
-				transport: TransportKind.ipc,
-				options: debugOptions
-			}
-		};
-	
-		// Options to control the language client
-		let clientOptions: LanguageClientOptions = {
-			// Register the server for plain text documents
-			documentSelector: [{ scheme: 'file', language: 'fountain' }],
-			synchronize: {
-				// Notify the server about file changes to '.clientrc files contained in the workspace
-				fileEvents: workspace.createFileSystemWatcher('**//*.clientrc')
-}
-};
-
-// Create the language client and start the client.
-client = new LanguageClient(
-'languageServerExample',
-'Language Server Example',
-serverOptions,
-clientOptions
-);
-
-// Start the client. This will also launch the server
-client.start();*/
 }
 
 vscode.workspace.onDidChangeTextDocument(change => {
@@ -390,6 +373,7 @@ class FountainStructureProperties {
 	sceneNames: string[];
 	titleKeys: string[];
 	firstTokenLine: number;
+	fontLine: number;
 	characters: Map<string, number[]>;
 }
 var fountainDocProps: FountainStructureProperties = {
@@ -398,8 +382,11 @@ var fountainDocProps: FountainStructureProperties = {
 	sceneNames:[],
 	titleKeys: [],
 	firstTokenLine: Infinity,
+	fontLine: -1,
 	characters: new Map<string, number[]>()
 };
+
+var fontTokenExisted:boolean = false;
 
 function parseDocument(document: TextDocument) {
 	if (vscode.window.activeTextEditor.document.uri == document.uri) {
@@ -493,9 +480,22 @@ function parseDocument(document: TextDocument) {
 		}
 		tokenlength = 0;
 		fountainDocProps.titleKeys = [];
+		var fontTokenExists = false;
 		while (tokenlength < output.title_page.length) {
 			fountainDocProps.titleKeys.push(output.title_page[tokenlength].type.toLowerCase());
+			if(output.title_page[tokenlength].type == "font" && output.title_page[tokenlength].text.trim() != ""){
+				fountainDocProps.fontLine = output.title_page[tokenlength].line;
+				var fontname = output.title_page[tokenlength].text;
+				previewpanel.webview.postMessage({ command: 'updateFont', content: fontname });
+				fontTokenExists=true;
+				fontTokenExisted=true;
+			}
 			tokenlength++;
+		}
+		if(!fontTokenExists && fontTokenExisted){
+			previewpanel.webview.postMessage({ command: 'removeFont' });
+			fontTokenExisted=false;
+			diagnosticCollection.set(vscode.window.activeTextEditor.document.uri, []);
 		}
 	}
 	if (document.languageId == "fountain")
@@ -641,7 +641,7 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 				if (fountainDocProps.titleKeys.indexOf("watermark") == -1)
 					completes.push(TitlePageKey("Watermark", "J", "A watermark to be displayed across every page of the PDF"));
 				if (fountainDocProps.titleKeys.indexOf("font") == -1)
-					completes.push(TitlePageKey("Font", "K", "The font to be used in the preview and in the PDF"));
+					completes.push(TitlePageKey("Font", "K", "The font to be used in the preview and in the PDF", true));
 			}
 			else {
 				var currentkey = currentline.trimRight().toLowerCase();
@@ -665,6 +665,11 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 				else if (currentkey == "copyright:") {
 					completes.push({ label: "(c)" + new Date().getFullYear() + " ", kind: vscode.CompletionItemKind.Text });
 				}
+				else if (currentkey == "font:"){
+					fontnames.forEach((fontname:string)=>{
+						completes.push({ label: fontname, insertText:fontname+"\n", kind: vscode.CompletionItemKind.Text });
+					})
+				}
 			}
 		}
 		//Scene header autocomplete
@@ -685,10 +690,10 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 						if(spacepos != -1){
 							var thisLocation = fountainDocProps.sceneNames[index].slice(fountainDocProps.sceneNames[index].indexOf(" ")).trimLeft();
 							if(fountainDocProps.sceneNames[index].toLowerCase().startsWith(scenematch[0].toLowerCase()))
-								completes.push({ label: thisLocation, documentation: "Scene name", sortText: "A" + (10-scenematch[0].length)});
+								completes.push({ label: thisLocation, documentation: "Scene heading", sortText: "A" + (10-scenematch[0].length)});
 								//The (10-scenematch[0].length) is a hack to avoid a situation where INT. would be before INT./EXT. when it should be after
 							else
-								completes.push({ label: thisLocation, documentation: "Scene name", sortText: "B" });
+								completes.push({ label: thisLocation, documentation: "Scene heading", sortText: "B" });
 						}
 					}
 				}
@@ -698,10 +703,10 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 		else if (position.line > 0 && document.getText(new vscode.Range(new vscode.Position(position.line - 1, 0), new vscode.Position(position.line - 1, 1))) == "") {
 			//We aren't on the first line, and the previous line is empty
 			if (position.character == 1) {
-				completes.push({ label: "INT. ", documentation: "Interior", sortText: "B" });
-				completes.push({ label: "EXT. ", documentation: "Exterior", sortText: "C" });
-				completes.push({ label: "INT./EXT. ", documentation: "Interior/Exterior", sortText: "D" });
-				completes.push({ label: "EST. ", documentation: "Establishing", sortText: "E" });
+				completes.push({ label: "INT. ", documentation: "Interior", sortText: "B", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" }});
+				completes.push({ label: "EXT. ", documentation: "Exterior", sortText: "C", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
+				completes.push({ label: "INT/EXT. ", documentation: "Interior/Exterior", sortText: "D", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
+				completes.push({ label: "EST. ", documentation: "Establishing", sortText: "E", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
 				//Get current scene number
 				var this_scene_nb = -1;
 				for (let index in fountainDocProps.scenes) {
@@ -724,11 +729,3 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 		return completes;
 	}
 }
-
-
-/*export function deactivate(): Thenable<void> {
-	if (!client) {
-		return undefined;
-	}
-	return client.stop();
-}*/
