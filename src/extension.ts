@@ -145,22 +145,23 @@ const fontFinder = require('font-finder');
 const webviewHtml = fs.readFileSync(__dirname + path.sep + 'webview.html', 'utf8');
 function updateWebView(titlepage: string, script: string) {
 
-	var config = getFountainConfig();
-	var pageClasses = "page";
+	var config = getFountainConfig(lastFountainEditor);
+	var directConfig = vscode.workspace.getConfiguration("fountain.pdf", vscode.window.activeTextEditor.document.uri);
+	var pageClasses = "innerpage";
 	if (config.scenes_numbers == "left")
-		pageClasses = "page numberonleft";
+		pageClasses = "innerpage numberonleft";
 	else if (config.scenes_numbers == "right")
-		pageClasses = "page numberonright";
+		pageClasses = "innerpage numberonright";
 	else if (config.scenes_numbers == "both")
-		pageClasses = "page numberonleft numberonright";
+		pageClasses = "innerpage numberonleft numberonright";
 	var cleandir = __dirname.split(String.fromCharCode(92)).join("/");
 	previewpanel.webview.html = webviewHtml.replace("$TITLEPAGE$", titlepage)
 										   .replace("$SCRIPT$", script)
 										   .replace("$SCRIPTCLASS$", pageClasses)
-										   .replace("$FONTNORMAL$","vscode-resource:"+ cleandir + "/courierprime/courier-prime.ttf")
-										   .replace("$FONTBOLD$","vscode-resource:"+ cleandir + "/courierprime/courier-prime-bold.ttf")
-										   .replace("$FONTITALIC$","vscode-resource:"+ cleandir + "/courierprime/courier-prime-italic.ttf")
-										   .replace("$FONTBOLDITALIC$","vscode-resource:"+ cleandir + "/courierprime/courier-prime-bold-italic.ttf");
+										   .replace(/\$ROOTDIR\$/g, cleandir)
+										   .replace("$PAGETHEME$",directConfig.previewTheme+"_theme");
+
+	parseDocument(vscode.window.activeTextEditor.document);
 	console.log(previewpanel.webview.html)
 }
 function padZero(i: any) {
@@ -194,7 +195,7 @@ function updateStatus(): void {
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
-
+var lastFountainEditor:vscode.Uri;
 var userfullname: string;
 let diagnosticCollection = languages.createDiagnosticCollection("fountain");
 let diagnostics : vscode.Diagnostic[] = [];
@@ -213,6 +214,7 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(durationStatus);
 	updateStatus();
 	
+	//Load fonts for autocomplete
 	(async () => {
 		var fontlist = await fontFinder.list()
 		fontnames = Object.keys(fontlist);
@@ -244,7 +246,7 @@ export function activate(context: ExtensionContext) {
 			}
 		});
 		var rawcontent = vscode.window.activeTextEditor.document.getText();
-		var output = afterparser.parse(rawcontent, getFountainConfig(), true);
+		var output = afterparser.parse(rawcontent, getFountainConfig(lastFountainEditor), true);
 		updateWebView(output.titleHtml, output.scriptHtml);
 	}));
 
@@ -285,8 +287,8 @@ export function activate(context: ExtensionContext) {
 			});
 		if (filepath == undefined) return;
 
-		var config = getFountainConfig();
-		var parsed = afterparser.parse(vscode.window.activeTextEditor.document.getText(), getFountainConfig(), false);
+		var config = getFountainConfig(lastFountainEditor);
+		var parsed = afterparser.parse(vscode.window.activeTextEditor.document.getText(), getFountainConfig(lastFountainEditor), false);
 		GeneratePdf(filepath.fsPath, config, parsed, function (output: any) {
 			if (output.errno != undefined) {
 				vscode.window.showErrorMessage("Failed to export PDF!")
@@ -339,18 +341,20 @@ vscode.workspace.onDidChangeTextDocument(change => {
 })
 
 vscode.workspace.onDidChangeConfiguration(change => {
+	console.log("change configuration")
 	if (change.affectsConfiguration("fountain.pdf")) {
-		var updatehtml = (previewpanel != null);
-		if (updatehtml) {
-			var config = getFountainConfig();
-			var pageClasses = "page";
+		if (previewpanel) {
+			var config = getFountainConfig(lastFountainEditor);
+			var directConfig = vscode.workspace.getConfiguration("fountain.pdf", lastFountainEditor);
+			var pageClasses = "innerpage";
 			if (config.scenes_numbers == "left")
-				pageClasses = "page numberonleft";
+				pageClasses = "innerpage numberonleft";
 			else if (config.scenes_numbers == "right")
-				pageClasses = "page numberonright";
+				pageClasses = "innerpage numberonright";
 			else if (config.scenes_numbers == "both")
-				pageClasses = "page numberonleft numberonright";
+				pageClasses = "innerpage numberonleft numberonright";
 			previewpanel.webview.postMessage({ command: 'updatePageClasses', content: pageClasses });
+			previewpanel.webview.postMessage({ command: 'changeTheme', content: directConfig.previewTheme+"_theme" });
 		}
 	}
 })
@@ -392,7 +396,7 @@ function parseDocument(document: TextDocument) {
 	if (vscode.window.activeTextEditor.document.uri == document.uri) {
 
 		var updatehtml = (previewpanel != null && document.languageId == "fountain");
-		var output = afterparser.parse(document.getText(), getFountainConfig(), updatehtml);
+		var output = afterparser.parse(document.getText(), getFountainConfig(lastFountainEditor), updatehtml);
 
 		if (updatehtml) {
 			//lastFountainDocument = document;
@@ -504,7 +508,10 @@ function parseDocument(document: TextDocument) {
 }
 
 vscode.window.onDidChangeActiveTextEditor(change => {
-	parseDocument(change.document);
+	if(change.document.languageId=="fountain"){
+		parseDocument(change.document);
+		lastFountainEditor = change.document.uri;
+	}
 })
 
 /*

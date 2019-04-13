@@ -7,24 +7,10 @@
             white-space: pre-wrap;
         }
 
-        #workspace #inspector li a:hover,
-        #workspace #toolbar li a:hover,
-        a {
-            text-decoration: none
-        }
-
         body {
             color: #333;
             font-size: 14px;
             margin: 0
-        }
-
-        a {
-            color: #ED303C
-        }
-
-        a:hover {
-            text-decoration: underline
         }
 
         .container {
@@ -33,302 +19,47 @@
             width: 850px
         }
 
-        header {
-            background-color: #454545;
-            color: #F0F0D8;
-            font-size: 13px;
-            height: 40px;
-            line-height: 40px;
-            width: 100%
-        }
-
-        header::-moz-selection,
-        header::selection {
-            background: #454545;
-            color: #fff
-        }
-
-        #dock {
-            margin: 0
-        }
-
-        #dock header {
-            margin-bottom: 25px
-        }
-
-        #dock header h1 {
-            background: url(../images/fountain-24.png) 0 9px no-repeat;
-            color: #fff;
-            font-size: 16px;
-            margin: 0;
-            padding-left: 34px
-        }
-
-        #dock blockquote {
-            background: #fff;
-            margin: 0;
-            padding: 10px
-        }
-
-        #dock p.more-information {
-            font-size: 12px;
-            margin: 5px 0 25px;
-            padding: 0;
-            text-align: right
-        }
-
-        #dock #file-api {
-            background: #fff;
-            border: 3px dashed #454545;
-            display: none;
-            margin-top: 75px;
-            text-align: center
-        }
-
-        #dock #file-api.over {
-            border-color: #ED303C;
-            cursor: pointer
-        }
-
-        #dock #file-api p {
-            font-weight: 700;
-            margin: 125px auto
-        }
-
-        #dock p.error {
-            background: url(../images/warning.png) 10px 10px no-repeat #fff;
-            font-weight: 700;
-            margin-top: 75px;
-            padding: 15px 15px 15px 50px
-        }
-
         #workspace {
             color: #333;
             display: none;
             float: left;
             position: relative;
-            width: 100%
-        }
-
-        #workspace header.dimmed {
-            background-color: transparent
-        }
-
-        #workspace header.dimmed p {
-            color: #333;
-            font-weight: 700
-        }
-
-        #workspace header li,
-        #workspace header p,
-        #workspace header ul {
-            display: inline;
-            float: left;
-            margin: 0;
-            padding: 0
-        }
-
-        #workspace header p {
-            color: #fff;
-            font-size: 15px;
-            height: 20px;
-            line-height: 20px;
-            margin-top: 10px;
-            text-align: center;
-            width: 44%
-        }
-
-        #workspace header ul {
-            padding: 0;
-            width: 27%;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -o-user-select: none;
-            user-select: none
-        }
-
-        #workspace #toolbar {
-            float: right;
-            margin-right: 3px
-        }
-
-        #workspace #inspector li,
-        #workspace #toolbar li {
-            height: 16px;
-            line-height: 16px;
-            margin: 12px 12px 12px 0;
-            position: relative;
-            width: 16px
-        }
-
-        #workspace #toolbar li {
-            float: right;
-            margin: 12px 0 12px 12px;
-            text-align: right
-        }
-
-        #workspace #inspector li a,
-        #workspace #toolbar li a {
-            cursor: pointer;
-            color: #3C3D36;
-            display: block;
-            height: 16px;
-            text-indent: 16px;
-            overflow: hidden;
-            width: 16px
-        }
-
-        #workspace #inspector li a:hover:after,
-        #workspace #toolbar li a:hover:after {
-            background: #ED303C;
-            border-radius: 4px;
-            color: #fff;
-            content: attr(data-tooltip);
-            left: -5px;
-            padding: 3px 7px 4px 30px;
-            position: absolute;
-            text-align: left;
-            text-indent: 0;
-            top: -3px
-        }
-
-        #workspace #toolbar li a:hover:after {
-            background-position: 5px 3px;
-            background-repeat: no-repeat
-        }
-
-        #workspace #toolbar li.resize {
-            background: url(../images/toolbar/resize.small.png) top left no-repeat
-        }
-
-        #workspace #toolbar li.resize:hover {
-            background-image: url(../images/toolbar/resize.small-hover.png)
-        }
-
-        #workspace #toolbar li.resize.large {
-            background: url(../images/toolbar/resize.large.png) top left no-repeat
-        }
-
-        #workspace #toolbar li.resize.large:hover {
-            background-image: url(../images/toolbar/resize.large-hover.png)
-        }
-
-        #workspace #toolbar li.resize a:hover:after {
-            background-image: url(../images/toolbar/resize.small-hover.png);
-            width: 78px
-        }
-
-        #workspace #toolbar li.resize.large a:hover:after {
-            background-image: url(../images/toolbar/resize.large-hover.png)
-        }
-
-        #workspace #toolbar li.dim {
-            background: url(../images/toolbar/dim.reduce.png) top left no-repeat
-        }
-
-        #workspace #toolbar li.dim:hover {
-            background-image: url(../images/toolbar/dim.reduce-hover.png)
-        }
-
-        #workspace #toolbar li.dim.increase {
-            background: url(../images/toolbar/dim.increase.png) top left no-repeat
-        }
-
-        #workspace #toolbar li.dim.increase:hover {
-            background-image: url(../images/toolbar/dim.increase-hover.png)
-        }
-
-        #workspace #toolbar li.dim a:hover:after {
-            background-image: url(../images/toolbar/dim.reduce-hover.png);
-            width: 83px
-        }
-
-        #workspace #toolbar li.dim.increase a:hover:after {
-            background-image: url(../images/toolbar/dim.increase-hover.png)
-        }
-
-        #workspace #toolbar li.dock {
-            background: url(../images/toolbar/dock.png) top left no-repeat
-        }
-
-        #workspace #toolbar li.dock a:hover:after,
-        #workspace #toolbar li.dock:hover {
-            background-image: url(../images/toolbar/dock-hover.png)
-        }
-
-        #workspace #toolbar li.dock a:hover:after {
-            width: 90px
-        }
-
-        #workspace #toolbar li.dock.over {
-            background: url(../images/toolbar/dock-drop.png) no-repeat;
-            cursor: pointer
-        }
-
-        #workspace #inspector li a:hover:after {
-            background-position: 5px 3px;
-            background-repeat: no-repeat
-        }
-
-        #workspace .notification::-moz-selection,
-        #workspace .notification::selection {
-            background: #454545
-        }
-
-        #workspace .notification {
-            background: url(../images/notification.png) 6px 6px no-repeat #454545;
-            border-radius: 4px;
-            color: #fff;
-            display: none;
-            font-size: 13px;
-            padding: 6px 8px 6px 28px;
-            position: absolute;
-            right: 5px;
-            top: -8px
+            width: 100%;
         }
 
         #workspace #script {
-            margin: 25px auto 0;
+            margin: 0px auto 0;
             width: 850px;
-        }
-
-        #workspace .page::-moz-selection,
-        #workspace .page::selection {
-            background: #ED303C;
-            color: #fff
         }
 
         @font-face{
             font-family: betterfountain-screenplayfont;
-            src:url($FONTNORMAL$);
+            src:url(vscode-resource:$ROOTDIR$/courierprime/courier-prime.ttf);
             font-weight: normal;
         }
         @font-face{
             font-family: betterfountain-screenplayfont;
-            src:url($FONTBOLD$);
+            src:url(vscode-resource:$ROOTDIR$/courierprime/courier-prime-bold.ttf);
             font-weight: bold;
         }
         @font-face{
             font-family: betterfountain-screenplayfont;
-            src:url($FONTITALIC$);
+            src:url(vscode-resource:$ROOTDIR$/courierprime/courier-prime-italic.ttf);
             font-weight: normal;
             font-style: italic;
         }
         @font-face{
             font-family: betterfountain-screenplayfont;
-            src:url($FONTBOLDITALIC$);
+            src:url(vscode-resource:$ROOTDIR$/courierprime/courier-prime-bold-italic.ttf);
             font-weight: bold;
             font-style: italic;
         }
 
         #workspace #script .page {
-            background: #fff;
-            border: 1px solid #d2d2d2;
+            background-image:url(vscode-resource:$ROOTDIR$/noisetexture.png);
+            border: 1px solid;
+            border-color: transparent;
             border-radius: 2px;
-            color: #222;
             cursor: text;
             letter-spacing: 0 !important;
             font-family: betterfountain-screenplayfont;
@@ -338,12 +69,16 @@
             text-align: left;
             width: 100%;
             z-index: 200;
-            -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, .1);
-            -moz-box-shadow: 0 0 5px rgba(0, 0, 0, .1);
-            box-shadow: 0 0 5px rgba(0, 0, 0, .1);
-            -moz-box-sizing: border-box;
-            -webkit-box-sizing: border-box;
+            box-shadow: 0px 0px 28px 0px rgba(0,0,0,0.25);
             box-sizing: border-box
+        }
+        .vscode_theme .page{
+            background-color: var(--vscode-editor-background);
+            color: var(--vscode-editor-foreground);; 
+        }
+        .paper_theme .page{
+            background-color: rgb(235, 234, 232);
+            color: black;
         }
 
         #workspace #script.dpi72 .page {
@@ -353,8 +88,18 @@
 
         #workspace #script.dpi100 .page {
             font-size: 16px;
+            
+            /*
             padding: 100px 100px 100px 150px;
-            page-break-after: 100px 12px;
+            page-break-after: 100px 12px;*/
+        }
+        #workspace #script.dpi100 .innerpage{
+            max-width:577px;
+            margin-top: 100px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left:42px;
+            padding-right:42px;
         }
 
         #workspace #script.dpi150 .page {
@@ -408,7 +153,7 @@
         #workspace #script.us-letter.dpi100 .page {
             min-height: 1100px
         }
-
+        
         #workspace #script.us-letter.dpi150 .page {
             min-height: 1650px
         }
@@ -430,7 +175,8 @@
         }
 
         #workspace #script.a4.dpi100 {
-            width: 827px
+            width:auto;
+            max-width: 827px;
         }
 
         #workspace #script.a4.dpi150 {
@@ -442,7 +188,7 @@
         }
 
         #workspace #script.a4.dpi100 .page {
-            height: 1169px
+            min-height: 1169px
         }
 
         #workspace #script.a4.dpi150 .page {
@@ -575,16 +321,19 @@
             position: relative;
         }
 
-        #workspace #script .page.numberonleft h3:before {
-            color: #bbb;
+        
+        
+
+        .numberonleft h3:before {
+            opacity:0.4;
             content: attr(id);
             font-weight: 700;
             left: -45px;
             position: absolute
         }
 
-        #workspace #script .page.numberonright h3:after {
-            color: #bbb;
+        .numberonright h3:after {
+            opacity:0.4;
             content: attr(id);
             font-weight: 700;
             right: -45px;
@@ -638,12 +387,12 @@
         }
 
         #workspace #script .page p.section {
-            color: #bbb;
+            opacity:0.2;
             margin-left: -30px
         }
 
         #workspace #script .page p.synopsis {
-            color: #bbb;
+            opacity:0.4;
             margin-left: -20px
         }
 
@@ -671,9 +420,9 @@
 </head>
 <body id='fountain-js'>
     <section id='workspace' style='display:block;'>
-        <div id='script' class='us-letter dpi100'>
-            <div id='titlepage' class='page title-page'><div>$TITLEPAGE$</div></div>
-            <div id='mainpage' class='$SCRIPTCLASS$'><div>$SCRIPT$</div></div>
+        <div id='script' class='a4 dpi100 $PAGETHEME$'>
+                <div class="page"><div id='titlepage' class='innerpage title-page'>$TITLEPAGE$</div></div>
+                <div class="page"><div id='mainpage' class='$SCRIPTCLASS$'><div class="innerpage">$SCRIPT$</div></div>
         </div>
     </section>
     <script>
@@ -706,6 +455,10 @@
                 for(var index in pages){
                     pages[index].style.cssText = "";
                 }
+            } else if(event.data.command == 'changeTheme') {
+                console.log("change theme");
+                var script = document.getElementById("script");
+                script.setAttribute("class", "a4 dpi100 "+ event.data.content);
             }
         });
     </script>

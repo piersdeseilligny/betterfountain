@@ -1,3 +1,21 @@
+## **1.3.0**
+    + Live preview improvements
+            + Option to change the theme from "vscode" (the same colors as vscode) to "paper" (white background) in the settings
+            + Scale to fit (no more horizontal scrollbars)
+    + Completely revamped autocomplete
+            + More responsive title page key suggestions (shows when entering a new line)
+            + Title page value suggestions (such as "written by" for 'credit:', your system username for 'author:', or the current date for 'date:')
+            + Different scene header suggestions for int/ext, location, and time of day
+            + Context-aware suggestions for character names (characters present in the current scene will be suggested in priority)
+    + Replaced default font in preview and PDF with "Courier Prime" (prettier and supports more characters)
+    + Custom fonts
+            + Added "Font:" title page key to customize the font in the preview + pdf
+            + Auto-complete for "font:" based on available fonts (any font installed on the OS)
+    + Changing settings will update the live preview in real-time
+    + Syntax highlighting fully consistent with tokenization for scene headers
+    + Replaced language server with direct implementation
+    + "bUg FiXeS and iMpROvEmeNTs"
+
 ## **1.2.2**
     + Support for international character names (such as MAËLLE or АДРИАН)
 

@@ -22,8 +22,10 @@ export class FountainConfig{
 }
 import * as vscode from 'vscode';
 
-export var getFountainConfig = function():FountainConfig{
-    var config = vscode.workspace.getConfiguration("fountain.pdf", vscode.window.activeTextEditor.document.uri);
+export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
+    if(!docuri && vscode.window.activeTextEditor == undefined) 
+        docuri = vscode.window.activeTextEditor.document.uri;
+    var config = vscode.workspace.getConfiguration("fountain.pdf", docuri);
     return {
         embolden_scene_headers: config.emboldenSceneHeaders,
         show_page_numbers: config.showPageNumbers,

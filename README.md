@@ -16,6 +16,7 @@ This is an extension for Visual Studio Code, written in a few hours, which allow
 * "Folding" scenes
 * Live preview of the formatted screenplay
 * Exporting the screenplay to a PDF File
+* Custom font support
 * Approximation of a screenplay's duration (in the status bar)
 * Other cool stuff
     * Go straight to writing dialog after a parenthetical by pressing enter, while the cursor is still inside it
@@ -42,10 +43,7 @@ Here are some features I would like to add, but don't really have time to right 
 
 * Folding for sections
 
-* More and smarter auto-complete, for stuff like the times of day in scene headers, transitions, etc...
-
-* Buttons for zooming in and out of the screenplay preview (and also with [hammer.js](https://github.com/hammerjs/hammer.js
-)?)
+* Even smarter auto-complete
 
 * Some sort of system that would allow the storage of character information alongside the script
 
