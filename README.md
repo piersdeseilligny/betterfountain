@@ -16,7 +16,7 @@ This is an extension for Visual Studio Code, written in a few hours, which allow
 * "Folding" scenes
 * Live preview of the formatted screenplay
 * Exporting the screenplay to a PDF File
-* Custom font support
+* Custom font support (Add "Font:" at the top of your .fountain screenplay, with the other title page keys, followed by the name of a font installed on your system)
 * Approximation of a screenplay's duration (in the status bar)
 * Other cool stuff
     * Go straight to writing dialog after a parenthetical by pressing enter, while the cursor is still inside it
@@ -60,6 +60,8 @@ I will probably add these features when I have time, but if you're up for the ch
 * The fountain parsing and PDF generation feature is based on Piotr Jamróz's [Afterwriting](https://github.com/ifrost/afterwriting-labs), also covered by the [MIT License](https://github.com/ifrost/afterwriting-labs)
 
 * The project was built using Microsoft's [language server example extension](https://github.com/Microsoft/vscode-extension-samples/tree/master/lsp-sample) as a boilerplate.
+
+* The default font used in the preview and in the exported PDF is ["Courier Prime"](https://quoteunquoteapps.com/courierprime/), more specifically [a version](http://dimkanovikov.pro/courierprime/) which adds support for Azerbaijani, Belorussian, Kazakh, Russian, and Ukrainian
 
 ## Why visual studio code? I thought this was about screenwriting?
 
