@@ -1,4 +1,5 @@
-![Screenshot of BetterFountain](https://i.imgur.com/mEAK9Xj.jpg)
+![Screenshot of BetterFountain in dark mode](https://i.imgur.com/x8vLDBf.jpg)
+![Screenshot of BetterFountain in light mode](https://i.imgur.com/GpkEdG8.jpg)
 
 # Better fountain
 
