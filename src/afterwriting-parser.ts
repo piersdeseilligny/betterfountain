@@ -455,11 +455,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 continue;
             }
             */
-            if (cfg.double_space_between_scenes && current_token.type == "scene_heading" && current_token.number !== 1) {
-                var additional_separator = helpers.default.create_separator(token.start, token.end);
-                result.tokens.splice(current_index, 0, additional_separator);
-                current_index++;
-            }
+            
             //previous_type = current_token.type;
             current_index++;
         }
