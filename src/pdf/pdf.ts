@@ -31,7 +31,7 @@ export var GeneratePdf = function(outputpath:string, config:FountainConfig, pars
         else{
             previous_type = type;
             filteredtokens.push(parsedDocument.tokens[index]);
-        }        
+        }
     }
     if(config.print_watermark == "" && watermark!=undefined)
         config.print_watermark = watermark;
