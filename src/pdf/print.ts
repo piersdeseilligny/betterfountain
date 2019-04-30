@@ -51,7 +51,7 @@ var A4_DEFAULT_MAX = 58,
             title_page: {
                 top_start: 3.5,
                 left_side: ['notes', 'copyright'],
-                right_side: ['draft date', 'date', 'contact']
+                right_side: ['draft_date', 'date', 'contact']
             },
             scene_heading: {
                 feed: 1.5,
