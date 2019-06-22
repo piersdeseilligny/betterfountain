@@ -687,8 +687,8 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 		// Dialogue autocomplete
 		else if (multipleCharactersExist && currentLineIsEmpty && previousLineIsEmpty) {
 			// Autocomplete with character name who spoke before the last one
-			const charWhoSpokeBeforeLast = findCharacterThatSpokeBeforeTheLast(document, position, fountainDocProps)
-			completes.push({label: charWhoSpokeBeforeLast, kind: vscode.CompletionItemKind.Text})
+			const charWhoSpokeBeforeLast = findCharacterThatSpokeBeforeTheLast(document, position, fountainDocProps);
+			completes.push({label: charWhoSpokeBeforeLast, kind: vscode.CompletionItemKind.Text});
 		}
 		//Scene header autocomplete
 		else if (fountainDocProps.sceneLines.indexOf(position.line) > -1) {

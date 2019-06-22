@@ -10,7 +10,7 @@ export const findCharacterThatSpokeBeforeTheLast = (
 	let lineToInspect = 1;
 	let foundLastCharacter = false;
 	do {
-		const potentialCharacterLine = document.getText(new vscode.Range(new vscode.Position(position.line - lineToInspect, 0), position)).split('\n')[0].trim()
+		const potentialCharacterLine = document.getText(new vscode.Range(new vscode.Position(position.line - lineToInspect, 0), position)).split('\n')[0].trim();
 		if (fountainDocProps.characters.has(potentialCharacterLine)) {
 			if (foundLastCharacter) {
 				characterBeforeLast = potentialCharacterLine;
@@ -19,7 +19,7 @@ export const findCharacterThatSpokeBeforeTheLast = (
 			}
 		}
 		lineToInspect++;
-	} while (!characterBeforeLast)
+	} while (!characterBeforeLast);
 
 	return characterBeforeLast;
 }
