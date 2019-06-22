@@ -140,6 +140,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 
 var previewpanel: vscode.WebviewPanel;
 import fs = require('fs');
+import { findCharacterThatSpokeBeforeTheLast } from "./utils";
 const fontFinder = require('font-finder');
 
 const webviewHtml = fs.readFileSync(__dirname + path.sep + 'webview.html', 'utf8');
@@ -213,7 +214,7 @@ export function activate(context: ExtensionContext) {
 	durationStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	context.subscriptions.push(durationStatus);
 	updateStatus();
-	
+
 	//Load fonts for autocomplete
 	(async () => {
 		var fontlist = await fontFinder.list()
@@ -256,7 +257,7 @@ export function activate(context: ExtensionContext) {
 		let range = editor.document.lineAt(Number(args)).range;
 		editor.selection = new vscode.Selection(range.start, range.start);
 		editor.revealRange(range, vscode.TextEditorRevealType.AtTop);
-		//If live screenplay is visible scroll to it with 
+		//If live screenplay is visible scroll to it with
 		if (previewpanel != null) {
 			previewpanel.webview.postMessage({ command: 'scrollTo', content: args });
 		}
@@ -371,7 +372,7 @@ function last(array: any[]): any {
 	return array[array.length - 1];
 }
 
-class FountainStructureProperties {
+export class FountainStructureProperties {
 	scenes: { scene: number; line: number }[];
 	sceneLines: number[];
 	sceneNames: string[];
@@ -524,7 +525,7 @@ function GetSceneRanges(document: TextDocument) : FoldingRange[]{
 			}
 		}
 		for (let index = 0; index < matchlines.length; index++) {
-			if(index == matchlines.length-1) 
+			if(index == matchlines.length-1)
 				ranges.push(new FoldingRange(matchlines[index], document.lineCount-1));
 			else if(matchlines[index+1]-matchlines[index] <= 1) continue;
 			else{
@@ -623,6 +624,10 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 	provideCompletionItems(document: TextDocument, position: vscode.Position,/* token: CancellationToken, context: CompletionContext*/): vscode.CompletionItem[] {
 		var completes: vscode.CompletionItem[] = [];
 		var currentline = document.getText(new vscode.Range(new vscode.Position(position.line, 0), position));
+		var prevLine = document.getText(new vscode.Range(new vscode.Position(position.line - 1, 0), position)).trimRight();
+		const multipleCharactersExist = fountainDocProps.characters.size > 1;
+		const currentLineIsEmpty = currentline === "";
+		const previousLineIsEmpty = prevLine === "";
 
 		//Title page autocomplete
 		if (fountainDocProps.firstTokenLine > position.line) {
@@ -678,6 +683,12 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 					})
 				}
 			}
+		}
+		// Dialogue autocomplete
+		else if (multipleCharactersExist && currentLineIsEmpty && previousLineIsEmpty) {
+			// Autocomplete with character name who spoke before the last one
+			const charWhoSpokeBeforeLast = findCharacterThatSpokeBeforeTheLast(document, position, fountainDocProps)
+			completes.push({label: charWhoSpokeBeforeLast, kind: vscode.CompletionItemKind.Text})
 		}
 		//Scene header autocomplete
 		else if (fountainDocProps.sceneLines.indexOf(position.line) > -1) {
