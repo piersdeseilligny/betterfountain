@@ -1,4 +1,4 @@
-## **1.3.2**
+## **1.3.2** (UNRELEASED)
     + Smarter character autocomplete for dialogues, in the style of Final Draft (Thanks to @rickschubert!)
     · Fixed forced scene headers being incorrectly highlighted (Thanks to @zoltair!)
 
