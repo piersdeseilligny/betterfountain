@@ -157,12 +157,12 @@
 					},
 					"fountain.pdf.previewTheme": {
 						"type": "string",
-						"enum":[
+						"enum": [
 							"vscode",
 							"paper"
 						],
 						"description": "The theme to be used in the live preview",
-						"default":"vscode"
+						"default": "vscode"
 					},
 					"fountain.pdf.sceneNumbers": {
 						"type": "string",
