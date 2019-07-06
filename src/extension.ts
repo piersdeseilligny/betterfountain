@@ -6,6 +6,7 @@ import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import * as username from 'username';
+import { findCharacterThatSpokeBeforeTheLast, trimCharacterExtension, addForceSymbolToCharacter } from "./utils";
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
@@ -140,7 +141,6 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 
 var previewpanel: vscode.WebviewPanel;
 import fs = require('fs');
-import { findCharacterThatSpokeBeforeTheLast } from "./utils";
 const fontFinder = require('font-finder');
 
 const webviewHtml = fs.readFileSync(__dirname + path.sep + 'webview.html', 'utf8');
@@ -470,15 +470,16 @@ function parseDocument(document: TextDocument) {
 				}
 			}
 			else if (token.type == "character") {
-				if (fountainDocProps.characters.has(token.text)) {
-					var values = fountainDocProps.characters.get(token.text);
+				let character = trimCharacterExtension(token.text)
+				if (fountainDocProps.characters.has(character)) {
+					var values = fountainDocProps.characters.get(character);
 					if (values.indexOf(currentSceneNumber) == -1) {
 						values.push(currentSceneNumber);
 					}
-					fountainDocProps.characters.set(token.text, values);
+					fountainDocProps.characters.set(character, values);
 				}
 				else {
-					fountainDocProps.characters.set(token.text, [currentSceneNumber]);
+					fountainDocProps.characters.set(character, [currentSceneNumber]);
 				}
 			}
 			tokenlength++;
@@ -688,7 +689,8 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 		else if (multipleCharactersExist && currentLineIsEmpty && previousLineIsEmpty) {
 			// Autocomplete with character name who spoke before the last one
 			const charWhoSpokeBeforeLast = findCharacterThatSpokeBeforeTheLast(document, position, fountainDocProps);
-			completes.push({label: charWhoSpokeBeforeLast, kind: vscode.CompletionItemKind.Text});
+			const charWithForceSymbolIfNecessary = addForceSymbolToCharacter(charWhoSpokeBeforeLast);
+			completes.push({label: charWithForceSymbolIfNecessary, kind: vscode.CompletionItemKind.Text});
 		}
 		//Scene header autocomplete
 		else if (fountainDocProps.sceneLines.indexOf(position.line) > -1) {
