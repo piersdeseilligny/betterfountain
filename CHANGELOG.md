@@ -1,3 +1,7 @@
+## **1.3.2**
+    + Smarter character autocomplete for dialogues, in the style of Final Draft (Thanks to @rickschubert!)
+    · Fixed forced scene headers being incorrectly highlighted (Thanks to @zoltair!)
+
 ## **1.3.1**
     · Fixed "draft date" missing from PDF
     · Fixed "double space between scenes" option
