@@ -3,4 +3,5 @@ node_modules
 client/server
 .vscode-test
 /tests
+/screenplays
 *.vsix

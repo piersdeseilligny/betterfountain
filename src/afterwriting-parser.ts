@@ -87,8 +87,10 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             scriptHtml: string,
             titleHtml: string,
             title_page: any[],
-            tokens: any[]
-        } = { title_page: [], tokens: [], scriptHtml: "", titleHtml: "" }
+            tokens: any[],
+            lengthAction: number,
+            lengthDialogue: number
+        } = { title_page: [], tokens: [], scriptHtml: "", titleHtml: "", lengthAction: 0, lengthDialogue: 0 }
     if (!script) {
         return result;
     }
@@ -123,7 +125,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         state = "normal",
         cache_state_for_comment,
         nested_comments = 0,
-        title_page_started = false;
+        title_page_started = false
 
 
     var reduce_comment = function (prev: any, current: any) {
@@ -296,12 +298,14 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             }
             else {
                 token.type = "action";
+                result.lengthAction += token.text.length;
             }
         } else {
             if (token.text.match(regex.parenthetical)) {
                 token.type = "parenthetical";
             } else {
                 token.type = "dialogue";
+                result.lengthDialogue += token.text.length;
             }
             if (dual_right) {
                 token.dual = "right";

@@ -171,19 +171,27 @@ function padZero(i: any) {
 	}
 	return i;
 }
-function updateStatus(): void {
-	//THIS IS CURRENTLY A VERY VAGUE APPROXIMATION OF THE ACTUAL RUNTIME
-	//In the future, it should ignore the title page, scene headers, notes, comments, character names, and measure only based on the dialogue and action.
-	//(Maybe even take into account parenthicals below character names?)
+
+
+/**
+ * Approximates length of the screenplay based on the overall length of dialogue and action tokens
+ * 
+ * According to this paper: http://www.office.usp.ac.jp/~klinger.w/2010-An-Analysis-of-Articulation-Rates-in-Movies.pdf
+ * The average amount of syllables per second in the 14 movies analysed is 5.1
+ * The average amount of letters per syllable is 3 (https://strainindex.wordpress.com/2010/03/13/syllable-word-and-sentence-length/)
+ */
+
+function updateStatus(lengthAction:number, lengthDialogue:number): void {
 	if (durationStatus != undefined) {
 		if (vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document.languageId == "fountain") {
 			durationStatus.show();
 			//This value is based on the average calculated from various different scripts (see script_to_time.txt)
-			var secondcount = vscode.window.activeTextEditor.document.getText().replace(/ |\n|\t/g, "").length / 16.304;
+			var durationDialogue = lengthDialogue/15;
+			var durationAction = lengthAction/16;
 			var time = new Date(null);
 			time.setHours(0);
 			time.setMinutes(0);
-			time.setSeconds(secondcount);
+			time.setSeconds(durationDialogue+durationAction);
 			durationStatus.text = padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
 		}
 		else {
@@ -213,7 +221,6 @@ export function activate(context: ExtensionContext) {
 	//Register for line duration length
 	durationStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	context.subscriptions.push(durationStatus);
-	updateStatus();
 
 	//Load fonts for autocomplete
 	(async () => {
@@ -379,6 +386,8 @@ export class FountainStructureProperties {
 	titleKeys: string[];
 	firstTokenLine: number;
 	fontLine: number;
+	lengthAction: number; //Length of the action character count
+	lengthDialogue: number; //Length of the dialogue character count
 	characters: Map<string, number[]>;
 }
 var fountainDocProps: FountainStructureProperties = {
@@ -388,6 +397,8 @@ var fountainDocProps: FountainStructureProperties = {
 	titleKeys: [],
 	firstTokenLine: Infinity,
 	fontLine: -1,
+	lengthAction: 0,
+	lengthDialogue: 0,
 	characters: new Map<string, number[]>()
 };
 
@@ -414,6 +425,7 @@ function parseDocument(document: TextDocument) {
 		fountainDocProps.sceneNames = [];
 		fountainDocProps.firstTokenLine = Infinity;
 		fountainDocProps.characters = new Map<string, number[]>();
+
 		while (tokenlength < documentTokens.length) {
 			var token = documentTokens[tokenlength];
 			if (token.type != "separator" && fountainDocProps.firstTokenLine == Infinity)
@@ -506,7 +518,7 @@ function parseDocument(document: TextDocument) {
 	}
 	if (document.languageId == "fountain")
 		outlineViewProvider.update();
-	updateStatus();
+	updateStatus(output.lengthAction, output.lengthDialogue);
 }
 
 vscode.window.onDidChangeActiveTextEditor(change => {
