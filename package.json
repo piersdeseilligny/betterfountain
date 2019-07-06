@@ -234,11 +234,11 @@
 		"postinstall": "node ./node_modules/vscode/bin/install"
 	},
 	"devDependencies": {
-		"@types/mocha": "^5.2.0",
-		"@types/node": "^8.0.0",
+		"@types/mocha": "^5.2.7",
+		"@types/node": "^8.10.50",
 		"copyfiles": "^2.1.0",
 		"typescript": "2.8.3",
-		"vscode": "^1.1.21"
+		"vscode": "^1.1.35"
 	},
 	"dependencies": {
 		"@types/username": "^3.0.0",
