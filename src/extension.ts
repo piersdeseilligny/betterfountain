@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import * as username from 'username';
-import { findCharacterThatSpokeBeforeTheLast, trimCharacterExtension, addForceSymbolToCharacter } from "./utils";
+import { findCharacterThatSpokeBeforeTheLast, trimCharacterExtension, addForceSymbolToCharacter, getSceneFoldingRanges } from "./utils";
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
@@ -175,7 +175,7 @@ function padZero(i: any) {
 
 /**
  * Approximates length of the screenplay based on the overall length of dialogue and action tokens
- * 
+ *
  * According to this paper: http://www.office.usp.ac.jp/~klinger.w/2010-An-Analysis-of-Articulation-Rates-in-Movies.pdf
  * The average amount of syllables per second in the 14 movies analysed is 5.1
  * The average amount of letters per syllable is 3 (https://strainindex.wordpress.com/2010/03/13/syllable-word-and-sentence-length/)
@@ -528,79 +528,10 @@ vscode.window.onDidChangeActiveTextEditor(change => {
 	}
 })
 
-/*
-function GetSceneRanges(document: TextDocument) : FoldingRange[]{
-		var matchlines = [];
-		var ranges = [];
-		for (let index = 0; index < documentTokens.length; index++) {
-			if(documentTokens[index].type=="scene_heading"){
-				matchlines.push(documentTokens[index].position);
-			}
-		}
-		for (let index = 0; index < matchlines.length; index++) {
-			if(index == matchlines.length-1)
-				ranges.push(new FoldingRange(matchlines[index], document.lineCount-1));
-			else if(matchlines[index+1]-matchlines[index] <= 1) continue;
-			else{
-				ranges.push(new FoldingRange(matchlines[index], matchlines[index+1]-1));
-			}
-		}
-		return ranges;
-}*/
-function GetFoldingRange(matchlines: number[], lineCount: number/*, higherRange?: FoldingRange[]*/): FoldingRange[] {
-	var ranges: FoldingRange[] = [];
-	for (let index = 0; index < matchlines.length; index++) {
-		if (index == matchlines.length - 1)
-			ranges.push(new FoldingRange(matchlines[index], lineCount - 1));
-		else if (matchlines[index + 1] - matchlines[index] <= 1) continue;
-		else {
-			ranges.push(new FoldingRange(matchlines[index], matchlines[index + 1] - 1));
-		}
-	}
-	return ranges;
-}
-function GetFullRanges(document: TextDocument): FoldingRange[] {
-	var h1matches = []; //#
-	var h2matches = []; //##
-	var h3matches = []; //### (or more)
-	var scenematches = []; //scene headings
-	var ranges: FoldingRange[] = [];
-	for (let index = 0; index < documentTokens.length; index++) {
-		if (documentTokens[index].type == "section") {
-			var depth = documentTokens[index].depth;
-			if (depth >= 3) {
-				h3matches.push(documentTokens[index].position);
-			}
-			else if (depth == 2) {
-				h2matches.push(documentTokens[index].position);
-			}
-			else if (depth == 1) {
-				h1matches.push(documentTokens[index].position);
-			}
-		}
-		else if (documentTokens[index].type == "scene_heading") {
-			scenematches.push(documentTokens[index].position);
-		}
-	}
-	//  TODO: Enable folding for headers:
-	//	ranges = ranges.concat(GetFoldingRange(h1matches, document.lineCount));
-	//	ranges = ranges.concat(GetFoldingRange(h2matches, document.lineCount));
-	//	ranges = ranges.concat(GetFoldingRange(h3matches, document.lineCount));
-	//	ranges = ranges.concat(GetFoldingRange(hmmatches, document.lineCount));
-	ranges = GetFoldingRange(scenematches, document.lineCount);
-	return ranges;
-}
 class MyFoldingRangeProvider implements FoldingRangeProvider {
 	provideFoldingRanges(document: TextDocument): FoldingRange[] {
-		var ranges: FoldingRange[] = [];
-
-		//Get the sections
-		//ranges = ranges.concat(GetSectionRanges("section", document));
-
-		//Add the scenes
-		//ranges = ranges.concat(GetFullRanges(document));
-		ranges = GetFullRanges(document);
-		return ranges;
+		// Other types of ranges can be added later
+		return getSceneFoldingRanges(document.getText());
 	}
 }
 

@@ -49,3 +49,44 @@ export const findCharacterThatSpokeBeforeTheLast = (
 	return characterBeforeLast;
 }
 
+const getHeadingLinePosition = (screenplayText: string, scene: string): number => {
+    const index = screenplayText.indexOf(scene)
+    const tempString = screenplayText.substring(0, index)
+    return tempString.split("\n").length
+}
+
+export const getSceneFoldingRanges = (screenplayText: string): vscode.FoldingRange[] => {
+    const sceneHeadingRegexLookAhead = /^(?=(?:INT\.|EXT\.|INT\/EXT\.) .+$)/m
+    const sceneHeadingRegex = /^(?:INT\. |EXT\. |INT\/EXT\. ).+$/
+    const headingsLinePositions: number[] = []
+    const scenes = screenplayText.split(sceneHeadingRegexLookAhead)
+    // Check if first string isn't actually a scene - remove in that case
+    if (!sceneHeadingRegex.test(scenes[0])) {
+        delete scenes[0]
+    }
+
+    scenes.forEach((scene) => {
+        headingsLinePositions.push(getHeadingLinePosition(screenplayText, scene))
+    })
+
+    console.log(headingsLinePositions)
+
+    const sceneRanges: vscode.FoldingRange[] = []
+
+    headingsLinePositions.reduce((prev, curr) => {
+		console.log({prev, curr})
+		sceneRanges.push(new vscode.FoldingRange(prev - 1, curr - 3, 3))
+        return curr
+    })
+
+    // Add last scene to sceneRanges array
+    sceneRanges.push(
+		new vscode.FoldingRange(
+			headingsLinePositions[headingsLinePositions.length - 1] - 1,
+			screenplayText.split("\n").length - 2,
+			3
+		)
+	)
+
+    return sceneRanges
+}
