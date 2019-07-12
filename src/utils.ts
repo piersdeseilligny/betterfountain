@@ -49,41 +49,47 @@ export const findCharacterThatSpokeBeforeTheLast = (
 	return characterBeforeLast;
 }
 
-const getHeadingLinePosition = (screenplayText: string, scene: string): number => {
+/**
+ * Helper function to retrieve the position of a line in a text
+ * @param screenplayText
+ * @param scene
+ */
+const getLinePosition = (screenplayText: string, scene: string): number => {
     const index = screenplayText.indexOf(scene)
     const tempString = screenplayText.substring(0, index)
-    return tempString.split("\n").length
+    return tempString.split("\n").length - 1
 }
 
 export const getSceneFoldingRanges = (screenplayText: string): vscode.FoldingRange[] => {
     const sceneHeadingRegexLookAhead = /^(?=(?:INT\.|EXT\.|INT\/EXT\.) .+$)/m
     const sceneHeadingRegex = /^(?:INT\. |EXT\. |INT\/EXT\. ).+$/
-    const headingsLinePositions: number[] = []
+	const headingsLinePositions: number[] = []
+
+	// Step 1: Create an array of scenes
     const scenes = screenplayText.split(sceneHeadingRegexLookAhead)
-    // Check if first string isn't actually a scene - remove in that case
+	// Check if first string isn't actually a scene - remove in that case
+	// Is most likely the case if there are `Title: La La Land` attributes etc.
     if (!sceneHeadingRegex.test(scenes[0])) {
         delete scenes[0]
     }
 
+	// Step 2: Update the array of line numbers of each scene (their beginning)
     scenes.forEach((scene) => {
-        headingsLinePositions.push(getHeadingLinePosition(screenplayText, scene))
+        headingsLinePositions.push(getLinePosition(screenplayText, scene))
     })
 
-    console.log(headingsLinePositions)
-
+	// Step 3: Calculate the ranges of all scenes
     const sceneRanges: vscode.FoldingRange[] = []
-
     headingsLinePositions.reduce((prev, curr) => {
 		console.log({prev, curr})
-		sceneRanges.push(new vscode.FoldingRange(prev - 1, curr - 3, 3))
+		sceneRanges.push(new vscode.FoldingRange(prev, curr - 2, 3))
         return curr
     })
-
     // Add last scene to sceneRanges array
     sceneRanges.push(
 		new vscode.FoldingRange(
-			headingsLinePositions[headingsLinePositions.length - 1] - 1,
-			screenplayText.split("\n").length - 2,
+			headingsLinePositions[headingsLinePositions.length - 1],
+			screenplayText.split("\n").length - 1,
 			3
 		)
 	)
