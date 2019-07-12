@@ -247,6 +247,7 @@
 		"font-finder": "^1.0.4",
 		"os-fonts": "^0.5.0",
 		"pdfkit": "^0.8.3",
+		"syllable": "^3.6.1",
 		"username": "^4.1.0"
 	}
 }

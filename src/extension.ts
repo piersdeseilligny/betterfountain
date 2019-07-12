@@ -175,29 +175,31 @@ function padZero(i: any) {
 
 /**
  * Approximates length of the screenplay based on the overall length of dialogue and action tokens
- * 
- * According to this paper: http://www.office.usp.ac.jp/~klinger.w/2010-An-Analysis-of-Articulation-Rates-in-Movies.pdf
- * The average amount of syllables per second in the 14 movies analysed is 5.1
- * The average amount of letters per syllable is 3 (https://strainindex.wordpress.com/2010/03/13/syllable-word-and-sentence-length/)
  */
 
 function updateStatus(lengthAction:number, lengthDialogue:number): void {
 	if (durationStatus != undefined) {
+
 		if (vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document.languageId == "fountain") {
 			durationStatus.show();
-			//This value is based on the average calculated from various different scripts (see script_to_time.txt)
-			var durationDialogue = lengthDialogue/15;
-			var durationAction = lengthAction/16;
-			var time = new Date(null);
-			time.setHours(0);
-			time.setMinutes(0);
-			time.setSeconds(durationDialogue+durationAction);
-			durationStatus.text = padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
+			//lengthDialogue is in syllables, lengthAction is in characters
+			var durationDialogue = lengthDialogue;
+			var durationAction = lengthAction/20;
+			durationStatus.tooltip="Dialogue: "+secondsToString(durationDialogue)+"\nAction: "+secondsToString(durationAction);
+			//durationStatus.text = "charcount: " + (lengthAction)+"c"
+			durationStatus.text = secondsToString(durationDialogue+durationAction);
 		}
 		else {
 			durationStatus.hide();
 		}
 	}
+}
+function secondsToString(seconds:number):string{
+	var time = new Date(null);
+	time.setHours(0);
+	time.setMinutes(0);
+	time.setSeconds(seconds);
+	return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
 }
 
 
@@ -403,6 +405,8 @@ var fountainDocProps: FountainStructureProperties = {
 };
 
 var fontTokenExisted:boolean = false;
+const decortypesDialogue = vscode.window.createTextEditorDecorationType({
+});
 
 function parseDocument(document: TextDocument) {
 	if (vscode.window.activeTextEditor.document.uri == document.uri) {
@@ -425,6 +429,8 @@ function parseDocument(document: TextDocument) {
 		fountainDocProps.sceneNames = [];
 		fountainDocProps.firstTokenLine = Infinity;
 		fountainDocProps.characters = new Map<string, number[]>();
+
+		const decorsDialogue: vscode.DecorationOptions[] = [];
 
 		while (tokenlength < documentTokens.length) {
 			var token = documentTokens[tokenlength];
@@ -494,6 +500,9 @@ function parseDocument(document: TextDocument) {
 					fountainDocProps.characters.set(character, [currentSceneNumber]);
 				}
 			}
+			else if(token.type == "dialogue"){
+				decorsDialogue.push({ range: new vscode.Range(token.line, 0, token.line, Number.MAX_SAFE_INTEGER), hoverMessage:"Estimation: " + token.time + "s" });
+			}
 			tokenlength++;
 		}
 		tokenlength = 0;
@@ -515,7 +524,9 @@ function parseDocument(document: TextDocument) {
 			fontTokenExisted=false;
 			diagnosticCollection.set(vscode.window.activeTextEditor.document.uri, []);
 		}
+		vscode.window.activeTextEditor.setDecorations(decortypesDialogue, decorsDialogue);
 	}
+	
 	if (document.languageId == "fountain")
 		outlineViewProvider.update();
 	updateStatus(output.lengthAction, output.lengthDialogue);
@@ -697,13 +708,6 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 				}
 			}
 		}
-		// Dialogue autocomplete
-		else if (multipleCharactersExist && currentLineIsEmpty && previousLineIsEmpty) {
-			// Autocomplete with character name who spoke before the last one
-			const charWhoSpokeBeforeLast = findCharacterThatSpokeBeforeTheLast(document, position, fountainDocProps);
-			const charWithForceSymbolIfNecessary = addForceSymbolToCharacter(charWhoSpokeBeforeLast);
-			completes.push({label: charWithForceSymbolIfNecessary, kind: vscode.CompletionItemKind.Text});
-		}
 		//Scene header autocomplete
 		else if (fountainDocProps.sceneLines.indexOf(position.line) > -1) {
 			//Time of day
@@ -732,31 +736,39 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 			}
 		}
 		//Other autocompletes
-		else if (position.line > 0 && document.getText(new vscode.Range(new vscode.Position(position.line - 1, 0), new vscode.Position(position.line - 1, 1))) == "") {
+		else if (position.line > 0 && currentLineIsEmpty && previousLineIsEmpty) {
 			//We aren't on the first line, and the previous line is empty
-			if (position.character == 1) {
-				completes.push({ label: "INT. ", documentation: "Interior", sortText: "B", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" }});
-				completes.push({ label: "EXT. ", documentation: "Exterior", sortText: "C", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-				completes.push({ label: "INT/EXT. ", documentation: "Interior/Exterior", sortText: "D", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-				completes.push({ label: "EST. ", documentation: "Establishing", sortText: "E", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-				//Get current scene number
-				var this_scene_nb = -1;
-				for (let index in fountainDocProps.scenes) {
-					if (fountainDocProps.scenes[index].line < position.line)
-						this_scene_nb = fountainDocProps.scenes[index].scene
-					else
-						break;
-				}
+
+			//Get current scene number
+			var this_scene_nb = -1;
+			for (let index in fountainDocProps.scenes) {
+				if (fountainDocProps.scenes[index].line < position.line)
+					this_scene_nb = fountainDocProps.scenes[index].scene
+				else
+					break;
+			}
+			if (multipleCharactersExist) {
+				// The character who spoke before the last one
+				const charWhoSpokeBeforeLast = findCharacterThatSpokeBeforeTheLast(document, position, fountainDocProps);
+				const charWithForceSymbolIfNecessary = addForceSymbolToCharacter(charWhoSpokeBeforeLast);
+				completes.push({label: charWithForceSymbolIfNecessary, kind: vscode.CompletionItemKind.Keyword, sortText:"0A"});
+				//Dialogue autocomplete
 				fountainDocProps.characters.forEach((value: number[], key: string) => {
 					if (value.indexOf(this_scene_nb) > -1) {
 						//This character is in the current scene, give it priority over the others
-						completes.push({ label: key, documentation: "Character", sortText: "B" });
+						completes.push({ label: key, documentation: "Character", sortText: "0B", kind: vscode.CompletionItemKind.Text });
 					}
 					else {
-						completes.push({ label: key, documentation: "Character", sortText: "C" });
+						completes.push({ label: key, documentation: "Character", sortText: "0C", kind: vscode.CompletionItemKind.Text });
 					}
 				});
 			}
+
+			completes.push({ label: "INT. ", documentation: "Interior", sortText: "1B", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" }});
+			completes.push({ label: "EXT. ", documentation: "Exterior", sortText: "1C", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
+			completes.push({ label: "INT/EXT. ", documentation: "Interior/Exterior", sortText: "1D", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
+			completes.push({ label: "EST. ", documentation: "Establishing", sortText: "1E", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
+			
 		}
 		return completes;
 	}
