@@ -81,7 +81,6 @@ export const getSceneFoldingRanges = (screenplayText: string): vscode.FoldingRan
 	// Step 3: Calculate the ranges of all scenes
     const sceneRanges: vscode.FoldingRange[] = []
     headingsLinePositions.reduce((prev, curr) => {
-		console.log({prev, curr})
 		sceneRanges.push(new vscode.FoldingRange(prev, curr - 2, 3))
         return curr
     })
