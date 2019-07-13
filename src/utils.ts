@@ -61,8 +61,10 @@ const getLinePosition = (screenplayText: string, scene: string): number => {
 }
 
 export const getSceneFoldingRanges = (screenplayText: string): vscode.FoldingRange[] => {
-    const sceneHeadingRegexLookAhead = /^(?=^(?:INT|EXT|INT\/EXT|EST|I\/E|I\.\/E)(?: |\.).*$)/mi
-    const sceneHeadingRegex = /^(?:INT|EXT|INT\/EXT|EST|I\/E|I\.\/E)(?: |\.).*$/i
+	const sceneHeadingRegexBase = "^(?:INT|EXT|INT\/EXT|EST|I\/E|I\.\/E)(?: |\.).*$"
+	const sceneHeadingRegex = new RegExp(sceneHeadingRegexBase, "i")
+	const sceneHeadingRegexLookAhead = new RegExp(`^(?=${sceneHeadingRegexBase})`, "mi")
+
 	const headingsLinePositions: number[] = []
 
 	// Step 1: Create an array of scenes
