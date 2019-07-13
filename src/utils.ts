@@ -50,9 +50,7 @@ export const findCharacterThatSpokeBeforeTheLast = (
 }
 
 /**
- * Helper function to retrieve the position of a line in a text
- * @param screenplayText
- * @param scene
+ * Retrieves the line position of a substring inside a text with multiple lines
  */
 const getLinePosition = (screenplayText: string, scene: string): number => {
     const index = screenplayText.indexOf(scene)
@@ -69,8 +67,8 @@ export const getSceneFoldingRanges = (screenplayText: string): vscode.FoldingRan
 
 	// Step 1: Create an array of scenes
     const scenes = screenplayText.split(sceneHeadingRegexLookAhead)
-	// Check if first string isn't actually a scene - remove in that case
-	// Is most likely the case if there are `Title: La La Land` attributes etc.
+	// Check if first string isn't actually a scene - remove in that case.
+	// This will happen if there are `Title: Frozen` attributes etc. on the top
     if (!sceneHeadingRegex.test(scenes[0])) {
         delete scenes[0]
     }
