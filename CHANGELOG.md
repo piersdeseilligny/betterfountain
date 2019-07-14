@@ -1,6 +1,9 @@
 ## **1.3.2** (UNRELEASED)
     + Smarter character autocomplete for dialogues, in the style of Final Draft (Thanks to @rickschubert!)
+    + Improved duration estimate, which now only uses dialogue and action blocks to produce an estimate.
+    · Fixed broken scene folding
     · Fixed forced scene headers being incorrectly highlighted (Thanks to @zoltair!)
+
 
 ## **1.3.1**
     · Fixed "draft date" missing from PDF
