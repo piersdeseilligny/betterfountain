@@ -580,17 +580,17 @@ function GetFullRanges(document: TextDocument): FoldingRange[] {
 		if (documentTokens[index].type == "section") {
 			var depth = documentTokens[index].depth;
 			if (depth >= 3) {
-				h3matches.push(documentTokens[index].position);
+				h3matches.push(documentTokens[index].line);
 			}
 			else if (depth == 2) {
-				h2matches.push(documentTokens[index].position);
+				h2matches.push(documentTokens[index].line);
 			}
 			else if (depth == 1) {
-				h1matches.push(documentTokens[index].position);
+				h1matches.push(documentTokens[index].line);
 			}
 		}
 		else if (documentTokens[index].type == "scene_heading") {
-			scenematches.push(documentTokens[index].position);
+			scenematches.push(documentTokens[index].line);
 		}
 	}
 	//  TODO: Enable folding for headers:
