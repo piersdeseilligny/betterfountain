@@ -81,17 +81,19 @@ var inline: { [index: string]: any } = {
     }
 };
 
-export var parse = function (original_script: string, cfg: any, generate_html: boolean) {
+interface parseoutput {
+    scriptHtml: string,
+    titleHtml: string,
+    title_page: any[],
+    tokens: any[],
+    tokenLines: { [line: number]: number }
+    lengthAction: number,
+    lengthDialogue: number
+}
+export var parse = function (original_script: string, cfg: any, generate_html: boolean):parseoutput {
 
     var script = original_script,
-        result: {
-            scriptHtml: string,
-            titleHtml: string,
-            title_page: any[],
-            tokens: any[],
-            lengthAction: number,
-            lengthDialogue: number
-        } = { title_page: [], tokens: [], scriptHtml: "", titleHtml: "", lengthAction: 0, lengthDialogue: 0 }
+        result:parseoutput = { title_page: [], tokens: [], scriptHtml: "", titleHtml: "", lengthAction: 0, lengthDialogue: 0, tokenLines:{} }
     if (!script) {
         return result;
     }
@@ -105,7 +107,6 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     var lines = script.split(/\r\n|\r|\n/);
 
     var create_token = function (text: string, cursor: number, line: number) {
-
         return helpers.default.create_token({
             text: text,
             start: cursor,
@@ -113,6 +114,11 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             line: line
         });
     };
+    var pushToken = function(token:any){
+        result.tokens.push(token);
+        if(token.line)
+        result.tokenLines[token.line] = result.tokens.length-1;
+    }
 
     var lines_length = lines.length,
         current = 0,
@@ -170,9 +176,9 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             var skip_separator = cfg.merge_multiple_empty_lines && last_was_separator;
 
             if (state == "dialogue")
-                result.tokens.push({ type: "dialogue_end" })
+                pushToken({ type: "dialogue_end" })
             if (state == "dual_dialogue")
-                result.tokens.push({ type: "dual_dialogue_end" })
+                pushToken({ type: "dual_dialogue_end" })
             state = "normal";
 
 
@@ -183,7 +189,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             dual_right = false;
             token.type = "separator";
             last_was_separator = true;
-            result.tokens.push(token);
+            pushToken(token);
             continue;
         }
 
@@ -220,7 +226,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         start: token.start,
                         end: token.end
                     });
-                    result.tokens.push(page_break);
+                    pushToken(page_break);
                 }
                 token.type = "scene_heading";
                 token.number = scene_number;
@@ -292,7 +298,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         token.text = token.text.replace("^", "");
                     }
                     else {
-                        result.tokens.push({ type: "dialogue_begin" });
+                        pushToken({ type: "dialogue_begin" });
                     }
                     last_character_index = result.tokens.length;
                 }
@@ -325,15 +331,15 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 token.text = "*" + token.text.substr(1) + "*";
             }
             token.text = token.is("action") ? token.text : token.text.trim();
-            result.tokens.push(token);
+            pushToken(token);
         }
 
     }
 
     if (state == "dialogue")
-        result.tokens.push({ type: "dialogue_end" })
+        pushToken({ type: "dialogue_end" })
     if (state == "dual_dialogue")
-        result.tokens.push({ type: "dual_dialogue_end" })
+        pushToken({ type: "dual_dialogue_end" })
 
     var current_index = 0/*, previous_type = null*/;
     // tidy up separators
@@ -472,6 +478,5 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     while (result.tokens.length > 0 && result.tokens[result.tokens.length - 1].type === "separator") {
         result.tokens.pop();
     }
-
     return result;
 };

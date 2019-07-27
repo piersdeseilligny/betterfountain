@@ -37,7 +37,8 @@
 		"configurationDefaults": {
 			"[fountain]": {
 				"editor.wordWrap": "on",
-				"editor.wordBasedSuggestions": false
+				"editor.wordBasedSuggestions": false,
+				"editor.suggestSelection": "first"
 			}
 		},
 		"viewsContainers": {
@@ -235,8 +236,8 @@
 	},
 	"devDependencies": {
 		"@types/mocha": "^5.2.7",
-		"@types/node": "^8.10.50",
-		"copyfiles": "^2.1.0",
+		"@types/node": "^8.10.51",
+		"copyfiles": "^2.1.1",
 		"typescript": "2.8.3",
 		"vscode": "^1.1.35"
 	},

@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import * as username from 'username';
-import { findCharacterThatSpokeBeforeTheLast, trimCharacterExtension, addForceSymbolToCharacter } from "./utils";
+import { trimCharacterExtension, addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast } from "./utils";
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
@@ -258,7 +258,7 @@ export function activate(context: ExtensionContext) {
 		var rawcontent = vscode.window.activeTextEditor.document.getText();
 		var output = afterparser.parse(rawcontent, getFountainConfig(lastFountainEditor), true);
 		updateWebView(output.titleHtml, output.scriptHtml);
-	}));
+		}));
 
 	//Jump to line command
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.jumpto', (args) => {
@@ -346,6 +346,10 @@ export function activate(context: ExtensionContext) {
 	})();
 }
 
+vscode.workspace.onDidOpenTextDocument(e => {
+	parseDocument(e);
+});
+
 vscode.workspace.onDidChangeTextDocument(change => {
 	parseDocument(change.document);
 })
@@ -370,7 +374,7 @@ vscode.workspace.onDidChangeConfiguration(change => {
 })
 
 //var lastFountainDocument:TextDocument;
-var documentTokens: any;
+var parsedDocument: any;
 var docStructure: StructToken[] = [];
 class StructToken {
 	text: string;
@@ -419,7 +423,7 @@ function parseDocument(document: TextDocument) {
 			previewpanel.webview.postMessage({ command: 'updateTitle', content: output.titleHtml });
 			previewpanel.webview.postMessage({ command: 'updateScript', content: output.scriptHtml });
 		}
-		documentTokens = output.tokens;
+		parsedDocument = output;
 		var tokenlength = 0;
 		var currentdepth = 0;
 		var currentSceneNumber = 0;
@@ -432,8 +436,8 @@ function parseDocument(document: TextDocument) {
 
 		const decorsDialogue: vscode.DecorationOptions[] = [];
 
-		while (tokenlength < documentTokens.length) {
-			var token = documentTokens[tokenlength];
+		while (tokenlength < parsedDocument.tokens.length) {
+			var token = parsedDocument.tokens[tokenlength];
 			if (token.type != "separator" && fountainDocProps.firstTokenLine == Infinity)
 				fountainDocProps.firstTokenLine = token.line
 			var cobj: StructToken = new StructToken();
@@ -501,7 +505,7 @@ function parseDocument(document: TextDocument) {
 				}
 			}
 			else if(token.type == "dialogue"){
-				decorsDialogue.push({ range: new vscode.Range(token.line, 0, token.line, Number.MAX_SAFE_INTEGER), hoverMessage:"Estimation: " + token.time + "s" });
+				decorsDialogue.push({ range: new vscode.Range(token.line, 0, token.line, Number.MAX_SAFE_INTEGER), hoverMessage:"Estimated duration: " + Math.floor(token.time*10)/10 + "s" });
 			}
 			tokenlength++;
 		}
@@ -543,9 +547,9 @@ vscode.window.onDidChangeActiveTextEditor(change => {
 function GetSceneRanges(document: TextDocument) : FoldingRange[]{
 		var matchlines = [];
 		var ranges = [];
-		for (let index = 0; index < documentTokens.length; index++) {
-			if(documentTokens[index].type=="scene_heading"){
-				matchlines.push(documentTokens[index].position);
+		for (let index = 0; index < parsedDocument.tokens.length; index++) {
+			if(parsedDocument.tokens[index].type=="scene_heading"){
+				matchlines.push(parsedDocument.tokens[index].position);
 			}
 		}
 		for (let index = 0; index < matchlines.length; index++) {
@@ -576,21 +580,21 @@ function GetFullRanges(document: TextDocument): FoldingRange[] {
 	var h3matches = []; //### (or more)
 	var scenematches = []; //scene headings
 	var ranges: FoldingRange[] = [];
-	for (let index = 0; index < documentTokens.length; index++) {
-		if (documentTokens[index].type == "section") {
-			var depth = documentTokens[index].depth;
+	for (let index = 0; index < parsedDocument.tokens.length; index++) {
+		if (parsedDocument.tokens[index].type == "section") {
+			var depth = parsedDocument.tokens[index].depth;
 			if (depth >= 3) {
-				h3matches.push(documentTokens[index].line);
+				h3matches.push(parsedDocument.tokens[index].line);
 			}
 			else if (depth == 2) {
-				h2matches.push(documentTokens[index].line);
+				h2matches.push(parsedDocument.tokens[index].line);
 			}
 			else if (depth == 1) {
-				h1matches.push(documentTokens[index].line);
+				h1matches.push(parsedDocument.tokens[index].line);
 			}
 		}
-		else if (documentTokens[index].type == "scene_heading") {
-			scenematches.push(documentTokens[index].line);
+		else if (parsedDocument.tokens[index].type == "scene_heading") {
+			scenematches.push(parsedDocument.tokens[index].line);
 		}
 	}
 	//  TODO: Enable folding for headers:
@@ -740,28 +744,29 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 			//We aren't on the first line, and the previous line is empty
 
 			//Get current scene number
-			var this_scene_nb = -1;
+			/*var this_scene_nb = -1;
 			for (let index in fountainDocProps.scenes) {
 				if (fountainDocProps.scenes[index].line < position.line)
 					this_scene_nb = fountainDocProps.scenes[index].scene
 				else
 					break;
-			}
+			}*/
 			if (multipleCharactersExist) {
 				// The character who spoke before the last one
-				const charWhoSpokeBeforeLast = findCharacterThatSpokeBeforeTheLast(document, position, fountainDocProps);
-				const charWithForceSymbolIfNecessary = addForceSymbolToCharacter(charWhoSpokeBeforeLast);
-				completes.push({label: charWithForceSymbolIfNecessary, kind: vscode.CompletionItemKind.Keyword, sortText:"0A"});
-				//Dialogue autocomplete
-				fountainDocProps.characters.forEach((value: number[], key: string) => {
-					if (value.indexOf(this_scene_nb) > -1) {
-						//This character is in the current scene, give it priority over the others
-						completes.push({ label: key, documentation: "Character", sortText: "0B", kind: vscode.CompletionItemKind.Text });
-					}
-					else {
-						completes.push({ label: key, documentation: "Character", sortText: "0C", kind: vscode.CompletionItemKind.Text });
-					}
-				});
+				var charactersWhoSpokeBeforeLast = getCharactersWhoSpokeBeforeLast(parsedDocument, position);
+				if(charactersWhoSpokeBeforeLast.length>0){
+					var index = 0;
+					charactersWhoSpokeBeforeLast.forEach(character=>{
+						var charWithForceSymbolIfNecessary = addForceSymbolToCharacter(character);
+						completes.push({label: charWithForceSymbolIfNecessary, kind: vscode.CompletionItemKind.Keyword, sortText:"0A"+index, documentation:"Character from the current scene", command: { command: "type", arguments:[{"text":"\n"}], title:"newline" }});
+						index++;
+					});
+				}
+				else{
+					fountainDocProps.characters.forEach((_value: number[], key: string) => {
+							completes.push({ label: key, documentation: "Character", sortText: "0C", kind: vscode.CompletionItemKind.Text, command: { command: "type", arguments:[{"text":"\n"}], title:"newline" } });
+					});
+				}
 			}
 
 			completes.push({ label: "INT. ", documentation: "Interior", sortText: "1B", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" }});

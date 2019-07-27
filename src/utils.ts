@@ -21,6 +21,34 @@ export const addForceSymbolToCharacter = (characterName: string): string => {
 	return containsLowerCase(characterName) ? `@${characterName}` : characterName;
 }
 
+export const getCharactersWhoSpokeBeforeLast = (parsedDocument:any, position:vscode.Position) => {
+	let searchIndex = 0;
+	if(parsedDocument.tokenLines[position.line-1]){
+		searchIndex = parsedDocument.tokenLines[position.line-1];
+	}
+	let stopSearch = false;
+	let previousCharacters:string[] = []
+	let lastCharacter = undefined; 
+	while(searchIndex>0 && !stopSearch){
+		var token = parsedDocument.tokens[searchIndex-1];
+		if(token.type=="character"){
+			var name =  trimCharacterExtension(token.text);
+			if(lastCharacter==undefined){
+				lastCharacter = name;
+			}
+			else if(name != lastCharacter && previousCharacters.indexOf(name)==-1){
+				previousCharacters.push(name);
+			}
+		}
+		else if(token.type=="scene_heading"){
+			stopSearch=true;
+		}
+		searchIndex--;
+	}
+	console.log(previousCharacters);
+	return previousCharacters;
+}
+
 export const findCharacterThatSpokeBeforeTheLast = (
 	document: vscode.TextDocument,
 	position: vscode.Position,
