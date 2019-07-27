@@ -12,7 +12,7 @@ This is an extension for Visual Studio Code, written in a few hours, which allow
 ## Features
 
 * Full syntax highlighting (even for stuff like lyrics!)
-* Autocompletion for recurring characters and scenes, as well as title page keys.
+* Smart autocomplete for recurring characters and scenes, as well as title page keys.
 * Full screenplay outline, broken down by sections and scenes
 * "Folding" scenes
 * Live preview of the formatted screenplay

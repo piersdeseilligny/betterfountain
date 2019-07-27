@@ -344,11 +344,10 @@ export function activate(context: ExtensionContext) {
 		}
 		console.log("username is " + userfullname);
 	})();
-}
 
-vscode.workspace.onDidOpenTextDocument(e => {
-	parseDocument(e);
-});
+	//parse the documentt
+	parseDocument(vscode.window.activeTextEditor.document);
+}
 
 vscode.workspace.onDidChangeTextDocument(change => {
 	parseDocument(change.document);
