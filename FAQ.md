@@ -26,5 +26,17 @@ Here are a few super simple steps to get started:
   * "Fountain: Export Screenplay PDF": Export your screenplay to a pdf file.
   * "Fold all" > Folds all the scenes so that you can only see the header. "Unfold all" does the contrary.
 
-
 * If you want to know how long your screenplay is (very approximately) just look in the bottom right corner. See the "00:00:00" next to the Line and Column positions? That's more or less the length of your screenplay (in hours:minutes:seconds).
+
+* For imitation of a Typewriter mode you can add below code to `settings.json` file (`File`>`Preferences`>`Settings`):
+```
+"[fountain]": {
+    "editor.wordWrapColumn": 57,   
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.quickSuggestions": false,
+    "editor.lineNumbers": "off",
+    "editor.folding": true,
+    "editor.glyphMargin": true,
+}
+```
+and run `View`>`Appearance`>`Centered Layout`
