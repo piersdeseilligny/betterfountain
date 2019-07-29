@@ -163,7 +163,6 @@ function updateWebView(titlepage: string, script: string) {
 										   .replace("$PAGETHEME$",directConfig.previewTheme+"_theme");
 
 	parseDocument(vscode.window.activeTextEditor.document);
-	console.log(previewpanel.webview.html)
 }
 function padZero(i: any) {
 	if (i < 10) {
@@ -289,7 +288,6 @@ export function activate(context: ExtensionContext) {
 		}*/
 		if (canceled) return;
 		var saveuri = vscode.Uri.file(vscode.window.activeTextEditor.document.fileName.replace('.fountain', ''));
-		console.log(saveuri);
 		var filepath = await vscode.window.showSaveDialog(
 			{
 				filters: { "PDF File": ["pdf"] },
@@ -342,7 +340,6 @@ export function activate(context: ExtensionContext) {
 		if (userfullname.length > 0) {
 			userfullname = userfullname.charAt(0).toUpperCase() + userfullname.slice(1)
 		}
-		console.log("username is " + userfullname);
 	})();
 
 	//parse the documentt
@@ -354,7 +351,6 @@ vscode.workspace.onDidChangeTextDocument(change => {
 })
 
 vscode.workspace.onDidChangeConfiguration(change => {
-	console.log("change configuration")
 	if (change.affectsConfiguration("fountain.pdf")) {
 		if (previewpanel) {
 			var config = getFountainConfig(lastFountainEditor);
@@ -529,7 +525,7 @@ function parseDocument(document: TextDocument) {
 		}
 		vscode.window.activeTextEditor.setDecorations(decortypesDialogue, decorsDialogue);
 	}
-	
+
 	if (document.languageId == "fountain")
 		outlineViewProvider.update();
 	updateStatus(output.lengthAction, output.lengthDialogue);
@@ -772,7 +768,7 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 			completes.push({ label: "EXT. ", documentation: "Exterior", sortText: "1C", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
 			completes.push({ label: "INT/EXT. ", documentation: "Interior/Exterior", sortText: "1D", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
 			completes.push({ label: "EST. ", documentation: "Establishing", sortText: "1E", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-			
+
 		}
 		return completes;
 	}
