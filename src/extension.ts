@@ -408,7 +408,7 @@ const decortypesDialogue = vscode.window.createTextEditorDecorationType({
 });
 
 function parseDocument(document: TextDocument) {
-	var hrstart = process.hrtime()
+	//var hrstart = process.hrtime()
 	if (vscode.window.activeTextEditor.document.uri == document.uri) {
 
 		var updatehtml = (previewpanel != null && document.languageId == "fountain");
@@ -530,8 +530,8 @@ function parseDocument(document: TextDocument) {
 	if (document.languageId == "fountain")
 		outlineViewProvider.update();
 	updateStatus(output.lengthAction, output.lengthDialogue);
-	var hrend = process.hrtime(hrstart)
-	console.info('Fountain parsing took %ds %dms', hrend[0], hrend[1] / 1000000)
+	//var hrend = process.hrtime(hrstart)
+	//console.info('Fountain parsing took %ds %dms', hrend[0], hrend[1] / 1000000)
 }
 
 vscode.window.onDidChangeActiveTextEditor(change => {
