@@ -29,7 +29,7 @@ export const getCharactersWhoSpokeBeforeLast = (parsedDocument:any, position:vsc
 	}
 	let stopSearch = false;
 	let previousCharacters:string[] = []
-	let lastCharacter = undefined; 
+	let lastCharacter = undefined;
 	while(searchIndex>0 && !stopSearch){
 		var token = parsedDocument.tokens[searchIndex-1];
 		if(token.type=="character"){
@@ -46,7 +46,6 @@ export const getCharactersWhoSpokeBeforeLast = (parsedDocument:any, position:vsc
 		}
 		searchIndex--;
 	}
-	
 	return previousCharacters;
 }
 
