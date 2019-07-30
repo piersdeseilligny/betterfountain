@@ -1,4 +1,4 @@
-import { calculateDialogueDuration } from "./utils";
+import { calculateDialogueDuration, trimCharacterExtension, last } from "./utils";
 import { token, create_token } from "./token";
 
 //Unicode uppercase letters:
@@ -80,7 +80,23 @@ var inline: { [index: string]: any } = {
         return s;
     }
 };
-
+class StructToken {
+	text: string;
+	id: any;
+	children: any;
+}
+export class screenplayProperties {
+    scenes: { scene: string; line: number }[];
+    sceneLines: number[];
+    sceneNames: string[];
+    titleKeys: string[];
+    firstTokenLine: number;
+    fontLine: number;
+    lengthAction: number; //Length of the action character count
+    lengthDialogue: number; //Length of the dialogue character count
+    characters: Map<string, number[]>;
+    structure: StructToken[];
+}
 interface parseoutput {
     scriptHtml: string,
     titleHtml: string,
@@ -88,12 +104,34 @@ interface parseoutput {
     tokens: token[],
     tokenLines: { [line: number]: number }
     lengthAction: number,
-    lengthDialogue: number
+    lengthDialogue: number,
+    properties: screenplayProperties
 }
-export var parse = function (original_script: string, cfg: any, generate_html: boolean):parseoutput {
+export var parse = function (original_script: string, cfg: any, generate_html: boolean): parseoutput {
 
     var script = original_script,
-        result:parseoutput = { title_page: [], tokens: [], scriptHtml: "", titleHtml: "", lengthAction: 0, lengthDialogue: 0, tokenLines:{} }
+        result: parseoutput = {
+            title_page: [],
+            tokens: [],
+            scriptHtml: "",
+            titleHtml: "",
+            lengthAction: 0,
+            lengthDialogue: 0,
+            tokenLines: {},
+            properties:
+            {
+                sceneLines: [],
+                scenes: [],
+                sceneNames: [],
+                titleKeys: [],
+                firstTokenLine: Infinity,
+                fontLine: -1,
+                lengthAction: 0,
+                lengthDialogue: 0,
+                characters: new Map<string, number[]>(),
+                structure: []
+            }
+        };
     if (!script) {
         return result;
     }
@@ -105,17 +143,18 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     }
 
     var lines = script.split(/\r\n|\r|\n/);
-    var pushToken = function(token:token){
+    var pushToken = function (token: token) {
         result.tokens.push(token);
-        if(thistoken.line)
-        result.tokenLines[thistoken.line] = result.tokens.length-1;
+        if (thistoken.line)
+            result.tokenLines[thistoken.line] = result.tokens.length - 1;
     }
 
     var lines_length = lines.length,
         current = 0,
         scene_number = 1,
+        current_depth = 0,
         match, text, last_title_page_token,
-        thistoken:token, 
+        thistoken: token,
         last_was_separator = false,
         //top_or_separated = false,
         token_category = "none",
@@ -141,7 +180,6 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     var if_not_empty = function (a: any) {
         return a;
     };
-
     for (var i = 0; i < lines_length; i++) {
         text = lines[i];
 
@@ -168,9 +206,9 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             var skip_separator = cfg.merge_multiple_empty_lines && last_was_separator;
 
             if (state == "dialogue")
-                pushToken(create_token(undefined,undefined,undefined,undefined, "dialogue_end"));
+                pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_end"));
             if (state == "dual_dialogue")
-                pushToken(create_token(undefined,undefined,undefined,undefined, "dual_dialogue_end"));
+                pushToken(create_token(undefined, undefined, undefined, undefined, "dual_dialogue_end"));
             state = "normal";
 
 
@@ -210,7 +248,11 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         if (state === "normal") {
             if (thistoken.text.match(regex.line_break)) {
                 token_category = "none";
-            } else if (thistoken.text.match(regex.scene_heading)) {
+            } else if(result.properties.firstTokenLine==Infinity) {
+                result.properties.firstTokenLine=thistoken.line;
+            }
+            if (thistoken.text.match(regex.scene_heading)) {
+                
                 thistoken.text = thistoken.text.replace(/^\./, "");
                 if (cfg.each_scene_on_new_page && scene_number !== 1) {
                     var page_break = create_token();
@@ -225,6 +267,34 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     thistoken.text = thistoken.text.replace(regex.scene_number, "");
                     thistoken.number = match[1];
                 }
+                let cobj: StructToken = new StructToken();
+                cobj.text = thistoken.text;
+				cobj.children = null;
+				if (current_depth == 0) {
+					cobj.id = '/' + thistoken.line;
+					result.properties.structure.push(cobj);
+				}
+				else if (current_depth == 1) {
+					var level1 = last(result.properties.structure);
+					cobj.id = level1.id + '/' + thistoken.line;
+					level1.children.push(cobj);
+				}
+				else if (current_depth == 2) {
+					var level1 = last(result.properties.structure);
+					var level2 = last(level1.children);
+					cobj.id = level2.id + '/' + thistoken.line;
+					level2.children.push(cobj);
+				}
+				else if (current_depth >= 3) {
+					var level1 = last(result.properties.structure);
+					var level2 = last(level1.children);
+					var level3 = last(level2.children);
+					cobj.id = level3.id + '/' + thistoken.line;
+					level3.children.push(cobj);
+				}
+                result.properties.scenes.push({scene: thistoken.number, line: thistoken.line})
+                result.properties.sceneLines.push(thistoken.line);
+                result.properties.sceneNames.push(thistoken.text);
                 scene_number++;
             } else if (thistoken.text.match(regex.centered)) {
                 thistoken.type = "centered";
@@ -239,6 +309,25 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 thistoken.level = match[1].length;
                 thistoken.text = match[2];
                 thistoken.type = "section";
+                let cobj: StructToken = new StructToken();
+                cobj.text = thistoken.text;
+				current_depth = thistoken.level;
+				cobj.children = [];
+				if (thistoken.level == 1) {
+					cobj.id = '/' + thistoken.line;
+					result.properties.structure.push(cobj)
+				}
+				else if (thistoken.level == 2) {
+					var level1 = last(result.properties.structure);
+					cobj.id = level1.id + '/' + thistoken.line;
+					level1.children.push(cobj);
+				}
+				else if (thistoken.level == 3) {
+					var level1 = last(result.properties.structure);
+					var level2 = last(level1.children);
+					cobj.id = level2.id + '/' + thistoken.line;
+					level2.children.push(cobj);
+				}
             } else if (thistoken.text.match(regex.page_break)) {
                 thistoken.text = "";
                 thistoken.type = "page_break";
@@ -289,8 +378,19 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         thistoken.text = thistoken.text.replace("^", "");
                     }
                     else {
-                        pushToken(create_token(undefined,undefined,undefined,undefined, "dialogue_begin"));
+                        pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_begin"));
                     }
+                    let character = trimCharacterExtension(thistoken.text)
+				    if (result.properties.characters.has(character)) {
+				    	var values = result.properties.characters.get(character);
+				    	if (values.indexOf(scene_number) == -1) {
+				    		values.push(scene_number);
+				    	}
+				    	result.properties.characters.set(character, values);
+				    }
+				    else {
+				    	result.properties.characters.set(character, [scene_number]);
+				    }
                     last_character_index = result.tokens.length;
                 }
             }
@@ -304,7 +404,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             } else {
                 thistoken.type = "dialogue";
                 thistoken.time = calculateDialogueDuration(thistoken.text);
-                result.lengthDialogue+=thistoken.time;
+                result.lengthDialogue += thistoken.time;
             }
             if (dual_right) {
                 thistoken.dual = "right";
@@ -328,9 +428,9 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     }
 
     if (state == "dialogue")
-        pushToken(create_token(undefined,undefined,undefined,undefined, "dialogue_end"));
+        pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_end"));
     if (state == "dual_dialogue")
-        pushToken(create_token(undefined,undefined,undefined,undefined, "dual_dialogue_end"));
+        pushToken(create_token(undefined, undefined, undefined, undefined, "dual_dialogue_end"));
 
     var current_index = 0/*, previous_type = null*/;
     // tidy up separators
@@ -341,7 +441,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         var titlehtml = [];
         //Generate html for title page
         while (current_index < result.title_page.length) {
-            var current_token:token = result.title_page[current_index];
+            var current_token: token = result.title_page[current_index];
             if (current_token.text != "")
                 current_token.html = inline.lexer(current_token.text);
             switch (current_token.type) {
@@ -363,39 +463,39 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         current_index = 0;
         var isaction = false;
         while (current_index < result.tokens.length) {
-            var current_token:token = result.tokens[current_index];
+            var current_token: token = result.tokens[current_index];
             if (current_token.text != "")
                 current_token.html = inline.lexer(current_token.text, current_token.type);
 
-           
+
             if (current_token.type == "action") {
-                if(!isaction){
+                if (!isaction) {
                     //first action element
                     html.push('<p>' + current_token.html);
-                } 
-                else{
+                }
+                else {
                     //just add a new line to the current paragraph
-                    html.push('\n'+current_token.html);
+                    html.push('\n' + current_token.html);
                 }
                 isaction = true;
             }
-            else if(current_token.type == "separator" && isaction){
-                if(current_index+1<result.tokens.length-1){
+            else if (current_token.type == "separator" && isaction) {
+                if (current_index + 1 < result.tokens.length - 1) {
                     //we're not at the end
-                    var next_type = result.tokens[current_index+1].type
-                    if(next_type == "action" || next_type == "separator"){
+                    var next_type = result.tokens[current_index + 1].type
+                    if (next_type == "action" || next_type == "separator") {
                         html.push("\n");
                     }
                 }
-                else if(isaction){
+                else if (isaction) {
                     //we're at the end
                     html.push("</p>")
                 }
             }
             else {
-                if(isaction){
+                if (isaction) {
                     //no longer, close the paragraph
-                    isaction=false;
+                    isaction = false;
                     html.push("</p>");
                 }
                 switch (current_token.type) {
@@ -437,9 +537,9 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     case 'centered': html.push('<p class=\"centered\">' + current_token.html + '</p>'); break;
 
                     case 'page_break': html.push('<hr />'); break;
-                   /* case 'separator':
-                        html.push('<br />');
-                        break;*/
+                    /* case 'separator':
+                         html.push('<br />');
+                         break;*/
                 }
             }
 
@@ -458,7 +558,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 continue;
             }
             */
-            
+
             //previous_type = current_token.type;
             current_index++;
         }
@@ -469,6 +569,6 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     while (result.tokens.length > 0 && result.tokens[result.tokens.length - 1].type === "separator") {
         result.tokens.pop();
     }
-    
+
     return result;
 };

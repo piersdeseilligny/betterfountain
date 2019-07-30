@@ -1,3 +1,7 @@
+## **1.4.2** (UNRELEASED)
+    · Improved parsing performance down to under 10ms for a 4000 line script
+    · Fixed autosuggested recurring locations appearing multiple times
+
 ## **1.4.1**
     + Extension is now bundled with webpack, leading to a 10x smaller package size (0.5MB instead of 5.9MB!) and significantly faster startup times
     + Added instructions for "typewriter mode" in FAQ page (Thanks to @chainick!)

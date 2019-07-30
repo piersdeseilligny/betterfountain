@@ -100,3 +100,6 @@ export const calculateDialogueDuration = (dialogue:string): number =>{
 	}
 	return duration
 }
+export const last = function(array: any[]): any {
+	return array[array.length - 1];
+}

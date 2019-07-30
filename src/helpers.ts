@@ -74,7 +74,6 @@ class helperClass{
     blank_text = function(text:string) {
         return (text || '').replace(/./g, ' ');
     };
-
     operators:operatorClass;
 }
 
