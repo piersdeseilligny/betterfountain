@@ -1,0 +1,466 @@
+<html>
+<head>
+    <style>
+        #workspace,
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            white-space: pre-wrap;
+        }
+
+        body {
+            color: #333;
+            font-size: 14px;
+            margin: 0
+        }
+
+        .container {
+            margin: 0 auto;
+            position: relative;
+            width: 850px
+        }
+
+        #workspace {
+            color: #333;
+            display: none;
+            float: left;
+            position: relative;
+            width: 100%;
+        }
+
+        #workspace #script {
+            margin: 0px auto 0;
+            width: 850px;
+        }
+
+        @font-face{
+            font-family: betterfountain-screenplayfont;
+            src:url(vscode-resource:$ROOTDIR$/courierprime/courier-prime.ttf);
+            font-weight: normal;
+        }
+        @font-face{
+            font-family: betterfountain-screenplayfont;
+            src:url(vscode-resource:$ROOTDIR$/courierprime/courier-prime-bold.ttf);
+            font-weight: bold;
+        }
+        @font-face{
+            font-family: betterfountain-screenplayfont;
+            src:url(vscode-resource:$ROOTDIR$/courierprime/courier-prime-italic.ttf);
+            font-weight: normal;
+            font-style: italic;
+        }
+        @font-face{
+            font-family: betterfountain-screenplayfont;
+            src:url(vscode-resource:$ROOTDIR$/courierprime/courier-prime-bold-italic.ttf);
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        #workspace #script .page {
+            background-image:url(vscode-resource:$ROOTDIR$/noisetexture.png);
+            border: 1px solid;
+            border-color: transparent;
+            border-radius: 2px;
+            cursor: text;
+            letter-spacing: 0 !important;
+            font-family: betterfountain-screenplayfont;
+            line-height: 107.5%;
+            margin-bottom: 25px;
+            position: relative;
+            text-align: left;
+            width: 100%;
+            z-index: 200;
+            box-shadow: 0px 0px 28px 0px rgba(0,0,0,0.25);
+            box-sizing: border-box
+        }
+        .vscode_theme .page{
+            background-color: var(--vscode-editor-background);
+            color: var(--vscode-editor-foreground);; 
+        }
+        .paper_theme .page{
+            background-color: rgb(235, 234, 232);
+            color: black;
+        }
+
+        #workspace #script.dpi72 .page {
+            font-size: 12px;
+            padding: 72px 72px 72px 108px
+        }
+
+        #workspace #script.dpi100 .page {
+            font-size: 16px;
+            
+            /*
+            padding: 100px 100px 100px 150px;
+            page-break-after: 100px 12px;*/
+        }
+        #workspace #script.dpi100 .innerpage{
+            max-width:577px;
+            margin-top: 100px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left:42px;
+            padding-right:42px;
+        }
+
+        #workspace #script.dpi150 .page {
+            font-size: 33px;
+            padding: 150px 150px 150px 225px
+        }
+
+        #workspace #script.dpi72 .page h1,
+        #workspace #script.dpi72 .page h2,
+        #workspace #script.dpi72 .page h3,
+        #workspace #script.dpi72 .page h4,
+        #workspace #script.dpi72 .page p {
+            font-size: 12px;
+            font-weight: 400
+        }
+
+        #workspace #script.dpi100 .page h1,
+        #workspace #script.dpi100 .page h2,
+        #workspace #script.dpi100 .page h3,
+        #workspace #script.dpi100 .page h4,
+        #workspace #script.dpi100 .page p {
+            font-size: 17px;
+            font-weight: 400
+        }
+
+        #workspace #script.dpi150 .page h1,
+        #workspace #script.dpi150 .page h2,
+        #workspace #script.dpi150 .page h3,
+        #workspace #script.dpi150 .page h4,
+        #workspace #script.dpi150 .page p {
+            font-size: 33px;
+            font-weight: 400
+        }
+
+        #workspace #script.us-letter.dpi72 {
+            width: 612px
+        }
+
+        #workspace #script.us-letter.dpi100 {
+           /* width: 850px*/
+        }
+
+        #workspace #script.us-letter.dpi150 {
+            width: 1275px
+        }
+
+        #workspace #script.us-letter.dpi72 .page {
+            min-height: 792px
+        }
+
+        #workspace #script.us-letter.dpi100 .page {
+            min-height: 1100px
+        }
+        
+        #workspace #script.us-letter.dpi150 .page {
+            min-height: 1650px
+        }
+
+        #workspace #script.us-letter.dpi72 .page.title-page {
+            height: 792px
+        }
+
+        #workspace #script.us-letter.dpi100 .page.title-page {
+            height: 1100px
+        }
+
+        #workspace #script.us-letter.dpi150 .page.title-page {
+            height: 1650px
+        }
+
+        #workspace #script.a4.dpi72 {
+            width: 595px
+        }
+
+        #workspace #script.a4.dpi100 {
+            width:auto;
+            max-width: 827px;
+        }
+
+        #workspace #script.a4.dpi150 {
+            width: 1250px
+        }
+
+        #workspace #script.a4.dpi72 .page {
+            height: 842px
+        }
+
+        #workspace #script.a4.dpi100 .page {
+            min-height: 1169px
+        }
+
+        #workspace #script.a4.dpi150 .page {
+            height: 1754px
+        }
+
+        #workspace #script .title-page h1 {
+            margin-top: 50%;
+            margin-bottom: 34px;
+            text-align: center;
+            width: 90.5%
+        }
+
+        #workspace #script .title-page p.credit {
+            text-align: center;
+            width: 90.5%
+        }
+
+        #workspace #script .title-page p.author,
+        #workspace #script .title-page p.authors {
+            margin-bottom: 32px;
+            margin-top: 0;
+            text-align: center;
+            width: 90.5%
+        }
+
+        #workspace #script .title-page p.source {
+            margin-bottom: 32px;
+            text-align: center;
+            width: 90.5%
+        }
+
+        #workspace #script .title-page p.notes {
+            bottom: 350px;
+            position: absolute;
+            right: 0;
+            text-align: right
+        }
+
+        #workspace #script.dpi72 .title-page p.notes {
+            bottom: 252px;
+            right: 72px
+        }
+
+        #workspace #script.dpi100 .title-page p.notes {
+            bottom: 350px;
+            right: 100px
+        }
+
+        #workspace #script.dpi150 .title-page p.notes {
+            bottom: 525px;
+            right: 150px
+        }
+
+        #workspace #script .title-page p.date,
+        #workspace #script .title-page p.draft-date {
+            bottom: 250px;
+            position: absolute;
+            right: 0;
+            text-align: right
+        }
+
+        #workspace #script.dpi72 .title-page p.date,
+        #workspace #script.dpi72 .title-page p.draft-date {
+            bottom: 180px;
+            right: 72px
+        }
+
+        #workspace #script.dpi100 .title-page p.date,
+        #workspace #script.dpi100 .title-page p.draft-date {
+            bottom: 250px;
+            right: 100px
+        }
+
+        #workspace #script.dpi150 .title-page p.date,
+        #workspace #script.dpi150 .title-page p.draft-date {
+            bottom: 375px;
+            right: 150px
+        }
+
+        #workspace #script .title-page p.contact {
+            bottom: 100px;
+            position: absolute;
+            right: 0;
+            text-align: right
+        }
+
+        #workspace #script.dpi72 .title-page p.contact {
+            bottom: 72px;
+            right: 72px
+        }
+
+        #workspace #script.dpi100 .title-page p.contact {
+            bottom: 100px;
+            right: 100px
+        }
+
+        #workspace #script.dpi150 .title-page p.contact {
+            bottom: 150px;
+            right: 150px
+        }
+
+        #workspace #script .title-page p.copyright {
+            bottom: 100px;
+            position: absolute;
+            text-align: left
+        }
+
+        #workspace #script.dpi72 .title-page p.copyright {
+            bottom: 72px
+        }
+
+        #workspace #script.dpi100 .title-page p.copyright {
+            bottom: 100px
+        }
+
+        #workspace #script.dpi150 .title-page p.copyright {
+            bottom: 150px
+        }
+
+        #workspace #script .page h2 {
+            text-align: right
+        }
+
+        #workspace #script .page h2.left-aligned {
+            text-align: left
+        }
+
+        #workspace #script .page h3 {
+            position: relative;
+        }
+
+        
+        
+
+        .numberonleft h3:before {
+            opacity:0.4;
+            content: attr(id);
+            font-weight: 700;
+            left: -45px;
+            position: absolute
+        }
+
+        .numberonright h3:after {
+            opacity:0.4;
+            content: attr(id);
+            font-weight: 700;
+            right: -45px;
+            position: absolute
+        }
+
+        #workspace #script .page div.dialogue {
+            margin-left: auto;
+            margin-right: auto;
+            width: 68%
+        }
+
+        #workspace #script .page div.dialogue h4 {
+            margin-bottom: 0;
+            margin-left: 23%
+        }
+
+        #workspace #script .page div.dialogue p.parenthetical {
+            margin-bottom: 0;
+            margin-top: 0;
+            margin-left: 11%
+        }
+
+        #workspace #script .page div.dialogue p {
+            margin-bottom: 0;
+            margin-top: 0
+        }
+
+        #workspace #script .page div.dual-dialogue {
+            margin: 2em 0 .9em 2%;
+            width: 95%
+        }
+
+        #workspace #script .page div.dual-dialogue div.dialogue {
+            display: inline-block;
+            margin: 0;
+            width: 45%
+        }
+
+        #workspace #script .page div.dual-dialogue div.dialogue h4 {
+            margin-top: 0
+        }
+
+        #workspace #script .page div.dual-dialogue div.dialogue.right {
+            float: right
+        }
+
+        #workspace #script .page p.centered {
+            text-align: center;
+            width: 92.5%
+        }
+
+        #workspace #script .page p.section {
+            opacity:0.2;
+            margin-left: -30px
+        }
+
+        #workspace #script .page p.synopsis {
+            opacity:0.4;
+            margin-left: -20px
+        }
+
+        #workspace #script .page span.italic {
+            font-style: italic
+        }
+
+        #workspace #script .page span.bold {
+            font-weight: 700
+        }
+
+        .page h3 {
+            font-weight: bold;
+        }
+
+        .note {
+            opacity: 0.5;
+            font-style: italic;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body id='fountain-js'>
+    <section id='workspace' style='display:block;'>
+        <div id='script' class='a4 dpi100 $PAGETHEME$'>
+                <div class="page"><div id='titlepage' class='innerpage title-page'>$TITLEPAGE$</div></div>
+                <div class="page"><div id='mainpage' class='$SCRIPTCLASS$'><div class="innerpage">$SCRIPT$</div></div>
+        </div>
+    </section>
+    <script>
+        FontDetect=function(){function e(){if(!n){n=!0;var e=document.body,t=document.body.firstChild,i=document.createElement("div");i.id="fontdetectHelper",r=document.createElement("span"),r.innerText="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",i.appendChild(r),e.insertBefore(i,t),i.style.position="absolute",i.style.visibility="hidden",i.style.top="-200px",i.style.left="-100000px",i.style.width="100000px",i.style.height="200px",i.style.fontSize="100px"}}function t(e,t){return e instanceof Element?window.getComputedStyle(e).getPropertyValue(t):window.jQuery?$(e).css(t):""}var n=!1,i=["serif","sans-serif","monospace","cursive","fantasy"],r=null;return{onFontLoaded:function(t,i,r,o){if(t){var s=o&&o.msInterval?o.msInterval:100,a=o&&o.msTimeout?o.msTimeout:2e3;if(i||r){if(n||e(),this.isFontLoaded(t))return void(i&&i(t));var l=this,f=(new Date).getTime(),d=setInterval(function(){if(l.isFontLoaded(t))return clearInterval(d),void i(t);var e=(new Date).getTime();e-f>a&&(clearInterval(d),r&&r(t))},s)}}},isFontLoaded:function(t){var o=0,s=0;n||e();for(var a=0;a<i.length;++a){if(r.style.fontFamily='"'+t+'",'+i[a],o=r.offsetWidth,a>0&&o!=s)return!1;s=o}return!0},whichFont:function(e){for(var n=t(e,"font-family"),r=n.split(","),o=r.shift();o;){o=o.replace(/^\s*['"]?\s*([^'"]*)\s*['"]?\s*$/,"$1");for(var s=0;s<i.length;s++)if(o==i[s])return o;if(this.isFontLoaded(o))return o;o=r.shift()}return null}}}();
+        const vscode = acquireVsCodeApi();
+        window.addEventListener('message', event => {
+            if (event.data.command == 'updateScript') {
+                document.getElementById('mainpage').innerHTML = event.data.content;
+                console.log(event.data.content);
+            } else if (event.data.command == 'updateTitle') {
+                document.getElementById('titlepage').innerHTML = event.data.content;
+            } else if (event.data.command == 'scrollTo') {
+                console.log("data position " + event.data.content);
+                document.querySelectorAll("[data-position='" + event.data.content + "']")[0].scrollIntoView();
+            } else if (event.data.command == 'updatePageClasses') {
+                document.getElementById('mainpage').className = event.data.content;
+            } else if(event.data.command == 'updateFont') {
+                var pages = document.getElementsByClassName("page");
+                for(var index in pages){
+                    if(pages[index].style){
+                        pages[index].style.cssText = "font-family:"+event.data.content;
+                    }   
+                }
+                vscode.postMessage({
+                        command: 'updateFontResult',
+                        content:  FontDetect.isFontLoaded(event.data.content)
+                    })
+            } else if(event.data.command == 'removeFont') {
+                var pages = document.getElementsByClassName("page");
+                for(var index in pages){
+                    pages[index].style.cssText = "";
+                }
+            } else if(event.data.command == 'changeTheme') {
+                console.log("change theme");
+                var script = document.getElementById("script");
+                script.setAttribute("class", "a4 dpi100 "+ event.data.content);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## **1.4.2** (UNRELEASED)
     · Improved parsing performance down to under 10ms for a 4000 line script
     · Fixed autosuggested recurring locations appearing multiple times
@@ -8,6 +9,8 @@
     - Removed syllable-based dialogue duration estimation, improving parsing speed by 8-10x
     - Removed useless console.log() calls (Thanks to @rickschubert!)
 
+=======
+>>>>>>> parent of 352ad27... 1.4.1 Release
 ## **1.4.0**
     + Smarter character autocomplete for dialogues, in the style of Final Draft (Thanks to @rickschubert!)
     + Improved duration estimate, which now only uses dialogue and action blocks to produce an estimate.

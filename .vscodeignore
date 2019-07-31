@@ -6,9 +6,10 @@
 **/tsconfig.base.json
 contributing.md
 .travis.yml
-node_modules
-out/
-src/
-tsconfig.json
-webpack.config.js
+client/node_modules/**
+!client/node_modules/vscode-jsonrpc/**
+!client/node_modules/vscode-languageclient/**
+!client/node_modules/vscode-languageserver-protocol/**
+!client/node_modules/vscode-languageserver-types/**
+src/**
 screenplays/**
