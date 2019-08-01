@@ -5,7 +5,7 @@
 	"author": "Piers Deseilligny",
 	"license": "MIT",
 	"icon": "icon.png",
-	"version": "1.4.0",
+	"version": "1.4.2",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
@@ -247,7 +247,7 @@
 		"blob": "0.0.5",
 		"font-finder": "^1.0.4",
 		"os-fonts": "^0.5.0",
-		"pdfkit": "^0.8.3",
+		"pdfkit": "^0.10.0",
 		"syllable": "^3.6.1",
 		"username": "^4.1.0"
 	}

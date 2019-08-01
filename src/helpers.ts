@@ -80,6 +80,55 @@ class helperClass{
 var operators = new operatorClass;
 var helpers = new helperClass();
 
+operators.is = function() {
+    var types = Array.prototype.slice.call(arguments);
+    return types.indexOf(this.type) !== -1;
+};
+
+operators.is_dialogue = function() {
+    return this.is("character", "parenthetical", "dialogue");
+};
+
+operators.name = function() {
+    var character = this.text;
+    var p = character.indexOf("(");
+    if (p !== -1) {
+        character = character.substring(0, p);
+    }
+    character = character.trim();
+    return character;
+};
+
+operators.location = function() {
+    var location = this.text.trim();
+    location = location.replace(/^(INT\.?\/EXT\.?)|(I\/E)|(INT\.?)|(EXT\.?)/, "");
+    var dash = location.lastIndexOf(" - ");
+    if (dash !== -1) {
+        location = location.substring(0, dash);
+    }
+    return location.trim();
+};
+
+operators.has_scene_time = function(time:any) {
+    var suffix = this.text.substring(this.text.indexOf(" - "));
+    return this.is("scene_heading") && suffix.indexOf(time) !== -1;
+};
+
+operators.location_type = function() {
+    var location = this.text.trim();
+    if (/^I(NT.?)?\/E(XT.?)?/.test(location)) {
+        return "mixed";
+    }
+    else if (/^INT.?/.test(location)) {
+        return "int";
+    }
+    else if (/^EXT.?/.test(location)) {
+        return "ext";
+    }
+    return "other";
+};
+
+
 helpers.operators = operators;
 
 var create_token_delegator = function(line:any, name:string) {
