@@ -1,3 +1,6 @@
+## **1.4.3**
+    + Add option to disable noise texture in live preview
+
 ## **1.4.2**
     · Improved parsing performance down to under 10ms for a 4000 line script
     · Fixed autosuggested recurring locations appearing multiple times

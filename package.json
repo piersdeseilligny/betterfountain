@@ -165,6 +165,11 @@
 						"description": "The theme to be used in the live preview",
 						"default": "vscode"
 					},
+					"fountain.pdf.previewTexture": {
+						"type": "boolean",
+						"default": true,
+						"description": "Noise texture on the live preview (absent from PDF)"
+					},
 					"fountain.pdf.sceneNumbers": {
 						"type": "string",
 						"enum": [

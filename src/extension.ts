@@ -155,12 +155,18 @@ function updateWebView(titlepage: string, script: string) {
 		pageClasses = "innerpage numberonright";
 	else if (config.scenes_numbers == "both")
 		pageClasses = "innerpage numberonleft numberonright";
+
+		var themeClass=directConfig.previewTheme + "_theme";
+		if(directConfig.previewTexture){
+			themeClass+= " textured";
+		}
+	
 	var cleandir = __dirname.split(String.fromCharCode(92)).join("/");
 	previewpanel.webview.html = webviewHtml.replace("$TITLEPAGE$", titlepage)
 		.replace("$SCRIPT$", script)
 		.replace("$SCRIPTCLASS$", pageClasses)
 		.replace(/\$ROOTDIR\$/g, cleandir)
-		.replace("$PAGETHEME$", directConfig.previewTheme + "_theme");
+		.replace("$PAGETHEME$", themeClass);
 
 	parseDocument(vscode.window.activeTextEditor.document);
 }
@@ -362,8 +368,14 @@ vscode.workspace.onDidChangeConfiguration(change => {
 				pageClasses = "innerpage numberonright";
 			else if (config.scenes_numbers == "both")
 				pageClasses = "innerpage numberonleft numberonright";
+
+			var themeClass=directConfig.previewTheme + "_theme";
+			if(directConfig.previewTexture){
+				themeClass+= " textured";
+			}
+			
 			previewpanel.webview.postMessage({ command: 'updatePageClasses', content: pageClasses });
-			previewpanel.webview.postMessage({ command: 'changeTheme', content: directConfig.previewTheme + "_theme" });
+			previewpanel.webview.postMessage({ command: 'changeTheme', content: themeClass });
 		}
 	}
 })
