@@ -320,27 +320,21 @@ export function activate(context: ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', () => {
-		// const regexSceneHeadings = /^(INT\.?\/EXT\.?)|(I\/E)|(INT\.?)|(EXT\.?) .+$/
-		console.log("Invoked scene numbering QARS")
+		const regexSceneHeadings = /^(?:(?:EXT|INT|EST|INT\.\/EXT|INT\/EXT|I\/E)(?:\.| )).+/gm
 		const fullText = vscode.window.activeTextEditor.document.getText()
-		vscode.window.activeTextEditor.document
-		console.log(fullText)
+		let sceneNumber: number = 1
+		const newText = fullText.replace(regexSceneHeadings, (heading) => {
+			const noPrevHeadingNumbers = heading.replace(/ #\d+#$/, "")
+			const newHeading = `${noPrevHeadingNumbers} #${sceneNumber}#`
+			sceneNumber++
+			return newHeading
+		})
 		vscode.window.activeTextEditor.edit((editBuilder) => {
 			editBuilder.replace(
 				new vscode.Range(new vscode.Position(0, 0), new vscode.Position(20, 0)),
-			"QARS"
+				newText
 			)
 		})
-		// new vscode.TextEdit(
-		// 	new vscode.Range(new vscode.Position(0, 0), new vscode.Position(20, 0)),
-		// 	"QARS"
-		// )
-		// parsedDocument.properties.sceneLines.forEach((sceneLine: number) => {
-		// 	console.log(sceneLine)
-		// 	const text = parsedDocument.getText(new vscode.Range(new vscode.Position(sceneLine, 0), new vscode.Position(sceneLine + 1, 0)))
-		// 	console.log(text)
-		// })
-		// console.log(parsedDocument.tokenLines)
 		vscode.window.showInformationMessage("Scenes successfully numbered")
 	}));
 
