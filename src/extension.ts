@@ -122,9 +122,10 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		return element;
 	}
 	getChildren(/*element?: vscode.TreeItem*/): vscode.ProviderResult<any[]> {
-		var elements: vscode.TreeItem[] = [];
-		var treeExportPdf = new vscode.TreeItem("Export PDF");
-		var treeLivePreview = new vscode.TreeItem("Show live preview");
+		const elements: vscode.TreeItem[] = [];
+		const treeExportPdf = new vscode.TreeItem("Export PDF");
+		const treeLivePreview = new vscode.TreeItem("Show live preview");
+		const numberScenes = new vscode.TreeItem("Number scenes");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
 			title: ''
@@ -133,8 +134,13 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			command: 'fountain.livepreview',
 			title: ''
 		};
+		numberScenes.command = {
+			command: 'fountain.numberScenes',
+			title: ''
+		};
 		elements.push(treeExportPdf);
 		elements.push(treeLivePreview);
+		elements.push(numberScenes);
 		return elements;
 	}
 }
@@ -160,7 +166,7 @@ function updateWebView(titlepage: string, script: string) {
 		if(directConfig.previewTexture){
 			themeClass+= " textured";
 		}
-	
+
 	var cleandir = __dirname.split(String.fromCharCode(92)).join("/");
 	previewpanel.webview.html = webviewHtml.replace("$TITLEPAGE$", titlepage)
 		.replace("$SCRIPT$", script)
@@ -313,6 +319,13 @@ export function activate(context: ExtensionContext) {
 		});
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', () => {
+		// const regexSceneHeadings = /^(INT\.?\/EXT\.?)|(I\/E)|(INT\.?)|(EXT\.?) .+$/
+		console.log("Invoked scene numbering QARS")
+		console.log(parsedDocument.tokenLines)
+		vscode.window.showInformationMessage("Scenes successfully numbered")
+	}));
+
 	vscode.commands.registerCommand('type', (args) => {
 
 		//Automatically skip to the next line at the end of parentheticals
@@ -373,7 +386,7 @@ vscode.workspace.onDidChangeConfiguration(change => {
 			if(directConfig.previewTexture){
 				themeClass+= " textured";
 			}
-			
+
 			previewpanel.webview.postMessage({ command: 'updatePageClasses', content: pageClasses });
 			previewpanel.webview.postMessage({ command: 'changeTheme', content: themeClass });
 		}
