@@ -125,7 +125,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		const elements: vscode.TreeItem[] = [];
 		const treeExportPdf = new vscode.TreeItem("Export PDF");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
-		const numberScenes = new vscode.TreeItem("Number scenes");
+		const numberScenes = new vscode.TreeItem("Number all scenes (replaces existing scene numbers)");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
 			title: ''
@@ -331,7 +331,7 @@ export function activate(context: ExtensionContext) {
 		})
 		vscode.window.activeTextEditor.edit((editBuilder) => {
 			editBuilder.replace(
-				new vscode.Range(new vscode.Position(0, 0), new vscode.Position(20, 0)),
+				new vscode.Range(new vscode.Position(0, 0), new vscode.Position(vscode.window.activeTextEditor.document.lineCount, 0)),
 				newText
 			)
 		})
