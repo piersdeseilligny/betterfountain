@@ -714,3 +714,8 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 		return completes;
 	}
 }
+
+// TODO: Does something on saving document. Perfect place to number the scenes on each save.
+vscode.workspace.onWillSaveTextDocument(() => {
+	vscode.window.showErrorMessage("Failed to export PDF!")
+})
