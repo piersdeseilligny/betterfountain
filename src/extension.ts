@@ -698,11 +698,9 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 	}
 }
 
-// TODO: Does something on saving document. Perfect place to number the scenes on each save.
 vscode.workspace.onWillSaveTextDocument(() => {
 	const config = getFountainConfig(lastFountainEditor);
 	if (config.number_scenes_on_save === true) {
-		numberScenes()
+		numberScenes();
 	}
-	console.log(config)
 })
