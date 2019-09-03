@@ -220,7 +220,13 @@
 				"command": "fountain.jumpto",
 				"title": "Jump to line",
 				"category": "Fountain"
+			},
+			{
+				"command": "fountain.numberScenes",
+				"title": "Number all scenes (overwrites existing scene numbers)",
+				"category": "Fountain"
 			}
+
 		],
 		"languages": [
 			{
