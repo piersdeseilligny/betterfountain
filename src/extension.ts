@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import * as username from 'username';
-import { addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast } from "./utils";
+import { addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast, numberScenes } from "./utils";
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
@@ -319,24 +319,7 @@ export function activate(context: ExtensionContext) {
 		});
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', () => {
-		const regexSceneHeadings = /^(?:(?:EXT|INT|EST|INT\.\/EXT|INT\/EXT|I\/E)(?:\.| )).+/gm
-		const fullText = vscode.window.activeTextEditor.document.getText()
-		let sceneNumber: number = 1
-		const newText = fullText.replace(regexSceneHeadings, (heading) => {
-			const noPrevHeadingNumbers = heading.replace(/ #\d+#$/, "")
-			const newHeading = `${noPrevHeadingNumbers} #${sceneNumber}#`
-			sceneNumber++
-			return newHeading
-		})
-		vscode.window.activeTextEditor.edit((editBuilder) => {
-			editBuilder.replace(
-				new vscode.Range(new vscode.Position(0, 0), new vscode.Position(vscode.window.activeTextEditor.document.lineCount, 0)),
-				newText
-			)
-		})
-		vscode.window.showInformationMessage("Scenes successfully numbered")
-	}));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', numberScenes));
 
 	vscode.commands.registerCommand('type', (args) => {
 
@@ -717,5 +700,9 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 
 // TODO: Does something on saving document. Perfect place to number the scenes on each save.
 vscode.workspace.onWillSaveTextDocument(() => {
-	vscode.window.showErrorMessage("Failed to export PDF!")
+	const config = getFountainConfig(lastFountainEditor);
+	if (config.number_scenes_on_save === true) {
+		numberScenes()
+	}
+	console.log(config)
 })

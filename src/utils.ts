@@ -66,3 +66,21 @@ export const calculateDialogueDuration = (dialogue:string): number =>{
 export const last = function(array: any[]): any {
 	return array[array.length - 1];
 }
+
+export const numberScenes = () => {
+	const regexSceneHeadings = /^(?:(?:EXT|INT|EST|INT\.\/EXT|INT\/EXT|I\/E)(?:\.| )).+/gm
+	const fullText = vscode.window.activeTextEditor.document.getText()
+	let sceneNumber: number = 1
+	const newText = fullText.replace(regexSceneHeadings, (heading) => {
+		const noPrevHeadingNumbers = heading.replace(/ #\d+#$/, "")
+		const newHeading = `${noPrevHeadingNumbers} #${sceneNumber}#`
+		sceneNumber++
+		return newHeading
+	})
+	vscode.window.activeTextEditor.edit((editBuilder) => {
+		editBuilder.replace(
+			new vscode.Range(new vscode.Position(0, 0), new vscode.Position(vscode.window.activeTextEditor.document.lineCount, 0)),
+			newText
+		)
+	})
+}
