@@ -28,7 +28,7 @@ export const getCharactersWhoSpokeBeforeLast = (parsedDocument:any, position:vsc
 	}
 	let stopSearch = false;
 	let previousCharacters:string[] = []
-	let lastCharacter = undefined; 
+	let lastCharacter = undefined;
 	while(searchIndex>0 && !stopSearch){
 		var token = parsedDocument.tokens[searchIndex-1];
 		if(token.type=="character"){
@@ -97,4 +97,19 @@ export const calculateDialogueDuration = (dialogue:string): number =>{
 		if(punctuationMatches[1]) duration+=0.3*punctuationMatches[1].length;
 	}
 	return duration
+}
+
+function padZero(i: any) {
+	if (i < 10) {
+		i = "0" + i;
+	}
+	return i;
+}
+
+export function secondsToString(seconds:number):string{
+	var time = new Date(null);
+	time.setHours(0);
+	time.setMinutes(0);
+	time.setSeconds(seconds);
+	return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
 }
