@@ -6,12 +6,8 @@ import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import * as username from 'username';
-<<<<<<< HEAD
-import { trimCharacterExtension, addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast, secondsToString } from "./utils";
+import { addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast, secondsToString } from "./utils";
 import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
-=======
-import { addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast } from "./utils";
->>>>>>> master
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
