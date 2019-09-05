@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { FountainStructureProperties } from "./extension";
 
-var syllable = require('syllable');
+//var syllable = require('syllable');
 
 /**
  * Trims character extensions, for example the parantheses part in `JOE (on the radio)`
@@ -22,6 +22,7 @@ export const addForceSymbolToCharacter = (characterName: string): string => {
 }
 
 export const getCharactersWhoSpokeBeforeLast = (parsedDocument:any, position:vscode.Position) => {
+
 	let searchIndex = 0;
 	if(parsedDocument.tokenLines[position.line-1]){
 		searchIndex = parsedDocument.tokenLines[position.line-1];
@@ -45,7 +46,6 @@ export const getCharactersWhoSpokeBeforeLast = (parsedDocument:any, position:vsc
 		}
 		searchIndex--;
 	}
-	console.log(previousCharacters);
 	return previousCharacters;
 }
 
@@ -87,7 +87,9 @@ export const calculateDialogueDuration = (dialogue:string): number =>{
 
 	//According to this paper: http://www.office.usp.ac.jp/~klinger.w/2010-An-Analysis-of-Articulation-Rates-in-Movies.pdf
 	//The average amount of syllables per second in the 14 movies analysed is 5.13994 (0.1945548s/syllable)
-	duration += syllable(dialogue)*0.1945548;
+	var sanitized = dialogue.replace(/[^\w]/gi, '');
+	duration+=((sanitized.length)/3)*0.1945548;
+	//duration += syllable(dialogue)*0.1945548;
 
 	//According to a very crude analysis involving watching random movie scenes on youtube and measuring pauses with a stopwatch
 	//A comma in the middle of a sentence adds 0.4sec and a full stop/excalmation/question mark adds 0.8 sec.
@@ -112,4 +114,8 @@ export function secondsToString(seconds:number):string{
 	time.setMinutes(0);
 	time.setSeconds(seconds);
 	return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
+}
+
+export const last = function(array: any[]): any {
+	return array[array.length - 1];
 }

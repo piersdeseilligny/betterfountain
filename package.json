@@ -5,7 +5,7 @@
 	"author": "Piers Deseilligny",
 	"license": "MIT",
 	"icon": "icon.png",
-	"version": "1.4.0",
+	"version": "1.4.3",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
@@ -165,6 +165,11 @@
 						"description": "The theme to be used in the live preview",
 						"default": "vscode"
 					},
+					"fountain.pdf.previewTexture": {
+						"type": "boolean",
+						"default": true,
+						"description": "Noise texture on the live preview (absent from PDF)"
+					},
 					"fountain.pdf.sceneNumbers": {
 						"type": "string",
 						"enum": [
@@ -256,7 +261,7 @@
 		"blob": "0.0.5",
 		"font-finder": "^1.0.4",
 		"os-fonts": "^0.5.0",
-		"pdfkit": "^0.8.3",
+		"pdfkit": "^0.10.0",
 		"syllable": "^3.6.1",
 		"username": "^4.1.0"
 	}
