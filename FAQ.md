@@ -41,7 +41,7 @@ Here are a few super simple steps to get started:
 ```
 and run `View`>`Appearance`>`Centered Layout`
 
-* By default, Visual Studio Code's suggestion system pre-selects the most recently suggested selection instead of the first suggestion. In order to make the most out of betterfountain's character suggestion feature, add the following line to the `settings.json` file (`Ctrl/Cmd+Shift+P` or `F1`):
+* By default, Visual Studio Code's suggestion system pre-selects the most recently suggested selection instead of the first suggestion. In order to make the most out of betterfountain's character suggestion feature, add the following line to the `settings.json` file (`Ctrl/Cmd+Shift+P` or `F1`, *Open Settings (JSON)*):
 ```json
     "[fountain]": {
         "editor.suggestSelection": "first"
