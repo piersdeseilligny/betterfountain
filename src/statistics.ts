@@ -93,9 +93,11 @@ const createSceneStatistics = (script: string): singleSceneStatistic[] => {
 }
 
 export const retrieveScreenPlayStatistics = (script: string): screenPlayStatistics => {
+    // These adjustments are necessary for Windows style CRLF carriage returns
+    const scriptNormalised = script.replace(/\r\n/gm,   "\n")
     return {
-        characterStats: createCharacterStatistics(script),
-        sceneStats: createSceneStatistics(script)
+        characterStats: createCharacterStatistics(scriptNormalised),
+        sceneStats: createSceneStatistics(scriptNormalised)
     }
 }
 

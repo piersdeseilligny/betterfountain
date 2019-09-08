@@ -243,7 +243,7 @@
 		"compile": "tsc -p ./ && copyfiles -u 1 src/webview.html out",
 		"watch": "npm run compile && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out",
 		"postinstall": "node ./node_modules/vscode/bin/install",
-		"test": "./node_modules/jest/bin/jest.js"
+		"test": "node node_modules/jest/bin/jest.js"
 	},
 	"devDependencies": {
 		"@types/jest": "^24.0.18",
