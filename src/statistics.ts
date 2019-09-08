@@ -23,6 +23,7 @@ type singleSceneStatistic = {
 type screenPlayStatistics = {
     characterStats: dialogueStatisticPerCharacter[]
     sceneStats: singleSceneStatistic[]
+    wordCount: number
 }
 
 const createCharacterStatistics = (script: string): dialogueStatisticPerCharacter[] => {
@@ -92,12 +93,17 @@ const createSceneStatistics = (script: string): singleSceneStatistic[] => {
     return sceneStats
 }
 
+const getWordCountOfFullScript = (scriptNormalised: string): number => {
+    return scriptNormalised.split(" ").length
+}
+
 export const retrieveScreenPlayStatistics = (script: string): screenPlayStatistics => {
     // These adjustments are necessary for Windows style CRLF carriage returns
     const scriptNormalised = script.replace(/\r\n/gm,   "\n")
     return {
         characterStats: createCharacterStatistics(scriptNormalised),
-        sceneStats: createSceneStatistics(scriptNormalised)
+        sceneStats: createSceneStatistics(scriptNormalised),
+        wordCount: getWordCountOfFullScript(scriptNormalised)
     }
 }
 

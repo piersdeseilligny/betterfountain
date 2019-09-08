@@ -12,6 +12,7 @@ const bigFishAssertions = (bigFishScript: string) => {
         expect(charStat.wordsSpoken).toBeGreaterThan(0)
     })
     expect(stats.sceneStats.length).toBe(190)
+    expect(stats.wordCount).toBe(24818)
 }
 
 describe("Statistics", () => {
