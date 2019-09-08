@@ -4,6 +4,7 @@ import * as path from "path"
 
 const bigFishAssertions = (bigFishScript: string) => {
     const stats = retrieveScreenPlayStatistics(bigFishScript)
+    expect(stats.wordCountStats.total).toBe(24818)
     expect(stats.characterStats.length).toBe(42)
     stats.characterStats.forEach((charStat) => {
         expect(typeof charStat.name).toBe("string")
@@ -12,7 +13,6 @@ const bigFishAssertions = (bigFishScript: string) => {
         expect(charStat.wordsSpoken).toBeGreaterThan(0)
     })
     expect(stats.sceneStats.length).toBe(190)
-    expect(stats.wordCount).toBe(24818)
 }
 
 describe("Statistics", () => {

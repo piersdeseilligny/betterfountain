@@ -20,10 +20,14 @@ type singleSceneStatistic = {
     title: string
 }
 
+type wordCountStatistics = {
+    total: number
+}
+
 type screenPlayStatistics = {
     characterStats: dialogueStatisticPerCharacter[]
     sceneStats: singleSceneStatistic[]
-    wordCount: number
+    wordCountStats: wordCountStatistics
 }
 
 const createCharacterStatistics = (script: string): dialogueStatisticPerCharacter[] => {
@@ -93,8 +97,10 @@ const createSceneStatistics = (script: string): singleSceneStatistic[] => {
     return sceneStats
 }
 
-const getWordCountOfFullScript = (scriptNormalised: string): number => {
-    return scriptNormalised.split(" ").length
+const createWordCountStatistics = (scriptNormalised: string): wordCountStatistics => {
+    return {
+        total: scriptNormalised.split(" ").length
+    }
 }
 
 export const retrieveScreenPlayStatistics = (script: string): screenPlayStatistics => {
@@ -103,7 +109,7 @@ export const retrieveScreenPlayStatistics = (script: string): screenPlayStatisti
     return {
         characterStats: createCharacterStatistics(scriptNormalised),
         sceneStats: createSceneStatistics(scriptNormalised),
-        wordCount: getWordCountOfFullScript(scriptNormalised)
+        wordCountStats: createWordCountStatistics(scriptNormalised)
     }
 }
 
@@ -134,6 +140,8 @@ export const statsAsHtml = (stats: screenPlayStatistics): string => {
     return `
 <body>
 ${tableStyle}
+    <h1>General</h1>
+    <p>Total word count: ${stats.wordCountStats.total}</p>
     <h1>Character statistics</h1>
     <table style="width:100%">
         <tr>
