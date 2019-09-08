@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { FountainStructureProperties } from "./extension";
 
-var syllable = require('syllable');
+//var syllable = require('syllable');
 
 /**
  * Trims character extensions, for example the parantheses part in `JOE (on the radio)`
@@ -22,13 +22,14 @@ export const addForceSymbolToCharacter = (characterName: string): string => {
 }
 
 export const getCharactersWhoSpokeBeforeLast = (parsedDocument:any, position:vscode.Position) => {
+
 	let searchIndex = 0;
 	if(parsedDocument.tokenLines[position.line-1]){
 		searchIndex = parsedDocument.tokenLines[position.line-1];
 	}
 	let stopSearch = false;
 	let previousCharacters:string[] = []
-	let lastCharacter = undefined; 
+	let lastCharacter = undefined;
 	while(searchIndex>0 && !stopSearch){
 		var token = parsedDocument.tokens[searchIndex-1];
 		if(token.type=="character"){
@@ -45,7 +46,6 @@ export const getCharactersWhoSpokeBeforeLast = (parsedDocument:any, position:vsc
 		}
 		searchIndex--;
 	}
-	console.log(previousCharacters);
 	return previousCharacters;
 }
 
@@ -87,7 +87,9 @@ export const calculateDialogueDuration = (dialogue:string): number =>{
 
 	//According to this paper: http://www.office.usp.ac.jp/~klinger.w/2010-An-Analysis-of-Articulation-Rates-in-Movies.pdf
 	//The average amount of syllables per second in the 14 movies analysed is 5.13994 (0.1945548s/syllable)
-	duration += syllable(dialogue)*0.1945548;
+	var sanitized = dialogue.replace(/[^\w]/gi, '');
+	duration+=((sanitized.length)/3)*0.1945548;
+	//duration += syllable(dialogue)*0.1945548;
 
 	//According to a very crude analysis involving watching random movie scenes on youtube and measuring pauses with a stopwatch
 	//A comma in the middle of a sentence adds 0.4sec and a full stop/excalmation/question mark adds 0.8 sec.
@@ -97,4 +99,23 @@ export const calculateDialogueDuration = (dialogue:string): number =>{
 		if(punctuationMatches[1]) duration+=0.3*punctuationMatches[1].length;
 	}
 	return duration
+}
+
+function padZero(i: any) {
+	if (i < 10) {
+		i = "0" + i;
+	}
+	return i;
+}
+
+export function secondsToString(seconds:number):string{
+	var time = new Date(null);
+	time.setHours(0);
+	time.setMinutes(0);
+	time.setSeconds(seconds);
+	return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
+}
+
+export const last = function(array: any[]): any {
+	return array[array.length - 1];
 }

@@ -39,4 +39,4 @@ async function testDiagnostics(docUri: vscode.Uri, expectedDiagnostics: vscode.D
     assert.deepEqual(actualDiagnostic.range, expectedDiagnostic.range)
     assert.equal(actualDiagnostic.severity, expectedDiagnostic.severity)
   })
-} 
+}

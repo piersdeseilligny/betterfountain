@@ -1,3 +1,17 @@
+## **1.4.3**
+    + Add option to disable noise texture in live preview
+
+## **1.4.2**
+    · Improved parsing performance down to under 10ms for a 4000 line script
+    · Fixed autosuggested recurring locations appearing multiple times
+    - Removed webpack bundling, because it broke the PDF export feature (pdfkit really doesn't play nice with webpack + node)
+
+## **1.4.1**
+    + Extension is now bundled with webpack, leading to a 10x smaller package size (0.5MB instead of 5.9MB!) and significantly faster startup times
+    + Added instructions for "typewriter mode" in FAQ page (Thanks to @chainick!)
+    - Removed syllable-based dialogue duration estimation, improving parsing speed by 8-10x
+    - Removed useless console.log() calls (Thanks to @rickschubert!)
+
 ## **1.4.0**
     + Smarter character autocomplete for dialogues, in the style of Final Draft (Thanks to @rickschubert!)
     + Improved duration estimate, which now only uses dialogue and action blocks to produce an estimate.

@@ -6,7 +6,8 @@ import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import * as username from 'username';
-import { trimCharacterExtension, addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast } from "./utils";
+import { addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast, secondsToString } from "./utils";
+import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
@@ -20,8 +21,8 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 	getChildren(element?: vscode.TreeItem): vscode.ProviderResult<any[]> {
 		var elements: vscode.TreeItem[] = [];
 		if (element == null) {
-			for (let index = 0; index < docStructure.length; index++) {
-				const token = docStructure[index];
+			for (let index = 0; index < parsedDocument.properties.structure.length; index++) {
+				const token = parsedDocument.properties.structure[index];
 				var item = new vscode.TreeItem(token.text);
 				item.id = token.id;
 				if (token.children != null) {
@@ -41,8 +42,8 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 		else if (element.collapsibleState != vscode.TreeItemCollapsibleState.None) {
 			var ids: string[] = element.id.split("/");
 			if (ids.length >= 2) {
-				for (let index = 0; index < docStructure.length; index++) {
-					const token = docStructure[index];
+				for (let index = 0; index < parsedDocument.properties.structure.length; index++) {
+					const token = parsedDocument.properties.structure[index];
 					var tokenids: string[] = token.id.split("/");
 					if (tokenids[1] == ids[1]) {
 						for (let index1 = 0; index1 < token.children.length; index1++) {
@@ -125,6 +126,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		var elements: vscode.TreeItem[] = [];
 		var treeExportPdf = new vscode.TreeItem("Export PDF");
 		var treeLivePreview = new vscode.TreeItem("Show live preview");
+		var statistics = new vscode.TreeItem("Calculate screenplay statistics");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
 			title: ''
@@ -133,8 +135,13 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			command: 'fountain.livepreview',
 			title: ''
 		};
+		statistics.command = {
+			command: 'fountain.statistics',
+			title: ''
+		};
 		elements.push(treeExportPdf);
 		elements.push(treeLivePreview);
+		elements.push(statistics);
 		return elements;
 	}
 }
@@ -155,21 +162,20 @@ function updateWebView(titlepage: string, script: string) {
 		pageClasses = "innerpage numberonright";
 	else if (config.scenes_numbers == "both")
 		pageClasses = "innerpage numberonleft numberonright";
+
+		var themeClass=directConfig.previewTheme + "_theme";
+		if(directConfig.previewTexture){
+			themeClass+= " textured";
+		}
+
 	var cleandir = __dirname.split(String.fromCharCode(92)).join("/");
 	previewpanel.webview.html = webviewHtml.replace("$TITLEPAGE$", titlepage)
-										   .replace("$SCRIPT$", script)
-										   .replace("$SCRIPTCLASS$", pageClasses)
-										   .replace(/\$ROOTDIR\$/g, cleandir)
-										   .replace("$PAGETHEME$",directConfig.previewTheme+"_theme");
+		.replace("$SCRIPT$", script)
+		.replace("$SCRIPTCLASS$", pageClasses)
+		.replace(/\$ROOTDIR\$/g, cleandir)
+		.replace("$PAGETHEME$", themeClass);
 
 	parseDocument(vscode.window.activeTextEditor.document);
-	console.log(previewpanel.webview.html)
-}
-function padZero(i: any) {
-	if (i < 10) {
-		i = "0" + i;
-	}
-	return i;
 }
 
 
@@ -177,39 +183,31 @@ function padZero(i: any) {
  * Approximates length of the screenplay based on the overall length of dialogue and action tokens
  */
 
-function updateStatus(lengthAction:number, lengthDialogue:number): void {
+function updateStatus(lengthAction: number, lengthDialogue: number): void {
 	if (durationStatus != undefined) {
 
 		if (vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document.languageId == "fountain") {
 			durationStatus.show();
 			//lengthDialogue is in syllables, lengthAction is in characters
 			var durationDialogue = lengthDialogue;
-			var durationAction = lengthAction/20;
-			durationStatus.tooltip="Dialogue: "+secondsToString(durationDialogue)+"\nAction: "+secondsToString(durationAction);
+			var durationAction = lengthAction / 20;
+			durationStatus.tooltip = "Dialogue: " + secondsToString(durationDialogue) + "\nAction: " + secondsToString(durationAction);
 			//durationStatus.text = "charcount: " + (lengthAction)+"c"
-			durationStatus.text = secondsToString(durationDialogue+durationAction);
+			durationStatus.text = secondsToString(durationDialogue + durationAction);
 		}
 		else {
 			durationStatus.hide();
 		}
 	}
 }
-function secondsToString(seconds:number):string{
-	var time = new Date(null);
-	time.setHours(0);
-	time.setMinutes(0);
-	time.setSeconds(seconds);
-	return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
-}
-
 
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
-var lastFountainEditor:vscode.Uri;
+var lastFountainEditor: vscode.Uri;
 var userfullname: string;
 let diagnosticCollection = languages.createDiagnosticCollection("fountain");
-let diagnostics : vscode.Diagnostic[] = [];
+let diagnostics: vscode.Diagnostic[] = [];
 var fontnames: any[];
 export function activate(context: ExtensionContext) {
 	//Register for outline tree view
@@ -241,15 +239,15 @@ export function activate(context: ExtensionContext) {
 			vscode.ViewColumn.Three, // Editor column to show the new webview panel in.
 			{ enableScripts: true } // Webview options. More on these later.
 		);
-		previewpanel.webview.onDidReceiveMessage(message=>{
-			if(message.command == "updateFontResult"){
-				if(message.content == false && fountainDocProps.fontLine != -1){
+		previewpanel.webview.onDidReceiveMessage(message => {
+			if (message.command == "updateFontResult") {
+				if (message.content == false && parsedDocument.properties.fontLine != -1) {
 					//The font could not be rendered
 					diagnostics = []
-					diagnostics.push(new vscode.Diagnostic(new vscode.Range(new vscode.Position(fountainDocProps.fontLine,0), new vscode.Position(fountainDocProps.fontLine,5)), "This font could not be rendered in the live preview. Is it installed?", vscode.DiagnosticSeverity.Error));
+					diagnostics.push(new vscode.Diagnostic(new vscode.Range(new vscode.Position(parsedDocument.properties.fontLine, 0), new vscode.Position(parsedDocument.properties.fontLine, 5)), "This font could not be rendered in the live preview. Is it installed?", vscode.DiagnosticSeverity.Error));
 					diagnosticCollection.set(vscode.window.activeTextEditor.document.uri, diagnostics);
 				}
-				else{
+				else {
 					//Yay, the font has been rendered
 					diagnosticCollection.set(vscode.window.activeTextEditor.document.uri, []);
 				}
@@ -258,7 +256,7 @@ export function activate(context: ExtensionContext) {
 		var rawcontent = vscode.window.activeTextEditor.document.getText();
 		var output = afterparser.parse(rawcontent, getFountainConfig(lastFountainEditor), true);
 		updateWebView(output.titleHtml, output.scriptHtml);
-		}));
+	}));
 
 	//Jump to line command
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.jumpto', (args) => {
@@ -289,7 +287,6 @@ export function activate(context: ExtensionContext) {
 		}*/
 		if (canceled) return;
 		var saveuri = vscode.Uri.file(vscode.window.activeTextEditor.document.fileName.replace('.fountain', ''));
-		console.log(saveuri);
 		var filepath = await vscode.window.showSaveDialog(
 			{
 				filters: { "PDF File": ["pdf"] },
@@ -307,6 +304,14 @@ export function activate(context: ExtensionContext) {
 				vscode.window.showInformationMessage("Exported PDF!");
 			}
 		});
+	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', () => {
+		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
+		statsPanel.webview.html = `Calculating screenplay statistics...`
+		const stats = retrieveScreenPlayStatistics(vscode.window.activeTextEditor.document.getText())
+		const statsHTML = statsAsHtml(stats)
+		statsPanel.webview.html = statsHTML
 	}));
 
 	vscode.commands.registerCommand('type', (args) => {
@@ -342,7 +347,6 @@ export function activate(context: ExtensionContext) {
 		if (userfullname.length > 0) {
 			userfullname = userfullname.charAt(0).toUpperCase() + userfullname.slice(1)
 		}
-		console.log("username is " + userfullname);
 	})();
 
 	//parse the documentt
@@ -354,7 +358,6 @@ vscode.workspace.onDidChangeTextDocument(change => {
 })
 
 vscode.workspace.onDidChangeConfiguration(change => {
-	console.log("change configuration")
 	if (change.affectsConfiguration("fountain.pdf")) {
 		if (previewpanel) {
 			var config = getFountainConfig(lastFountainEditor);
@@ -366,23 +369,20 @@ vscode.workspace.onDidChangeConfiguration(change => {
 				pageClasses = "innerpage numberonright";
 			else if (config.scenes_numbers == "both")
 				pageClasses = "innerpage numberonleft numberonright";
+
+			var themeClass=directConfig.previewTheme + "_theme";
+			if(directConfig.previewTexture){
+				themeClass+= " textured";
+			}
+
 			previewpanel.webview.postMessage({ command: 'updatePageClasses', content: pageClasses });
-			previewpanel.webview.postMessage({ command: 'changeTheme', content: directConfig.previewTheme+"_theme" });
+			previewpanel.webview.postMessage({ command: 'changeTheme', content: themeClass });
 		}
 	}
 })
 
 //var lastFountainDocument:TextDocument;
 var parsedDocument: any;
-var docStructure: StructToken[] = [];
-class StructToken {
-	text: string;
-	id: any;
-	children: any;
-}
-function last(array: any[]): any {
-	return array[array.length - 1];
-}
 
 export class FountainStructureProperties {
 	scenes: { scene: number; line: number }[];
@@ -395,23 +395,13 @@ export class FountainStructureProperties {
 	lengthDialogue: number; //Length of the dialogue character count
 	characters: Map<string, number[]>;
 }
-var fountainDocProps: FountainStructureProperties = {
-	sceneLines: [],
-	scenes: [],
-	sceneNames:[],
-	titleKeys: [],
-	firstTokenLine: Infinity,
-	fontLine: -1,
-	lengthAction: 0,
-	lengthDialogue: 0,
-	characters: new Map<string, number[]>()
-};
 
-var fontTokenExisted:boolean = false;
+var fontTokenExisted: boolean = false;
 const decortypesDialogue = vscode.window.createTextEditorDecorationType({
 });
 
 function parseDocument(document: TextDocument) {
+	var hrstart = process.hrtime()
 	if (vscode.window.activeTextEditor.document.uri == document.uri) {
 
 		var updatehtml = (previewpanel != null && document.languageId == "fountain");
@@ -424,119 +414,37 @@ function parseDocument(document: TextDocument) {
 		}
 		parsedDocument = output;
 		var tokenlength = 0;
-		var currentdepth = 0;
-		var currentSceneNumber = 0;
-		docStructure = [];
-		fountainDocProps.sceneLines = [];
-		fountainDocProps.scenes = [];
-		fountainDocProps.sceneNames = [];
-		fountainDocProps.firstTokenLine = Infinity;
-		fountainDocProps.characters = new Map<string, number[]>();
-
 		const decorsDialogue: vscode.DecorationOptions[] = [];
-
-		while (tokenlength < parsedDocument.tokens.length) {
-			var token = parsedDocument.tokens[tokenlength];
-			if (token.type != "separator" && fountainDocProps.firstTokenLine == Infinity)
-				fountainDocProps.firstTokenLine = token.line
-			var cobj: StructToken = new StructToken();
-			if (token.type == "section") {
-				cobj.text = token.text;
-				currentdepth = token.level;
-				cobj.children = [];
-				if (token.level == 1) {
-					cobj.id = '/' + token.line;
-					docStructure.push(cobj)
-				}
-				else if (token.level == 2) {
-					var level1 = last(docStructure);
-					cobj.id = level1.id + '/' + token.line;
-					level1.children.push(cobj);
-				}
-				else if (token.level == 3) {
-					var level1 = last(docStructure);
-					var level2 = last(level1.children);
-					cobj.id = level2.id + '/' + token.line;
-					level2.children.push(cobj);
-				}
-			}
-			else if (token.type == "scene_heading") {
-				currentSceneNumber = token.number;
-				fountainDocProps.scenes.push({ scene: token.number, line: token.line });
-				fountainDocProps.sceneLines.push(token.line);
-				fountainDocProps.sceneNames.push(token.text);
-				cobj.text = token.text;
-				cobj.children = null;
-				if (currentdepth == 0) {
-					cobj.id = '/' + token.line;
-					docStructure.push(cobj);
-				}
-				else if (currentdepth == 1) {
-					var level1 = last(docStructure);
-					cobj.id = level1.id + '/' + token.line;
-					level1.children.push(cobj);
-				}
-				else if (currentdepth == 2) {
-					var level1 = last(docStructure);
-					var level2 = last(level1.children);
-					cobj.id = level2.id + '/' + token.line;
-					level2.children.push(cobj);
-				}
-				else if (currentdepth >= 3) {
-					var level1 = last(docStructure);
-					var level2 = last(level1.children);
-					var level3 = last(level2.children);
-					cobj.id = level3.id + '/' + token.line;
-					level3.children.push(cobj);
-				}
-			}
-			else if (token.type == "character") {
-				let character = trimCharacterExtension(token.text)
-				if (fountainDocProps.characters.has(character)) {
-					var values = fountainDocProps.characters.get(character);
-					if (values.indexOf(currentSceneNumber) == -1) {
-						values.push(currentSceneNumber);
-					}
-					fountainDocProps.characters.set(character, values);
-				}
-				else {
-					fountainDocProps.characters.set(character, [currentSceneNumber]);
-				}
-			}
-			else if(token.type == "dialogue"){
-				decorsDialogue.push({ range: new vscode.Range(token.line, 0, token.line, Number.MAX_SAFE_INTEGER), hoverMessage:"Estimated duration: " + Math.floor(token.time*10)/10 + "s" });
-			}
-			tokenlength++;
-		}
 		tokenlength = 0;
-		fountainDocProps.titleKeys = [];
+		parsedDocument.properties.titleKeys = [];
 		var fontTokenExists = false;
 		while (tokenlength < output.title_page.length) {
-			fountainDocProps.titleKeys.push(output.title_page[tokenlength].type.toLowerCase());
-			if(output.title_page[tokenlength].type == "font" && output.title_page[tokenlength].text.trim() != ""){
-				fountainDocProps.fontLine = output.title_page[tokenlength].line;
+			if (output.title_page[tokenlength].type == "font" && output.title_page[tokenlength].text.trim() != "") {
+				parsedDocument.properties.fontLine = output.title_page[tokenlength].line;
 				var fontname = output.title_page[tokenlength].text;
 				previewpanel.webview.postMessage({ command: 'updateFont', content: fontname });
-				fontTokenExists=true;
-				fontTokenExisted=true;
+				fontTokenExists = true;
+				fontTokenExisted = true;
 			}
 			tokenlength++;
 		}
-		if(!fontTokenExists && fontTokenExisted){
+		if (!fontTokenExists && fontTokenExisted) {
 			previewpanel.webview.postMessage({ command: 'removeFont' });
-			fontTokenExisted=false;
+			fontTokenExisted = false;
 			diagnosticCollection.set(vscode.window.activeTextEditor.document.uri, []);
 		}
 		vscode.window.activeTextEditor.setDecorations(decortypesDialogue, decorsDialogue);
 	}
-	
+
 	if (document.languageId == "fountain")
 		outlineViewProvider.update();
 	updateStatus(output.lengthAction, output.lengthDialogue);
+	var hrend = process.hrtime(hrstart)
+	console.info('Fountain parsing took %ds %dms', hrend[0], hrend[1] / 1000000)
 }
 
 vscode.window.onDidChangeActiveTextEditor(change => {
-	if(change.document.languageId=="fountain"){
+	if (change.document.languageId == "fountain") {
 		parseDocument(change.document);
 		lastFountainEditor = change.document.uri;
 	}
@@ -652,34 +560,34 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 		var completes: vscode.CompletionItem[] = [];
 		var currentline = document.getText(new vscode.Range(new vscode.Position(position.line, 0), position));
 		var prevLine = document.getText(new vscode.Range(new vscode.Position(position.line - 1, 0), position)).trimRight();
-		const multipleCharactersExist = fountainDocProps.characters.size > 1;
+		const multipleCharactersExist = parsedDocument.properties.characters.size > 1;
 		const currentLineIsEmpty = currentline === "";
 		const previousLineIsEmpty = prevLine === "";
 
 		//Title page autocomplete
-		if (fountainDocProps.firstTokenLine > position.line) {
+		if (parsedDocument.properties.firstTokenLine > position.line) {
 			if (currentline.indexOf(":") == -1) {
-				if (fountainDocProps.titleKeys.indexOf("title") == -1)
+				if (parsedDocument.properties.titleKeys.indexOf("title") == -1)
 					completes.push(TitlePageKey("Title", "A", "The title of the screenplay"));
-				if (fountainDocProps.titleKeys.indexOf("credit") == -1)
+				if (parsedDocument.properties.titleKeys.indexOf("credit") == -1)
 					completes.push(TitlePageKey("Credit", "B", "How the author is credited", true));
-				if (fountainDocProps.titleKeys.indexOf("author") == -1)
+				if (parsedDocument.properties.titleKeys.indexOf("author") == -1)
 					completes.push(TitlePageKey("Author", "C", "The name of the author (you!)", true));
-				if (fountainDocProps.titleKeys.indexOf("source") == -1)
+				if (parsedDocument.properties.titleKeys.indexOf("source") == -1)
 					completes.push(TitlePageKey("Source", "D", "An additional source, such as the author of the original story", true));
-				if (fountainDocProps.titleKeys.indexOf("notes") == -1)
+				if (parsedDocument.properties.titleKeys.indexOf("notes") == -1)
 					completes.push(TitlePageKey("Notes", "E", "Additional notes"));
-				if (fountainDocProps.titleKeys.indexOf("draft_date") == -1)
+				if (parsedDocument.properties.titleKeys.indexOf("draft_date") == -1)
 					completes.push(TitlePageKey("Draft date", "F", "The date of the current draft", true));
-				if (fountainDocProps.titleKeys.indexOf("date") == -1)
+				if (parsedDocument.properties.titleKeys.indexOf("date") == -1)
 					completes.push(TitlePageKey("Date", "G", "The date of the screenplay", true));
-				if (fountainDocProps.titleKeys.indexOf("contact") == -1)
+				if (parsedDocument.properties.titleKeys.indexOf("contact") == -1)
 					completes.push(TitlePageKey("Contact", "H", "Contact details of the author or production company"));
-				if (fountainDocProps.titleKeys.indexOf("copyright") == -1)
+				if (parsedDocument.properties.titleKeys.indexOf("copyright") == -1)
 					completes.push(TitlePageKey("Copyright", "I", "Copyright information", true));
-				if (fountainDocProps.titleKeys.indexOf("watermark") == -1)
+				if (parsedDocument.properties.titleKeys.indexOf("watermark") == -1)
 					completes.push(TitlePageKey("Watermark", "J", "A watermark to be displayed across every page of the PDF"));
-				if (fountainDocProps.titleKeys.indexOf("font") == -1)
+				if (parsedDocument.properties.titleKeys.indexOf("font") == -1)
 					completes.push(TitlePageKey("Font", "K", "The font to be used in the preview and in the PDF", true));
 			}
 			else {
@@ -704,15 +612,15 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 				else if (currentkey == "copyright:") {
 					completes.push({ label: "(c)" + new Date().getFullYear() + " ", kind: vscode.CompletionItemKind.Text });
 				}
-				else if (currentkey == "font:"){
-					fontnames.forEach((fontname:string)=>{
-						completes.push({ label: fontname, insertText:fontname+"\n", kind: vscode.CompletionItemKind.Text });
+				else if (currentkey == "font:") {
+					fontnames.forEach((fontname: string) => {
+						completes.push({ label: fontname, insertText: fontname + "\n", kind: vscode.CompletionItemKind.Text });
 					})
 				}
 			}
 		}
 		//Scene header autocomplete
-		else if (fountainDocProps.sceneLines.indexOf(position.line) > -1) {
+		else if (parsedDocument.properties.sceneLines.indexOf(position.line) > -1) {
 			//Time of day
 			if (currentline.trimRight().endsWith("-")) {
 				var addspace = !currentline.endsWith(" ");
@@ -721,18 +629,23 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 				completes.push(TimeofDayCompletion("DUSK", addspace, "C"));
 				completes.push(TimeofDayCompletion("DAWN", addspace, "D"));
 			}
-			else{
+			else {
 				var scenematch = currentline.match(/^((?:\*{0,3}_?)?(?:(?:int|ext|est|int\.?\/ext|i\.?\/e\.?).? ))/gi);
-				if(scenematch){
-					for(let index in fountainDocProps.sceneNames){
-						var spacepos = fountainDocProps.sceneNames[index].indexOf(" ");
-						if(spacepos != -1){
-							var thisLocation = fountainDocProps.sceneNames[index].slice(fountainDocProps.sceneNames[index].indexOf(" ")).trimLeft();
-							if(fountainDocProps.sceneNames[index].toLowerCase().startsWith(scenematch[0].toLowerCase()))
-								completes.push({ label: thisLocation, documentation: "Scene heading", sortText: "A" + (10-scenematch[0].length)});
-								//The (10-scenematch[0].length) is a hack to avoid a situation where INT. would be before INT./EXT. when it should be after
-							else
-								completes.push({ label: thisLocation, documentation: "Scene heading", sortText: "B" });
+				if (scenematch) {
+					var previousLabels = []
+					for (let index in parsedDocument.properties.sceneNames) {
+						var spacepos = parsedDocument.properties.sceneNames[index].indexOf(" ");
+						if (spacepos != -1) {
+							var thisLocation = parsedDocument.properties.sceneNames[index].slice(parsedDocument.properties.sceneNames[index].indexOf(" ")).trimLeft();
+							if (previousLabels.indexOf(thisLocation) == -1) {
+								previousLabels.push(thisLocation);
+								if (parsedDocument.properties.sceneNames[index].toLowerCase().startsWith(scenematch[0].toLowerCase())) {
+									completes.push({ label: thisLocation, documentation: "Scene heading", sortText: "A" + (10 - scenematch[0].length) });
+									//The (10-scenematch[0].length) is a hack to avoid a situation where INT. would be before INT./EXT. when it should be after
+								}
+								else
+									completes.push({ label: thisLocation, documentation: "Scene heading", sortText: "B" });
+							}
 						}
 					}
 				}
@@ -753,26 +666,26 @@ class MyCompletionProvider implements vscode.CompletionItemProvider {
 			if (multipleCharactersExist) {
 				// The character who spoke before the last one
 				var charactersWhoSpokeBeforeLast = getCharactersWhoSpokeBeforeLast(parsedDocument, position);
-				if(charactersWhoSpokeBeforeLast.length>0){
+				if (charactersWhoSpokeBeforeLast.length > 0) {
 					var index = 0;
-					charactersWhoSpokeBeforeLast.forEach(character=>{
+					charactersWhoSpokeBeforeLast.forEach(character => {
 						var charWithForceSymbolIfNecessary = addForceSymbolToCharacter(character);
-						completes.push({label: charWithForceSymbolIfNecessary, kind: vscode.CompletionItemKind.Keyword, sortText:"0A"+index, documentation:"Character from the current scene", command: { command: "type", arguments:[{"text":"\n"}], title:"newline" }});
+						completes.push({ label: charWithForceSymbolIfNecessary, kind: vscode.CompletionItemKind.Keyword, sortText: "0A" + index, documentation: "Character from the current scene", command: { command: "type", arguments: [{ "text": "\n" }], title: "newline" } });
 						index++;
 					});
 				}
-				else{
-					fountainDocProps.characters.forEach((_value: number[], key: string) => {
-							completes.push({ label: key, documentation: "Character", sortText: "0C", kind: vscode.CompletionItemKind.Text, command: { command: "type", arguments:[{"text":"\n"}], title:"newline" } });
+				else {
+					parsedDocument.properties.characters.forEach((_value: number[], key: string) => {
+						completes.push({ label: key, documentation: "Character", sortText: "0C", kind: vscode.CompletionItemKind.Text, command: { command: "type", arguments: [{ "text": "\n" }], title: "newline" } });
 					});
 				}
 			}
 
-			completes.push({ label: "INT. ", documentation: "Interior", sortText: "1B", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" }});
+			completes.push({ label: "INT. ", documentation: "Interior", sortText: "1B", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
 			completes.push({ label: "EXT. ", documentation: "Exterior", sortText: "1C", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
 			completes.push({ label: "INT/EXT. ", documentation: "Interior/Exterior", sortText: "1D", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
 			completes.push({ label: "EST. ", documentation: "Establishing", sortText: "1E", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-			
+
 		}
 		return completes;
 	}

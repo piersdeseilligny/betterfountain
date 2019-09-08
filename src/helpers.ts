@@ -1,3 +1,4 @@
+import { create_token } from "./token";
 class operatorClass{
     is:any;
     is_dialogue:any;
@@ -9,20 +10,6 @@ class operatorClass{
 };
 class helperClass{
     fq:any;
-    enrich_token(token:any) {
-        for (var name in operators) {
-            token[name] = (<any>operators)[name];
-        }
-        return token;
-    };
-    create_token(token:any) {
-        token.text = token.text || "";
-        token.type = token.type || "unknown";
-        token.start = token.start || 0;
-        token.end = token.end || 0;
-        token.lines = token.lines || [];
-        return this.enrich_token(token);
-    };
     first_text(type:any, list:any, default_value:any) {
         for (var i = 0; i < list.length; i++) {
             if (list[i].type === type) {
@@ -36,20 +23,17 @@ class helperClass{
         line.type = line.type || "unknown";
         line.start = line.start || 0;
         line.end = line.end || 0;
-        line.token = line.token || helpers.create_token({
-            type: line.type
-        });
+        line.token = line.token || function(){var t = create_token(); t.type = line.type; return t};
         line.token.lines = line.token.lines || [line];
         return enrich_line(line);
     };
     create_separator(start:any, end:any) {
-        return helpers.create_token({
-            text: "",
-            start: start,
-            end: end,
-            lines: [""],
-            type: "separator"
-        });
+        var t = create_token();
+        t.text="";
+        t.start = start;
+        t.end = end;
+        t.type = "separator";
+        return t;
     };
     version_generator = function(current?:any) {
         current = current || "0";
@@ -90,14 +74,11 @@ class helperClass{
     blank_text = function(text:string) {
         return (text || '').replace(/./g, ' ');
     };
-
     operators:operatorClass;
 }
 
 var operators = new operatorClass;
 var helpers = new helperClass();
-
-helpers.operators = operators;
 
 operators.is = function() {
     var types = Array.prototype.slice.call(arguments);
@@ -146,6 +127,9 @@ operators.location_type = function() {
     }
     return "other";
 };
+
+
+helpers.operators = operators;
 
 var create_token_delegator = function(line:any, name:string) {
     return function() {

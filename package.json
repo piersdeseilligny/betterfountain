@@ -5,7 +5,7 @@
 	"author": "Piers Deseilligny",
 	"license": "MIT",
 	"icon": "icon.png",
-	"version": "1.4.0",
+	"version": "1.4.3",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
@@ -165,6 +165,11 @@
 						"description": "The theme to be used in the live preview",
 						"default": "vscode"
 					},
+					"fountain.pdf.previewTexture": {
+						"type": "boolean",
+						"default": true,
+						"description": "Noise texture on the live preview (absent from PDF)"
+					},
 					"fountain.pdf.sceneNumbers": {
 						"type": "string",
 						"enum": [
@@ -204,6 +209,11 @@
 				"command": "fountain.jumpto",
 				"title": "Jump to line",
 				"category": "Fountain"
+			},
+			{
+				"command": "fountain.statistics",
+				"title": "Calculate screenplay statistics",
+				"category": "Fountain"
 			}
 		],
 		"languages": [
@@ -231,14 +241,18 @@
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./ && copyfiles -u 1 src/webview.html out",
-		"watch": "tsc -watch -p ./ && copyfiles -u 1 src/webview.html out && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out",
-		"postinstall": "node ./node_modules/vscode/bin/install"
+		"watch": "npm run compile && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "./node_modules/jest/bin/jest.js"
 	},
 	"devDependencies": {
+		"@types/jest": "^24.0.18",
 		"@types/mocha": "^5.2.7",
 		"@types/node": "^8.10.51",
 		"copyfiles": "^2.1.1",
-		"typescript": "2.8.3",
+		"jest": "^24.9.0",
+		"ts-jest": "^24.0.2",
+		"typescript": "^2.9.2",
 		"vscode": "^1.1.35"
 	},
 	"dependencies": {
@@ -247,7 +261,7 @@
 		"blob": "0.0.5",
 		"font-finder": "^1.0.4",
 		"os-fonts": "^0.5.0",
-		"pdfkit": "^0.8.3",
+		"pdfkit": "^0.10.0",
 		"syllable": "^3.6.1",
 		"username": "^4.1.0"
 	}
