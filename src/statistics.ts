@@ -1,4 +1,5 @@
-import {regex as fountainRegexes} from "./afterwriting-parser"
+import {regex as fountainRegexes, parse as fountainParse} from "./afterwriting-parser"
+import { secondsToString } from "./utils"
 
 type dialoguePiece = {
     character: string
@@ -24,10 +25,17 @@ type wordCountStatistics = {
     total: number
 }
 
+type lengthStatistics = {
+    dialogue: string
+    action: string
+    total: string
+}
+
 type screenPlayStatistics = {
     characterStats: dialogueStatisticPerCharacter[]
     sceneStats: singleSceneStatistic[]
     wordCountStats: wordCountStatistics
+    lengthStats: lengthStatistics
 }
 
 const createCharacterStatistics = (script: string): dialogueStatisticPerCharacter[] => {
@@ -97,9 +105,28 @@ const createSceneStatistics = (script: string): singleSceneStatistic[] => {
     return sceneStats
 }
 
+const getTotalWordCount = (script: string): number => {
+    const totalWordCount = script.trimLeft().trimRight().split(" ")
+    if (totalWordCount.length === 1 && totalWordCount[0] === "") {
+        return 0
+    } else {
+        return totalWordCount.length
+    }
+}
+
 const createWordCountStatistics = (scriptNormalised: string): wordCountStatistics => {
     return {
-        total: scriptNormalised.split(" ").length
+        total: getTotalWordCount(scriptNormalised)
+    }
+}
+
+const createLengthStatistics = (scriptNormalised: string): lengthStatistics => {
+    const documentFountainParsed = fountainParse(scriptNormalised, {}, false)
+    const actionDuration = documentFountainParsed.lengthAction / 20
+    return {
+        dialogue: secondsToString(documentFountainParsed.lengthDialogue),
+        action: secondsToString(actionDuration),
+        total: secondsToString(documentFountainParsed.lengthDialogue + actionDuration)
     }
 }
 
@@ -109,7 +136,8 @@ export const retrieveScreenPlayStatistics = (script: string): screenPlayStatisti
     return {
         characterStats: createCharacterStatistics(scriptNormalised),
         sceneStats: createSceneStatistics(scriptNormalised),
-        wordCountStats: createWordCountStatistics(scriptNormalised)
+        wordCountStats: createWordCountStatistics(scriptNormalised),
+        lengthStats: createLengthStatistics(scriptNormalised)
     }
 }
 
@@ -142,6 +170,9 @@ export const statsAsHtml = (stats: screenPlayStatistics): string => {
 ${tableStyle}
     <h1>General</h1>
     <p>Total word count: ${stats.wordCountStats.total}</p>
+    <p>Length (approx.): ${stats.lengthStats.total}</p>
+    <p>Dialogue (approx.): ${stats.lengthStats.dialogue}</p>
+    <p>Action (approx.): ${stats.lengthStats.action}</p>
     <h1>Character statistics</h1>
     <table style="width:100%">
         <tr>

@@ -13,6 +13,9 @@ const bigFishAssertions = (bigFishScript: string) => {
         expect(charStat.wordsSpoken).toBeGreaterThan(0)
     })
     expect(stats.sceneStats.length).toBe(190)
+    expect(stats.lengthStats.total).toBe("01:59:36")
+    expect(stats.lengthStats.dialogue).toBe("00:55:39")
+    expect(stats.lengthStats.action).toBe("01:03:57")
 }
 
 describe("Statistics", () => {
@@ -30,11 +33,19 @@ describe("Statistics", () => {
         const stats = retrieveScreenPlayStatistics("")
         expect(stats.characterStats.length).toBe(0)
         expect(stats.sceneStats.length).toBe(0)
+        expect(stats.wordCountStats.total).toBe(0)
+        expect(stats.lengthStats.total).toBe("00:00:00")
+        expect(stats.lengthStats.dialogue).toBe("00:00:00")
+        expect(stats.lengthStats.action).toBe("00:00:00")
     })
 
     it("Almost Blank Canvas script", () => {
-        const stats = retrieveScreenPlayStatistics("2134wrdfhfsdhj;dfshl")
+        const stats = retrieveScreenPlayStatistics("2134wrdfhf sdhj;dfshl")
         expect(stats.characterStats.length).toBe(0)
         expect(stats.sceneStats.length).toBe(0)
+        expect(stats.wordCountStats.total).toBe(2)
+        expect(stats.lengthStats.total).toBe("00:00:01")
+        expect(stats.lengthStats.dialogue).toBe("00:00:00")
+        expect(stats.lengthStats.action).toBe("00:00:01")
     })
 })
