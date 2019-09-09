@@ -14,7 +14,6 @@ type dialogueStatisticPerCharacter = {
     name: string
     speakingParts: number
     wordsSpoken: number
-    // dialogueDuration: number
 }
 
 type singleSceneStatistic = {
@@ -77,12 +76,10 @@ const createCharacterStatistics = (script: string): dialogueStatisticPerCharacte
             return `${prev} ${curr} `
         }, "")
         const wordsSpoken = allDialogueCombined.split(/ +/i).length
-        // const dialogueDuration = calculateDialogueDuration(allDialogueCombined)
         characterStats.push({
             name: singledialPerChar,
             speakingParts,
             wordsSpoken,
-            // dialogueDuration
         })
     })
 
