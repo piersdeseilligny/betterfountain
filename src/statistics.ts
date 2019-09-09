@@ -75,7 +75,7 @@ const createCharacterStatistics = (script: string): dialogueStatisticPerCharacte
         const allDialogueCombined = dialoguePerCharacter[singledialPerChar].reduce((prev, curr) => {
             return `${prev} ${curr} `
         }, "")
-        const wordsSpoken = allDialogueCombined.split(/ +/i).length
+        const wordsSpoken = allDialogueCombined.split(" ").length
         characterStats.push({
             name: singledialPerChar,
             speakingParts,
