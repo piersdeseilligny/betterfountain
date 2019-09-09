@@ -138,8 +138,21 @@ export const retrieveScreenPlayStatistics = (script: string): screenPlayStatisti
     }
 }
 
-const tableStyle = `
+const pageStyle = `
 <style>
+    body {
+        animation: fadein 0.5s;
+    }
+
+    @keyframes fadein {
+        from {
+            opacity:0;
+        }
+        to {
+            opacity:1;
+        }
+    }
+
     table {
         border-collapse: collapse;
         width: 100%;
@@ -164,7 +177,7 @@ const tableStyle = `
 export const statsAsHtml = (stats: screenPlayStatistics): string => {
     return `
 <body>
-${tableStyle}
+${pageStyle}
     <h1>General</h1>
     <p>Total word count: ${stats.wordCountStats.total}</p>
     <p>Length (approx.): ${stats.lengthStats.total}</p>
