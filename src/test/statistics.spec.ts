@@ -18,15 +18,41 @@ const bigFishAssertions = (bigFishScript: string) => {
     expect(stats.lengthStats.action).toBe("01:03:57")
 }
 
+const brickAndSteelAssertions = (bigFishScript: string) => {
+    const stats = retrieveScreenPlayStatistics(bigFishScript)
+    expect(stats.wordCountStats.total).toBe(394)
+    expect(stats.characterStats.length).toBe(5)
+    stats.characterStats.forEach((charStat) => {
+        expect(typeof charStat.name).toBe("string")
+        expect(charStat.name.length).toBeGreaterThan(0)
+        expect(charStat.speakingParts).toBeGreaterThan(0)
+        expect(charStat.wordsSpoken).toBeGreaterThan(0)
+    })
+    expect(stats.sceneStats.length).toBe(8)
+    expect(stats.lengthStats.total).toBe("00:01:50")
+    expect(stats.lengthStats.dialogue).toBe("00:00:34")
+    expect(stats.lengthStats.action).toBe("00:01:16")
+}
+
 describe("Statistics", () => {
     it("Big Fish CRLF", () => {
-        const bigFish = fs.readFileSync(path.resolve(__dirname, "./big_fish_crlf.fountain"), "utf-8")
+        const bigFish = fs.readFileSync(path.resolve(__dirname, "./scripts/big_fish_crlf.fountain"), "utf-8")
         bigFishAssertions(bigFish)
     })
 
     it("Big Fish LF", () => {
-        const bigFish = fs.readFileSync(path.resolve(__dirname, "./big_fish_lf.fountain"), "utf-8")
+        const bigFish = fs.readFileSync(path.resolve(__dirname, "./scripts/big_fish_lf.fountain"), "utf-8")
         bigFishAssertions(bigFish)
+    })
+
+    it("Brick & Steel CRLF", () => {
+        const bigFish = fs.readFileSync(path.resolve(__dirname, "./scripts/brick_and_steel_crlf.fountain"), "utf-8")
+        brickAndSteelAssertions(bigFish)
+    })
+
+    it("Brick & Steel LF", () => {
+        const bigFish = fs.readFileSync(path.resolve(__dirname, "./scripts/brick_and_steel_lf.fountain"), "utf-8")
+        brickAndSteelAssertions(bigFish)
     })
 
     it("Blank Canvas script", () => {
