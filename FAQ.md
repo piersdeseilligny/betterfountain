@@ -29,7 +29,7 @@ Here are a few super simple steps to get started:
 * If you want to know how long your screenplay is (very approximately) just look in the bottom right corner. See the "00:00:00" next to the Line and Column positions? That's more or less the length of your screenplay (in hours:minutes:seconds).
 
 * For imitation of a Typewriter mode you can add below code to `settings.json` file (`File`>`Preferences`>`Settings`):
-```
+```json
 "[fountain]": {
     "editor.wordWrapColumn": 57,   
     "editor.wordWrap": "wordWrapColumn",
@@ -40,3 +40,10 @@ Here are a few super simple steps to get started:
 }
 ```
 and run `View`>`Appearance`>`Centered Layout`
+
+* By default, Visual Studio Code's suggestion system pre-selects the most recently suggested selection instead of the first suggestion. In order to make the most out of betterfountain's character suggestion feature, add the following line to the `settings.json` file (`Ctrl/Cmd+Shift+P` or `F1`, *Open Settings (JSON)*):
+```json
+    "[fountain]": {
+        "editor.suggestSelection": "first"
+    }
+```
