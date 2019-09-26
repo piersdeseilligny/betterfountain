@@ -63,6 +63,22 @@ export const calculateDialogueDuration = (dialogue:string): number =>{
 	}
 	return duration
 }
+
+function padZero(i: any) {
+	if (i < 10) {
+		i = "0" + i;
+	}
+	return i;
+}
+
+export function secondsToString(seconds:number):string{
+	var time = new Date(null);
+	time.setHours(0);
+	time.setMinutes(0);
+	time.setSeconds(seconds);
+	return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
+}
+
 export const last = function(array: any[]): any {
 	return array[array.length - 1];
 }

@@ -6,7 +6,8 @@ import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import * as username from 'username';
-import { addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast, numberScenes } from "./utils";
+import { addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast, numberScenes, secondsToString } from "./utils";
+import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
@@ -126,6 +127,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		const treeExportPdf = new vscode.TreeItem("Export PDF");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
 		const numberScenes = new vscode.TreeItem("Number all scenes (replaces existing scene numbers)");
+		const statistics = new vscode.TreeItem("Calculate screenplay statistics");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
 			title: ''
@@ -137,10 +139,15 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		numberScenes.command = {
 			command: 'fountain.numberScenes',
 			title: ''
+		}
+		statistics.command = {
+			command: 'fountain.statistics',
+			title: ''
 		};
 		elements.push(treeExportPdf);
 		elements.push(treeLivePreview);
 		elements.push(numberScenes);
+		elements.push(statistics);
 		return elements;
 	}
 }
@@ -176,12 +183,6 @@ function updateWebView(titlepage: string, script: string) {
 
 	parseDocument(vscode.window.activeTextEditor.document);
 }
-function padZero(i: any) {
-	if (i < 10) {
-		i = "0" + i;
-	}
-	return i;
-}
 
 
 /**
@@ -205,14 +206,6 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 		}
 	}
 }
-function secondsToString(seconds: number): string {
-	var time = new Date(null);
-	time.setHours(0);
-	time.setMinutes(0);
-	time.setSeconds(seconds);
-	return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
-}
-
 
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
@@ -320,6 +313,13 @@ export function activate(context: ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', numberScenes));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', () => {
+		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
+		statsPanel.webview.html = `Calculating screenplay statistics...`
+		const stats = retrieveScreenPlayStatistics(vscode.window.activeTextEditor.document.getText())
+		const statsHTML = statsAsHtml(stats)
+		statsPanel.webview.html = statsHTML
+	}));
 
 	vscode.commands.registerCommand('type', (args) => {
 
