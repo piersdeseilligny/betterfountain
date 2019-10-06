@@ -22,7 +22,7 @@ export const addForceSymbolToCharacter = (characterName: string): string => {
 }
 
 export const getCharactersWhoSpokeBeforeLast = (parsedDocument:any, position:vscode.Position) => {
-	
+
 	let searchIndex = 0;
 	if(parsedDocument.tokenLines[position.line-1]){
 		searchIndex = parsedDocument.tokenLines[position.line-1];
@@ -100,6 +100,22 @@ export const calculateDialogueDuration = (dialogue:string): number =>{
 	}
 	return duration
 }
+
+function padZero(i: any) {
+	if (i < 10) {
+		i = "0" + i;
+	}
+	return i;
+}
+
+export function secondsToString(seconds:number):string{
+	var time = new Date(null);
+	time.setHours(0);
+	time.setMinutes(0);
+	time.setSeconds(seconds);
+	return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
+}
+
 export const last = function(array: any[]): any {
 	return array[array.length - 1];
 }

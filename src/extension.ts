@@ -6,7 +6,8 @@ import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import * as username from 'username';
-import { addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast } from "./utils";
+import { addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast, secondsToString } from "./utils";
+import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
@@ -125,6 +126,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		var elements: vscode.TreeItem[] = [];
 		var treeExportPdf = new vscode.TreeItem("Export PDF");
 		var treeLivePreview = new vscode.TreeItem("Show live preview");
+		var statistics = new vscode.TreeItem("Calculate screenplay statistics");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
 			title: ''
@@ -133,8 +135,13 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			command: 'fountain.livepreview',
 			title: ''
 		};
+		statistics.command = {
+			command: 'fountain.statistics',
+			title: ''
+		};
 		elements.push(treeExportPdf);
 		elements.push(treeLivePreview);
+		elements.push(statistics);
 		return elements;
 	}
 }
@@ -160,7 +167,7 @@ function updateWebView(titlepage: string, script: string) {
 		if(directConfig.previewTexture){
 			themeClass+= " textured";
 		}
-	
+
 	var cleandir = __dirname.split(String.fromCharCode(92)).join("/");
 	previewpanel.webview.html = webviewHtml.replace("$TITLEPAGE$", titlepage)
 		.replace("$SCRIPT$", script)
@@ -169,12 +176,6 @@ function updateWebView(titlepage: string, script: string) {
 		.replace("$PAGETHEME$", themeClass);
 
 	parseDocument(vscode.window.activeTextEditor.document);
-}
-function padZero(i: any) {
-	if (i < 10) {
-		i = "0" + i;
-	}
-	return i;
 }
 
 
@@ -199,14 +200,6 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 		}
 	}
 }
-function secondsToString(seconds: number): string {
-	var time = new Date(null);
-	time.setHours(0);
-	time.setMinutes(0);
-	time.setSeconds(seconds);
-	return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
-}
-
 
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
@@ -313,6 +306,14 @@ export function activate(context: ExtensionContext) {
 		});
 	}));
 
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', () => {
+		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
+		statsPanel.webview.html = `Calculating screenplay statistics...`
+		const stats = retrieveScreenPlayStatistics(vscode.window.activeTextEditor.document.getText())
+		const statsHTML = statsAsHtml(stats)
+		statsPanel.webview.html = statsHTML
+	}));
+
 	vscode.commands.registerCommand('type', (args) => {
 
 		//Automatically skip to the next line at the end of parentheticals
@@ -373,7 +374,7 @@ vscode.workspace.onDidChangeConfiguration(change => {
 			if(directConfig.previewTexture){
 				themeClass+= " textured";
 			}
-			
+
 			previewpanel.webview.postMessage({ command: 'updatePageClasses', content: pageClasses });
 			previewpanel.webview.postMessage({ command: 'changeTheme', content: themeClass });
 		}
