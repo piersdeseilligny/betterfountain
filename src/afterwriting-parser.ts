@@ -421,7 +421,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             if (thistoken.text && thistoken.text[0] === "~") {
                 thistoken.text = "*" + thistoken.text.substr(1) + "*";
             }
-            thistoken.text = thistoken.is("action") ? thistoken.text : thistoken.text.trim();
+            if(thistoken.type != "action" && thistoken.type != "dialogue")
+                thistoken.text = thistoken.text.trim();
             pushToken(thistoken);
         }
 
@@ -443,7 +444,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         while (current_index < result.title_page.length) {
             var current_token: token = result.title_page[current_index];
             if (current_token.text != "")
-                current_token.html = inline.lexer(current_token.text);
+                    current_token.html = inline.lexer(current_token.text);
             switch (current_token.type) {
                 case 'title': titlehtml.push('<h1>' + current_token.html + '</h1>'); break;
                 case 'credit': titlehtml.push('<p class=\"credit\">' + current_token.html + '</p>'); break;
@@ -466,6 +467,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             var current_token: token = result.tokens[current_index];
             if (current_token.text != "")
                 current_token.html = inline.lexer(current_token.text, current_token.type);
+            else current_token.html = "";
 
 
             if (current_token.type == "action") {
@@ -520,7 +522,10 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         break;
                     case 'parenthetical': html.push('<p class=\"parenthetical\">' + current_token.html + '</p>'); break;
                     case 'dialogue':
-                        html.push('<p>' + current_token.html + '</p>');
+                        if(current_token.text == "  ") 
+                            html.push('<br>');
+                        else
+                            html.push('<p>' + current_token.html + '</p>');
                         break;
                     case 'dialogue_end': html.push('</div> '); break;
                     case 'dual_dialogue_end': html.push('</div></div> '); break;
