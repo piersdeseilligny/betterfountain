@@ -336,7 +336,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 thistoken.text = thistoken.text.substr(1);
             } else if (thistoken.text.match(regex.character)) {
                 if (i === lines_length || i === lines_length - 1 || lines[i + 1].trim().length === 0) {
-                    thistoken.type = "shot";
+                    thistoken.type = "action";
                 } else {
                     state = "dialogue";
                     thistoken.type = "character";
@@ -421,7 +421,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             if (thistoken.text && thistoken.text[0] === "~") {
                 thistoken.text = "*" + thistoken.text.substr(1) + "*";
             }
-            if(thistoken.type != "action" && thistoken.type != "dialogue")
+            if(thistoken.type != "action" && thistoken.type !=  "dialogue")
                 thistoken.text = thistoken.text.trim();
             pushToken(thistoken);
         }
