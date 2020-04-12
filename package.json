@@ -5,7 +5,7 @@
 	"author": "Piers Deseilligny",
 	"license": "MIT",
 	"icon": "icon.png",
-	"version": "1.4.3",
+	"version": "1.4.4",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
@@ -216,12 +216,12 @@
 				"category": "Fountain"
 			}
 		],
-		"keybindings":[
+		"keybindings": [
 			{
 				"command": "fountain.livepreview",
 				"key": "ctrl+shift+v",
-        		"mac": "cmd+shift+v",
-        		"when": "editorLangId == fountain"
+				"mac": "cmd+shift+v",
+				"when": "editorLangId == fountain"
 			}
 		],
 		"languages": [
@@ -254,14 +254,14 @@
 		"test": "node node_modules/jest/bin/jest.js"
 	},
 	"devDependencies": {
-		"@types/jest": "^24.0.18",
+		"@types/jest": "^24.9.1",
 		"@types/mocha": "^5.2.7",
-		"@types/node": "^8.10.51",
-		"copyfiles": "^2.1.1",
+		"@types/node": "^8.10.59",
+		"copyfiles": "^2.2.0",
 		"jest": "^24.9.0",
-		"ts-jest": "^24.0.2",
+		"ts-jest": "^24.3.0",
 		"typescript": "^2.9.2",
-		"vscode": "^1.1.35"
+		"vscode": "^1.1.36"
 	},
 	"dependencies": {
 		"@types/username": "^3.0.0",
