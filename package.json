@@ -216,6 +216,14 @@
 				"category": "Fountain"
 			}
 		],
+		"keybindings":[
+			{
+				"command": "fountain.livepreview",
+				"key": "ctrl+shift+v",
+        		"mac": "cmd+shift+v",
+        		"when": "editorLangId == fountain"
+			}
+		],
 		"languages": [
 			{
 				"id": "fountain",
