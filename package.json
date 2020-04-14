@@ -265,7 +265,6 @@
 	},
 	"dependencies": {
 		"@types/username": "^3.0.0",
-		"aw-liner": "0.0.9",
 		"blob": "0.0.5",
 		"font-finder": "^1.0.4",
 		"os-fonts": "^0.5.0",

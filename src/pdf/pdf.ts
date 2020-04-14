@@ -2,10 +2,10 @@ import * as pdfmaker from "./pdfmaker";
 import * as print from "./print";
 import { FountainConfig } from "../configloader";
 import * as helpers from "../helpers";
-var fliner = require("aw-liner");
+import * as fliner from "./liner";
 
 export var GeneratePdf = function(outputpath:string, config:FountainConfig, parsedDocument:any, callback:any){
-    var liner = new fliner.Liner(helpers.default);
+    var liner:any = new fliner.Liner(helpers.default);
 
     var watermark = undefined;
     var font = "Courier Prime";
