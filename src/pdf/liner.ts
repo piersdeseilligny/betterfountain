@@ -81,7 +81,7 @@ export class Liner{
             for (var character = before; lines[character].type !== "character"; character--) {
             }
             lines.splice(index, 0, this.h.create_line({
-                type: "parenthetical",
+                type: "more",
                 text: MORE,
                 start: token_on_break.start,
                 end: token_on_break.end,
@@ -98,7 +98,7 @@ export class Liner{
                 var dialogue_on_page_length = index - character;
                 var right_lines_on_this_page = lines[character].right_column.slice(0, dialogue_on_page_length).concat([
                         this.h.create_line({
-                            type: "parenthetical",
+                            type: "more",
                             text: MORE,
                             start: token_on_break.start,
                             end: token_on_break.end,

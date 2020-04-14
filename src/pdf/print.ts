@@ -22,6 +22,7 @@ export class PrintProfile{
     shot:{feed:number;max:number;};
     character:{feed:number;max:number;};
     parenthetical:{feed:number;max:number;};
+    more:{feed:number;max:number;};
     dialogue:{feed:number;max:number;};
     transition:{feed:number;max:number;};
     centered:{feed:number;max:number;style:string};
@@ -66,6 +67,10 @@ var A4_DEFAULT_MAX = 58,
                 max: A4_DEFAULT_MAX
             },
             character: {
+                feed: 3.5,
+                max: 33
+            },
+            more: {
                 feed: 3.5,
                 max: 33
             },
