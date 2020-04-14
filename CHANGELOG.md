@@ -1,10 +1,12 @@
+## **1.4.5**
+    · Align "(MORE)" with character, rather than parenthetical
+
 ## **1.4.4**
     + Add keybinding to display preview (Ctrl+Shift+V, or Cmd+Shift+V)
     + Add statistics (contributed by @rickshubert)
     · Fix 'double space to render next line as part of dialogue' override (#53)
     · Fix all-caps action lines (#50)
     · Fix unicode apostrophe detection for macOS
-    
 
 ## **1.4.3**
     + Add option to disable noise texture in live preview
