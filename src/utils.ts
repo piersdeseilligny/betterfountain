@@ -116,6 +116,19 @@ export function secondsToString(seconds:number):string{
 	return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
 }
 
+export function secondsToMinutesString(seconds:number):string{
+	if(seconds<1) return undefined;
+	var time = new Date(null);
+	time.setHours(0);
+	time.setMinutes(0);
+	time.setSeconds(seconds);
+	if(seconds>=3600)
+		return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
+	else
+		return padZero(time.getHours()*60 + time.getMinutes()) + ":" + padZero(time.getSeconds());
+	
+}
+
 export const last = function(array: any[]): any {
 	return array[array.length - 1];
 }

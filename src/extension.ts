@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import * as username from 'username';
-import { addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast, secondsToString } from "./utils";
+import { addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast, secondsToString, secondsToMinutesString } from "./utils";
 import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
@@ -146,8 +146,66 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 	}
 }
 
+//hierarchyend is the last line of the token's hierarchy. Last line of document for the root, last line of current section, etc...
+
+
+export class FountainSymbolProvider implements vscode.DocumentSymbolProvider{
+	provideDocumentSymbols(document: vscode.TextDocument): vscode.DocumentSymbol[] {
+		console.time("symbols");
+
+		var symbols:vscode.DocumentSymbol[] = []
+		var scenecounter = 0;
+
+		function symbolFromStruct(token:afterparser.StructToken, nexttoken:afterparser.StructToken, hierarchyend:number):{symbol:vscode.DocumentSymbol, length:number}{
+			var returnvalue:{symbol:vscode.DocumentSymbol, length:number} = {symbol:undefined, length:0};
+			var start = token.range.start;
+			var end = document.lineAt(hierarchyend-1).range.end;
+			var details = undefined;
+			if(hierarchyend==start.line) end = document.lineAt(hierarchyend).range.end;
+			if(nexttoken!=undefined){
+				end = nexttoken.range.start;
+			}
+			if(!token.section){
+				var sceneLength = parsedDocument.properties.scenes[scenecounter].actionLength + parsedDocument.properties.scenes[scenecounter].dialogueLength;
+				details = secondsToMinutesString(sceneLength);
+				returnvalue.length = sceneLength;
+				scenecounter++;
+			}
+			var symbolname = " ";
+			if(token.text != "")
+				symbolname = token.text;
+			var symbol = new vscode.DocumentSymbol(symbolname, details, vscode.SymbolKind.String, new vscode.Range(start, end), token.range);
+			symbol.children = [];
+
+			var childrenLength = 0;
+			if(token.children != undefined){
+				for (let index = 0; index < token.children.length; index++) {
+					var childsymbol = symbolFromStruct(token.children[index], token.children[index+1], end.line);
+					symbol.children.push(childsymbol.symbol);
+					childrenLength+= childsymbol.length;
+				}
+			}
+			if(token.section){
+				returnvalue.length = childrenLength;
+				symbol.detail = secondsToMinutesString(childrenLength);
+			}
+			returnvalue.symbol = symbol;
+			return returnvalue;
+		}
+
+		for (let index = 0; index < parsedDocument.properties.structure.length; index++) {
+			symbols.push(symbolFromStruct(parsedDocument.properties.structure[index], parsedDocument.properties.structure[index+1], document.lineCount).symbol);
+		}
+		console.timeEnd("symbols");
+		return symbols;
+		
+	}
+}
+
+
 var previewpanel: vscode.WebviewPanel;
 import fs = require('fs');
+
 const fontFinder = require('font-finder');
 
 const webviewHtml = fs.readFileSync(__dirname + path.sep + 'webview.html', 'utf8');
@@ -190,7 +248,7 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 			durationStatus.show();
 			//lengthDialogue is in syllables, lengthAction is in characters
 			var durationDialogue = lengthDialogue;
-			var durationAction = lengthAction / 20;
+			var durationAction = lengthAction;
 			durationStatus.tooltip = "Dialogue: " + secondsToString(durationDialogue) + "\nAction: " + secondsToString(durationAction);
 			//durationStatus.text = "charcount: " + (lengthAction)+"c"
 			durationStatus.text = secondsToString(durationDialogue + durationAction);
@@ -204,6 +262,7 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
+const symbolProvider: FountainSymbolProvider = new FountainSymbolProvider();
 var lastFountainEditor: vscode.Uri;
 var userfullname: string;
 let diagnosticCollection = languages.createDiagnosticCollection("fountain");
@@ -341,6 +400,8 @@ export function activate(context: ExtensionContext) {
 	//Setup autocomplete
 	languages.registerCompletionItemProvider({ scheme: 'file', language: 'fountain' }, new MyCompletionProvider(), '\n', '-', ' ');
 
+	context.subscriptions.push(languages.registerDocumentSymbolProvider({ scheme: 'file', language: 'fountain' }, symbolProvider ));
+
 	//Get user's full name for author autocomplete
 	(async () => {
 		userfullname = await username();
@@ -382,7 +443,7 @@ vscode.workspace.onDidChangeConfiguration(change => {
 })
 
 //var lastFountainDocument:TextDocument;
-var parsedDocument: any;
+var parsedDocument: afterparser.parseoutput;
 
 export class FountainStructureProperties {
 	scenes: { scene: number; line: number }[];
@@ -489,7 +550,7 @@ function GetFullRanges(document: TextDocument): FoldingRange[] {
 	var ranges: FoldingRange[] = [];
 	for (let index = 0; index < parsedDocument.tokens.length; index++) {
 		if (parsedDocument.tokens[index].type == "section") {
-			var depth = parsedDocument.tokens[index].depth;
+			var depth = parsedDocument.tokens[index].level;
 			if (depth >= 3) {
 				h3matches.push(parsedDocument.tokens[index].line);
 			}
