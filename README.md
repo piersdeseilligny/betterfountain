@@ -40,11 +40,11 @@ And to get an approximate duration of your screenplay, just look at your status 
 
 Here are some features I would like to add, but don't really have time to right now, in an approximate order of difficulty/priority:
 
+* Import screenplays from PDF files
+
 * Built-in screenplay templates (such as Blake Snyder's beat sheet)
 
 * Folding for sections
-
-* Even smarter auto-complete
 
 * Some sort of system that would allow the storage of character information alongside the script
 
