@@ -1,12 +1,11 @@
 'use strict';
 import { getFountainConfig } from "./configloader";
 import * as path from 'path';
-import { ExtensionContext, languages, FoldingRangeProvider, TextDocument, FoldingRange } from 'vscode';
+import { ExtensionContext, languages, TextDocument } from 'vscode';
 import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
-import * as username from 'username';
-import { addForceSymbolToCharacter, getCharactersWhoSpokeBeforeLast, secondsToString, secondsToMinutesString } from "./utils";
+import { secondsToString } from "./utils";
 import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
@@ -149,64 +148,12 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 //hierarchyend is the last line of the token's hierarchy. Last line of document for the root, last line of current section, etc...
 
 
-export class FountainSymbolProvider implements vscode.DocumentSymbolProvider{
-	provideDocumentSymbols(document: vscode.TextDocument): vscode.DocumentSymbol[] {
-		console.time("symbols");
-
-		var symbols:vscode.DocumentSymbol[] = []
-		var scenecounter = 0;
-
-		function symbolFromStruct(token:afterparser.StructToken, nexttoken:afterparser.StructToken, hierarchyend:number):{symbol:vscode.DocumentSymbol, length:number}{
-			var returnvalue:{symbol:vscode.DocumentSymbol, length:number} = {symbol:undefined, length:0};
-			var start = token.range.start;
-			var end = document.lineAt(hierarchyend-1).range.end;
-			var details = undefined;
-			if(hierarchyend==start.line) end = document.lineAt(hierarchyend).range.end;
-			if(nexttoken!=undefined){
-				end = nexttoken.range.start;
-			}
-			if(!token.section){
-				var sceneLength = parsedDocument.properties.scenes[scenecounter].actionLength + parsedDocument.properties.scenes[scenecounter].dialogueLength;
-				details = secondsToMinutesString(sceneLength);
-				returnvalue.length = sceneLength;
-				scenecounter++;
-			}
-			var symbolname = " ";
-			if(token.text != "")
-				symbolname = token.text;
-			var symbol = new vscode.DocumentSymbol(symbolname, details, vscode.SymbolKind.String, new vscode.Range(start, end), token.range);
-			symbol.children = [];
-
-			var childrenLength = 0;
-			if(token.children != undefined){
-				for (let index = 0; index < token.children.length; index++) {
-					var childsymbol = symbolFromStruct(token.children[index], token.children[index+1], end.line);
-					symbol.children.push(childsymbol.symbol);
-					childrenLength+= childsymbol.length;
-				}
-			}
-			if(token.section){
-				returnvalue.length = childrenLength;
-				symbol.detail = secondsToMinutesString(childrenLength);
-			}
-			returnvalue.symbol = symbol;
-			return returnvalue;
-		}
-
-		for (let index = 0; index < parsedDocument.properties.structure.length; index++) {
-			symbols.push(symbolFromStruct(parsedDocument.properties.structure[index], parsedDocument.properties.structure[index+1], document.lineCount).symbol);
-		}
-		console.timeEnd("symbols");
-		return symbols;
-		
-	}
-}
-
 
 var previewpanel: vscode.WebviewPanel;
 import fs = require('fs');
-
-const fontFinder = require('font-finder');
+import { FountainFoldingRangeProvider } from "./providers/Folding";
+import { FountainCompletionProvider } from "./providers/Completion";
+import { FountainSymbolProvider } from "./providers/Symbols";
 
 const webviewHtml = fs.readFileSync(__dirname + path.sep + 'webview.html', 'utf8');
 function updateWebView(titlepage: string, script: string) {
@@ -262,12 +209,11 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
-const symbolProvider: FountainSymbolProvider = new FountainSymbolProvider();
 var lastFountainEditor: vscode.Uri;
-var userfullname: string;
+
 let diagnosticCollection = languages.createDiagnosticCollection("fountain");
 let diagnostics: vscode.Diagnostic[] = [];
-var fontnames: any[];
+
 export function activate(context: ExtensionContext) {
 	//Register for outline tree view
 	vscode.window.registerTreeDataProvider("fountain-outline", outlineViewProvider)
@@ -280,12 +226,6 @@ export function activate(context: ExtensionContext) {
 	//Register for line duration length
 	durationStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	context.subscriptions.push(durationStatus);
-
-	//Load fonts for autocomplete
-	(async () => {
-		var fontlist = await fontFinder.list()
-		fontnames = Object.keys(fontlist);
-	})();
 
 	//Register for live preview
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreview', () => {
@@ -395,20 +335,14 @@ export function activate(context: ExtensionContext) {
 	});
 
 	//Setup custom folding mechanism
-	languages.registerFoldingRangeProvider({ scheme: 'file', language: 'fountain' }, new MyFoldingRangeProvider());
+	languages.registerFoldingRangeProvider({ scheme: 'file', language: 'fountain' }, new FountainFoldingRangeProvider());
 
 	//Setup autocomplete
-	languages.registerCompletionItemProvider({ scheme: 'file', language: 'fountain' }, new MyCompletionProvider(), '\n', '-', ' ');
+	languages.registerCompletionItemProvider({ scheme: 'file', language: 'fountain' }, new FountainCompletionProvider(), '\n', '-', ' ');
 
-	context.subscriptions.push(languages.registerDocumentSymbolProvider({ scheme: 'file', language: 'fountain' }, symbolProvider ));
+	//Setup symbols (outline)
+	languages.registerDocumentSymbolProvider({ scheme: 'file', language: 'fountain' },  new FountainSymbolProvider());
 
-	//Get user's full name for author autocomplete
-	(async () => {
-		userfullname = await username();
-		if (userfullname.length > 0) {
-			userfullname = userfullname.charAt(0).toUpperCase() + userfullname.slice(1)
-		}
-	})();
 
 	//parse the documentt
 	parseDocument(vscode.window.activeTextEditor.document);
@@ -443,7 +377,7 @@ vscode.workspace.onDidChangeConfiguration(change => {
 })
 
 //var lastFountainDocument:TextDocument;
-var parsedDocument: afterparser.parseoutput;
+export var parsedDocument: afterparser.parseoutput;
 
 export class FountainStructureProperties {
 	scenes: { scene: number; line: number }[];
@@ -462,7 +396,7 @@ const decortypesDialogue = vscode.window.createTextEditorDecorationType({
 });
 
 function parseDocument(document: TextDocument) {
-	var hrstart = process.hrtime()
+	console.time("parsing");
 	if (vscode.window.activeTextEditor.document.uri == document.uri) {
 
 		var updatehtml = (previewpanel != null && document.languageId == "fountain");
@@ -500,8 +434,7 @@ function parseDocument(document: TextDocument) {
 	if (document.languageId == "fountain")
 		outlineViewProvider.update();
 	updateStatus(output.lengthAction, output.lengthDialogue);
-	var hrend = process.hrtime(hrstart)
-	console.info('Fountain parsing took %ds %dms', hrend[0], hrend[1] / 1000000)
+	console.time("parsing");
 }
 
 vscode.window.onDidChangeActiveTextEditor(change => {
@@ -510,244 +443,3 @@ vscode.window.onDidChangeActiveTextEditor(change => {
 		lastFountainEditor = change.document.uri;
 	}
 })
-
-/*
-function GetSceneRanges(document: TextDocument) : FoldingRange[]{
-		var matchlines = [];
-		var ranges = [];
-		for (let index = 0; index < parsedDocument.tokens.length; index++) {
-			if(parsedDocument.tokens[index].type=="scene_heading"){
-				matchlines.push(parsedDocument.tokens[index].position);
-			}
-		}
-		for (let index = 0; index < matchlines.length; index++) {
-			if(index == matchlines.length-1)
-				ranges.push(new FoldingRange(matchlines[index], document.lineCount-1));
-			else if(matchlines[index+1]-matchlines[index] <= 1) continue;
-			else{
-				ranges.push(new FoldingRange(matchlines[index], matchlines[index+1]-1));
-			}
-		}
-		return ranges;
-}*/
-function GetFoldingRange(matchlines: number[], lineCount: number/*, higherRange?: FoldingRange[]*/): FoldingRange[] {
-	var ranges: FoldingRange[] = [];
-	for (let index = 0; index < matchlines.length; index++) {
-		if (index == matchlines.length - 1)
-			ranges.push(new FoldingRange(matchlines[index], lineCount - 1));
-		else if (matchlines[index + 1] - matchlines[index] <= 1) continue;
-		else {
-			ranges.push(new FoldingRange(matchlines[index], matchlines[index + 1] - 1));
-		}
-	}
-	return ranges;
-}
-function GetFullRanges(document: TextDocument): FoldingRange[] {
-	var h1matches = []; //#
-	var h2matches = []; //##
-	var h3matches = []; //### (or more)
-	var scenematches = []; //scene headings
-	var ranges: FoldingRange[] = [];
-	for (let index = 0; index < parsedDocument.tokens.length; index++) {
-		if (parsedDocument.tokens[index].type == "section") {
-			var depth = parsedDocument.tokens[index].level;
-			if (depth >= 3) {
-				h3matches.push(parsedDocument.tokens[index].line);
-			}
-			else if (depth == 2) {
-				h2matches.push(parsedDocument.tokens[index].line);
-			}
-			else if (depth == 1) {
-				h1matches.push(parsedDocument.tokens[index].line);
-			}
-		}
-		else if (parsedDocument.tokens[index].type == "scene_heading") {
-			scenematches.push(parsedDocument.tokens[index].line);
-		}
-	}
-	//  TODO: Enable folding for headers:
-	//	ranges = ranges.concat(GetFoldingRange(h1matches, document.lineCount));
-	//	ranges = ranges.concat(GetFoldingRange(h2matches, document.lineCount));
-	//	ranges = ranges.concat(GetFoldingRange(h3matches, document.lineCount));
-	//	ranges = ranges.concat(GetFoldingRange(hmmatches, document.lineCount));
-	ranges = GetFoldingRange(scenematches, document.lineCount);
-	return ranges;
-}
-class MyFoldingRangeProvider implements FoldingRangeProvider {
-	provideFoldingRanges(document: TextDocument): FoldingRange[] {
-		var ranges: FoldingRange[] = [];
-
-		//Get the sections
-		//ranges = ranges.concat(GetSectionRanges("section", document));
-
-		//Add the scenes
-		//ranges = ranges.concat(GetFullRanges(document));
-		ranges = GetFullRanges(document);
-		return ranges;
-	}
-}
-
-function TimeofDayCompletion(input: string, addspace: boolean, sort: string): vscode.CompletionItem {
-	return {
-		label: " - " + input,
-		kind: vscode.CompletionItemKind.Constant,
-		filterText: "- " + input,
-		sortText: sort,
-		insertText: (addspace ? " " : "") + input + "\n\n"
-	};
-}
-function TitlePageKey(input: string, sort: string, description?: string, triggerIntellisense?: boolean): vscode.CompletionItem {
-	if (triggerIntellisense) {
-		return {
-			label: input + ": ",
-			kind: vscode.CompletionItemKind.Constant,
-			filterText: "\n" + input,
-			sortText: sort.toString(),
-			documentation: description,
-			command: { command: "editor.action.triggerSuggest", title: "triggersuggest" }
-		}
-	}
-	return {
-		label: input + ": ",
-		kind: vscode.CompletionItemKind.Constant,
-		filterText: "\n" + input,
-		sortText: sort.toString(),
-		documentation: description
-	}
-}
-
-class MyCompletionProvider implements vscode.CompletionItemProvider {
-	provideCompletionItems(document: TextDocument, position: vscode.Position,/* token: CancellationToken, context: CompletionContext*/): vscode.CompletionItem[] {
-		var completes: vscode.CompletionItem[] = [];
-		var currentline = document.getText(new vscode.Range(new vscode.Position(position.line, 0), position));
-		var prevLine = document.getText(new vscode.Range(new vscode.Position(position.line - 1, 0), position)).trimRight();
-		const multipleCharactersExist = parsedDocument.properties.characters.size > 1;
-		const currentLineIsEmpty = currentline === "";
-		const previousLineIsEmpty = prevLine === "";
-
-		//Title page autocomplete
-		if (parsedDocument.properties.firstTokenLine > position.line) {
-			if (currentline.indexOf(":") == -1) {
-				if (parsedDocument.properties.titleKeys.indexOf("title") == -1)
-					completes.push(TitlePageKey("Title", "A", "The title of the screenplay"));
-				if (parsedDocument.properties.titleKeys.indexOf("credit") == -1)
-					completes.push(TitlePageKey("Credit", "B", "How the author is credited", true));
-				if (parsedDocument.properties.titleKeys.indexOf("author") == -1)
-					completes.push(TitlePageKey("Author", "C", "The name of the author (you!)", true));
-				if (parsedDocument.properties.titleKeys.indexOf("source") == -1)
-					completes.push(TitlePageKey("Source", "D", "An additional source, such as the author of the original story", true));
-				if (parsedDocument.properties.titleKeys.indexOf("notes") == -1)
-					completes.push(TitlePageKey("Notes", "E", "Additional notes"));
-				if (parsedDocument.properties.titleKeys.indexOf("draft_date") == -1)
-					completes.push(TitlePageKey("Draft date", "F", "The date of the current draft", true));
-				if (parsedDocument.properties.titleKeys.indexOf("date") == -1)
-					completes.push(TitlePageKey("Date", "G", "The date of the screenplay", true));
-				if (parsedDocument.properties.titleKeys.indexOf("contact") == -1)
-					completes.push(TitlePageKey("Contact", "H", "Contact details of the author or production company"));
-				if (parsedDocument.properties.titleKeys.indexOf("copyright") == -1)
-					completes.push(TitlePageKey("Copyright", "I", "Copyright information", true));
-				if (parsedDocument.properties.titleKeys.indexOf("watermark") == -1)
-					completes.push(TitlePageKey("Watermark", "J", "A watermark to be displayed across every page of the PDF"));
-				if (parsedDocument.properties.titleKeys.indexOf("font") == -1)
-					completes.push(TitlePageKey("Font", "K", "The font to be used in the preview and in the PDF", true));
-			}
-			else {
-				var currentkey = currentline.trimRight().toLowerCase();
-				if (currentkey == "date:" || currentkey == "draft date:") {
-					var datestring1 = new Date().toLocaleDateString();
-					var datestring2 = new Date().toDateString();
-					completes.push({ label: datestring1, insertText: datestring1 + "\n", kind: vscode.CompletionItemKind.Text, sortText: "A", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-					completes.push({ label: datestring2, insertText: datestring2 + "\n", kind: vscode.CompletionItemKind.Text, sortText: "B", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-				}
-				else if (currentkey == "author:") {
-					completes.push({ label: userfullname, insertText: userfullname, kind: vscode.CompletionItemKind.Text });
-				}
-				else if (currentkey == "credit:") {
-					completes.push({ label: "By", insertText: "By\n", kind: vscode.CompletionItemKind.Text, command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-					completes.push({ label: "Written by", insertText: "Written by\n", kind: vscode.CompletionItemKind.Text, command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-				}
-				else if (currentkey == "source:") {
-					completes.push({ label: "Story by ", kind: vscode.CompletionItemKind.Text });
-					completes.push({ label: "Based on ", kind: vscode.CompletionItemKind.Text });
-				}
-				else if (currentkey == "copyright:") {
-					completes.push({ label: "(c)" + new Date().getFullYear() + " ", kind: vscode.CompletionItemKind.Text });
-				}
-				else if (currentkey == "font:") {
-					fontnames.forEach((fontname: string) => {
-						completes.push({ label: fontname, insertText: fontname + "\n", kind: vscode.CompletionItemKind.Text });
-					})
-				}
-			}
-		}
-		//Scene header autocomplete
-		else if (parsedDocument.properties.sceneLines.indexOf(position.line) > -1) {
-			//Time of day
-			if (currentline.trimRight().endsWith("-")) {
-				var addspace = !currentline.endsWith(" ");
-				completes.push(TimeofDayCompletion("DAY", addspace, "A"));
-				completes.push(TimeofDayCompletion("NIGHT", addspace, "B"));
-				completes.push(TimeofDayCompletion("DUSK", addspace, "C"));
-				completes.push(TimeofDayCompletion("DAWN", addspace, "D"));
-			}
-			else {
-				var scenematch = currentline.match(/^((?:\*{0,3}_?)?(?:(?:int|ext|est|int\.?\/ext|i\.?\/e\.?).? ))/gi);
-				if (scenematch) {
-					var previousLabels = []
-					for (let index in parsedDocument.properties.sceneNames) {
-						var spacepos = parsedDocument.properties.sceneNames[index].indexOf(" ");
-						if (spacepos != -1) {
-							var thisLocation = parsedDocument.properties.sceneNames[index].slice(parsedDocument.properties.sceneNames[index].indexOf(" ")).trimLeft();
-							if (previousLabels.indexOf(thisLocation) == -1) {
-								previousLabels.push(thisLocation);
-								if (parsedDocument.properties.sceneNames[index].toLowerCase().startsWith(scenematch[0].toLowerCase())) {
-									completes.push({ label: thisLocation, documentation: "Scene heading", sortText: "A" + (10 - scenematch[0].length) });
-									//The (10-scenematch[0].length) is a hack to avoid a situation where INT. would be before INT./EXT. when it should be after
-								}
-								else
-									completes.push({ label: thisLocation, documentation: "Scene heading", sortText: "B" });
-							}
-						}
-					}
-				}
-			}
-		}
-		//Other autocompletes
-		else if (position.line > 0 && currentLineIsEmpty && previousLineIsEmpty) {
-			//We aren't on the first line, and the previous line is empty
-
-			//Get current scene number
-			/*var this_scene_nb = -1;
-			for (let index in fountainDocProps.scenes) {
-				if (fountainDocProps.scenes[index].line < position.line)
-					this_scene_nb = fountainDocProps.scenes[index].scene
-				else
-					break;
-			}*/
-			if (multipleCharactersExist) {
-				// The character who spoke before the last one
-				var charactersWhoSpokeBeforeLast = getCharactersWhoSpokeBeforeLast(parsedDocument, position);
-				if (charactersWhoSpokeBeforeLast.length > 0) {
-					var index = 0;
-					charactersWhoSpokeBeforeLast.forEach(character => {
-						var charWithForceSymbolIfNecessary = addForceSymbolToCharacter(character);
-						completes.push({ label: charWithForceSymbolIfNecessary, kind: vscode.CompletionItemKind.Keyword, sortText: "0A" + index, documentation: "Character from the current scene", command: { command: "type", arguments: [{ "text": "\n" }], title: "newline" } });
-						index++;
-					});
-				}
-				else {
-					parsedDocument.properties.characters.forEach((_value: number[], key: string) => {
-						completes.push({ label: key, documentation: "Character", sortText: "0C", kind: vscode.CompletionItemKind.Text, command: { command: "type", arguments: [{ "text": "\n" }], title: "newline" } });
-					});
-				}
-			}
-
-			completes.push({ label: "INT. ", documentation: "Interior", sortText: "1B", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-			completes.push({ label: "EXT. ", documentation: "Exterior", sortText: "1C", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-			completes.push({ label: "INT/EXT. ", documentation: "Interior/Exterior", sortText: "1D", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-			completes.push({ label: "EST. ", documentation: "Establishing", sortText: "1E", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
-
-		}
-		return completes;
-	}
-}
