@@ -438,6 +438,10 @@ import helpers from "../helpers";
                 var text_properties = {
                     color: color
                 };
+                
+                if(line.type == "parenthetical" && !text.startsWith("(")){
+                    text = " " + text;
+                }
 
                 if (line.type === 'centered') {
                     center(text, print.top_margin + print.font_height * y++);
@@ -452,8 +456,8 @@ import helpers from "../helpers";
                     if (line.type === "scene_heading" && cfg.underline_scene_headers) {
                         text = '_' + text + '_';
                     }
-
-
+                    
+                    
                     if (line.type === 'section') {
                         current_section_level = line.token.level;
                         feed += current_section_level * print.section.level_indent;
@@ -537,7 +541,9 @@ import helpers from "../helpers";
     }
 
 export var get_pdf = async function(opts:Options) {
+        console.time("generate pdf");
         var doc = await initDoc(opts);
         generate(doc, opts);
         finishDoc(doc, opts.callback, opts.filepath);
+        console.timeEnd("generate pdf");
     };
