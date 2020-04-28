@@ -38,10 +38,10 @@ type screenPlayStatistics = {
 }
 
 const createCharacterStatistics = (script: string): dialogueStatisticPerCharacter[] => {
-    const regexToGetCharacterAndDialogue = new RegExp(`^(${fountainRegexes.character.source.replace("^", "")})\n.*$\n\n`, "gm")
+    const regexToGetCharacterAndDialogue = new RegExp(`(${fountainRegexes.character.source})\n((^(\\(.+\\))$)\n*)*.*$\n\n`, "gm")
     const regexToGetCharactersOnly = new RegExp(fountainRegexes.character.source, fountainRegexes.character.flags + "gm")
 
-    const charactersWithDialogue = script.match(regexToGetCharacterAndDialogue)
+    const charactersWithDialogue = script.match(regexToGetCharacterAndDialogue);
 
     const dialoguePieces: dialoguePiece[] = []
     charactersWithDialogue && charactersWithDialogue.forEach((charAndDialogue) => {
@@ -49,7 +49,7 @@ const createCharacterStatistics = (script: string): dialogueStatisticPerCharacte
         // Remove all parentheticals
         .replace(/(?: )\(.+\)$/, "")
         // Remove all dual dialogue markers
-        .replace(/(?: )\^/, "")
+        .replace(/\^$/, "")
         .trim()
         const speech = charAndDialogue.replace(regexToGetCharactersOnly, "").replace(/\n/gm, "")
         dialoguePieces.push({
