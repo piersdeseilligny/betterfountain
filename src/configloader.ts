@@ -19,6 +19,7 @@ export class FountainConfig{
     scenes_numbers:string;
     each_scene_on_new_page:boolean;
     merge_empty_lines:boolean;
+    print_take_numbers:boolean;
 }
 import * as vscode from 'vscode';
 
@@ -46,6 +47,8 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         print_watermark: config.watermark,
         scenes_numbers: config.sceneNumbers,
         each_scene_on_new_page: config.eachSceneOnNewPage,
-        merge_empty_lines: config.mergeEmptyLines
+        merge_empty_lines: config.mergeEmptyLines,
+        print_take_numbers: config.showTakeNumbers
+        
     }
 }
