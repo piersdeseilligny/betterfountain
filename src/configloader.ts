@@ -30,7 +30,7 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
     var pdfConfig = vscode.workspace.getConfiguration("fountain.pdf", docuri);
     var generalConfig = vscode.workspace.getConfiguration("fountain.general", docuri);
     return {
-        number_scenes_on_save: generalConfig.numberSceneOnSave,
+        number_scenes_on_save: generalConfig.numberScenesOnSave,
         embolden_scene_headers: pdfConfig.emboldenSceneHeaders,
         show_page_numbers: pdfConfig.showPageNumbers,
         split_dialogue: pdfConfig.splitDialog,
