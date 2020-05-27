@@ -1,40 +1,40 @@
-## **1.4.5**
+## **1.4.5** - *2020-04-14*
     · Align "(MORE)" with character, rather than parenthetical
 
-## **1.4.4**
+## **1.4.4** - *2020-04-12*
     + Add keybinding to display preview (Ctrl+Shift+V, or Cmd+Shift+V)
     + Add statistics (contributed by @rickshubert)
     · Fix 'double space to render next line as part of dialogue' override (#53)
     · Fix all-caps action lines (#50)
     · Fix unicode apostrophe detection for macOS
 
-## **1.4.3**
+## **1.4.3** - *2019-08-27*
     + Add option to disable noise texture in live preview
 
-## **1.4.2**
+## **1.4.2** - *2019-07-31*
     · Improved parsing performance down to under 10ms for a 4000 line script
     · Fixed autosuggested recurring locations appearing multiple times
     - Removed webpack bundling, because it broke the PDF export feature (pdfkit really doesn't play nice with webpack + node)
 
-## **1.4.1**
+## **1.4.1** - *2019-07-29*
     + Extension is now bundled with webpack, leading to a 10x smaller package size (0.5MB instead of 5.9MB!) and significantly faster startup times
     + Added instructions for "typewriter mode" in FAQ page (Thanks to @chainick!)
     - Removed syllable-based dialogue duration estimation, improving parsing speed by 8-10x
     - Removed useless console.log() calls (Thanks to @rickschubert!)
 
-## **1.4.0**
+## **1.4.0** - *2019-07-27*
     + Smarter character autocomplete for dialogues, in the style of Final Draft (Thanks to @rickschubert!)
     + Improved duration estimate, which now only uses dialogue and action blocks to produce an estimate.
     · Fixed broken scene folding
     · Fixed forced scene headers being incorrectly highlighted (Thanks to @zoltair!)
     · Slightly reduced extension size
 
-## **1.3.1**
+## **1.3.1** - *2019-04-30*
     · Fixed "draft date" missing from PDF
     · Fixed "double space between scenes" option
     · Fixed unwanted carrier return from synopsis lines in PDF
 
-## **1.3.0**
+## **1.3.0** - *2019-04-14*
     + Live preview improvements
             + Option to change the theme from "vscode" (the same colors as vscode) to "paper" (white background) in the settings
             + Scale to fit (no more horizontal scrollbars)
@@ -52,15 +52,15 @@
     + Replaced language server with direct implementation
     · "bUg FiXeS and iMpROvEmeNTs"
 
-## **1.2.2**
+## **1.2.2** - *2019-04-12*
     + Support for international character names (such as MAËLLE or АДРИАН)
 
-## **1.2.1**
+## **1.2.1** - *2019-03-21*
     + Support for periods in character names
     · Fixed exporting PDF to usletter size
     + Support for "watermark" title page key
 
-## **1.2.0**
+## **1.2.0** - *2019-01-30*
     + Integrated the PDF Export functionality straight into the extension (rather than using afterwriting CLI)
     + Replaced fountain-js parser with afterwriting-based parser
     · Fixed syntax highlighting for forced screen headers
@@ -69,7 +69,7 @@
     - Removed the warning added in 1.1.4 (export is now based on the current document, saved or not)
     + Support for scene numbers and bold scene headers in live preview
 
-## **1.1.4**
+## **1.1.4** - *2019-01-08*
     + Warning when trying to export PDF of unsaved file
     · Completely fixed pdf save dialog filter
 
