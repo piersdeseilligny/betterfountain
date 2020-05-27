@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { FountainStructureProperties } from "./extension";
+import * as parser from "./afterwriting-parser";
 
 //var syllable = require('syllable');
 
@@ -127,6 +128,24 @@ export function secondsToMinutesString(seconds:number):string{
 	else
 		return padZero(time.getHours()*60 + time.getMinutes()) + ":" + padZero(time.getSeconds());
 	
+}
+
+export const numberScenes = () => {
+	const regexSceneHeadings = new RegExp(parser.regex.scene_heading.source, "igm");
+	const fullText = vscode.window.activeTextEditor.document.getText()
+	let sceneNumber: number = 1
+	const newText = fullText.replace(regexSceneHeadings, (heading) => {
+		const noPrevHeadingNumbers = heading.replace(/ #\d+#$/, "")
+		const newHeading = `${noPrevHeadingNumbers} #${sceneNumber}#`
+		sceneNumber++
+		return newHeading
+	})
+	vscode.window.activeTextEditor.edit((editBuilder) => {
+		editBuilder.replace(
+			new vscode.Range(new vscode.Position(0, 0), new vscode.Position(vscode.window.activeTextEditor.document.lineCount, 0)),
+			newText
+		)
+	})
 }
 
 export const last = function(array: any[]): any {

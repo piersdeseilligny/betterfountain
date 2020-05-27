@@ -1,4 +1,5 @@
 export class FountainConfig{
+    number_scenes_on_save: boolean;
     embolden_scene_headers:boolean;
     show_page_numbers:boolean;
     split_dialogue:boolean;
@@ -26,29 +27,31 @@ import * as vscode from 'vscode';
 export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
     if(!docuri && vscode.window.activeTextEditor == undefined) 
         docuri = vscode.window.activeTextEditor.document.uri;
-    var config = vscode.workspace.getConfiguration("fountain.pdf", docuri);
+    var pdfConfig = vscode.workspace.getConfiguration("fountain.pdf", docuri);
+    var generalConfig = vscode.workspace.getConfiguration("fountain.general", docuri);
     return {
-        embolden_scene_headers: config.emboldenSceneHeaders,
-        show_page_numbers: config.showPageNumbers,
-        split_dialogue: config.splitDialog,
-        print_title_page: config.printTitlePage,
-        print_profile: config.printProfile,
-        double_space_between_scenes: config.doubleSpaceBetweenScenes,
-        print_sections: config.printSections,
-        print_synopsis: config.printSynopsis,
-        print_actions: config.printActions,
-        print_headers: config.printHeaders,
-        print_dialogues: config.printDialogues,
-        number_sections: config.numberSections,
-        use_dual_dialogue: config.useDualDialogue,
-        print_notes: config.printNotes,
-        print_header: config.pageHeader,
-        print_footer: config.pageFooter,
-        print_watermark: config.watermark,
-        scenes_numbers: config.sceneNumbers,
-        each_scene_on_new_page: config.eachSceneOnNewPage,
-        merge_empty_lines: config.mergeEmptyLines,
-        print_dialogue_numbers: config.showDialogueNumbers
+        number_scenes_on_save: generalConfig.numberSceneOnSave,
+        embolden_scene_headers: pdfConfig.emboldenSceneHeaders,
+        show_page_numbers: pdfConfig.showPageNumbers,
+        split_dialogue: pdfConfig.splitDialog,
+        print_title_page: pdfConfig.printTitlePage,
+        print_profile: pdfConfig.printProfile,
+        double_space_between_scenes: pdfConfig.doubleSpaceBetweenScenes,
+        print_sections: pdfConfig.printSections,
+        print_synopsis: pdfConfig.printSynopsis,
+        print_actions: pdfConfig.printActions,
+        print_headers: pdfConfig.printHeaders,
+        print_dialogues: pdfConfig.printDialogues,
+        number_sections: pdfConfig.numberSections,
+        use_dual_dialogue: pdfConfig.useDualDialogue,
+        print_notes: pdfConfig.printNotes,
+        print_header: pdfConfig.pageHeader,
+        print_footer: pdfConfig.pageFooter,
+        print_watermark: pdfConfig.watermark,
+        scenes_numbers: pdfConfig.sceneNumbers,
+        each_scene_on_new_page: pdfConfig.eachSceneOnNewPage,
+        merge_empty_lines: pdfConfig.mergeEmptyLines,
+        print_dialogue_numbers: pdfConfig.showDialogueNumbers
         
     }
 }

@@ -5,7 +5,7 @@ import { ExtensionContext, languages, TextDocument } from 'vscode';
 import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
-import { secondsToString } from "./utils";
+import { secondsToString, numberScenes } from "./utils";
 import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
@@ -122,10 +122,11 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		return element;
 	}
 	getChildren(/*element?: vscode.TreeItem*/): vscode.ProviderResult<any[]> {
-		var elements: vscode.TreeItem[] = [];
-		var treeExportPdf = new vscode.TreeItem("Export PDF");
-		var treeLivePreview = new vscode.TreeItem("Show live preview");
-		var statistics = new vscode.TreeItem("Calculate screenplay statistics");
+		const elements: vscode.TreeItem[] = [];
+		const treeExportPdf = new vscode.TreeItem("Export PDF");
+		const treeLivePreview = new vscode.TreeItem("Show live preview");
+		const numberScenes = new vscode.TreeItem("Number all scenes (replaces existing scene numbers)");
+		const statistics = new vscode.TreeItem("Calculate screenplay statistics");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
 			title: ''
@@ -134,12 +135,17 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			command: 'fountain.livepreview',
 			title: ''
 		};
+		numberScenes.command = {
+			command: 'fountain.numberScenes',
+			title: ''
+		}
 		statistics.command = {
 			command: 'fountain.statistics',
 			title: ''
 		};
 		elements.push(treeExportPdf);
 		elements.push(treeLivePreview);
+		elements.push(numberScenes);
 		elements.push(statistics);
 		return elements;
 	}
@@ -304,7 +310,7 @@ export function activate(context: ExtensionContext) {
 			}
 		});
 	}));
-
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', numberScenes));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', () => {
 		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
 		statsPanel.webview.html = `Calculating screenplay statistics...`
@@ -312,6 +318,13 @@ export function activate(context: ExtensionContext) {
 		const statsHTML = statsAsHtml(stats)
 		statsPanel.webview.html = statsHTML
 	}));
+
+	vscode.workspace.onWillSaveTextDocument(() => {
+		const config = getFountainConfig(lastFountainEditor);
+		if (config.number_scenes_on_save === true) {
+			numberScenes();
+		}
+	})
 
 	vscode.commands.registerCommand('type', (args) => {
 
@@ -344,7 +357,8 @@ export function activate(context: ExtensionContext) {
 	languages.registerDocumentSymbolProvider({ scheme: 'file', language: 'fountain' },  new FountainSymbolProvider());
 
 
-	//parse the documentt
+	//parse the document
+	if(vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document != undefined)
 	parseDocument(vscode.window.activeTextEditor.document);
 }
 

@@ -64,6 +64,17 @@
 		},
 		"configuration": [
 			{
+				"title": "Fountain General Settings",
+				"type": "object",
+				"properties": {
+					"fountain.general.numberScenesOnSave": {
+						"type": "boolean",
+						"default": false,
+						"description": "Automatically number the scenes each time you save the document."
+					}
+				}
+			},
+			{
 				"title": "Fountain PDF Export",
 				"type": "object",
 				"properties": {
@@ -213,6 +224,11 @@
 			{
 				"command": "fountain.jumpto",
 				"title": "Jump to line",
+				"category": "Fountain"
+			},
+			{
+				"command": "fountain.numberScenes",
+				"title": "Number all scenes (overwrites existing scene numbers)",
 				"category": "Fountain"
 			},
 			{
