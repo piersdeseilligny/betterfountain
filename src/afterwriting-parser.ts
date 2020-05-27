@@ -552,7 +552,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         }
                         var lastFountainEditor: vscode.Uri;
                         var config = getFountainConfig(lastFountainEditor);
-                        if (config.print_take_numbers) {
+                        if (config.print_dialogue_numbers) {
                             html.push('<h4>' + current_token.takeNumber +' – '+ current_token.text + '</h4>');
                         } else {
                             html.push('<h4>' + current_token.text + '</h4>');

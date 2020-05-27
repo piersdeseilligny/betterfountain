@@ -77,10 +77,10 @@
 						"default": true,
 						"description": "Show page numbers"
 					},
-					"fountain.pdf.showTakeNumbers": {
+					"fountain.pdf.showDialogueNumbers": {
 						"type": "boolean",
 						"default": false,
-						"description": "Show take numbers in preview and PDF"
+						"description": "Show dialogue numbers in preview and PDF"
 					},
 					"fountain.pdf.splitDialog": {
 						"type": "boolean",

@@ -19,7 +19,7 @@ export class FountainConfig{
     scenes_numbers:string;
     each_scene_on_new_page:boolean;
     merge_empty_lines:boolean;
-    print_take_numbers:boolean;
+    print_dialogue_numbers:boolean;
 }
 import * as vscode from 'vscode';
 
@@ -48,7 +48,7 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         scenes_numbers: config.sceneNumbers,
         each_scene_on_new_page: config.eachSceneOnNewPage,
         merge_empty_lines: config.mergeEmptyLines,
-        print_take_numbers: config.showTakeNumbers
+        print_dialogue_numbers: config.showDialogueNumbers
         
     }
 }
