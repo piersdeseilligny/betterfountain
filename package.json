@@ -5,7 +5,7 @@
 	"author": "Piers Deseilligny",
 	"license": "MIT",
 	"icon": "icon.png",
-	"version": "1.4.5",
+	"version": "1.5.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"

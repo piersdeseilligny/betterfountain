@@ -1,3 +1,13 @@
+## **1.5.0** - *2020-05-27*
+    + Add symbol-based outline - the "path" of the current scene now shows above the editor, and the 
+      integrated "outline" section of vscode now shows the screenplay's outline.
+    + Add "Number all scenes" command and "Number scenes on save"  (Thanks Rick Schubert for the PR!)
+    + Add "Show Dialogue Numbers" setting (Thanks Felix Batusic for the PR!)
+    · Improved parenthetical formatting in exported PDF (to align with
+      industry standard formatting of multi-line parentheticals)
+    · Fix statistics incorrectly counting characters
+    · More maintainable and clearer codebase
+
 ## **1.4.5** - *2020-04-14*
     · Align "(MORE)" with character, rather than parenthetical
 
