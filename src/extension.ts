@@ -160,6 +160,8 @@ import fs = require('fs');
 import { FountainFoldingRangeProvider } from "./providers/Folding";
 import { FountainCompletionProvider } from "./providers/Completion";
 import { FountainSymbolProvider } from "./providers/Symbols";
+import { showDecorations, clearDecorations } from "./providers/Decorations";
+
 
 const webviewHtml = fs.readFileSync(__dirname + path.sep + 'webview.html', 'utf8');
 function updateWebView(titlepage: string, script: string) {
@@ -415,6 +417,7 @@ const decortypesDialogue = vscode.window.createTextEditorDecorationType({
 
 function parseDocument(document: TextDocument) {
 	console.time("parsing");
+	clearDecorations();
 	if (vscode.window.activeTextEditor.document.uri == document.uri) {
 
 		var updatehtml = (previewpanel != null && document.languageId == "fountain");
@@ -452,6 +455,7 @@ function parseDocument(document: TextDocument) {
 	if (document.languageId == "fountain")
 		outlineViewProvider.update();
 	updateStatus(output.lengthAction, output.lengthDialogue);
+	showDecorations();
 	console.time("parsing");
 }
 

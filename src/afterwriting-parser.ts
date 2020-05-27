@@ -3,6 +3,7 @@ import { token, create_token } from "./token";
 import { Range, Position } from "vscode";
 import { getFountainConfig } from "./configloader";
 import * as vscode from 'vscode';
+import { AddDialogueNumberDecoration } from "./providers/Decorations";
 
 
 //Unicode uppercase letters:
@@ -115,7 +116,8 @@ export interface parseoutput {
     properties: screenplayProperties
 }
 export var parse = function (original_script: string, cfg: any, generate_html: boolean): parseoutput {
-
+    var lastFountainEditor: vscode.Uri;
+    var config = getFountainConfig(lastFountainEditor);
     var script = original_script,
         result: parseoutput = {
             title_page: [],
@@ -372,6 +374,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     state = "dialogue";
                     thistoken.type = "character";
                     thistoken.takeNumber = takeCount++;
+                    if(config.print_dialogue_numbers) AddDialogueNumberDecoration(thistoken)
                     thistoken.text = thistoken.text.replace(/^@/, "");
                     if (thistoken.text[thistoken.text.length - 1] === "^") {
                         state = "dual_dialogue"
@@ -550,8 +553,6 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         else if (current_token.dual == "right") {
                             html.push('</div><div class=\"dialogue right\">');
                         }
-                        var lastFountainEditor: vscode.Uri;
-                        var config = getFountainConfig(lastFountainEditor);
                         if (config.print_dialogue_numbers) {
                             html.push('<h4>' + current_token.takeNumber +' – '+ current_token.text + '</h4>');
                         } else {
