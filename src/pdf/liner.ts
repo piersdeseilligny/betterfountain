@@ -1,18 +1,29 @@
-export class Liner{
+import { token } from "../token";
 
-    constructor(helper:any){
-        this.h = helper;
-    }
+export class Liner {
+    printTakeNumbers:boolean = false;
     h:any = {}
-
     _state = "normal"; // 'dialogue'
 
-    split_text = (text:any, max:any, index:any, token:any):any => {
+    constructor(helper:any, printTakeNumbers:boolean){
+        this.h = helper;
+        this.printTakeNumbers = printTakeNumbers;
+    }
+
+    split_text = (text:any, max:any, index:any, token:token):any => {
         if (text.length <= max) {
+            var tmpText;
+
+            if (token.type === "character" && this.printTakeNumbers) {
+                tmpText = token.takeNumber + " – " + text;
+            } else {
+                tmpText = text;
+            }
+            
             return [this.h.create_line({
                 type: token.type,
                 token: token,
-                text: text,
+                text: tmpText,
                 start: index,
                 end: index + text.length - 1
             })];

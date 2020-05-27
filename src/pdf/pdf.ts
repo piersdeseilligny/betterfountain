@@ -5,7 +5,7 @@ import * as helpers from "../helpers";
 import * as fliner from "./liner";
 
 export var GeneratePdf = function(outputpath:string, config:FountainConfig, parsedDocument:any, callback:any){
-    var liner:any = new fliner.Liner(helpers.default);
+    var liner:any = new fliner.Liner(helpers.default, config.print_dialogue_numbers);
 
     var watermark = undefined;
     var font = "Courier Prime";

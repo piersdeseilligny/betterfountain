@@ -25,7 +25,7 @@
 		"pdf"
 	],
 	"engines": {
-		"vscode": "^1.23.0"
+		"vscode": "^1.26.0"
 	},
 	"activationEvents": [
 		"onLanguage:fountain",
@@ -76,6 +76,11 @@
 						"type": "boolean",
 						"default": true,
 						"description": "Show page numbers"
+					},
+					"fountain.pdf.showDialogueNumbers": {
+						"type": "boolean",
+						"default": false,
+						"description": "Show dialogue numbers in preview and PDF"
 					},
 					"fountain.pdf.splitDialog": {
 						"type": "boolean",

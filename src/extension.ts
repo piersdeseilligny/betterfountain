@@ -373,6 +373,10 @@ vscode.workspace.onDidChangeConfiguration(change => {
 			previewpanel.webview.postMessage({ command: 'updatePageClasses', content: pageClasses });
 			previewpanel.webview.postMessage({ command: 'changeTheme', content: themeClass });
 		}
+
+		var rawcontent = vscode.window.activeTextEditor.document.getText();
+		var output = afterparser.parse(rawcontent, getFountainConfig(lastFountainEditor), true);
+		updateWebView(output.titleHtml, output.scriptHtml);
 	}
 })
 
