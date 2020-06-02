@@ -71,6 +71,11 @@
 						"type": "boolean",
 						"default": false,
 						"description": "Automatically number the scenes each time you save the document."
+					},
+					"fountain.general.synchronizedMarkupAndPreview": {
+						"type": "boolean",
+						"default": false,
+						"description": "Automatically synchronize preview and text editor position."
 					}
 				}
 			},

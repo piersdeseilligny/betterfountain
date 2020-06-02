@@ -463,10 +463,13 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
     }
 
-    if (state == "dialogue")
+    if (state == "dialogue") {
         pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_end"));
-    if (state == "dual_dialogue")
+    }
+
+    if (state == "dual_dialogue") {
         pushToken(create_token(undefined, undefined, undefined, undefined, "dual_dialogue_end"));
+    }
 
     var current_index = 0/*, previous_type = null*/;
     // tidy up separators
@@ -478,8 +481,10 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         //Generate html for title page
         while (current_index < result.title_page.length) {
             var current_token: token = result.title_page[current_index];
-            if (current_token.text != "")
-                    current_token.html = inline.lexer(current_token.text);
+            if (current_token.text != "") {
+                current_token.html = inline.lexer(current_token.text);
+            }
+
             switch (current_token.type) {
                 case 'title': titlehtml.push('<h1>' + current_token.html + '</h1>'); break;
                 case 'credit': titlehtml.push('<p class=\"credit\">' + current_token.html + '</p>'); break;
@@ -500,9 +505,14 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         var isaction = false;
         while (current_index < result.tokens.length) {
             var current_token: token = result.tokens[current_index];
-            if (current_token.text != "")
+            if (current_token.text != "") {
                 current_token.html = inline.lexer(current_token.text, current_token.type);
-            else current_token.html = "";
+                if (current_token.line) {
+                    html.push('<div id="jumpToLine_' + current_token.line + '"></div>');
+                }
+            } else  {
+                current_token.html = "";
+            }
 
 
             if (current_token.type == "action") {

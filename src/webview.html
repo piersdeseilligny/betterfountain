@@ -461,6 +461,24 @@
                 console.log("change theme");
                 var script = document.getElementById("script");
                 script.setAttribute("class", "a4 dpi100 "+ event.data.content);
+            } else if (event.data.command == 'jumpToLine') {
+                var top = document.getElementById('jumpToLine_' + event.data.content);
+                if (top) {
+                    top.scrollIntoView();
+                } else {
+                    var jumped = false;
+                    for (var i = event.data.content-1; i >= 0; i--) {
+                        top = document.getElementById('jumpToLine_' + i);
+                        if (top) {
+                            top.scrollIntoView();
+                            jumped = true;
+                            break;
+                        }
+                    }
+                    if (!jumped) {
+                        document.getElementById('script').scrollIntoView();
+                    }
+                }
             }
         });
     </script>

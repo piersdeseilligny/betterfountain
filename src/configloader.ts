@@ -21,6 +21,7 @@ export class FountainConfig{
     each_scene_on_new_page:boolean;
     merge_empty_lines:boolean;
     print_dialogue_numbers:boolean;
+    synchronized_markup_and_preview:boolean;
 }
 import * as vscode from 'vscode';
 
@@ -51,7 +52,7 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         scenes_numbers: pdfConfig.sceneNumbers,
         each_scene_on_new_page: pdfConfig.eachSceneOnNewPage,
         merge_empty_lines: pdfConfig.mergeEmptyLines,
-        print_dialogue_numbers: pdfConfig.showDialogueNumbers
-        
+        print_dialogue_numbers: pdfConfig.showDialogueNumbers,
+        synchronized_markup_and_preview: generalConfig.synchronizedMarkupAndPreview
     }
 }

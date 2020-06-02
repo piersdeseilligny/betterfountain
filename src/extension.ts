@@ -465,3 +465,23 @@ vscode.window.onDidChangeActiveTextEditor(change => {
 		lastFountainEditor = change.document.uri;
 	}
 })
+
+vscode.window.onDidChangeTextEditorVisibleRanges(change => {
+	var config = getFountainConfig(lastFountainEditor);
+	if (config.synchronized_markup_and_preview) {
+		var range = change.visibleRanges[0];
+		if (previewpanel != null) {
+			previewpanel.webview.postMessage({ command: 'jumpToLine', content: range.start.line});
+		}
+	}
+})
+
+vscode.window.onDidChangeTextEditorSelection(change => {
+	var config = getFountainConfig(lastFountainEditor);
+	if (config.synchronized_markup_and_preview) {
+	var selection = change.selections[0];
+		if (previewpanel != null) {
+			previewpanel.webview.postMessage({ command: 'jumpToLine', content: selection.active.line});
+		}
+	}
+})
