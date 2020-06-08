@@ -161,7 +161,7 @@ import { FountainFoldingRangeProvider } from "./providers/Folding";
 import { FountainCompletionProvider } from "./providers/Completion";
 import { FountainSymbolProvider } from "./providers/Symbols";
 import { showDecorations, clearDecorations } from "./providers/Decorations";
-
+import { TopmostLineMonitor } from "./utils/topMostLineMonitor";
 
 const webviewHtml = fs.readFileSync(__dirname + path.sep + 'webview.html', 'utf8');
 function updateWebView(titlepage: string, script: string) {
@@ -221,6 +221,8 @@ var lastFountainEditor: vscode.Uri;
 
 let diagnosticCollection = languages.createDiagnosticCollection("fountain");
 let diagnostics: vscode.Diagnostic[] = [];
+let isscrolling = true;
+const _topmostLineMonitor = new TopmostLineMonitor();
 
 export function activate(context: ExtensionContext) {
 	//Register for outline tree view
@@ -260,8 +262,17 @@ export function activate(context: ExtensionContext) {
 				}
 			}
 			if(message.command = "revealLine"){
+				isscrolling = true;
 				console.log("jump to line:"+message.content);
-			}
+				let editor = vscode.window.activeTextEditor;
+				const sourceLine = Math.floor(message.content);
+				const fraction = message.content - sourceLine;
+				const text = editor.document.lineAt(sourceLine).text;
+				const start = Math.floor(fraction * text.length);
+				editor.revealRange(
+					new vscode.Range(sourceLine, start, sourceLine + 1, 0),
+					vscode.TextEditorRevealType.AtTop);
+				}
 		});
 		var rawcontent = vscode.window.activeTextEditor.document.getText();
 		var output = afterparser.parse(rawcontent, getFountainConfig(lastFountainEditor), true);
@@ -279,6 +290,7 @@ export function activate(context: ExtensionContext) {
 			previewpanel.webview.postMessage({ command: 'scrollTo', content: args });
 		}
 	}));
+
 
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => {
 		var canceled = false;
@@ -365,6 +377,23 @@ export function activate(context: ExtensionContext) {
 	//parse the document
 	if(vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document != undefined)
 	parseDocument(vscode.window.activeTextEditor.document);
+
+}
+
+_topmostLineMonitor.onDidChanged(event => {
+	scrollTo(event.line);
+});
+
+function scrollTo(topLine: number) {
+
+	if (isscrolling) {
+		isscrolling = false;
+		return;
+	}
+
+	if (previewpanel != null) {
+		previewpanel.webview.postMessage({ command: 'jumpToLine', content: topLine,  linescount: vscode.window.activeTextEditor.document.lineCount });
+	}
 }
 
 vscode.workspace.onDidChangeTextDocument(change => {
@@ -469,22 +498,13 @@ vscode.window.onDidChangeActiveTextEditor(change => {
 	}
 })
 
-vscode.window.onDidChangeTextEditorVisibleRanges(change => {
-	var config = getFountainConfig(lastFountainEditor);
-	if (config.synchronized_markup_and_preview) {
-		var range = change.visibleRanges[0];
-		if (previewpanel != null) {
-			previewpanel.webview.postMessage({ command: 'jumpToLine', content: range.start.line});
-		}
-	}
-})
-
 vscode.window.onDidChangeTextEditorSelection(change => {
 	var config = getFountainConfig(lastFountainEditor);
 	if (config.synchronized_markup_and_preview) {
 	var selection = change.selections[0];
 		if (previewpanel != null) {
-			previewpanel.webview.postMessage({ command: 'jumpToLine', content: selection.active.line});
+			previewpanel.webview.postMessage({ command: 'jumpToLine', content: selection.active.line, linescount: change.textEditor.document.lineCount});
 		}
 	}
 })
+

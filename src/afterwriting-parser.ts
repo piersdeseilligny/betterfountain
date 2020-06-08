@@ -413,7 +413,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         thistoken.text = thistoken.text.replace("^", "");
                     }
                     else {
-                        pushToken(create_token(undefined, undefined, thistoken.line, undefined, "dialogue_begin"));
+                        pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_begin"));
                     }
                     let character = trimCharacterExtension(thistoken.text)
 				    if (result.properties.characters.has(character)) {
@@ -515,7 +515,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             if (current_token.type == "action") {
                 if (!isaction) {
                     //first action element
-                    html.push('<p id="jumpToLine_' + current_token.line + '">' + current_token.html);
+                    html.push('<p class="haseditorline" id="jumpToLine_' + current_token.line + '">' + current_token.html);
                 }
                 else {
                     //just add a new line to the current paragraph
@@ -546,16 +546,16 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     case 'scene_heading':
                         var content = current_token.text;
                         if (cfg.embolden_scene_headers) {
-                            content = '<span class=\"bold\" id="jumpToLine_' + current_token.line + '">' + content + '</span>';
+                            content = '<span class=\"bold haseditorline\" id="jumpToLine_' + current_token.line + '">' + content + '</span>';
                         }
 
-                        html.push('<h3 data-position=\"' + current_token.line + '\" ' + (current_token.number ? ' id=\"jumpToLine_' + current_token.line + '">' : '>') + content + '</h3>');
+                        html.push('<h3 class="haseditorline" data-position=\"' + current_token.line + '\" ' + (current_token.number ? ' id=\"jumpToLine_' + current_token.line + '">' : '>') + content + '</h3>');
                         break;
-                    case 'transition': html.push('<h2 id="jumpToLine_' + current_token.line + '">' + current_token.text + '</h2>'); break;
+                    case 'transition': html.push('<h2 class="haseditorline" id="jumpToLine_' + current_token.line + '">' + current_token.text + '</h2>'); break;
 
-                    case 'dual_dialogue_begin': html.push('<div id="jumpToLine_' + current_token.line + '" class=\"dual-dialogue\">'); break;
+                    case 'dual_dialogue_begin': html.push('<div class=\"dual-dialogue\">'); break;
 
-                    case 'dialogue_begin': html.push('<div id="jumpToLine_' + current_token.line + '" class=\"dialogue' + (current_token.dual ? ' ' + current_token.dual : '') + '\">'); break;
+                    case 'dialogue_begin': html.push('<div class=\"dialogue' + (current_token.dual ? ' ' + current_token.dual : '') + '\">'); break;
 
                     case 'character':
                         if (current_token.dual == "left") {
@@ -565,32 +565,32 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         }
 
                         if (config.print_dialogue_numbers) {
-                            html.push('<h4">' + current_token.takeNumber +' – '+ current_token.text + '</h4>');
+                            html.push('<h4 class="haseditorline" id="jumpToLine_' + current_token.line + '">' + current_token.takeNumber +' – '+ current_token.text + '</h4>');
                         } else {
-                            html.push('<h4">' + current_token.text + '</h4>');
+                            html.push('<h4 class="haseditorline" id="jumpToLine_' + current_token.line + '">' + current_token.text + '</h4>');
                         }
                         
                         break;
-                    case 'parenthetical': html.push('<p id="jumpToLine_' + current_token.line + '" class=\"parenthetical\">' + current_token.html + '</p>'); break;
+                    case 'parenthetical': html.push('<p class="haseditorline" id="jumpToLine_' + current_token.line + '" class=\"parenthetical\">' + current_token.html + '</p>'); break;
                     case 'dialogue':
                         if(current_token.text == "  ") 
                             html.push('<br>');
                         else
-                            html.push('<p id="jumpToLine_' + current_token.line + '">' + current_token.html + '</p>');
+                            html.push('<p class="haseditorline" id="jumpToLine_' + current_token.line + '">' + current_token.html + '</p>');
                         break;
                     case 'dialogue_end': html.push('</div> '); break;
                     case 'dual_dialogue_end': html.push('</div></div> '); break;
 
-                    case 'section': html.push('<p id="jumpToLine_' + current_token.line + '" class=\"section\" data-position=\"' + current_token.line + '\" data-depth=\"' + current_token.level + '\">' + current_token.text + '</p>'); break;
-                    case 'synopsis': html.push('<p id="jumpToLine_' + current_token.line + '" class=\"synopsis\">' + current_token.html + '</p>'); break;
-                    case 'lyric': html.push('<p id="jumpToLine_' + current_token.line + '" class=\"lyric\">' + current_token.html + '</p>'); break;
+                    case 'section': html.push('<p class="haseditorline" id="jumpToLine_' + current_token.line + '" class=\"section\" data-position=\"' + current_token.line + '\" data-depth=\"' + current_token.level + '\">' + current_token.text + '</p>'); break;
+                    case 'synopsis': html.push('<p class="haseditorline" id="jumpToLine_' + current_token.line + '" class=\"synopsis\">' + current_token.html + '</p>'); break;
+                    case 'lyric': html.push('<p class="haseditorline" id="jumpToLine_' + current_token.line + '" class=\"lyric\">' + current_token.html + '</p>'); break;
 
-                    case 'note': html.push('<p id="jumpToLine_' + current_token.line + '" class=\"note\">' + current_token.html + '</p>'); break;
+                    case 'note': html.push('<p class="haseditorline" id="jumpToLine_' + current_token.line + '" class=\"note\">' + current_token.html + '</p>'); break;
                     case 'boneyard_begin': html.push('<!-- '); break;
                     case 'boneyard_end': html.push(' -->'); break;
 
                     //case 'action': ; break;
-                    case 'centered': html.push('<p id="jumpToLine_' + current_token.line + '" class=\"centered\">' + current_token.html + '</p>'); break;
+                    case 'centered': html.push('<p class="haseditorline" id="jumpToLine_' + current_token.line + '" class=\"centered\">' + current_token.html + '</p>'); break;
 
                     case 'page_break': html.push('<hr />'); break;
                     /* case 'separator':
