@@ -424,12 +424,95 @@
     <section id='workspace' style='display:block;'>
         <div id='script' class='a4 dpi100 $PAGETHEME$'>
                 <div class="page"><div id='titlepage' class='innerpage title-page'>$TITLEPAGE$</div></div>
-                <div class="page"><div id='mainpage' class='$SCRIPTCLASS$'><div class="innerpage">$SCRIPT$</div></div>
+                <div class="page"><div id='mainpage' class='$SCRIPTCLASS$'><div id="screenplay_content" class="innerpage">$SCRIPT$</div></div>
         </div>
     </section>
     <script>
         FontDetect=function(){function e(){if(!n){n=!0;var e=document.body,t=document.body.firstChild,i=document.createElement("div");i.id="fontdetectHelper",r=document.createElement("span"),r.innerText="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",i.appendChild(r),e.insertBefore(i,t),i.style.position="absolute",i.style.visibility="hidden",i.style.top="-200px",i.style.left="-100000px",i.style.width="100000px",i.style.height="200px",i.style.fontSize="100px"}}function t(e,t){return e instanceof Element?window.getComputedStyle(e).getPropertyValue(t):window.jQuery?$(e).css(t):""}var n=!1,i=["serif","sans-serif","monospace","cursive","fantasy"],r=null;return{onFontLoaded:function(t,i,r,o){if(t){var s=o&&o.msInterval?o.msInterval:100,a=o&&o.msTimeout?o.msTimeout:2e3;if(i||r){if(n||e(),this.isFontLoaded(t))return void(i&&i(t));var l=this,f=(new Date).getTime(),d=setInterval(function(){if(l.isFontLoaded(t))return clearInterval(d),void i(t);var e=(new Date).getTime();e-f>a&&(clearInterval(d),r&&r(t))},s)}}},isFontLoaded:function(t){var o=0,s=0;n||e();for(var a=0;a<i.length;++a){if(r.style.fontFamily='"'+t+'",'+i[a],o=r.offsetWidth,a>0&&o!=s)return!1;s=o}return!0},whichFont:function(e){for(var n=t(e,"font-family"),r=n.split(","),o=r.shift();o;){o=o.replace(/^\s*['"]?\s*([^'"]*)\s*['"]?\s*$/,"$1");for(var s=0;s<i.length;s++)if(o==i[s])return o;if(this.isFontLoaded(o))return o;o=r.shift()}return null}}}();
         const vscode = acquireVsCodeApi();
+        const getCodeLineElements = (() => {
+	let elements;
+	return () => {
+		if (!elements) {
+			elements = [];
+			for (const element of document.getElementById("mainpage").children) {
+                const id = element.getAttribute("id");
+                if(id==null) continue;
+				const line = Number(id.replace("jumpToLine_",""));
+				if (isNaN(line)) {
+					continue;
+				}
+					elements.push({ element: element, line:line });
+			}
+		}
+		return elements;
+	};
+})();
+        function getElementBounds({ element }) {
+        const myBounds = element.getBoundingClientRect();
+
+        // Some code line elements may contain other code line elements.
+        // In those cases, only take the height up to that child.
+        /*const codeLineChild = element.querySelector(`.${codeLineClass}`);
+        if (codeLineChild) {
+        const childBounds = codeLineChild.getBoundingClientRect();
+        const height = Math.max(1, (childBounds.top - myBounds.top));
+        return {
+        top: myBounds.top,
+        height: height
+        };
+        }*/
+
+        return myBounds;
+        }
+
+        function getLineElementsAtPageOffset(offset) {
+            const lines = getCodeLineElements();
+            const position = offset - window.scrollY;
+            let lo = -1;
+            let hi = lines.length - 1;
+            while (lo + 1 < hi) { const mid=Math.floor((lo + hi) / 2); const bounds=getElementBounds(lines[mid]); if
+                (bounds.top + bounds.height>= position) {
+            hi = mid;
+            }
+                else {
+                lo = mid;
+                }
+            }
+            const hiElement = lines[hi];
+            const hiBounds = getElementBounds(hiElement);
+            if (hi >= 1 && hiBounds.top > position) {
+                const loElement = lines[lo];
+                return { previous: loElement, next: hiElement };
+            }
+            if (hi > 1 && hi < lines.length && hiBounds.top + hiBounds.height> position) {
+                return {
+                    revious: hiElement,
+                    next: lines[hi + 1] };
+                }
+                return {
+                    previous: hiElement
+                };
+        }
+
+        function getEditorLineNumberForPageOffset(offset) {
+        	const { previous, next } = getLineElementsAtPageOffset(offset);
+        	if (previous) {
+        		const previousBounds = getElementBounds(previous);
+        		const offsetFromPrevious = (offset - window.scrollY - previousBounds.top);
+        		if (next) {
+        			const progressBetweenElements = offsetFromPrevious / (getElementBounds(next).top - previousBounds.top);
+        			const line = previous.line + progressBetweenElements * (next.line - previous.line);
+        			return line;
+        		} else {
+        			const progressWithinElement = offsetFromPrevious / (previousBounds.height);
+        			const line = previous.line + progressWithinElement;
+        			return line;
+        		}
+        	}
+        	return null;
+        }
+
         window.addEventListener('message', event => {
             if (event.data.command == 'updateScript') {
                 document.getElementById('mainpage').innerHTML = event.data.content;
@@ -481,6 +564,31 @@
                 }
             }
         });
+        
+        function throttle(fn, limit) {
+          let waiting = false
+          return (...args) => {
+            if (!waiting) {
+              fn.apply(this, args)
+              waiting = true
+              setTimeout(() => {
+                waiting = false
+              }, limit)
+            }
+          }
+        }
+
+        let scrollDisabled = true;
+        window.addEventListener('scroll', throttle(() => {
+        	if (scrollDisabled) {
+        		scrollDisabled = false;
+        	} else {
+        		const line = getEditorLineNumberForPageOffset(window.scrollY);
+        		if (typeof line === 'number' && !isNaN(line)) {
+        			vscode.postMessage({command: 'revealLine', content: line });
+        		}
+        	}
+        }, 50));
     </script>
 </body>
 </html>

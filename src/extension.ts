@@ -259,6 +259,9 @@ export function activate(context: ExtensionContext) {
 					diagnosticCollection.set(vscode.window.activeTextEditor.document.uri, []);
 				}
 			}
+			if(message.command = "revealLine"){
+				console.log("jump to line:"+message.content);
+			}
 		});
 		var rawcontent = vscode.window.activeTextEditor.document.getText();
 		var output = afterparser.parse(rawcontent, getFountainConfig(lastFountainEditor), true);

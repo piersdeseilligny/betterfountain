@@ -413,7 +413,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         thistoken.text = thistoken.text.replace("^", "");
                     }
                     else {
-                        pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_begin"));
+                        pushToken(create_token(undefined, undefined, thistoken.line, undefined, "dialogue_begin"));
                     }
                     let character = trimCharacterExtension(thistoken.text)
 				    if (result.properties.characters.has(character)) {
@@ -559,15 +559,15 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
                     case 'character':
                         if (current_token.dual == "left") {
-                            html.push('<div id="jumpToLine_' + current_token.line + '" class=\"dialogue left\">');
+                            html.push('<div class=\"dialogue left\">');
                         } else if (current_token.dual == "right") {
-                            html.push('</div><div id="jumpToLine_' + current_token.line + '" class=\"dialogue right\">');
+                            html.push('</div><div class=\"dialogue right\">');
                         }
 
                         if (config.print_dialogue_numbers) {
-                            html.push('<h4 id="jumpToLine_' + current_token.line + '">' + current_token.takeNumber +' – '+ current_token.text + '</h4>');
+                            html.push('<h4">' + current_token.takeNumber +' – '+ current_token.text + '</h4>');
                         } else {
-                            html.push('<h4 id="jumpToLine_' + current_token.line + '">' + current_token.text + '</h4>');
+                            html.push('<h4">' + current_token.text + '</h4>');
                         }
                         
                         break;
