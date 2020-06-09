@@ -515,11 +515,11 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             if (current_token.type == "action") {
                 if (!isaction) {
                     //first action element
-                    html.push('<p class="haseditorline" id="jumpToLine_' + current_token.line + '">' + current_token.html);
+                    html.push('<p><span class="haseditorline" id="jumpToLine_' + current_token.line + '">' + current_token.html+"</span>");
                 }
                 else {
                     //just add a new line to the current paragraph
-                    html.push('\n' + current_token.html);
+                    html.push('\n<span class="haseditorline" id="jumpToLine_' + current_token.line + '">' + current_token.html+"</span>");
                 }
                 isaction = true;
             }
