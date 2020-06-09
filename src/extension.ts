@@ -392,7 +392,7 @@ function scrollTo(topLine: number) {
 	}
 
 	if (previewpanel != null) {
-		previewpanel.webview.postMessage({ command: 'jumpToLine', content: topLine,  linescount: vscode.window.activeTextEditor.document.lineCount });
+		previewpanel.webview.postMessage({ command: 'jumpToLine', content: topLine,  linescount: vscode.window.activeTextEditor.document.lineCount, source:"scroll" });
 	}
 }
 
@@ -503,7 +503,7 @@ vscode.window.onDidChangeTextEditorSelection(change => {
 	if (config.synchronized_markup_and_preview) {
 	var selection = change.selections[0];
 		if (previewpanel != null) {
-			previewpanel.webview.postMessage({ command: 'jumpToLine', content: selection.active.line, linescount: change.textEditor.document.lineCount});
+			previewpanel.webview.postMessage({ command: 'jumpToLine', content: selection.active.line, linescount: change.textEditor.document.lineCount, source:"click" });
 		}
 	}
 })

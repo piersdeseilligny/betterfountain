@@ -418,6 +418,13 @@
         .underline {
             text-decoration: underline;
         }
+
+        #sidecaret{
+            width:3px;
+            background-color: red;
+            position:absolute;
+            z-index:300;
+        }
     </style>
 </head>
 <body id='fountain-js'>
@@ -427,6 +434,7 @@
                 <div class="page"><div id='mainpage' class='$SCRIPTCLASS$'><div id="screenplay_content" class="innerpage">$SCRIPT$</div></div>
         </div>
     </section>
+    <div id="sidecaret"></div>
     <script>
         FontDetect=function(){function e(){if(!n){n=!0;var e=document.body,t=document.body.firstChild,i=document.createElement("div");i.id="fontdetectHelper",r=document.createElement("span"),r.innerText="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",i.appendChild(r),e.insertBefore(i,t),i.style.position="absolute",i.style.visibility="hidden",i.style.top="-200px",i.style.left="-100000px",i.style.width="100000px",i.style.height="200px",i.style.fontSize="100px"}}function t(e,t){return e instanceof Element?window.getComputedStyle(e).getPropertyValue(t):window.jQuery?$(e).css(t):""}var n=!1,i=["serif","sans-serif","monospace","cursive","fantasy"],r=null;return{onFontLoaded:function(t,i,r,o){if(t){var s=o&&o.msInterval?o.msInterval:100,a=o&&o.msTimeout?o.msTimeout:2e3;if(i||r){if(n||e(),this.isFontLoaded(t))return void(i&&i(t));var l=this,f=(new Date).getTime(),d=setInterval(function(){if(l.isFontLoaded(t))return clearInterval(d),void i(t);var e=(new Date).getTime();e-f>a&&(clearInterval(d),r&&r(t))},s)}}},isFontLoaded:function(t){var o=0,s=0;n||e();for(var a=0;a<i.length;++a){if(r.style.fontFamily='"'+t+'",'+i[a],o=r.offsetWidth,a>0&&o!=s)return!1;s=o}return!0},whichFont:function(e){for(var n=t(e,"font-family"),r=n.split(","),o=r.shift();o;){o=o.replace(/^\s*['"]?\s*([^'"]*)\s*['"]?\s*$/,"$1");for(var s=0;s<i.length;s++)if(o==i[s])return o;if(this.isFontLoaded(o))return o;o=r.shift()}return null}}}();
 
@@ -435,23 +443,23 @@
         
         const vscode = acquireVsCodeApi();
         const getCodeLineElements = (() => {
-	let elements;
-	return () => {
-		if (!elements) {
-			elements = [];
-			for (const element of document.getElementsByClassName("haseditorline")) {
-                const id = element.getAttribute("id");
-                if(id==null) continue;
-				const line = Number(id.replace("jumpToLine_",""));
-				if (isNaN(line)) {
-					continue;
-				}
-					elements.push({ element: element, line:line });
-			}
-		}
-		return elements;
-	};
-})();
+    	let elements;
+    	return () => {
+    		if (!elements) {
+    			elements = [];
+    			for (const element of document.getElementsByClassName("haseditorline")) {
+                    const id = element.getAttribute("id");
+                    if(id==null) continue;
+    				const line = Number(id.replace("jumpToLine_",""));
+    				if (isNaN(line)) {
+    					continue;
+    				}
+    					elements.push({ element: element, line:line });
+    			}
+    		}
+    		return elements;
+    	};
+    })();
 
         function getLineElementsAtPageOffset(offset) {
             const lines = getCodeLineElements();
@@ -508,10 +516,6 @@
                 console.log(event.data.content);
             } else if (event.data.command == 'updateTitle') {
                 document.getElementById('titlepage').innerHTML = event.data.content;
-            } else if (event.data.command == 'scrollTo') {
-                console.log("data position " + event.data.content);
-                scrollDisabled = true;
-                document.querySelectorAll("[data-position='" + event.data.content + "']")[0].scrollIntoView();
             } else if (event.data.command == 'updatePageClasses') {
                 document.getElementById('mainpage').className = event.data.content;
             } else if(event.data.command == 'updateFont') {
@@ -535,33 +539,61 @@
                 var script = document.getElementById("script");
                 script.setAttribute("class", "a4 dpi100 "+ event.data.content);
             } else if (event.data.command == 'jumpToLine') {
-                scrollToRevealSourceLine(event.data.content, event.data.linescount);
+                scrollToRevealSourceLine(event.data.content, event.data.linescount, event.data.source);
             }
         });
         
-        function scrollToRevealSourceLine(line, linescount) {
+        function scrollToRevealSourceLine(line, linescount, source) {
+            scrollDisabled = true;
         	if (line <= 0) {
         		window.scroll(window.scrollX, 0);
         		return;
         	}
         
-        	const { previous, next } = getElementsForSourceLine(line, linescount);
+            const { previous, next } = getElementsForSourceLine(line, linescount);
         	if (!previous) {
         		return;
-        	}
+            }
         	let scrollTo = 0;
         	const rect = previous.element.getBoundingClientRect();
         	const previousTop = rect.top;
         	if (next && next.line !== previous.line) {
         		// Between two elements. Go to percentage offset between them.
         		const betweenProgress = (line - previous.line) / (next.line - previous.line);
-        		const elementOffset = next.element.getBoundingClientRect() - previousTop;
-        		scrollTo = previousTop + betweenProgress * elementOffset;
+        		const elementOffset = next.element.getBoundingClientRect().top - rect.bottom;
+        		scrollTo = rect.bottom + betweenProgress * elementOffset;
         	} else {
         		const progressInElement = line - Math.floor(line);
         		scrollTo = previousTop + (rect.height * progressInElement);
-        	}
-        	window.scroll(window.scrollX, Math.max(1, window.scrollY + scrollTo));
+            }
+            
+            var scrolloptions = {
+                top:Math.max(1, window.scrollY + scrollTo),
+                left:window.scrollX
+            };
+
+            if(source=="click"){
+                var sidecaret = document.getElementById("sidecaret");
+                sidecaret.style.height = rect.height+"px";
+                sidecaret.style.top = (scrollTo+window.scrollY)+"px";
+                console.log("rectheight: "+rect.height+ ", top: "+rect.top+window.scrollY);
+                //don't scroll to the element, just ensure it's visible in the viewport
+                if(scrollTo<0){
+                    //target is before, normal scrolling method works
+                    console.log("target is before")
+                }
+                else if(scrollTo>window.innerHeight){
+                    //target is after
+                    scrolloptions.top = window.scrollY + scrollTo - window.innerHeight;
+                    console.log("target is after");
+                }
+                else{
+                    console.log("target is in window")
+                    //target is in window, flash the relevant element if applicable
+                    return;
+                }
+            }
+        	window.scroll(scrolloptions);
         }
 
 
