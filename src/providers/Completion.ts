@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { parsedDocument } from "../extension";
+import { parsedDocuments } from "../extension";
 import { getCharactersWhoSpokeBeforeLast, addForceSymbolToCharacter } from "../utils";
 import username = require("username");
 var fontnames: any[];
@@ -51,6 +51,7 @@ function TitlePageKey(input: string, sort: string, description?: string, trigger
 
 export class FountainCompletionProvider implements vscode.CompletionItemProvider {
 	provideCompletionItems(document: vscode.TextDocument, position: vscode.Position,/* token: CancellationToken, context: CompletionContext*/): vscode.CompletionItem[] {
+		var parsedDocument = parsedDocuments.get(document.uri.toString());
 		var completes: vscode.CompletionItem[] = [];
 		var currentline = document.getText(new vscode.Range(new vscode.Position(position.line, 0), position));
 		var prevLine = document.getText(new vscode.Range(new vscode.Position(position.line - 1, 0), position)).trimRight();

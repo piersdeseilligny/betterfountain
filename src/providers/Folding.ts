@@ -1,5 +1,5 @@
 import { FoldingRangeProvider, FoldingRange, TextDocument } from "vscode";
-import { parsedDocument } from "../extension";
+import { parsedDocuments } from "../extension";
 
 /*
 function GetSceneRanges(document: TextDocument) : FoldingRange[]{
@@ -38,6 +38,7 @@ function GetFullRanges(document: TextDocument): FoldingRange[] {
 	var h3matches = []; //### (or more)
 	var scenematches = []; //scene headings
 	var ranges: FoldingRange[] = [];
+	var parsedDocument = parsedDocuments.get(document.uri.toString());
 	for (let index = 0; index < parsedDocument.tokens.length; index++) {
 		if (parsedDocument.tokens[index].type == "section") {
 			var depth = parsedDocument.tokens[index].level;
