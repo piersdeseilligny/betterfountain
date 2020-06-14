@@ -1,6 +1,7 @@
 
 import * as vscode from 'vscode';
 import { token } from '../token';
+import { getEditor } from '../extension';
 
 var decortype_DialogueNumbers = vscode.window.createTextEditorDecorationType({
 
@@ -15,6 +16,6 @@ export function AddDialogueNumberDecoration(thistoken: token){
 export function clearDecorations(){
     DialogueNumbers = [];
 }
-export function showDecorations(){
-	vscode.window.activeTextEditor.setDecorations(decortype_DialogueNumbers, DialogueNumbers)
+export function showDecorations(vscode: vscode.Uri){ 
+	getEditor(vscode).setDecorations(decortype_DialogueNumbers, DialogueNumbers)
 }

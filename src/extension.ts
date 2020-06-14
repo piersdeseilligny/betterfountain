@@ -1,6 +1,5 @@
 'use strict';
 import { getFountainConfig } from "./configloader";
-import * as path from 'path';
 import { ExtensionContext, languages, TextDocument } from 'vscode';
 import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
@@ -20,8 +19,8 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 	getChildren(element?: vscode.TreeItem): vscode.ProviderResult<any[]> {
 		var elements: vscode.TreeItem[] = [];
 		if (element == null) {
-			for (let index = 0; index < parsedDocument.properties.structure.length; index++) {
-				const token = parsedDocument.properties.structure[index];
+			for (let index = 0; index < activeParsedDocument().properties.structure.length; index++) {
+				const token = activeParsedDocument().properties.structure[index];
 				var item = new vscode.TreeItem(token.text);
 				item.id = token.id;
 				if (token.children != null) {
@@ -41,8 +40,8 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 		else if (element.collapsibleState != vscode.TreeItemCollapsibleState.None) {
 			var ids: string[] = element.id.split("/");
 			if (ids.length >= 2) {
-				for (let index = 0; index < parsedDocument.properties.structure.length; index++) {
-					const token = parsedDocument.properties.structure[index];
+				for (let index = 0; index < activeParsedDocument().properties.structure.length; index++) {
+					const token = activeParsedDocument().properties.structure[index];
 					var tokenids: string[] = token.id.split("/");
 					if (tokenids[1] == ids[1]) {
 						for (let index1 = 0; index1 < token.children.length; index1++) {
@@ -155,41 +154,16 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 
 
 
-var previewpanel: vscode.WebviewPanel;
-import fs = require('fs');
+
+
 import { FountainFoldingRangeProvider } from "./providers/Folding";
 import { FountainCompletionProvider } from "./providers/Completion";
 import { FountainSymbolProvider } from "./providers/Symbols";
 import { showDecorations, clearDecorations } from "./providers/Decorations";
 
+import { createPreviewPanel, previewpanels, FountainPreviewSerializer } from "./providers/Preview";
 
-const webviewHtml = fs.readFileSync(__dirname + path.sep + 'webview.html', 'utf8');
-function updateWebView(titlepage: string, script: string) {
 
-	var config = getFountainConfig(lastFountainEditor);
-	var directConfig = vscode.workspace.getConfiguration("fountain.pdf", vscode.window.activeTextEditor.document.uri);
-	var pageClasses = "innerpage";
-	if (config.scenes_numbers == "left")
-		pageClasses = "innerpage numberonleft";
-	else if (config.scenes_numbers == "right")
-		pageClasses = "innerpage numberonright";
-	else if (config.scenes_numbers == "both")
-		pageClasses = "innerpage numberonleft numberonright";
-
-		var themeClass=directConfig.previewTheme + "_theme";
-		if(directConfig.previewTexture){
-			themeClass+= " textured";
-		}
-
-	var cleandir = __dirname.split(String.fromCharCode(92)).join("/");
-	previewpanel.webview.html = webviewHtml.replace("$TITLEPAGE$", titlepage)
-		.replace("$SCRIPT$", script)
-		.replace("$SCRIPTCLASS$", pageClasses)
-		.replace(/\$ROOTDIR\$/g, cleandir)
-		.replace("$PAGETHEME$", themeClass);
-
-	parseDocument(vscode.window.activeTextEditor.document);
-}
 
 
 /**
@@ -217,10 +191,43 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
-var lastFountainEditor: vscode.Uri;
 
-let diagnosticCollection = languages.createDiagnosticCollection("fountain");
-let diagnostics: vscode.Diagnostic[] = [];
+export let diagnosticCollection = languages.createDiagnosticCollection("fountain");
+export let diagnostics: vscode.Diagnostic[] = [];
+
+
+var activePreview:vscode.Uri;
+export function activePreviewChanged(uri:vscode.Uri){
+	activePreview = uri;
+}
+export function activeFountainDocument(): vscode.Uri{
+	//return the relevant fountain document for the currently selected preview or text editor
+	if(vscode.window.activeTextEditor == undefined || vscode.window.activeTextEditor.document.languageId != "fountain"){
+		if(activePreview != undefined){
+			return activePreview;
+		}
+		else{
+			for (let i = 0; i < vscode.window.visibleTextEditors.length; i++) {
+				if(vscode.window.visibleTextEditors[i].document.languageId == "fountain")
+					return vscode.window.visibleTextEditors[i].document.uri;
+			}
+		}
+	}
+	else{
+		return vscode.window.activeTextEditor.document.uri;
+	}
+	return undefined;
+}
+
+export function getEditor(uri:vscode.Uri): vscode.TextEditor{
+	//search visible text editors
+	for (let i = 0; i < vscode.window.visibleTextEditors.length; i++) {
+		if(vscode.window.visibleTextEditors[i].document.uri.toString() == uri.toString())
+			return vscode.window.visibleTextEditors[i];
+	}
+	//the editor was not visible,
+	return undefined;
+}
 
 export function activate(context: ExtensionContext) {
 	//Register for outline tree view
@@ -237,45 +244,24 @@ export function activate(context: ExtensionContext) {
 
 	//Register for live preview
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreview', () => {
-
-		// Create and show a new webview
-
-		previewpanel = vscode.window.createWebviewPanel(
-			'fountainPreview', // Identifies the type of the webview. Used internally
-			"Screenplay preview", // Title of the panel displayed to the user
-			vscode.ViewColumn.Three, // Editor column to show the new webview panel in.
-			{ enableScripts: true } // Webview options. More on these later.
-		);
-		previewpanel.webview.onDidReceiveMessage(message => {
-			if (message.command == "updateFontResult") {
-				if (message.content == false && parsedDocument.properties.fontLine != -1) {
-					//The font could not be rendered
-					diagnostics = []
-					diagnostics.push(new vscode.Diagnostic(new vscode.Range(new vscode.Position(parsedDocument.properties.fontLine, 0), new vscode.Position(parsedDocument.properties.fontLine, 5)), "This font could not be rendered in the live preview. Is it installed?", vscode.DiagnosticSeverity.Error));
-					diagnosticCollection.set(vscode.window.activeTextEditor.document.uri, diagnostics);
-				}
-				else {
-					//Yay, the font has been rendered
-					diagnosticCollection.set(vscode.window.activeTextEditor.document.uri, []);
-				}
-			}
-		});
-		var rawcontent = vscode.window.activeTextEditor.document.getText();
-		var output = afterparser.parse(rawcontent, getFountainConfig(lastFountainEditor), true);
-		updateWebView(output.titleHtml, output.scriptHtml);
+		// Create and show a new webview for the active text editor
+		createPreviewPanel(vscode.window.activeTextEditor);
 	}));
 
 	//Jump to line command
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.jumpto', (args) => {
+		
 		let editor = vscode.window.activeTextEditor;
 		let range = editor.document.lineAt(Number(args)).range;
 		editor.selection = new vscode.Selection(range.start, range.start);
 		editor.revealRange(range, vscode.TextEditorRevealType.AtTop);
 		//If live screenplay is visible scroll to it with
-		if (previewpanel != null) {
-			previewpanel.webview.postMessage({ command: 'scrollTo', content: args });
+		if (previewpanels.has(editor.document.uri.toString())) {
+			if (getFountainConfig(editor.document.uri).synchronized_markup_and_preview)
+				previewpanels.get(editor.document.uri.toString()).webview.postMessage({ command: 'scrollTo', content: args });
 		}
 	}));
+
 
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => {
 		var canceled = false;
@@ -301,8 +287,8 @@ export function activate(context: ExtensionContext) {
 			});
 		if (filepath == undefined) return;
 
-		var config = getFountainConfig(lastFountainEditor);
-		var parsed = afterparser.parse(vscode.window.activeTextEditor.document.getText(), getFountainConfig(lastFountainEditor), false);
+		var config = getFountainConfig(activeFountainDocument());
+		var parsed = afterparser.parse(vscode.window.activeTextEditor.document.getText(), config, false);
 		GeneratePdf(filepath.fsPath, config, parsed, function (output: any) {
 			if (output.errno != undefined) {
 				vscode.window.showErrorMessage("Failed to export PDF!")
@@ -321,8 +307,8 @@ export function activate(context: ExtensionContext) {
 		statsPanel.webview.html = statsHTML
 	}));
 
-	vscode.workspace.onWillSaveTextDocument(() => {
-		const config = getFountainConfig(lastFountainEditor);
+	vscode.workspace.onWillSaveTextDocument(e => {
+		const config = getFountainConfig(e.document.uri);
 		if (config.number_scenes_on_save === true) {
 			numberScenes();
 		}
@@ -356,48 +342,31 @@ export function activate(context: ExtensionContext) {
 	languages.registerCompletionItemProvider({ scheme: 'file', language: 'fountain' }, new FountainCompletionProvider(), '\n', '-', ' ');
 
 	//Setup symbols (outline)
-	languages.registerDocumentSymbolProvider({ scheme: 'file', language: 'fountain' },  new FountainSymbolProvider());
+	languages.registerDocumentSymbolProvider({ scheme: 'file', language: 'fountain' }, new FountainSymbolProvider());
 
 
 	//parse the document
-	if(vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document != undefined)
-	parseDocument(vscode.window.activeTextEditor.document);
+	if (vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document != undefined)
+		parseDocument(vscode.window.activeTextEditor.document);
+
+	vscode.window.registerWebviewPanelSerializer('fountain-preview', new FountainPreviewSerializer());
 }
+
+
 
 vscode.workspace.onDidChangeTextDocument(change => {
 	parseDocument(change.document);
 })
 
-vscode.workspace.onDidChangeConfiguration(change => {
-	if (change.affectsConfiguration("fountain.pdf")) {
-		if (previewpanel) {
-			var config = getFountainConfig(lastFountainEditor);
-			var directConfig = vscode.workspace.getConfiguration("fountain.pdf", lastFountainEditor);
-			var pageClasses = "innerpage";
-			if (config.scenes_numbers == "left")
-				pageClasses = "innerpage numberonleft";
-			else if (config.scenes_numbers == "right")
-				pageClasses = "innerpage numberonright";
-			else if (config.scenes_numbers == "both")
-				pageClasses = "innerpage numberonleft numberonright";
-
-			var themeClass=directConfig.previewTheme + "_theme";
-			if(directConfig.previewTexture){
-				themeClass+= " textured";
-			}
-
-			previewpanel.webview.postMessage({ command: 'updatePageClasses', content: pageClasses });
-			previewpanel.webview.postMessage({ command: 'changeTheme', content: themeClass });
-		}
-
-		var rawcontent = vscode.window.activeTextEditor.document.getText();
-		var output = afterparser.parse(rawcontent, getFountainConfig(lastFountainEditor), true);
-		updateWebView(output.titleHtml, output.scriptHtml);
-	}
-})
 
 //var lastFountainDocument:TextDocument;
-export var parsedDocument: afterparser.parseoutput;
+export var parsedDocuments = new Map<string, afterparser.parseoutput>();
+
+export function activeParsedDocument(): afterparser.parseoutput {
+	var texteditor = vscode.window.activeTextEditor;
+	console.log(vscode.window.activeTextEditor);
+	return parsedDocuments.get(texteditor.document.uri.toString());
+}
 
 export class FountainStructureProperties {
 	scenes: { scene: number; line: number }[];
@@ -415,53 +384,62 @@ var fontTokenExisted: boolean = false;
 const decortypesDialogue = vscode.window.createTextEditorDecorationType({
 });
 
-function parseDocument(document: TextDocument) {
+export function parseDocument(document: TextDocument) {
 	console.time("parsing");
 	clearDecorations();
-	if (vscode.window.activeTextEditor.document.uri == document.uri) {
 
-		var updatehtml = (previewpanel != null && document.languageId == "fountain");
-		var output = afterparser.parse(document.getText(), getFountainConfig(lastFountainEditor), updatehtml);
-
-		if (updatehtml) {
-			//lastFountainDocument = document;
-			previewpanel.webview.postMessage({ command: 'updateTitle', content: output.titleHtml });
-			previewpanel.webview.postMessage({ command: 'updateScript', content: output.scriptHtml });
-		}
-		parsedDocument = output;
-		var tokenlength = 0;
-		const decorsDialogue: vscode.DecorationOptions[] = [];
-		tokenlength = 0;
-		parsedDocument.properties.titleKeys = [];
-		var fontTokenExists = false;
-		while (tokenlength < output.title_page.length) {
-			if (output.title_page[tokenlength].type == "font" && output.title_page[tokenlength].text.trim() != "") {
-				parsedDocument.properties.fontLine = output.title_page[tokenlength].line;
-				var fontname = output.title_page[tokenlength].text;
-				previewpanel.webview.postMessage({ command: 'updateFont', content: fontname });
-				fontTokenExists = true;
-				fontTokenExisted = true;
-			}
-			tokenlength++;
-		}
-		if (!fontTokenExists && fontTokenExisted) {
-			previewpanel.webview.postMessage({ command: 'removeFont' });
-			fontTokenExisted = false;
-			diagnosticCollection.set(vscode.window.activeTextEditor.document.uri, []);
-		}
-		vscode.window.activeTextEditor.setDecorations(decortypesDialogue, decorsDialogue);
+	var updatehtml = previewpanels.has(document.uri.toString());
+	var output = afterparser.parse(document.getText(), getFountainConfig(document.uri), updatehtml)
+	if (updatehtml) {
+		//lastFountainDocument = document;
+		previewpanels.get(document.uri.toString()).webview.postMessage({ command: 'updateTitle', content: output.titleHtml });
+		previewpanels.get(document.uri.toString()).webview.postMessage({ command: 'updateScript', content: output.scriptHtml });
 	}
+	parsedDocuments.set(document.uri.toString(), output);
+	var tokenlength = 0;
+	const decorsDialogue: vscode.DecorationOptions[] = [];
+	tokenlength = 0;
+	parsedDocuments.get(document.uri.toString()).properties.titleKeys = [];
+	var fontTokenExists = false;
+	while (tokenlength < output.title_page.length) {
+		if (output.title_page[tokenlength].type == "font" && output.title_page[tokenlength].text.trim() != "") {
+			parsedDocuments.get(document.uri.toString()).properties.fontLine = output.title_page[tokenlength].line;
+			var fontname = output.title_page[tokenlength].text;
+			previewpanels.get(document.uri.toString()).webview.postMessage({ command: 'updateFont', content: fontname });
+			fontTokenExists = true;
+			fontTokenExisted = true;
+		}
+		tokenlength++;
+	}
+	if (!fontTokenExists && fontTokenExisted) {
+		previewpanels.get(document.uri.toString()).webview.postMessage({ command: 'removeFont' });
+		fontTokenExisted = false;
+		diagnosticCollection.set(document.uri, []);
+	}
+	var editor = getEditor(document.uri);
+	if(editor) editor.setDecorations(decortypesDialogue, decorsDialogue)
 
 	if (document.languageId == "fountain")
 		outlineViewProvider.update();
 	updateStatus(output.lengthAction, output.lengthDialogue);
-	showDecorations();
-	console.time("parsing");
+	showDecorations(document.uri);
+	console.timeEnd("parsing");
 }
 
 vscode.window.onDidChangeActiveTextEditor(change => {
+	if(change == undefined || change.document == undefined) return;
 	if (change.document.languageId == "fountain") {
 		parseDocument(change.document);
-		lastFountainEditor = change.document.uri;
+		/*if(previewpanels.has(change.document.uri.toString())){
+			var preview = previewpanels.get(change.document.uri.toString());
+			if(!preview.visible && preview.viewColumn!=undefined)
+				preview.reveal(preview.viewColumn);
+		}*/
 	}
 })
+
+
+
+vscode.workspace.onDidCloseTextDocument(e=>{
+	parsedDocuments.delete(e.uri.toString());
+});

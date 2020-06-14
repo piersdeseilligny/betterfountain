@@ -21,11 +21,14 @@ export class FountainConfig{
     each_scene_on_new_page:boolean;
     merge_empty_lines:boolean;
     print_dialogue_numbers:boolean;
+    synchronized_markup_and_preview:boolean;
+    preview_theme:string;
+    preview_texture:boolean;
 }
 import * as vscode from 'vscode';
 
 export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
-    if(!docuri && vscode.window.activeTextEditor == undefined) 
+    if(!docuri && vscode.window.activeTextEditor != undefined) 
         docuri = vscode.window.activeTextEditor.document.uri;
     var pdfConfig = vscode.workspace.getConfiguration("fountain.pdf", docuri);
     var generalConfig = vscode.workspace.getConfiguration("fountain.general", docuri);
@@ -51,7 +54,9 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         scenes_numbers: pdfConfig.sceneNumbers,
         each_scene_on_new_page: pdfConfig.eachSceneOnNewPage,
         merge_empty_lines: pdfConfig.mergeEmptyLines,
-        print_dialogue_numbers: pdfConfig.showDialogueNumbers
-        
+        print_dialogue_numbers: pdfConfig.showDialogueNumbers,
+        synchronized_markup_and_preview: generalConfig.synchronizedMarkupAndPreview,
+        preview_theme: generalConfig.previewTheme,
+        preview_texture: generalConfig.previewTexture
     }
 }

@@ -1,4 +1,4 @@
-import { parsedDocument } from "../extension";
+import { parsedDocuments } from "../extension";
 import { secondsToMinutesString } from "../utils";
 import * as vscode from "vscode";
 import * as afterparser from "../afterwriting-parser";
@@ -20,7 +20,7 @@ export class FountainSymbolProvider implements vscode.DocumentSymbolProvider{
 				end = nexttoken.range.start;
 			}
 			if(!token.section){
-				var sceneLength = parsedDocument.properties.scenes[scenecounter].actionLength + parsedDocument.properties.scenes[scenecounter].dialogueLength;
+				var sceneLength = parsedDocuments.get(document.uri.toString()).properties.scenes[scenecounter].actionLength + parsedDocuments.get(document.uri.toString()).properties.scenes[scenecounter].dialogueLength;
 				details = secondsToMinutesString(sceneLength);
 				returnvalue.length = sceneLength;
 				scenecounter++;
@@ -47,8 +47,8 @@ export class FountainSymbolProvider implements vscode.DocumentSymbolProvider{
 			return returnvalue;
 		}
 
-		for (let index = 0; index < parsedDocument.properties.structure.length; index++) {
-			symbols.push(symbolFromStruct(parsedDocument.properties.structure[index], parsedDocument.properties.structure[index+1], document.lineCount).symbol);
+		for (let index = 0; index < parsedDocuments.get(document.uri.toString()).properties.structure.length; index++) {
+			symbols.push(symbolFromStruct(parsedDocuments.get(document.uri.toString()).properties.structure[index], parsedDocuments.get(document.uri.toString()).properties.structure[index+1], document.lineCount).symbol);
 		}
 		console.timeEnd("symbols");
 		return symbols;

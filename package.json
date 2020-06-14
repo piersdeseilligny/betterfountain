@@ -30,7 +30,8 @@
 	"activationEvents": [
 		"onLanguage:fountain",
 		"onCommand:fountain.livepreview",
-		"onCommand:fountain.exportpdf"
+		"onCommand:fountain.exportpdf",
+		"onWebviewPanel:fountainPreview"
 	],
 	"main": "./out/extension",
 	"contributes": {
@@ -71,6 +72,25 @@
 						"type": "boolean",
 						"default": false,
 						"description": "Automatically number the scenes each time you save the document."
+					},
+					"fountain.general.synchronizedMarkupAndPreview": {
+						"type": "boolean",
+						"default": false,
+						"description": "Automatically synchronize preview and text editor position."
+					},
+					"fountain.general.previewTheme": {
+						"type": "string",
+						"enum": [
+							"vscode",
+							"paper"
+						],
+						"description": "The theme to be used in the live preview",
+						"default": "paper"
+					},
+					"fountain.general.previewTexture": {
+						"type": "boolean",
+						"default": true,
+						"description": "Noise texture on the live preview (absent from PDF)"
 					}
 				}
 			},
@@ -171,20 +191,6 @@
 						"type": "string",
 						"default": "",
 						"description": "Watermark displayed across each page"
-					},
-					"fountain.pdf.previewTheme": {
-						"type": "string",
-						"enum": [
-							"vscode",
-							"paper"
-						],
-						"description": "The theme to be used in the live preview",
-						"default": "vscode"
-					},
-					"fountain.pdf.previewTexture": {
-						"type": "boolean",
-						"default": true,
-						"description": "Noise texture on the live preview (absent from PDF)"
 					},
 					"fountain.pdf.sceneNumbers": {
 						"type": "string",

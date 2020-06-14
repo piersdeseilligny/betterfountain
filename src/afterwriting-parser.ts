@@ -463,10 +463,13 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
     }
 
-    if (state == "dialogue")
+    if (state == "dialogue") {
         pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_end"));
-    if (state == "dual_dialogue")
+    }
+
+    if (state == "dual_dialogue") {
         pushToken(create_token(undefined, undefined, undefined, undefined, "dual_dialogue_end"));
+    }
 
     var current_index = 0/*, previous_type = null*/;
     // tidy up separators
@@ -478,19 +481,21 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         //Generate html for title page
         while (current_index < result.title_page.length) {
             var current_token: token = result.title_page[current_index];
-            if (current_token.text != "")
-                    current_token.html = inline.lexer(current_token.text);
+            if (current_token.text != "") {
+                current_token.html = inline.lexer(current_token.text);
+            }
+
             switch (current_token.type) {
-                case 'title': titlehtml.push('<h1>' + current_token.html + '</h1>'); break;
-                case 'credit': titlehtml.push('<p class=\"credit\">' + current_token.html + '</p>'); break;
-                case 'author': titlehtml.push('<p class=\"authors\">' + current_token.html + '</p>'); break;
-                case 'authors': titlehtml.push('<p class=\"authors\">' + current_token.html + '</p>'); break;
-                case 'source': titlehtml.push('<p class=\"source\">' + current_token.html + '</p>'); break;
-                case 'notes': titlehtml.push('<p class=\"notes\">' + current_token.html + '</p>'); break;
-                case 'draft_date': titlehtml.push('<p class=\"draft-date\">' + current_token.html + '</p>'); break;
-                case 'date': titlehtml.push('<p class=\"date\">' + current_token.html + '</p>'); break;
-                case 'contact': titlehtml.push('<p class=\"contact\">' + current_token.html + '</p>'); break;
-                case 'copyright': titlehtml.push('<p class=\"copyright\">' + current_token.html + '</p>'); break;
+                case 'title': titlehtml.push('<h1 class="haseditorline titlepagetoken" id="sourceline_' + current_token.line + '">' + current_token.html + '</h1>'); break;
+                case 'credit': titlehtml.push('<p class="credit haseditorline titlepagetoken" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
+                case 'author': titlehtml.push('<p class="authors haseditorline titlepagetoken" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
+                case 'authors': titlehtml.push('<p class="authors haseditorline titlepagetoken" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
+                case 'source': titlehtml.push('<p class="source haseditorline titlepagetoken" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
+                case 'notes': titlehtml.push('<p class="notes haseditorline titlepagetoken" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
+                case 'draft_date': titlehtml.push('<p class="draft-date haseditorline titlepagetoken" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
+                case 'date': titlehtml.push('<p class="date haseditorline titlepagetoken" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
+                case 'contact': titlehtml.push('<p class="contact haseditorline titlepagetoken" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
+                case 'copyright': titlehtml.push('<p class="copyright haseditorline titlepagetoken" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
             }
             current_index++;
         }
@@ -500,19 +505,22 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         var isaction = false;
         while (current_index < result.tokens.length) {
             var current_token: token = result.tokens[current_index];
-            if (current_token.text != "")
+            if (current_token.text != "") {
                 current_token.html = inline.lexer(current_token.text, current_token.type);
-            else current_token.html = "";
+            } else  {
+                current_token.html = "";
+            }
+
 
 
             if (current_token.type == "action") {
                 if (!isaction) {
                     //first action element
-                    html.push('<p>' + current_token.html);
+                    html.push('<p><span class="haseditorline" id="sourceline_' + current_token.line + '">' + current_token.html+"</span>");
                 }
                 else {
                     //just add a new line to the current paragraph
-                    html.push('\n' + current_token.html);
+                    html.push('\n<span class="haseditorline" id="sourceline_' + current_token.line + '">' + current_token.html+"</span>");
                 }
                 isaction = true;
             }
@@ -538,48 +546,52 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 switch (current_token.type) {
                     case 'scene_heading':
                         var content = current_token.text;
-                        if (cfg.embolden_scene_headers)
-                            content = '<span class=\"bold\">' + content + '</span>';
-                        html.push('<h3 data-position=\"' + current_token.line + '\" ' + (current_token.number ? ' id=\"' + current_token.number + '\">' : '>') + content + '</h3>');
+                        if (cfg.embolden_scene_headers) {
+                            content = '<span class=\"bold haseditorline\" id="sourceline_' + current_token.line + '">' + content + '</span>';
+                        }
+
+                        html.push('<h3 class="haseditorline" data-position=\"' + current_token.line + '\" ' + (current_token.number ? ' id=\"sourceline_' + current_token.line + '">' : '>') + content + '</h3>');
                         break;
-                    case 'transition': html.push('<h2>' + current_token.text + '</h2>'); break;
+                    case 'transition': html.push('<h2 class="haseditorline" id="sourceline_' + current_token.line + '">' + current_token.text + '</h2>'); break;
 
                     case 'dual_dialogue_begin': html.push('<div class=\"dual-dialogue\">'); break;
+
                     case 'dialogue_begin': html.push('<div class=\"dialogue' + (current_token.dual ? ' ' + current_token.dual : '') + '\">'); break;
+
                     case 'character':
                         if (current_token.dual == "left") {
                             html.push('<div class=\"dialogue left\">');
-                        }
-                        else if (current_token.dual == "right") {
+                        } else if (current_token.dual == "right") {
                             html.push('</div><div class=\"dialogue right\">');
                         }
+
                         if (config.print_dialogue_numbers) {
-                            html.push('<h4>' + current_token.takeNumber +' – '+ current_token.text + '</h4>');
+                            html.push('<h4 class="haseditorline" id="sourceline_' + current_token.line + '">' + current_token.takeNumber +' – '+ current_token.text + '</h4>');
                         } else {
-                            html.push('<h4>' + current_token.text + '</h4>');
+                            html.push('<h4 class="haseditorline" id="sourceline_' + current_token.line + '">' + current_token.text + '</h4>');
                         }
                         
                         break;
-                    case 'parenthetical': html.push('<p class=\"parenthetical\">' + current_token.html + '</p>'); break;
+                    case 'parenthetical': html.push('<p class="haseditorline parenthetical\" id="sourceline_' + current_token.line + '" >' + current_token.html + '</p>'); break;
                     case 'dialogue':
                         if(current_token.text == "  ") 
                             html.push('<br>');
                         else
-                            html.push('<p>' + current_token.html + '</p>');
+                            html.push('<p class="haseditorline" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>');
                         break;
                     case 'dialogue_end': html.push('</div> '); break;
                     case 'dual_dialogue_end': html.push('</div></div> '); break;
 
-                    case 'section': html.push('<p class=\"section\" data-position=\"' + current_token.line + '\" data-depth=\"' + current_token.level + '\">' + current_token.text + '</p>'); break;
-                    case 'synopsis': html.push('<p class=\"synopsis\">' + current_token.html + '</p>'); break;
-                    case 'lyric': html.push('<p class=\"lyric\">' + current_token.html + '</p>'); break;
+                    case 'section': html.push('<p class="haseditorline section" id="sourceline_' + current_token.line + '" data-position=\"' + current_token.line + '\" data-depth=\"' + current_token.level + '\">' + current_token.text + '</p>'); break;
+                    case 'synopsis': html.push('<p class="haseditorline synopsis" id="sourceline_' + current_token.line + '" >' + current_token.html + '</p>'); break;
+                    case 'lyric': html.push('<p class="haseditorline lyric" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
 
-                    case 'note': html.push('<p class=\"note\">' + current_token.html + '</p>'); break;
+                    case 'note': html.push('<p class="haseditorline note" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
                     case 'boneyard_begin': html.push('<!-- '); break;
                     case 'boneyard_end': html.push(' -->'); break;
 
                     //case 'action': ; break;
-                    case 'centered': html.push('<p class=\"centered\">' + current_token.html + '</p>'); break;
+                    case 'centered': html.push('<p class="haseditorline centered" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
 
                     case 'page_break': html.push('<hr />'); break;
                     /* case 'separator':
@@ -608,7 +620,10 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             current_index++;
         }
         result.scriptHtml = html.join('');
-        result.titleHtml = titlehtml.join('');
+        if(titlehtml.length>0)
+            result.titleHtml = titlehtml.join('');
+        else
+            result.titleHtml = undefined;
     }
     // clean separators at the end
     while (result.tokens.length > 0 && result.tokens[result.tokens.length - 1].type === "separator") {
