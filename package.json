@@ -75,7 +75,7 @@
 					},
 					"fountain.general.synchronizedMarkupAndPreview": {
 						"type": "boolean",
-						"default": false,
+						"default": true,
 						"description": "Automatically synchronize preview and text editor position."
 					},
 					"fountain.general.previewTheme": {
@@ -219,7 +219,12 @@
 		"commands": [
 			{
 				"command": "fountain.livepreview",
-				"title": "Show screenplay live preview",
+				"title": "Show screenplay live preview (Dynamic switching)",
+				"category": "Fountain"
+			},
+			{
+				"command": "fountain.livepreviewstatic",
+				"title": "Show screenplay live preview (For the current document only)",
 				"category": "Fountain"
 			},
 			{

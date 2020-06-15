@@ -424,7 +424,7 @@
             width:100%;
             position:absolute;
             background-color:blue;
-            border: 1px solid;
+            border: 2px solid;
             border-left: 0;
             border-right: 0;
             z-index:-1;
@@ -434,12 +434,12 @@
             width:100%;
             position:absolute;
             background-color:red;
-            border: 1px solid;
+            border: 2px solid;
             border-left: 0;
             border-right: 0;
             z-index:-1;
             margin-top:-3px;
-            opacity:0.5;
+            opacity:0;
         }
 
         .vscode_theme #linehighlight_active, .vscode_theme #linehighlight_click{
@@ -478,11 +478,10 @@
 
         const vscode = acquireVsCodeApi();
 
-        const getCodeLineElements = (() => {
-    	let elements;
-    	return () => {
-    		if (!elements) {
-    			elements = [];
+        let codeLineElements = [];
+        function getCodeLineElements(){
+            if(codeLineElements.length>0) return codeLineElements;
+            else{
     			for (const element of document.getElementsByClassName("haseditorline")) {
                     const id = element.getAttribute("id");
                     if(id==null) continue;
@@ -490,12 +489,10 @@
     				if (isNaN(line)) {
     					continue;
     				}
-    					elements.push(line);
+                    codeLineElements.push(line);
     			}
-    		}
-    		return elements;
-    	};
-    })();
+            }
+        }
 
     function getElement(number){
         return document.getElementById("sourceline_"+number);
@@ -509,14 +506,13 @@
             let hi = lines.length - 1;
             while (lo + 1 < hi) { 
                 const mid=Math.floor((lo + hi) / 2); 
-                const bounds=getElement(lines[mid]).getBoundingClientRect(); 
+                let bounds = getElement(lines[mid]).getBoundingClientRect();
                 if (bounds.top + bounds.height>= position) {
                     hi = mid;
                 }
                 else {
                     lo = mid;
                 }
-                lineswithzerotop += bounds.top;
             }
             const hiElement = lines[hi];
             const hiBounds = getElement(hiElement).getBoundingClientRect();;
@@ -560,6 +556,7 @@
             title_html: "",
             screenplay_html: "",
             docuri:"",
+            dynamic:false,
             offset:0
         }
         const previousState = vscode.getState();
@@ -585,7 +582,8 @@
                 }
                 vscode.postMessage({
                         command: 'updateFontResult',
-                        content:  FontDetect.isFontLoaded(event.data.content)
+                        content:  FontDetect.isFontLoaded(event.data.content),
+                        uri:state.docuri
                     })
             } else if(event.data.command == 'removeFont') {
                 var pages = document.getElementsByClassName("page");
@@ -598,14 +596,19 @@
             } 
             else if (event.data.command == 'showsourceline') {
                 scrollToRevealSourceLine(event.data.content, event.data.linescount, event.data.source);
-            } else if(event.data.command == 'seturi'){
-                state.docuri = event.data.content;
+            } else if(event.data.command == 'setstate'){
+                if(event.data.uri !== undefined)
+                    state.docuri = event.data.uri;
+                if(event.data.dynamic !== undefined)
+                    state.dynamic = event.data.dynamic;
+                vscode.setState(state);
             } else if(event.data.command == 'highlightline'){
-                let lineinfo = getLineInfoForElements(line, previous, next);
+                let { previous, next, exact } = getLineElementsAtPageOffset(event.data.content)
+                var highlight = getHighlightLocationAndHeight(previous, next, exact);
                 let scrollTo = lineinfo.scrollTo;
                 var linehighlight_active = document.getElementById("linehighlight_active");
-                linehighlight_active.style.height = lineinfo.height+"px";
-                linehighlight_active.style.top = (scrollTo- document.getElementById("screenplay_page").getBoundingClientRect().top)+"px";
+                linehighlight_active.style.height = highlight.height+"px";
+                linehighlight_active.style.top = highlight.location+"px";
             }
         });
 
@@ -642,6 +645,7 @@
 
         
         function applyHtml(){
+            codeLineElements = []
             vscode.setState(state);
             document.getElementById('mainpage').innerHTML = state.screenplay_html;
             if(state.title_html != undefined){
@@ -658,10 +662,6 @@
 
             let scrollTo = 0;
             return {scrollTo: scrollTo, height: linehighlight_activeheight };
-        }
-
-        function getHighlightedLine(previous, next){
-
         }
 
         function scrollToRevealSourceLine(line, linescount, source) {
@@ -770,41 +770,45 @@
         
         scrollDisabled = true;
         window.addEventListener('scroll', throttle(() => {
-                if(!fountainconfig.synchronized_markup_and_preview) return;
-            	if (scrollDisabled) {
-            		scrollDisabled = false;
-            	} else {
-            		const line = getEditorLineNumberForPageOffset(window.scrollY);
-            		if (typeof line === 'number' && !isNaN(line)) {
-            			vscode.postMessage({command: 'revealLine', content: line });
-            			state.offset = window.scrollY;
-            			vscode.setState(state);
-            		}
+            if(!fountainconfig.synchronized_markup_and_preview) return;
+            if (scrollDisabled) {
+            	scrollDisabled = false;
+            } else {
+            	const line = getEditorLineNumberForPageOffset(window.scrollY);
+            	if (typeof line === 'number' && !isNaN(line)) {
+            		vscode.postMessage({command: 'revealLine', content: line, uri:state.docuri });
+            		state.offset = window.scrollY;
+            		vscode.setState(state);
             	}
-            }, 50));
+            }
+        }, 50));
 
-        document.addEventListener("mousedown", e =>{
-
-            let { previous, next, exact } = getLineElementsAtPageOffset(e.pageY)
+        function getHighlightLocationAndHeight(previous, next, exact){
             if(exact){
                 next = previous;
             }
             const rect = getElement(previous).getBoundingClientRect();
             const previousTop = rect.top;
-            let linehighlight_activeheight = rect.height;
+            let linehighlight_height = rect.height;
             let linehighlight_location = rect.top -  document.getElementById("screenplay_page").getBoundingClientRect().top;
         	if (next && next !== previous) {
-                linehighlight_activeheight = 2;
+                linehighlight_height = 2;
                 //located between the two
                 const elementOffset = getElement(next).getBoundingClientRect().top - rect.bottom ;
                 linehighlight_location = rect.bottom + elementOffset * 0.5  -  document.getElementById("screenplay_page").getBoundingClientRect().top;
             }
-            
+            return{height: linehighlight_height, location: linehighlight_location }
+        }
+
+        document.addEventListener("mousedown", e =>{
+            if(!fountainconfig.synchronized_markup_and_preview) return;
+            let { previous, next, exact } = getLineElementsAtPageOffset(e.pageY)
+            var linehighlight = getHighlightLocationAndHeight(previous, next, exact);            
             if(e.detail==1){
                 //first click, show click indicator
                 let linehighlight_click = document.getElementById("linehighlight_click");
-                linehighlight_click.style.height = linehighlight_activeheight+"px";
-                linehighlight_click.style.top = linehighlight_location+"px";
+                linehighlight_click.style.height = linehighlight.height+"px";
+                linehighlight_click.style.top = linehighlight.location+"px";
                 linehighlight_click.style.transition = "opacity 0s";
                 linehighlight_click.style.opacity = 1;
                 setTimeout(()=>{
@@ -816,15 +820,15 @@
                 //double click
                 e.preventDefault();
                 let linehighlight_active = document.getElementById("linehighlight_active");
-                linehighlight_active.style.height = linehighlight_activeheight + "px";
-                linehighlight_active.style.top = linehighlight_location + "px";
+                linehighlight_active.style.height = linehighlight.height + "px";
+                linehighlight_active.style.top = linehighlight.location + "px";
 
-                const offset = event.pageY;
-                const positiononpage = window.innerHeight/event.pageY;
+                const offset = e.pageY;
+                const positiononpage = window.innerHeight/e.pageY;
                 const line = Math.floor(getEditorLineNumberForPageOffset(offset));
                 if (typeof line === 'number' && !isNaN(line)) {
                     let charpos = window.getSelection().focusOffset;
-                	vscode.postMessage({command:'changeselection', line: Math.floor(line), character:charpos, positiononpage:positiononpage });
+                	vscode.postMessage({command:'changeselection', line: Math.floor(line), character:charpos, positiononpage:positiononpage, uri:state.docuri });
                 }
             }
         });

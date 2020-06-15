@@ -5,3 +5,4 @@ client/server
 /tests
 /screenplays
 *.vsix
+*.ai

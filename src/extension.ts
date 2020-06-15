@@ -134,6 +134,10 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			command: 'fountain.livepreview',
 			title: ''
 		};
+		treeLivePreview.command = {
+			command: 'fountain.livepreviewstatic',
+			title: ''
+		};
 		numberScenes.command = {
 			command: 'fountain.numberScenes',
 			title: ''
@@ -161,9 +165,7 @@ import { FountainCompletionProvider } from "./providers/Completion";
 import { FountainSymbolProvider } from "./providers/Symbols";
 import { showDecorations, clearDecorations } from "./providers/Decorations";
 
-import { createPreviewPanel, previewpanels, FountainPreviewSerializer } from "./providers/Preview";
-
-
+import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToUpdate } from "./providers/Preview";
 
 
 /**
@@ -195,27 +197,23 @@ const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommand
 export let diagnosticCollection = languages.createDiagnosticCollection("fountain");
 export let diagnostics: vscode.Diagnostic[] = [];
 
-
-var activePreview:vscode.Uri;
-export function activePreviewChanged(uri:vscode.Uri){
-	activePreview = uri;
-}
+//return the relevant fountain document for the currently selected preview or text editor
 export function activeFountainDocument(): vscode.Uri{
-	//return the relevant fountain document for the currently selected preview or text editor
-	if(vscode.window.activeTextEditor == undefined || vscode.window.activeTextEditor.document.languageId != "fountain"){
-		if(activePreview != undefined){
-			return activePreview;
-		}
-		else{
-			for (let i = 0; i < vscode.window.visibleTextEditors.length; i++) {
-				if(vscode.window.visibleTextEditors[i].document.languageId == "fountain")
-					return vscode.window.visibleTextEditors[i].document.uri;
-			}
-		}
+	//first check if any previews have focus
+	for (let i = 0; i < previews.length; i++) {
+		if(previews[i].panel.active)
+			return vscode.Uri.parse(previews[i].uri);
 	}
-	else{
+	//no previews were active, is activeTextEditor a fountain document?
+	if(vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document.languageId == "fountain"){
 		return vscode.window.activeTextEditor.document.uri;
 	}
+	//As a last resort, check if there are any visible fountain text editors
+	for (let i = 0; i < vscode.window.visibleTextEditors.length; i++) {
+		if(vscode.window.visibleTextEditors[i].document.languageId == "fountain")
+			return vscode.window.visibleTextEditors[i].document.uri;
+	}
+	//all hope is lost
 	return undefined;
 }
 
@@ -242,10 +240,15 @@ export function activate(context: ExtensionContext) {
 	durationStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
 	context.subscriptions.push(durationStatus);
 
-	//Register for live preview
+	//Register for live preview (dynamic)
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreview', () => {
-		// Create and show a new webview for the active text editor
-		createPreviewPanel(vscode.window.activeTextEditor);
+		// Create and show a new dynamic webview for the active text editor
+		createPreviewPanel(vscode.window.activeTextEditor,true);
+	}));
+	//Register for live preview (static)
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreviewstatic', () => {
+		// Create and show a new dynamic webview for the active text editor
+		createPreviewPanel(vscode.window.activeTextEditor,false);
 	}));
 
 	//Jump to line command
@@ -256,28 +259,17 @@ export function activate(context: ExtensionContext) {
 		editor.selection = new vscode.Selection(range.start, range.start);
 		editor.revealRange(range, vscode.TextEditorRevealType.AtTop);
 		//If live screenplay is visible scroll to it with
-		if (previewpanels.has(editor.document.uri.toString())) {
-			if (getFountainConfig(editor.document.uri).synchronized_markup_and_preview)
-				previewpanels.get(editor.document.uri.toString()).webview.postMessage({ command: 'scrollTo', content: args });
+		if (getFountainConfig(editor.document.uri).synchronized_markup_and_preview){
+			previews.forEach(p => {
+				if(p.uri == editor.document.uri.toString())
+					p.panel.webview.postMessage({ command: 'scrollTo', content: args });
+			});
 		}
 	}));
 
 
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => {
 		var canceled = false;
-		/*if(vscode.window.activeTextEditor.document.isDirty){
-			await vscode.window.showWarningMessage("The PDF will not include unsaved changes!", {modal:true}, "Export anyway", "Save document first").then((value:any)=>{
-				canceled = (value==undefined);
-				switch (value) {
-					case "Export anyway":
-						break;
-					case "Save document first":
-						if(!vscode.window.activeTextEditor.document.save() && vscode.window.activeTextEditor.document.isDirty)
-						vscode.window.showInformationMessage("Document could not be saved!")
-						break;
-				}
-			});
-		}*/
 		if (canceled) return;
 		var saveuri = vscode.Uri.file(vscode.window.activeTextEditor.document.fileName.replace('.fountain', ''));
 		var filepath = await vscode.window.showSaveDialog(
@@ -346,7 +338,7 @@ export function activate(context: ExtensionContext) {
 
 
 	//parse the document
-	if (vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document != undefined)
+	if (vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document != undefined && vscode.window.activeTextEditor.document.languageId=="fountain")
 		parseDocument(vscode.window.activeTextEditor.document);
 
 	vscode.window.registerWebviewPanelSerializer('fountain-preview', new FountainPreviewSerializer());
@@ -355,7 +347,8 @@ export function activate(context: ExtensionContext) {
 
 
 vscode.workspace.onDidChangeTextDocument(change => {
-	parseDocument(change.document);
+	if (change.document.languageId=="fountain")
+		parseDocument(change.document);
 })
 
 
@@ -388,12 +381,22 @@ export function parseDocument(document: TextDocument) {
 	console.time("parsing");
 	clearDecorations();
 
-	var updatehtml = previewpanels.has(document.uri.toString());
-	var output = afterparser.parse(document.getText(), getFountainConfig(document.uri), updatehtml)
-	if (updatehtml) {
+	var previewsToUpdate = getPreviewsToUpdate(document.uri)
+	var output = afterparser.parse(document.getText(), getFountainConfig(document.uri), previewsToUpdate.length>0)
+
+	
+	if (previewsToUpdate) {
 		//lastFountainDocument = document;
-		previewpanels.get(document.uri.toString()).webview.postMessage({ command: 'updateTitle', content: output.titleHtml });
-		previewpanels.get(document.uri.toString()).webview.postMessage({ command: 'updateScript', content: output.scriptHtml });
+		for (let i = 0; i < previewsToUpdate.length; i++) {
+			previewsToUpdate[i].panel.webview.postMessage({ command: 'updateTitle', content: output.titleHtml });
+			previewsToUpdate[i].panel.webview.postMessage({ command: 'updateScript', content: output.scriptHtml });
+			
+			if(previewsToUpdate[i].dynamic) {
+
+				previewsToUpdate[i].uri = document.uri.toString();
+				previewsToUpdate[i].panel.webview.postMessage({ command: 'setstate', uri: previewsToUpdate[i].uri});
+			}
+		}
 	}
 	parsedDocuments.set(document.uri.toString(), output);
 	var tokenlength = 0;
@@ -405,14 +408,18 @@ export function parseDocument(document: TextDocument) {
 		if (output.title_page[tokenlength].type == "font" && output.title_page[tokenlength].text.trim() != "") {
 			parsedDocuments.get(document.uri.toString()).properties.fontLine = output.title_page[tokenlength].line;
 			var fontname = output.title_page[tokenlength].text;
-			previewpanels.get(document.uri.toString()).webview.postMessage({ command: 'updateFont', content: fontname });
+			previewsToUpdate.forEach(p => {
+				p.panel.webview.postMessage({ command: 'updateFont', content: fontname });
+			});
 			fontTokenExists = true;
 			fontTokenExisted = true;
 		}
 		tokenlength++;
 	}
 	if (!fontTokenExists && fontTokenExisted) {
-		previewpanels.get(document.uri.toString()).webview.postMessage({ command: 'removeFont' });
+		previewsToUpdate.forEach(p => {
+			p.panel.webview.postMessage({ command: 'removeFont' });
+		});
 		fontTokenExisted = false;
 		diagnosticCollection.set(document.uri, []);
 	}

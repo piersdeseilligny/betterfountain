@@ -1,3 +1,13 @@
+## **1.6.0 (unreleased)** 
+    + New Icon
+    + Complete overhaul of the previewing system
+        + Scroll-sync is finally available! It is bidirection
+        + Indicator for the active line in the editor (in the preview)
+        + Double-click in the preview to open the editor at that location
+        + Previews can now be "dynamic" (of whichever fountain document is active) or "static" (locked to a specified fountain document)
+        + Previews now persist through restarts of vscode
+
+
 ## **1.5.0** - *2020-05-27*
     + Add symbol-based outline - the "path" of the current scene now shows above the editor, and the 
       integrated "outline" section of vscode now shows the screenplay's outline.
