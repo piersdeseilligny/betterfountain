@@ -175,7 +175,7 @@ import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToU
 function updateStatus(lengthAction: number, lengthDialogue: number): void {
 	if (durationStatus != undefined) {
 
-		if (vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document.languageId == "fountain") {
+		if (activeFountainDocument() != undefined) {
 			durationStatus.show();
 			//lengthDialogue is in syllables, lengthAction is in characters
 			var durationDialogue = lengthDialogue;
@@ -254,7 +254,7 @@ export function activate(context: ExtensionContext) {
 	//Jump to line command
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.jumpto', (args) => {
 		
-		let editor = vscode.window.activeTextEditor;
+		let editor = getEditor(activeFountainDocument());
 		let range = editor.document.lineAt(Number(args)).range;
 		editor.selection = new vscode.Selection(range.start, range.start);
 		editor.revealRange(range, vscode.TextEditorRevealType.AtTop);
@@ -271,7 +271,8 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => {
 		var canceled = false;
 		if (canceled) return;
-		var saveuri = vscode.Uri.file(vscode.window.activeTextEditor.document.fileName.replace('.fountain', ''));
+		var editor = getEditor(activeFountainDocument());
+		var saveuri = vscode.Uri.file(editor.document.fileName.replace('.fountain', ''));
 		var filepath = await vscode.window.showSaveDialog(
 			{
 				filters: { "PDF File": ["pdf"] },
@@ -280,7 +281,7 @@ export function activate(context: ExtensionContext) {
 		if (filepath == undefined) return;
 
 		var config = getFountainConfig(activeFountainDocument());
-		var parsed = afterparser.parse(vscode.window.activeTextEditor.document.getText(), config, false);
+		var parsed = afterparser.parse(editor.document.getText(), config, false);
 		GeneratePdf(filepath.fsPath, config, parsed, function (output: any) {
 			if (output.errno != undefined) {
 				vscode.window.showErrorMessage("Failed to export PDF!")
@@ -294,7 +295,8 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', () => {
 		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
 		statsPanel.webview.html = `Calculating screenplay statistics...`
-		const stats = retrieveScreenPlayStatistics(vscode.window.activeTextEditor.document.getText())
+		
+		const stats = retrieveScreenPlayStatistics(getEditor(activeFountainDocument()).document.getText())
 		const statsHTML = statsAsHtml(stats)
 		statsPanel.webview.html = statsHTML
 	}));
@@ -356,8 +358,7 @@ vscode.workspace.onDidChangeTextDocument(change => {
 export var parsedDocuments = new Map<string, afterparser.parseoutput>();
 
 export function activeParsedDocument(): afterparser.parseoutput {
-	var texteditor = vscode.window.activeTextEditor;
-	console.log(vscode.window.activeTextEditor);
+	var texteditor = getEditor(activeFountainDocument());
 	return parsedDocuments.get(texteditor.document.uri.toString());
 }
 
