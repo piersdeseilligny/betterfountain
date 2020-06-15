@@ -222,7 +222,17 @@ export class Liner {
                 result++;
                 right_index++;
             }
+
+            /* 
+            For some reason, the original afterwriting liner had the following line:
+            
             result++; // collect separator after right dialogue
+
+            ...however uncommenting it causes a bug where there is systematically a 
+            missing seperator after dual dialogue. I don't understand why this 
+            line was here in the first place, but it seems to work better without
+            */
+
             return result;
         };
         var fold_dual_dialogue = (left_index:number, right_index:number) => {
