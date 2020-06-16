@@ -3,19 +3,22 @@ import * as print from "./print";
 import { FountainConfig } from "../configloader";
 import * as helpers from "../helpers";
 import * as fliner from "./liner";
+import * as vscode from "vscode";
 
-export var GeneratePdf = function(outputpath:string, config:FountainConfig, parsedDocument:any, callback:any){
-    var liner:any = new fliner.Liner(helpers.default, config.print_dialogue_numbers);
+export var GeneratePdf = function (outputpath: string, config: FountainConfig, parsedDocument: any, progress: vscode.Progress<{ message?: string; increment?: number; }> ) {
 
+    progress.report({message: "Converting to individual lines", increment: 25});
+    var liner: any = new fliner.Liner(helpers.default, config.print_dialogue_numbers);
     var watermark = undefined;
     var font = "Courier Prime";
     for (let index = 0; index < parsedDocument.title_page.length; index++) {
-        if(parsedDocument.title_page[index].type=="watermark")
+        if (parsedDocument.title_page[index].type == "watermark")
             watermark = parsedDocument.title_page[index].text;
-        if(parsedDocument.title_page[index].type=="font")
+        if (parsedDocument.title_page[index].type == "font")
             font = parsedDocument.title_page[index].text;
     }
-    var current_index = 0, previous_type:string = null;
+    var current_index = 0, previous_type: string = null;
+
     // tidy up separators
     while (current_index < parsedDocument.tokens.length) {
         var current_token = parsedDocument.tokens[current_index];
@@ -47,7 +50,7 @@ export var GeneratePdf = function(outputpath:string, config:FountainConfig, pars
         parsedDocument.tokens.pop();
     }
 
-    if(config.print_watermark == "" && watermark!=undefined)
+    if (config.print_watermark == "" && watermark != undefined)
         config.print_watermark = watermark;
     parsedDocument.lines = liner.line(parsedDocument.tokens, {
         print: print.print_profiles[config.print_profile],
@@ -56,20 +59,12 @@ export var GeneratePdf = function(outputpath:string, config:FountainConfig, pars
         split_dialogue: true
     });
 
-    var pdf_options:pdfmaker.Options = {
+    var pdf_options: pdfmaker.Options = {
         filepath: outputpath,
         parsed: parsedDocument,
-        print:print.print_profiles[config.print_profile],
-        callback:function(output:any){
-            callback(output);
-        },
-        config:config,
-        font:font
+        print: print.print_profiles[config.print_profile],
+        config: config,
+        font: font
     }
-    try {
-        pdfmaker.get_pdf(pdf_options);
-    } catch (error) {
-        callback(error);
-    }
-    
+    pdfmaker.get_pdf(pdf_options, progress);
 }

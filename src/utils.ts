@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { FountainStructureProperties } from "./extension";
 import * as parser from "./afterwriting-parser";
+import * as path from "path";
 
 //var syllable = require('syllable');
 
@@ -150,4 +151,30 @@ export const numberScenes = () => {
 
 export const last = function(array: any[]): any {
 	return array[array.length - 1];
+}
+
+export function openFile(p:string){
+	let cmd = "xdg-open"
+	switch (process.platform) { 
+		case 'darwin' : cmd = 'open'; break;
+		case 'win32' : cmd = 'start'; break;
+		default : cmd = 'xdg-open';
+	}
+	var exec = require('child_process').exec;
+	exec(cmd+ ' ' + p); 
+}
+export function revealFile(p:string){
+	var cmd = "";
+	if(process.platform == "win32"){
+		cmd = `explorer.exe /select,${p}`
+	}
+	else if(process.platform == "darwin"){
+		cmd = `open -r ${p}`
+	}
+	else{
+		p = path.parse(p).dir;
+		cmd = `open "${p}"`
+	}
+	var exec = require('child_process').exec;
+	exec(cmd); 
 }

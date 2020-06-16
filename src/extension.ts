@@ -281,14 +281,10 @@ export function activate(context: ExtensionContext) {
 		if (filepath == undefined) return;
 
 		var config = getFountainConfig(activeFountainDocument());
-		var parsed = afterparser.parse(editor.document.getText(), config, false);
-		GeneratePdf(filepath.fsPath, config, parsed, function (output: any) {
-			if (output.errno != undefined) {
-				vscode.window.showErrorMessage("Failed to export PDF!")
-			}
-			else {
-				vscode.window.showInformationMessage("Exported PDF!");
-			}
+		vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async progress => {
+			progress.report({message: "Parsing document", increment: 0});
+			var parsed = afterparser.parse(editor.document.getText(), config, false);
+			GeneratePdf(filepath.fsPath, config, parsed, progress);
 		});
 	}));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', numberScenes));

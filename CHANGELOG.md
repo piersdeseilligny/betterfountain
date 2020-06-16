@@ -1,11 +1,14 @@
 ## **1.6.0 (unreleased)** 
     + New Icon
     + Complete overhaul of the previewing system
-        + Scroll-sync is finally available! It is bidirection
+        + Scroll-sync is finally available! It is bidirectional and awesome (Thanks Felix Batusic for setting the groundwork!)
         + Indicator for the active line in the editor (in the preview)
         + Double-click in the preview to open the editor at that location
         + Previews can now be "dynamic" (of whichever fountain document is active) or "static" (locked to a specified fountain document)
         + Previews now persist through restarts of vscode
+    + Notifications for PDF Export (showing any errors, and allowing to open the file upon completion, or reveal it in the file explorer)
+    · Fixed bug #29 (Fountain panel outline not working in the preview)
+    · Fixed bug #30 (Incorrect Spacing After Dual Dialogue When Exported to PDF)
 
 
 ## **1.5.0** - *2020-05-27*

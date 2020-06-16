@@ -3,10 +3,11 @@
     import * as fountainconfig from "../configloader";
     import * as print from "./print";
     import * as path from 'path';
+    import * as vscode from 'vscode';
 import helpers from "../helpers";
+import { openFile, revealFile } from "../utils";
    // import * as blobUtil from "blob-util";
     export class Options{
-        callback:any;
         filepath:string;
         config:fountainconfig.FountainConfig;
         parsed:any;
@@ -17,7 +18,7 @@ import helpers from "../helpers";
         //helper = require('../helpers'),
         Blob = require('blob');
 
-    var create_simplestream = function(filepath:string,callback:any) {
+    var create_simplestream = function(filepath:string) {
         var simplestream:any = {
             chunks: [],
             filepath: filepath,
@@ -39,14 +40,40 @@ import helpers from "../helpers";
                     });
                     //stream.on('finish', this.callback());
                     stream.on('error', function(err:any){
-                        callback(err);
+                        if(err.code == "ENOENT"){
+                            vscode.window.showErrorMessage("Unable to export PDF! The specified location does not exist: " + err.path)
+                        }
+                        else if(err.code == "EPERM"){
+                            vscode.window.showErrorMessage("Unable to export PDF! You do not have the permission to write the specified file: " + err.path)
+                        }
+                        else{
+                            vscode.window.showErrorMessage(err.message);
+                        }
+                        console.log(err);
                     });
-                    stream.on('open', function(){
-                        simplestream.chunks.forEach(function(buffer:any) {
-                            stream.write(new Buffer(buffer.toString('base64'), 'base64'));
+                    stream.on('finish', ()=>{
+                        let open = "Open";
+                        let reveal = "Reveal in File Explorer";
+                        if(process.platform == "darwin") reveal = "Reveal in Finder"
+                        vscode.window.showInformationMessage("Exported PDF Succesfully!", open, reveal).then(val=>{
+                            switch(val){
+                                case open:{
+                                    openFile(simplestream.filepath);
+                                }
+                                case reveal:{
+                                    revealFile(simplestream.filepath);
+                                }
+                            }
+                        })
+                    })
+
+                        stream.on('open', function(){
+                            simplestream.chunks.forEach(function(buffer:any) {
+                                stream.write(new Buffer(buffer.toString('base64'), 'base64'));
+                            });
+                            stream.end();
                         });
-                        stream.end();
-                    });
+
                 } else {
                     simplestream.blob = new Blob(simplestream.chunks, {
                         type: "application/pdf"
@@ -202,15 +229,8 @@ import helpers from "../helpers";
         return text.replace(/\n/g, ' ');
     }
 
-    function finishDoc(doc:any, callback:any, filepath:string) {
-        var stream = doc.pipe(create_simplestream(filepath, callback));
-        stream.on('finish', function(){
-            callback(true);
-        });
-        stream.on('error', 
-        function(err:any){
-            callback(err)
-        });
+    function finishDoc(doc:any, filepath:string) {
+        doc.pipe(create_simplestream(filepath));
         doc.end();
     }
 
@@ -540,10 +560,10 @@ import helpers from "../helpers";
 
     }
 
-export var get_pdf = async function(opts:Options) {
-        console.time("generate pdf");
-        var doc = await initDoc(opts);
-        generate(doc, opts);
-        finishDoc(doc, opts.callback, opts.filepath);
-        console.timeEnd("generate pdf");
-    };
+export var get_pdf = async function(opts:Options, progress:vscode.Progress<{message?:string;increment?:number;}>) {
+    progress.report({message:"Processing document", increment:25});
+    var doc = await initDoc(opts);
+    generate(doc, opts);
+    progress.report({message:"Writing to disk", increment:25});
+    finishDoc(doc, opts.filepath);
+};
