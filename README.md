@@ -1,13 +1,13 @@
-![Screenshot of BetterFountain in dark mode](https://i.imgur.com/x8vLDBf.jpg)
-![Screenshot of BetterFountain in light mode](https://i.imgur.com/GpkEdG8.jpg)
+![Screenshot of BetterFountain in dark mode](https://raw.githubusercontent.com/piersdeseilligny/betterfountain/master/screenshots/Dark_plus.PNG)
+![Screenshot of BetterFountain with Github Dark theme](https://raw.githubusercontent.com/piersdeseilligny/betterfountain/master/screenshots/Github_dark.PNG)
 
 # Better fountain
 
-This is an extension for Visual Studio Code, written in a few hours, which allows you to write screenplays using the [fountain](https://fountain.io/) syntax quickly and efficiently. [(If you're already confused click here)](https://github.com/piersdeseilligny/betterfountain/blob/master/FAQ.md)
+This is an extension for Visual Studio Code which allows you to write screenplays using the [fountain](https://fountain.io/) syntax quickly and efficiently. [(If you're already confused click here)](https://github.com/piersdeseilligny/betterfountain/blob/master/FAQ.md)
 
 [Install it here](https://marketplace.visualstudio.com/items?itemName=piersdeseilligny.betterfountain)
 
-[Support via PayPal](https://www.paypal.me/piersdeseilligny/)
+[Sponsor on GitHub](https://github.com/sponsors/piersdeseilligny)
 
 ## Features
 
@@ -22,11 +22,11 @@ This is an extension for Visual Studio Code, written in a few hours, which allow
 * Other cool stuff
     * Go straight to writing dialog after a parenthetical by pressing enter, while the cursor is still inside it
     * Jump to scenes/sections in the .fountain and live preview when clicking on the outline
-
+    * Scroll-sync preview, with active line indication/selection 
 
 ## Why?
 
-Writing with fountain lets you focus on the essential. With the addition of autocomplete and syntax highlighting, you have the ultimate clutter-free ultra-fast solution for writing screenplays. And because it's an extension for vscode, it's free and cross-platform, and you get lots of other cool features like integrated source control.
+Writing with fountain lets you focus on the essential. With the addition of autocomplete and syntax highlighting, you have the ultimate clutter-free ultra-fast solution for writing screenplays. And because it's an extension for vscode, it's free and cross-platform, and you get lots of other cool features such as integrated source control and near-infinite extensibility.
 
 ## Usage
 
@@ -48,7 +48,6 @@ Here are some features I would like to add, but don't really have time to right 
 
 * Some sort of system that would allow the storage of character information alongside the script
 
-* Synchronized scrolling of the live preview with the markup.
 
 I will probably add these features when I have time, but if you're up for the challenge I'm more than happy to accept your pull requests.
 
