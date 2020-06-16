@@ -13,3 +13,11 @@ client/node_modules/**
 !client/node_modules/vscode-languageserver-types/**
 src/**
 screenplays/**
+*.ai
+icon_fullres.png
+
+#The following are unecessary for the extension, and take up a ton of space
+node_modules/pdfkit/js/pdfkit.standalone.js
+node_modules/png-js/images/*.png
+node_modules/**/*.md
+node_modules/**/test/

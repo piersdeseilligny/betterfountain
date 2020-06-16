@@ -1,4 +1,4 @@
-## **1.6.0 (unreleased)** 
+## **1.6.0 **  - *2020-06-16*
     + New Icon
     + Complete overhaul of the previewing system
         + Scroll-sync is finally available! It is bidirectional and awesome (Thanks Felix Batusic for setting the groundwork!)

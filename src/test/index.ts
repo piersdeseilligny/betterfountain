@@ -4,7 +4,8 @@
  * ------------------------------------------------------------------------------------------ */
 'use strict';
 
-import * as testRunner from 'vscode/lib/testrunner';
+/*import * as testRunner from 'vscode-test';
+testRunner.
 
 testRunner.configure({
     ui: 'bdd',
@@ -12,4 +13,4 @@ testRunner.configure({
     timeout: 100000
 });
 
-module.exports = testRunner;
+module.exports = testRunner;*/

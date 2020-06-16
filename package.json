@@ -5,7 +5,7 @@
 	"author": "Piers Deseilligny",
 	"license": "MIT",
 	"icon": "icon.png",
-	"version": "1.5.0",
+	"version": "1.6.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
@@ -282,26 +282,25 @@
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./ && copyfiles -u 1 src/webview.html out",
 		"watch": "npm run compile && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out",
-		"postinstall": "node ./node_modules/vscode/bin/install",
 		"test": "node node_modules/jest/bin/jest.js"
 	},
 	"devDependencies": {
 		"@types/jest": "^24.9.1",
 		"@types/mocha": "^5.2.7",
-		"@types/node": "^8.10.59",
-		"copyfiles": "^2.2.0",
+		"@types/node": "^8.10.61",
+		"@types/vscode": "^1.26.0",
+		"copyfiles": "^2.3.0",
 		"jest": "^24.9.0",
 		"ts-jest": "^24.3.0",
-		"typescript": "^2.9.2",
-		"vscode": "^1.1.36"
+		"typescript": "^3.9.5",
+		"vscode-test": "^1.4.0"
 	},
 	"dependencies": {
 		"@types/username": "^3.0.0",
-		"blob": "0.0.5",
+		"blob": "0.1.0",
 		"font-finder": "^1.0.4",
 		"os-fonts": "^0.5.0",
-		"pdfkit": "^0.10.0",
-		"syllable": "^3.6.1",
-		"username": "^4.1.0"
+		"pdfkit": "^0.11.0",
+		"username": "^5.1.0"
 	}
 }

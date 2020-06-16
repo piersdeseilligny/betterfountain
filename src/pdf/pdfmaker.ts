@@ -59,9 +59,11 @@ import { openFile, revealFile } from "../utils";
                             switch(val){
                                 case open:{
                                     openFile(simplestream.filepath);
+                                    break;
                                 }
                                 case reveal:{
                                     revealFile(simplestream.filepath);
+                                    break;
                                 }
                             }
                         })
