@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from "fs";
 import { parsedDocuments, diagnostics, diagnosticCollection, getEditor, parseDocument } from "../extension";
 import { getFountainConfig } from "../configloader";
-import { TopmostLineMonitor } from "../utils/topMostLineMonitor";
+import { TopmostLineMonitor, getVisibleLine } from "../utils/topMostLineMonitor";
 
 interface preview{
     uri:string;
@@ -144,8 +144,11 @@ function loadWebView(docuri: vscode.Uri, preview:vscode.WebviewPanel, dynamic:bo
     var editor = getEditor(docuri);
     if(editor){
         parseDocument(editor.document);
-        if(config.synchronized_markup_and_preview)
+        if(config.synchronized_markup_and_preview){
             preview.webview.postMessage({ command: 'highlightline', content:editor.selection.start.line})
+            preview.webview.postMessage({ command: 'showsourceline', content: getVisibleLine(editor), linescount: editor.document.lineCount, source: "scroll" });
+        }
+            
     }
 }
 
