@@ -24,12 +24,10 @@ export function getPreviewPanels(docuri:vscode.Uri):preview[]{
     return selectedPreviews;
 }
 export function removePreviewPanel(id:Number){
-    for (let i = 0; i < previews.length; i++) {
+    for (var i = previews.length - 1; i >= 0; i--) {
         if(previews[i].id == id){
-            previews.slice(i,1);
-            break;
+            previews.splice(i, 1);
         }
-
     }
 }
 
