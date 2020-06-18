@@ -1,4 +1,7 @@
-## **1.6.0 **  - *2020-06-16*
+## **1.6.1** - *2020-06-18*
+    + Improvement to Character autocomplete suggestions - the last taling character is no longer ommited, and all characters from the screenplay are also included. Writing quick dialogue between two characters is still blazing fast (as the smart character ordering is retained), but this change makes writing multiple sequential character lines faster too (Fixes Bug #63)
+
+## **1.6.0**  - *2020-06-16*
     + New Icon
     + Complete overhaul of the previewing system
         + Scroll-sync is finally available! It is bidirectional and awesome (Thanks Felix Batusic for setting the groundwork!)
