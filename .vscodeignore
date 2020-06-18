@@ -15,6 +15,7 @@ src/**
 screenplays/**
 *.ai
 icon_fullres.png
+screenshots/**
 
 #The following are unecessary for the extension, and take up a ton of space
 node_modules/pdfkit/js/pdfkit.standalone.js
