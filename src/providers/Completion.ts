@@ -55,7 +55,7 @@ export class FountainCompletionProvider implements vscode.CompletionItemProvider
 		var completes: vscode.CompletionItem[] = [];
 		var currentline = document.getText(new vscode.Range(new vscode.Position(position.line, 0), position));
 		var prevLine = document.getText(new vscode.Range(new vscode.Position(position.line - 1, 0), position)).trimRight();
-		const multipleCharactersExist = parsedDocument.properties.characters.size > 1;
+		const hasCharacters = parsedDocument.properties.characters.size > 0;
 		const currentLineIsEmpty = currentline === "";
 		const previousLineIsEmpty = prevLine === "";
 
@@ -158,21 +158,22 @@ export class FountainCompletionProvider implements vscode.CompletionItemProvider
 				else
 					break;
 			}*/
-			if (multipleCharactersExist) {
-				// The character who spoke before the last one
-				var charactersWhoSpokeBeforeLast = getCharactersWhoSpokeBeforeLast(parsedDocument, position);
+			let charactersWhoSpokeBeforeLast = undefined;
+			let charactersFromCurrentSceneHash = new Set();
+			if (hasCharacters) {
+				// The characters who spoke before the last one, within the current scene
+				charactersWhoSpokeBeforeLast = getCharactersWhoSpokeBeforeLast(parsedDocument, position);
 				if (charactersWhoSpokeBeforeLast.length > 0) {
 					var index = 0;
 					charactersWhoSpokeBeforeLast.forEach(character => {
 						var charWithForceSymbolIfNecessary = addForceSymbolToCharacter(character);
+						charactersFromCurrentSceneHash.add(character);
 						completes.push({ label: charWithForceSymbolIfNecessary, kind: vscode.CompletionItemKind.Keyword, sortText: "0A" + index, documentation: "Character from the current scene", command: { command: "type", arguments: [{ "text": "\n" }], title: "newline" } });
 						index++;
 					});
 				}
-				else {
-					parsedDocument.properties.characters.forEach((_value: number[], key: string) => {
-						completes.push({ label: key, documentation: "Character", sortText: "0C", kind: vscode.CompletionItemKind.Text, command: { command: "type", arguments: [{ "text": "\n" }], title: "newline" } });
-					});
+				else{
+					charactersWhoSpokeBeforeLast = undefined;
 				}
 			}
 
@@ -181,6 +182,16 @@ export class FountainCompletionProvider implements vscode.CompletionItemProvider
 			completes.push({ label: "INT/EXT. ", documentation: "Interior/Exterior", sortText: "1D", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
 			completes.push({ label: "EST. ", documentation: "Establishing", sortText: "1E", command: { command: "editor.action.triggerSuggest", title: "triggersuggest" } });
 
+			if(hasCharacters){
+				let sortText = "2" // Add all characters, but after the "INT/EXT" suggestions
+				if(charactersWhoSpokeBeforeLast == undefined){
+					sortText = "0A"; //There's no characters in the current scene, suggest characters before INT/EXT
+				}
+				parsedDocument.properties.characters.forEach((_value: number[], key: string) => {
+					if(!charactersFromCurrentSceneHash.has(key))
+						completes.push({ label: key, documentation: "Character", sortText: sortText, kind: vscode.CompletionItemKind.Text, command: { command: "type", arguments: [{ "text": "\n" }], title: "newline" } });
+				});
+			}
 		}
 		return completes;
 	}

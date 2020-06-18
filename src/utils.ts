@@ -48,6 +48,8 @@ export const getCharactersWhoSpokeBeforeLast = (parsedDocument:any, position:vsc
 		}
 		searchIndex--;
 	}
+	if(lastCharacter!=undefined)
+		previousCharacters.push(lastCharacter);
 	return previousCharacters;
 }
 
