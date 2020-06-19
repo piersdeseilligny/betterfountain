@@ -501,7 +501,8 @@ import { openFile, revealFile } from "../utils";
                             sectiontoken = line.token;
                         sectiontext = sectiontoken.text;
                         current_section_level = sectiontoken.level;
-                        feed += current_section_level * print.section.level_indent;
+                        if(!hasInvisibleSection)
+                            feed += current_section_level * print.section.level_indent;
                         if (cfg.number_sections) {
                             if (sectiontoken !== current_section_token) {
                                 current_section_number = section_number(sectiontoken.level);
@@ -522,7 +523,7 @@ import { openFile, revealFile } from "../utils";
 
                     }
 
-                    if(line.type === "scene_heading" && cfg.create_bookmarks){
+                    if(line.type === "scene_heading"){
                         if(cfg.create_bookmarks){
                             getOutlineChild(outline, outlineDepth,0).addItem(text);
                         }
