@@ -411,8 +411,26 @@ import { openFile, revealFile } from "../utils";
             }
         };
 
+
+
+        function getOutlineChild(obj:any, targetDepth:number, currentDepth:number):any{
+            if(currentDepth == targetDepth){
+                return obj;
+            }
+            if(obj.children.length>0){
+                //get the last child
+                currentDepth++;
+                return getOutlineChild(obj.children[obj.children.length-1], targetDepth, currentDepth);
+            }
+        }
+
+        let outline = doc.outline;
+        let outlineDepth = 0;
+       // let previousSectionDepth = 0;
+
         print_watermark();
         print_header_and_footer();
+
         lines.forEach(function(line:any) {
             if (line.type === "page_break") {
 
@@ -472,28 +490,51 @@ import { openFile, revealFile } from "../utils";
                     if (line.type === "transition") {
                         feed = print.action.feed + print.action.max * print.font_width - line.text.length * print.font_width;
                     }
-                    if (line.type === "scene_heading" && cfg.embolden_scene_headers) {
-                        text = '**' + text + '**';
-                    }
-                    if (line.type === "scene_heading" && cfg.underline_scene_headers) {
-                        text = '_' + text + '_';
-                    }
-                    
-                    
-                    if (line.type === 'section') {
-                        current_section_level = line.token.level;
+
+                    var hasInvisibleSection = (line.type === "scene_heading" && cfg.create_bookmarks && cfg.invisible_section_bookmarks && line.token.invisibleSection != undefined)
+                    if (line.type === 'section' || hasInvisibleSection) {
+                        let sectiontoken;
+                        let sectiontext;
+                        if(hasInvisibleSection) 
+                            sectiontoken = line.token.invisibleSection;
+                        else 
+                            sectiontoken = line.token;
+                        sectiontext = sectiontoken.text;
+                        current_section_level = sectiontoken.level;
                         feed += current_section_level * print.section.level_indent;
                         if (cfg.number_sections) {
-                            if (line.token !== current_section_token) {
-                                current_section_number = section_number(line.token.level);
-                                current_section_token = line.token;
-                                text = current_section_number + '. ' + text;
+                            if (sectiontoken !== current_section_token) {
+                                current_section_number = section_number(sectiontoken.level);
+                                current_section_token = sectiontoken;
+                                sectiontext = current_section_number + '. ' + sectiontext;
                             } else {
-                                text = Array(current_section_number.length + 3).join(' ') + text;
+                                sectiontext = Array(current_section_number.length + 3).join(' ') + sectiontext;
                             }
 
                         }
-                    } else if (line.type === 'synopsis') {
+                        if(cfg.create_bookmarks){
+                            getOutlineChild(outline, sectiontoken.level-1, 0).addItem(sectiontext);
+                            outlineDepth = sectiontoken.level;
+                        }
+                        if(!hasInvisibleSection){
+                            text = sectiontext;
+                        }
+
+                    }
+
+                    if(line.type === "scene_heading" && cfg.create_bookmarks){
+                        if(cfg.create_bookmarks){
+                            getOutlineChild(outline, outlineDepth,0).addItem(text);
+                        }
+                        if(cfg.embolden_scene_headers){
+                            text = '**' + text + '**';
+                        }
+                        if(cfg.underline_scene_headers){
+                            text = '_' + text + '_';
+                        }
+                    }
+
+                    if (line.type === 'synopsis') {
                         feed += print.synopsis.padding || 0;
                         if (print.synopsis.feed_with_last_section && after_section) {
                             feed += current_section_level * print.section.level_indent;
@@ -548,6 +589,7 @@ import { openFile, revealFile } from "../utils";
 
                     y++;
                 }
+
             }
 
 

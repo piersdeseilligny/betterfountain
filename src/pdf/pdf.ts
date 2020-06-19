@@ -20,6 +20,7 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, p
     var current_index = 0, previous_type: string = null;
 
     // tidy up separators
+    let invisibleSection = undefined;
     while (current_index < parsedDocument.tokens.length) {
         var current_token = parsedDocument.tokens[current_index];
 
@@ -31,9 +32,18 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, p
             (!config.print_synopsis && current_token.type === "synopsis") ||
             (!config.print_dialogues && current_token.is_dialogue()) ||
             (config.merge_empty_lines && current_token.is("separator") && previous_type === "separator")) {
+            
+                if(current_token.type == "section" && config.create_bookmarks && config.invisible_section_bookmarks){
+                    //on the next scene header, add an invisible bookmark
+                    invisibleSection = current_token;
+                }
+                parsedDocument.tokens.splice(current_index, 1);
 
-            parsedDocument.tokens.splice(current_index, 1);
-            continue;
+                continue;
+        }
+        if(current_token.type == "scene_heading"){
+            current_token.invisibleSection = invisibleSection;
+            invisibleSection = undefined;
         }
 
         if (config.double_space_between_scenes && current_token.is("scene_heading") && current_token.number !== 1) {

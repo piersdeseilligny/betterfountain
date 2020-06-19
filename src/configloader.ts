@@ -21,6 +21,8 @@ export class FountainConfig{
     each_scene_on_new_page:boolean;
     merge_empty_lines:boolean;
     print_dialogue_numbers:boolean;
+    create_bookmarks:boolean;
+    invisible_section_bookmarks:boolean;
     synchronized_markup_and_preview:boolean;
     preview_theme:string;
     preview_texture:boolean;
@@ -55,6 +57,8 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         each_scene_on_new_page: pdfConfig.eachSceneOnNewPage,
         merge_empty_lines: pdfConfig.mergeEmptyLines,
         print_dialogue_numbers: pdfConfig.showDialogueNumbers,
+        create_bookmarks: pdfConfig.createBookmarks,
+        invisible_section_bookmarks: pdfConfig.invisibleSectionBookmarks,
         synchronized_markup_and_preview: generalConfig.synchronizedMarkupAndPreview,
         preview_theme: generalConfig.previewTheme,
         preview_texture: generalConfig.previewTexture

@@ -100,7 +100,7 @@
 				"properties": {
 					"fountain.pdf.emboldenSceneHeaders": {
 						"type": "boolean",
-						"default": false,
+						"default": true,
 						"description": "Make the scene headers bold"
 					},
 					"fountain.pdf.showPageNumbers": {
@@ -212,6 +212,16 @@
 						"type": "boolean",
 						"default": true,
 						"description": "Merge multiple empty lines"
+					},
+					"fountain.pdf.createBookmarks": {
+						"type": "boolean",
+						"default": true,
+						"description": "Create bookmarks for each section/scene"
+					},
+					"fountain.pdf.invisibleSectionBookmarks":{
+						"type":"boolean",
+						"default": true,
+						"description": "If 'Print Sections' is false, add a bookmark for the section to the following scene header instead"
 					}
 				}
 			}
