@@ -16,7 +16,7 @@ This is an extension for Visual Studio Code which allows you to write screenplay
 * Full screenplay outline, broken down by sections and scenes
 * "Folding" scenes
 * Live preview of the formatted screenplay
-* Exporting the screenplay to a PDF File
+* Exporting the screenplay to a PDF File (including bookmarks for scene sections and headers)
 * Custom font support (Add "Font:" at the top of your .fountain screenplay, with the other title page keys, followed by the name of a font installed on your system)
 * Approximation of a screenplay's duration (in the status bar)
 * Other cool stuff

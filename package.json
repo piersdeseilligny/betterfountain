@@ -5,7 +5,7 @@
 	"author": "Piers Deseilligny",
 	"license": "MIT",
 	"icon": "icon.png",
-	"version": "1.6.1",
+	"version": "1.6.2",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
@@ -218,8 +218,8 @@
 						"default": true,
 						"description": "Create bookmarks for each section/scene"
 					},
-					"fountain.pdf.invisibleSectionBookmarks":{
-						"type":"boolean",
+					"fountain.pdf.invisibleSectionBookmarks": {
+						"type": "boolean",
 						"default": true,
 						"description": "If 'Print Sections' is false, add a bookmark for the section to the following scene header instead"
 					}

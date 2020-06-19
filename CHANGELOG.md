@@ -1,3 +1,6 @@
+## **1.6.2** - *2020-06-19*
+    + Add Bookmarks to the exported PDF for scene and section headers (enabled by default)
+
 ## **1.6.1** - *2020-06-18*
     + Improvement to Character autocomplete suggestions - the last taling character is no longer ommited, and all characters from the screenplay are also included. Writing quick dialogue between two characters is still blazing fast (as the smart character ordering is retained), but this change makes writing multiple sequential character lines faster too (Fixes Bug #63)
 
