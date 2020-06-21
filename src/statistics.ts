@@ -1,4 +1,4 @@
-import {regex as fountainRegexes, parse as fountainParse} from "./afterwriting-parser"
+import { parseoutput } from "./afterwriting-parser"
 import { secondsToString } from "./utils"
 
 type dialoguePiece = {
@@ -37,26 +37,29 @@ type screenPlayStatistics = {
     lengthStats: lengthStatistics
 }
 
-const createCharacterStatistics = (script: string): dialogueStatisticPerCharacter[] => {
-    const regexToGetCharacterAndDialogue = new RegExp(`(${fountainRegexes.character.source})\n((^(\\(.+\\))$)\n*)*.*$\n\n`, "gm")
-    const regexToGetCharactersOnly = new RegExp(fountainRegexes.character.source, fountainRegexes.character.flags + "gm")
-
-    const charactersWithDialogue = script.match(regexToGetCharacterAndDialogue);
-
-    const dialoguePieces: dialoguePiece[] = []
-    charactersWithDialogue && charactersWithDialogue.forEach((charAndDialogue) => {
-        const character = charAndDialogue.match(regexToGetCharactersOnly)[0]
-        // Remove all parentheticals
-        .replace(/(?: )\(.+\)$/, "")
-        // Remove all dual dialogue markers
-        .replace(/\^$/, "")
-        .trim()
-        const speech = charAndDialogue.replace(regexToGetCharactersOnly, "").replace(/\n/gm, "")
-        dialoguePieces.push({
-            character,
-            speech
-        })
-    })
+const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCharacter[] => {
+    const dialoguePieces: dialoguePiece[] = [];
+    for (var i=0; i<parsed.tokens.length;)
+    {
+        if (parsed.tokens[i++].type==="dialogue_begin")
+        {
+            const character = parsed.tokens[i].name()
+            var speech = "";
+            while (parsed.tokens[i++].type!=="dialogue_end")
+            {
+                while (parsed.tokens[i].type==="dialogue")        
+                {
+                    speech += parsed.tokens[i].text + " "
+                    i++;
+                }
+            }
+            speech = speech.trim()
+            dialoguePieces.push({
+                character,
+                speech
+            })
+        }
+    }
 
     const dialoguePerCharacter: dialoguePerCharacter = {}
 
@@ -75,7 +78,7 @@ const createCharacterStatistics = (script: string): dialogueStatisticPerCharacte
         const allDialogueCombined = dialoguePerCharacter[singledialPerChar].reduce((prev, curr) => {
             return `${prev} ${curr} `
         }, "")
-        const wordsSpoken = allDialogueCombined.split(" ").length
+        const wordsSpoken = getWordCount(allDialogueCombined)
         characterStats.push({
             name: singledialPerChar,
             speakingParts,
@@ -84,57 +87,55 @@ const createCharacterStatistics = (script: string): dialogueStatisticPerCharacte
     })
 
     characterStats.sort((a, b) => {
-        return b.speakingParts - a.speakingParts
+        // by parts
+        if (b.speakingParts > a.speakingParts) return +1;
+        if (b.speakingParts < a.speakingParts) return -1;
+        // then by words
+        if (b.wordsSpoken > a.wordsSpoken) return +1;
+        if (b.wordsSpoken < a.wordsSpoken) return -1;
+        return 0;
     })
 
     return characterStats
 }
 
-const createSceneStatistics = (script: string): singleSceneStatistic[] => {
-    const regexAllSceneHeadings = new RegExp(fountainRegexes.scene_heading.source, fountainRegexes.scene_heading.flags + "gm")
-    const sceneHeadings = script.match(regexAllSceneHeadings)
+const createSceneStatistics = (parsed: parseoutput): singleSceneStatistic[] => {
     const sceneStats: singleSceneStatistic[] = []
-    sceneHeadings && sceneHeadings.forEach((scene) => {
-        sceneStats.push({
-            title: scene
-        })
+    parsed.tokens.forEach ((tok) => {
+        if (tok.type==="scene_heading")
+        {
+            sceneStats.push({
+                title: tok.text
+            })
+        }
     })
     return sceneStats
 }
 
-const getTotalWordCount = (script: string): number => {
-    const totalWordCount = script.trimLeft().trimRight().split(" ")
-    if (totalWordCount.length === 1 && totalWordCount[0] === "") {
-        return 0
-    } else {
-        return totalWordCount.length
+const getWordCount = (script: string): number => {
+    return ((script || '').match(/\S+/g) || []).length 
+}
+
+const createWordCountStatistics = (script: string): wordCountStatistics => {
+    return {
+        total: getWordCount(script)
     }
 }
 
-const createWordCountStatistics = (scriptNormalised: string): wordCountStatistics => {
+const createLengthStatistics = (parsed: parseoutput): lengthStatistics => {
     return {
-        total: getTotalWordCount(scriptNormalised)
+        dialogue: secondsToString(parsed.lengthDialogue),
+        action: secondsToString(parsed.lengthAction),
+        total: secondsToString(parsed.lengthDialogue + parsed.lengthAction)
     }
 }
 
-const createLengthStatistics = (scriptNormalised: string): lengthStatistics => {
-    const documentFountainParsed = fountainParse(scriptNormalised, {}, false)
-    const actionDuration = documentFountainParsed.lengthAction / 20
+export const retrieveScreenPlayStatistics = (script: string, parsed: parseoutput): screenPlayStatistics => {
     return {
-        dialogue: secondsToString(documentFountainParsed.lengthDialogue),
-        action: secondsToString(actionDuration),
-        total: secondsToString(documentFountainParsed.lengthDialogue + actionDuration)
-    }
-}
-
-export const retrieveScreenPlayStatistics = (script: string): screenPlayStatistics => {
-    // These adjustments are necessary for Windows style CRLF carriage returns
-    const scriptNormalised = script.replace(/\r\n/gm,   "\n")
-    return {
-        characterStats: createCharacterStatistics(scriptNormalised),
-        sceneStats: createSceneStatistics(scriptNormalised),
-        wordCountStats: createWordCountStatistics(scriptNormalised),
-        lengthStats: createLengthStatistics(scriptNormalised)
+        characterStats: createCharacterStatistics(parsed),
+        sceneStats: createSceneStatistics(parsed),
+        wordCountStats: createWordCountStatistics(script),
+        lengthStats: createLengthStatistics(parsed)
     }
 }
 
@@ -180,9 +181,11 @@ export const statsAsHtml = (stats: screenPlayStatistics): string => {
 ${pageStyle}
     <h1>General</h1>
     <p>Total word count: ${stats.wordCountStats.total}</p>
-    <p>Length (approx.): ${stats.lengthStats.total}</p>
-    <p>Dialogue (approx.): ${stats.lengthStats.dialogue}</p>
-    <p>Action (approx.): ${stats.lengthStats.action}</p>
+    <p>Length (approx.): ${stats.lengthStats.total}
+        <ul>
+            <li>Dialogue (approx.): ${stats.lengthStats.dialogue}</li>
+            <li>Action (approx.): ${stats.lengthStats.action}</li>
+            </ul></p>
     <h1>Character statistics</h1>
     <table style="width:100%">
         <tr>
