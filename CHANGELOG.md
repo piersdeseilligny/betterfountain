@@ -1,3 +1,7 @@
+## **1.6.3** - *2020-06-21*
+    + Fix scene numbers displaying as sourceline_nb in live preview (Fix #68, thanks Gabriel Guedes for reporting it!)
+    + Base screenplay statistics on afterparser tokens, rather than even more regex (Thanks @daryluren for the PR!)
+
 ## **1.6.2** - *2020-06-19*
     + Add Bookmarks to the exported PDF for scene and section headers (enabled by default)
 
