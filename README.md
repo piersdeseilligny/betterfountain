@@ -1,13 +1,19 @@
+
+
+<img align="left" src="https://raw.githubusercontent.com/piersdeseilligny/betterfountain/master/icon.png">
+
+This is an extension for Visual Studio Code which allows you to write screenplays using the [fountain](https://fountain.io/) syntax quickly and efficiently. [(If you're already confused click here)](https://github.com/piersdeseilligny/betterfountain/blob/master/FAQ.md).
+
+Unlike other screenwriting software (such as Final Draft) BetterFountain focuses on removing friction between you and the text - there's no page breaks, no large unintuitive menus and overlapping windows, no delays when you press "Enter" after having written some dialogue, no slow loading documents, none of that. Just text and a handfull of unintruding features which remove even more friction between the story in your head and a finished screenplay.
+
+And because it's an extension for vscode, you get access to some incredibly advanced features, such as [Real-time collaboration with other screenwriters](https://marketplace.visualstudio.com/items?itemName=MS-vsliveshare.vsliveshare) - Better Fountain is the only free and open-source screenwriting tool which allows you to use such features.
+
+
+**[Install it here](https://marketplace.visualstudio.com/items?itemName=piersdeseilligny.betterfountain)**
+
+[Sponsor on GitHub ❤](https://github.com/sponsors/piersdeseilligny)
+
 ![Screenshot of BetterFountain in dark mode](https://raw.githubusercontent.com/piersdeseilligny/betterfountain/master/screenshots/Dark_plus.PNG)
-![Screenshot of BetterFountain with Github Dark theme](https://raw.githubusercontent.com/piersdeseilligny/betterfountain/master/screenshots/Github_dark.PNG)
-
-# Better fountain
-
-This is an extension for Visual Studio Code which allows you to write screenplays using the [fountain](https://fountain.io/) syntax quickly and efficiently. [(If you're already confused click here)](https://github.com/piersdeseilligny/betterfountain/blob/master/FAQ.md)
-
-[Install it here](https://marketplace.visualstudio.com/items?itemName=piersdeseilligny.betterfountain)
-
-[Sponsor on GitHub](https://github.com/sponsors/piersdeseilligny)
 
 ## Features
 

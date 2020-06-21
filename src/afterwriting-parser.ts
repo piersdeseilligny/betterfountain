@@ -377,8 +377,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     if(config.print_dialogue_numbers) AddDialogueNumberDecoration(thistoken)
                     thistoken.text = thistoken.text.replace(/^@/, "");
                     if (thistoken.text[thistoken.text.length - 1] === "^") {
-                        state = "dual_dialogue"
                         if (cfg.use_dual_dialogue) {
+                            state = "dual_dialogue"
                             // update last dialogue to be dual:left
                             var dialogue_tokens = ["dialogue", "character", "parenthetical"];
                             while (dialogue_tokens.indexOf(result.tokens[last_character_index].type) !== -1) {
