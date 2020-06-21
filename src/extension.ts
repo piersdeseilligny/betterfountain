@@ -292,7 +292,11 @@ export function activate(context: ExtensionContext) {
 		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
 		statsPanel.webview.html = `Calculating screenplay statistics...`
 		
-		const stats = retrieveScreenPlayStatistics(getEditor(activeFountainDocument()).document.getText())
+		var editor = getEditor(activeFountainDocument());
+		var config = getFountainConfig(activeFountainDocument());
+		var parsed = afterparser.parse(editor.document.getText(), config, false);
+
+		const stats = retrieveScreenPlayStatistics(editor.document.getText(), parsed)
 		const statsHTML = statsAsHtml(stats)
 		statsPanel.webview.html = statsHTML
 	}));
