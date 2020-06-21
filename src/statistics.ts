@@ -39,20 +39,25 @@ type screenPlayStatistics = {
 
 const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCharacter[] => {
     const dialoguePieces: dialoguePiece[] = [];
-    for (var i=0; i<parsed.tokens.length;)
+    for (var i=0; i<parsed.tokens.length; i++)
     {
-        if (parsed.tokens[i++].type==="dialogue_begin")
+        while (i<parsed.tokens.length && parsed.tokens[i].type==="character")
         {
             const character = parsed.tokens[i].name()
             var speech = "";
-            while (parsed.tokens[i++].type!=="dialogue_end")
+            while (i++ && i<parsed.tokens.length)
             {
-                while (parsed.tokens[i].type==="dialogue")        
+                if (parsed.tokens[i].type==="dialogue")        
                 {
                     speech += parsed.tokens[i].text + " "
-                    i++;
                 }
+                else if (parsed.tokens[i].type==="character")
+                {
+                    break;
+                }
+                // else skip extensions / parenthesis / dialogue-begin/-end
             }
+            
             speech = speech.trim()
             dialoguePieces.push({
                 character,
