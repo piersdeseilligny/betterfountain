@@ -1,5 +1,8 @@
 import { parseoutput } from "./afterwriting-parser"
 import { secondsToString } from "./utils"
+import { GeneratePdf } from "./pdf/pdf"
+import { FountainConfig } from "./configloader"
+import { pdfstats } from "./pdf/pdfmaker"
 
 type dialoguePiece = {
     character: string
@@ -20,11 +23,12 @@ type singleSceneStatistic = {
     title: string
 }
 
-type wordCountStatistics = {
-    total: number
+type lengthStatistics = {
+    words: number
+    pages: number
 }
 
-type lengthStatistics = {
+type timelengthStatistics = {
     dialogue: string
     action: string
     total: string
@@ -33,8 +37,8 @@ type lengthStatistics = {
 type screenPlayStatistics = {
     characterStats: dialogueStatisticPerCharacter[]
     sceneStats: singleSceneStatistic[]
-    wordCountStats: wordCountStatistics
     lengthStats: lengthStatistics
+    timelengthStats: timelengthStatistics
 }
 
 const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCharacter[] => {
@@ -121,13 +125,14 @@ const getWordCount = (script: string): number => {
     return ((script || '').match(/\S+/g) || []).length 
 }
 
-const createWordCountStatistics = (script: string): wordCountStatistics => {
+const createLengthStatistics = (script: string, pdf:pdfstats): lengthStatistics => {
     return {
-        total: getWordCount(script)
+        words: getWordCount(script),
+        pages: pdf.pagecount
     }
 }
 
-const createLengthStatistics = (parsed: parseoutput): lengthStatistics => {
+const createTimeLengthStatistics = (parsed: parseoutput): timelengthStatistics => {
     return {
         dialogue: secondsToString(parsed.lengthDialogue),
         action: secondsToString(parsed.lengthAction),
@@ -135,12 +140,13 @@ const createLengthStatistics = (parsed: parseoutput): lengthStatistics => {
     }
 }
 
-export const retrieveScreenPlayStatistics = (script: string, parsed: parseoutput): screenPlayStatistics => {
+export const retrieveScreenPlayStatistics = async (script: string, parsed: parseoutput, config:FountainConfig): Promise<screenPlayStatistics> => {
+    let pdfstats = await GeneratePdf("$STATS$", config, parsed, undefined);
     return {
         characterStats: createCharacterStatistics(parsed),
         sceneStats: createSceneStatistics(parsed),
-        wordCountStats: createWordCountStatistics(script),
-        lengthStats: createLengthStatistics(parsed)
+        lengthStats: createLengthStatistics(script, pdfstats),
+        timelengthStats: createTimeLengthStatistics(parsed)
     }
 }
 
@@ -185,12 +191,16 @@ export const statsAsHtml = (stats: screenPlayStatistics): string => {
 <body>
 ${pageStyle}
     <h1>General</h1>
-    <p>Total word count: ${stats.wordCountStats.total}</p>
-    <p>Length (approx.): ${stats.lengthStats.total}
+    <p>
+        <b>Word count:</b>${stats.lengthStats.words}<br>
+        <b>Page count:</b>${stats.lengthStats.pages}
+    </p>
+    <p><b>Length (approx.):</b> ${stats.timelengthStats.total}
         <ul>
-            <li>Dialogue (approx.): ${stats.lengthStats.dialogue}</li>
-            <li>Action (approx.): ${stats.lengthStats.action}</li>
-            </ul></p>
+            <li><b>Dialogue (approx.):</b> ${stats.timelengthStats.dialogue}</li>
+            <li><b>Action (approx.):</b>  ${stats.timelengthStats.action}</li>
+        </ul>
+    </p>
     <h1>Character statistics</h1>
     <table style="width:100%">
         <tr>
