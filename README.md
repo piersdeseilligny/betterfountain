@@ -2,9 +2,6 @@
 
 <img align="left" src="https://raw.githubusercontent.com/piersdeseilligny/betterfountain/master/icon.png">
 
-# Better fountain
-
-
 This is an extension for Visual Studio Code which allows you to write screenplays using the [fountain](https://fountain.io/) syntax quickly and efficiently. [(If you're already confused click here)](https://github.com/piersdeseilligny/betterfountain/blob/master/FAQ.md).
 
 Unlike other screenwriting software (such as Final Draft) BetterFountain focuses on removing friction between you and the text - there's no page breaks, no large unintuitive menus and overlapping windows, no delays when you press "Enter" after having written some dialogue, no slow loading documents, none of that. Just text and a handfull of unintruding features which remove even more friction between the story in your head and a finished screenplay.
