@@ -249,7 +249,7 @@ import { openFile, revealFile } from "../utils";
         return result;
     };
 
-    async function generate(doc:any, opts:any) {
+    function generate(doc:any, opts:any) {
         var parsed = opts.parsed,
             cfg = opts.config,
             print = opts.print,
@@ -612,17 +612,3 @@ export var get_pdf = async function(opts:Options, progress:vscode.Progress<{mess
     progress.report({message:"Writing to disk", increment:25});
     finishDoc(doc, opts.filepath);
 };
-
-export type pdfstats = {
-    pagecount: number
-}
-
-export var get_pdf_stats = async function(opts:Options){
-    var doc = await initDoc(opts);
-    let stats:pdfstats = {pagecount:1};
-    doc.on('pageAdded', ()=>{
-        stats.pagecount++;
-    });
-    await generate(doc, opts);
-    return stats;
-}

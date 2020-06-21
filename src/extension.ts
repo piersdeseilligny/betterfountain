@@ -288,7 +288,7 @@ export function activate(context: ExtensionContext) {
 		});
 	}));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', numberScenes));
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', () => {
 		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
 		statsPanel.webview.html = `Calculating screenplay statistics...`
 		
@@ -296,7 +296,7 @@ export function activate(context: ExtensionContext) {
 		var config = getFountainConfig(activeFountainDocument());
 		var parsed = afterparser.parse(editor.document.getText(), config, false);
 
-		const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config)
+		const stats = retrieveScreenPlayStatistics(editor.document.getText(), parsed)
 		const statsHTML = statsAsHtml(stats)
 		statsPanel.webview.html = statsHTML
 	}));
