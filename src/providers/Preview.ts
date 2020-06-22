@@ -70,7 +70,7 @@ export function createPreviewPanel(editor:vscode.TextEditor, dynamic:boolean): v
     return preview;
 }
 
-const webviewHtml = fs.readFileSync(assetsPath() + path.sep + "webview.html", 'utf8');
+const webviewHtml = fs.readFileSync(assetsPath() + path.sep + "preview.html", 'utf8');
 function assetsPath(): string{
     return __dirname.substr(0, __dirname.lastIndexOf(path.sep));
 }

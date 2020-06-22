@@ -290,7 +290,7 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./ && copyfiles -u 1 src/webview.html out",
+		"compile": "tsc -p ./ && copyfiles -u 1 src/preview.html out",
 		"watch": "npm run compile && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out",
 		"test": "node node_modules/jest/bin/jest.js"
 	},
