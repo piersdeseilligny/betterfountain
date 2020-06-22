@@ -1,3 +1,8 @@
+## **1.6.4** - *2020-06-22*
+    + Add page count to statistics
+    + Fix multiple synopsis in a row preventing PDF Creation when bookmarks are enabled
+    + Fix synopses not being syntax highlighted
+
 ## **1.6.3** - *2020-06-21*
     + Fix scene numbers displaying as sourceline_nb in live preview (Fix #68, thanks Gabriel Guedes for reporting it!)
     + Base screenplay statistics on afterparser tokens, rather than even more regex (Thanks @daryluren for the PR!)
