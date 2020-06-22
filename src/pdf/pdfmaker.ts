@@ -491,15 +491,9 @@ import { openFile, revealFile } from "../utils";
                         feed = print.action.feed + print.action.max * print.font_width - line.text.length * print.font_width;
                     }
 
-                    var hasInvisibleSection = (line.type === "scene_heading" && cfg.create_bookmarks && cfg.invisible_section_bookmarks && line.token.invisibleSection != undefined)
-                    if (line.type === 'section' || hasInvisibleSection) {
-                        let sectiontoken;
-                        let sectiontext;
-                        if(hasInvisibleSection) 
-                            sectiontoken = line.token.invisibleSection;
-                        else 
-                            sectiontoken = line.token;
-                        sectiontext = sectiontoken.text;
+                    var hasInvisibleSection = (line.type === "scene_heading" && cfg.create_bookmarks && cfg.invisible_section_bookmarks && line.token.invisibleSections != undefined)
+                    function processSection(sectiontoken:any){
+                        let sectiontext = sectiontoken.text;
                         current_section_level = sectiontoken.level;
                         if(!hasInvisibleSection)
                             feed += current_section_level * print.section.level_indent;
@@ -514,11 +508,24 @@ import { openFile, revealFile } from "../utils";
 
                         }
                         if(cfg.create_bookmarks){
+                            var oc = getOutlineChild(outline, sectiontoken.level-1, 0);
+                            if(oc==undefined) 
+                                console.log("BOOM");
                             getOutlineChild(outline, sectiontoken.level-1, 0).addItem(sectiontext);
                             outlineDepth = sectiontoken.level;
                         }
                         if(!hasInvisibleSection){
                             text = sectiontext;
+                        }
+                    }
+                    if (line.type === 'section' || hasInvisibleSection) {
+                        if(hasInvisibleSection){
+                            for (let i = 0; i < line.token.invisibleSections.length; i++) {
+                                processSection(line.token.invisibleSections[i]);
+                            }
+                        }
+                        else{
+                            processSection(line.token);
                         }
 
                     }
