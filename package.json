@@ -290,7 +290,7 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./ && copyfiles -u 1 src/preview.html out",
+		"compile": "tsc -p ./ && copyfiles -u 1 src/preview.html out && copyfiles -u 1 src/stats.html out",
 		"watch": "npm run compile && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out",
 		"test": "node node_modules/jest/bin/jest.js"
 	},
@@ -311,6 +311,7 @@
 		"font-finder": "^1.0.4",
 		"os-fonts": "^0.5.0",
 		"pdfkit": "^0.11.0",
-		"username": "^5.1.0"
+		"username": "^5.1.0",
+		"vscode-codicons": "0.0.4"
 	}
 }

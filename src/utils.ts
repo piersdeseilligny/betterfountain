@@ -180,3 +180,7 @@ export function revealFile(p:string){
 	var exec = require('child_process').exec;
 	exec(cmd); 
 }
+
+export function assetsPath(): string{
+    return __dirname;
+}

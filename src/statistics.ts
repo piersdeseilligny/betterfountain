@@ -24,6 +24,7 @@ type singleSceneStatistic = {
 }
 
 type lengthStatistics = {
+    characters: number
     words: number
     pages: number
 }
@@ -124,9 +125,13 @@ const createSceneStatistics = (parsed: parseoutput): singleSceneStatistic[] => {
 const getWordCount = (script: string): number => {
     return ((script || '').match(/\S+/g) || []).length 
 }
+const getCharacterCount = (script: string): number => {
+    return script.length 
+}
 
 const createLengthStatistics = (script: string, pdf:pdfstats): lengthStatistics => {
     return {
+        characters: getCharacterCount(script),
         words: getWordCount(script),
         pages: pdf.pagecount
     }
@@ -148,79 +153,4 @@ export const retrieveScreenPlayStatistics = async (script: string, parsed: parse
         lengthStats: createLengthStatistics(script, pdfstats),
         timelengthStats: createTimeLengthStatistics(parsed)
     }
-}
-
-const pageStyle = `
-<style>
-    body {
-        animation: fadein 0.5s;
-    }
-
-    @keyframes fadein {
-        from {
-            opacity:0;
-        }
-        to {
-            opacity:1;
-        }
-    }
-
-    table {
-        border-collapse: collapse;
-        width: 100%;
-        color: black;
-    }
-
-    th, td {
-        text-align: left;
-        padding: 8px;
-    }
-
-    tr:nth-child(even){background-color: #f2f2f2}
-    tr:nth-child(odd){background-color: #e3e3e3}
-
-    th {
-        background-color: #4c90af;
-        color: white;
-    }
-</style>
-`
-
-export const statsAsHtml = (stats: screenPlayStatistics): string => {
-    return `
-<body>
-${pageStyle}
-    <h1>General</h1>
-    <p>
-        <b>Word count:</b>${stats.lengthStats.words}<br>
-        <b>Page count:</b>${stats.lengthStats.pages}
-    </p>
-    <p><b>Length (approx.):</b> ${stats.timelengthStats.total}
-        <ul>
-            <li><b>Dialogue (approx.):</b> ${stats.timelengthStats.dialogue}</li>
-            <li><b>Action (approx.):</b>  ${stats.timelengthStats.action}</li>
-        </ul>
-    </p>
-    <h1>Character statistics</h1>
-    <table style="width:100%">
-        <tr>
-            <th>Character name</th>
-            <th>Speaking parts</th>
-            <th>Total words spoken</th>
-        </tr>
-        ${stats.characterStats.reduce((prev, curr) => {
-            return `${prev}
-            <tr>
-                <td>${curr.name}</td>
-                <td>${curr.speakingParts}</td>
-                <td>${curr.wordsSpoken}</td>
-            </tr>
-            `
-        }, '')}
-    </table>
-
-    <h1>Scene statistics</h1>
-    <p>Total amount of scenes: ${stats.sceneStats.length}</p>
-</body>
-    `
 }

@@ -1,0 +1,207 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="$CODICON_CSS$">
+    <style>
+    body {
+        animation: fadein 0s;
+        padding:0;
+    }
+
+    @keyframes fadein {
+        from {
+            opacity:0;
+        }
+        to {
+            opacity:1;
+        }
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        color: black;
+    }
+
+    th, td {
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even){background-color: #f2f2f2}
+    tr:nth-child(odd){background-color: #e3e3e3}
+
+    th {
+        background-color: #4c90af;
+        color: white;
+    }
+
+    .sidenav{
+        position:fixed;
+        width: 200px;
+        height:100%;
+        top:0;
+        background-color:var(--vscode-sideBar-background);
+        user-select: none;
+    }
+    .sidenav .title{
+        margin-left:24px;
+        margin-top:12px;
+        margin-bottom:12px;
+        font-size:16px;
+        font-weight: 500;
+    }
+    .sidenav ul{
+        list-style-type:none;
+        padding: 0;
+        margin:0;
+    }
+    .sidenav li{
+        cursor:pointer;
+        padding: 2px 24px 2px 24px;
+        color:var(--vscode-list-deemphasizedForeground);
+        line-height:24px;
+    }
+    .sidenav li .codicon{
+        vertical-align: sub;
+        margin-right:6px;
+    }
+    .sidenav li:hover{
+        color:var(--vscode-list-hoverForeground);
+        background-color:var(--vscode-list-hoverBackground);
+    }
+    .sidenav li:active{
+        color: var(--vscode-list-inactiveSelectionForeground);
+    }
+    .sidenav li.active{
+        font-weight: 500;
+        color: var(--vscode-list-inactiveSelectionForeground);
+        background-color:var(--vscode-list-inactiveSelectionBackground)
+    }
+    #maincontent.isactive .sidenav li.active{
+        color: var(--vscode-list-activeSelectionForeground);
+        background-color:var(--vscode-list-activeSelectionBackground)
+    }
+    .splitview #content{
+        margin-left:224px;
+    }
+    </style>
+</head>
+<body>
+    
+<div id="maincontent" class="splitview">
+    <div class="sidenav">
+        <div class="title">Screenplay Statistics</div>
+
+        <ul>
+            <li data-group="overview" id="hello" onclick="changeStatCategory(this)" class="active">
+                <span class="codicon codicon-star-empty"></span>Overview
+            </li>
+            <li data-group="characters" onclick="changeStatCategory(this)">
+                <span class="codicon codicon-organization"></span>Characters
+            </li>
+            <li data-group="scenes" onclick="changeStatCategory(this)">
+                <span class="codicon codicon-book"></span>Scenes
+            </li>
+            <li data-group="locations" onclick="changeStatCategory(this)">
+                <span class="codicon codicon-location"></span>Locations
+            </li>
+        </ul>
+    </div>
+    <div id="content">
+        <div data-group="overview">
+            <h1>General</h1>
+            <p>
+                <b>Word count:</b><span id="lengthStats.words"></span><br>
+                <b>Page count:</b><span id="lengthStats.pages"></span><br>
+            </p>
+            <p><b>Length (approx.):</b><span id="timelengthStats.total"></span>
+                <ul>
+                    <li><b>Dialogue (approx.):</b><span id="timelengthstats_dialogue"></span></li>
+                    <li><b>Action (approx.):</b><span id="timelengthstats_action"></span></li>
+                </ul>
+            </p>
+            <h1>Scene statistics</h1>
+            <p>Total amount of scenes: ${stats.sceneStats.length}</p>
+        </div>
+        <div style="display:none" data-group="characters">
+            <table id="characterTable" style="width:100%">
+
+            </table>
+        </div>
+        <div style="display:none" data-group="scenes">
+Scenes
+        </div>
+        <div style="display:none" data-group="locations">
+Locations
+        </div>
+    </div>
+</div>
+    <script>
+        const vscode = acquireVsCodeApi();
+        var state = {
+            stats: {}
+        }
+        const previousState = vscode.getState();
+        if(previousState != undefined){
+            state = previousState;
+            updateStats();
+        }
+
+
+        window.addEventListener('message', event => {
+            if (event.data.command == 'updateStats') {
+                state.stats = event.data.content;
+                vscode.setState(state);
+                updateStats();
+            }
+        });
+        window.addEventListener('blur', event =>{
+            document.getElementById("maincontent").classList.remove('isactive');
+        });
+        window.addEventListener('focus', event =>{
+            document.getElementById("maincontent").classList.add('isactive');
+        });
+        function updateStats(){
+            //overview
+            document.getElementById("lengthStats.words").innerText = state.stats.lengthStats.words;
+            document.getElementById("lengthStats.pages").innerText = state.stats.lengthStats.pages;
+            document.getElementById("timelengthStats.total").innerText = state.stats.timelengthStats.total;
+            //characters
+            document.getElementById("characterTable").innerHTML =
+            `<tr>
+                <th>Character name</th>
+                <th>Speaking parts</th>
+                <th>Total words spoken</th>
+            </tr>
+            ${state.stats.characterStats.reduce((prev, curr) => {
+                return `${prev}
+                <tr>
+                    <td>${curr.name}</td>
+                    <td>${curr.speakingParts}</td>
+                    <td>${curr.wordsSpoken}</td>
+                </tr>
+                `
+            }, '')}`
+        }
+
+        function changeStatCategory(e){
+            //Change the active element in the sidenav
+            for (let i = 0; i < e.parentElement.children.length; i++) {
+                e.parentElement.children[i].classList.remove("active");   
+            }
+            e.classList.add("active");
+
+            //Change the visible element in the content
+            let groups = document.getElementById("content").children;
+            for (let i = 0; i < groups.length; i++) {
+                if(groups[i].getAttribute("data-group") == e.getAttribute("data-group")){
+                    groups[i].style.display = "block";
+                }
+                else{
+                    groups[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</body>
+</html>
