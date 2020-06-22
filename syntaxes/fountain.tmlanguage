@@ -311,38 +311,24 @@
             </dict>
          </array>
       </dict>
+
+      <!--Synopsis-->
       <key>synopses</key>
       <dict>
-         <key>begin</key>
-         <string>\G(={1,6})(?!=)\s*(?=\S)</string>
-         <key>captures</key>
-         <dict>
-            <key>1</key>
-            <dict>
-               <key>name</key>
-               <string>punctuation.definition.synopsis.fountain</string>
-            </dict>
-         </dict>
-         <key>end</key>
-         <string>\s*(=*)$\n?</string>
          <key>name</key>
-         <string>comment.block</string>
-         <key>patterns</key>
-         <array>
-            <dict>
-               <key>include</key>
-               <string>#inline</string>
-            </dict>
-         </array>
+         <string>comment.block.fountain.synopses</string>
+         <key>match</key>
+         <string>^={1}([^<>=][^<>]+?)$</string>
       </dict>
 
-        <key>center</key>
-        <dict>
-            <key>name</key>
-            <string>markup.bold</string>
-            <key>match</key>
-            <string>^&gt;[^&lt;&gt;\n]+&lt;$</string>
-        </dict>
+      <!--Center-->
+     <key>center</key>
+     <dict>
+         <key>name</key>
+         <string>markup.bold</string>
+         <key>match</key>
+         <string>^&gt;[^&lt;&gt;\n]+&lt;$</string>
+     </dict>
 
       <!-- Transitions -->
       <key>transitions</key>
