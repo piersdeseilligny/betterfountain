@@ -44,11 +44,14 @@
         user-select: none;
     }
     .sidenav .title{
-        margin-left:24px;
-        margin-top:12px;
-        margin-bottom:12px;
-        font-size:16px;
+        margin-left: 24px;
+        margin-top: 24px;
+        margin-bottom: 6px;
+        font-size: 16px;
         font-weight: 500;
+    }
+    .sidenav .title .codicon{
+        font-size:18px;
     }
     .sidenav ul{
         list-style-type:none;
@@ -61,7 +64,7 @@
         color:var(--vscode-list-deemphasizedForeground);
         line-height:24px;
     }
-    .sidenav li .codicon{
+    .sidenav .codicon{
         vertical-align: sub;
         margin-right:6px;
     }
@@ -89,8 +92,8 @@
 <body>
     
 <div id="maincontent" class="splitview">
-    <div class="sidenav">
-        <div class="title">Screenplay Statistics</div>
+    <div class="sidenav" id="sidenav">
+        <div class="title"><span class="codicon codicon-pulse"></span>Statistics</div>
 
         <ul>
             <li data-group="overview" id="hello" onclick="changeStatCategory(this)" class="active">
@@ -100,7 +103,20 @@
                 <span class="codicon codicon-organization"></span>Characters
             </li>
             <li data-group="scenes" onclick="changeStatCategory(this)">
-                <span class="codicon codicon-book"></span>Scenes
+                <span class="codicon codicon-output"></span>Scenes
+            </li>
+            <li data-group="locations" onclick="changeStatCategory(this)">
+                <span class="codicon codicon-location"></span>Locations
+            </li>
+        </ul>
+        <div class="title"><span class="codicon codicon-book"></span>Reports</div>
+        
+        <ul>
+            <li data-group="characters" onclick="changeStatCategory(this)">
+                <span class="codicon codicon-organization"></span>Characters
+            </li>
+            <li data-group="scenes" onclick="changeStatCategory(this)">
+                <span class="codicon codicon-output"></span>Scenes
             </li>
             <li data-group="locations" onclick="changeStatCategory(this)">
                 <span class="codicon codicon-location"></span>Locations
@@ -109,7 +125,7 @@
     </div>
     <div id="content">
         <div data-group="overview">
-            <h1>General</h1>
+            <div class="statcategory">Length</div>
             <p>
                 <b>Word count:</b><span id="lengthStats.words"></span><br>
                 <b>Page count:</b><span id="lengthStats.pages"></span><br>
@@ -186,8 +202,9 @@ Locations
 
         function changeStatCategory(e){
             //Change the active element in the sidenav
-            for (let i = 0; i < e.parentElement.children.length; i++) {
-                e.parentElement.children[i].classList.remove("active");   
+            let sidebarGroups = document.getElementById("sidenav").querySelectorAll("[data-group]");
+            for (let i = 0; i < sidebarGroups.length; i++) {
+                sidebarGroups[i].classList.remove("active");   
             }
             e.classList.add("active");
 
