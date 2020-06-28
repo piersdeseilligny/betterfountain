@@ -291,12 +291,14 @@ export function activate(context: ExtensionContext) {
 	}));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', numberScenes));
 
-	const statsHtml = fs.readFileSync(assetsPath() + path.sep + "stats.html", 'utf8');
+	const statsHtml = fs.readFileSync(assetsPath() + path.sep + "webviews" + path.sep + "stats.html", 'utf8');
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
 		const statsPanel = vscode.window.createWebviewPanel('fountain-statistics', 'Screenplay statistics', -1,{enableScripts:true})
 		const cssDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'node_modules', 'vscode-codicons', 'dist', 'codicon.css'));
-	
-		statsPanel.webview.html = statsHtml.replace("$CODICON_CSS$", statsPanel.webview.asWebviewUri(cssDiskPath).toString());
+		const jsDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'out', 'webviews', 'stats.bundle.js'));
+
+		statsPanel.webview.html = statsHtml.replace("$CODICON_CSS$", statsPanel.webview.asWebviewUri(cssDiskPath).toString())
+										   .replace("$STATSJS$", statsPanel.webview.asWebviewUri(jsDiskPath).toString())
 		
 		var editor = getEditor(activeFountainDocument());
 		var config = getFountainConfig(activeFountainDocument());

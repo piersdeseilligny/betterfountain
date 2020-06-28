@@ -71,7 +71,7 @@ export function createPreviewPanel(editor:vscode.TextEditor, dynamic:boolean): v
     return preview;
 }
 
-const webviewHtml = fs.readFileSync(assetsPath() + path.sep + "preview.html", 'utf8');
+const webviewHtml = fs.readFileSync(assetsPath() + path.sep + "webviews" + path.sep + "preview.html", 'utf8');
 
 function loadWebView(docuri: vscode.Uri, preview:vscode.WebviewPanel, dynamic:boolean) {
     var cleandir = assetsPath().split(String.fromCharCode(92)).join("/");

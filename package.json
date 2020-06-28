@@ -290,8 +290,9 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./ && copyfiles -u 1 src/preview.html out && copyfiles -u 1 src/stats.html out",
-		"watch": "npm run compile && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out",
+		"compilewebviews": "copyfiles -u 2 webviews/src/*.html webviews/out && webpack --config './webviews/stats.webpack.config.js'",
+		"compile": "tsc -p ./ && npm run compilewebviews && copyfiles -u 2 webviews/out/* out/webviews && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out",
+		"watch": "npm run compile",
 		"test": "node node_modules/jest/bin/jest.js"
 	},
 	"devDependencies": {
@@ -303,12 +304,16 @@
 		"jest": "^24.9.0",
 		"ts-jest": "^24.3.0",
 		"typescript": "^3.9.5",
-		"vscode-test": "^1.4.0"
+		"vscode-test": "^1.4.0",
+		"webpack": "^4.43.0",
+		"webpack-cli": "^3.3.12"
 	},
 	"dependencies": {
 		"@types/username": "^3.0.0",
 		"blob": "0.1.0",
+		"d3": "^5.16.0",
 		"font-finder": "^1.0.4",
+		"jquery": "^3.5.1",
 		"os-fonts": "^0.5.0",
 		"pdfkit": "^0.11.0",
 		"username": "^5.1.0",
