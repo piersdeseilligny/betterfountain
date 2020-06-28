@@ -597,7 +597,6 @@ import { openFile, revealFile } from "../utils";
 
                     y++;
                 }
-
             }
 
 
@@ -621,15 +620,18 @@ export var get_pdf = async function(opts:Options, progress:vscode.Progress<{mess
 };
 
 export type pdfstats = {
-    pagecount: number
+    pagecount: number,
+    pagecountReal:number
 }
 
 export var get_pdf_stats = async function(opts:Options){
     var doc = await initDoc(opts);
-    let stats:pdfstats = {pagecount:1};
+    let stats:pdfstats = {pagecount:1, pagecountReal:1};
+    stats.pagecount = opts.parsed.lines.length/opts.print.lines_per_page;
     doc.on('pageAdded', ()=>{
-        stats.pagecount++;
+        stats.pagecountReal++;
     });
+
     await generate(doc, opts);
     return stats;
 }

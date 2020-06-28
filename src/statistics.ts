@@ -25,11 +25,16 @@ type singleSceneStatistic = {
 
 type lengthStatistics = {
     characters: number
-    words: number
-    pages: number
+    characterswithoutwhitespace:number;
+    lines:number,
+    lineswithoutwhitespace:number;
+    words: number;
+    pages: number;
+    pagesreal:number;
+    scenes: number;
 }
 
-type timelengthStatistics = {
+type durationStatistics = {
     dialogue: string
     action: string
     total: string
@@ -39,7 +44,7 @@ type screenPlayStatistics = {
     characterStats: dialogueStatisticPerCharacter[]
     sceneStats: singleSceneStatistic[]
     lengthStats: lengthStatistics
-    timelengthStats: timelengthStatistics
+    durationStats: durationStatistics
 }
 
 const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCharacter[] => {
@@ -128,16 +133,30 @@ const getWordCount = (script: string): number => {
 const getCharacterCount = (script: string): number => {
     return script.length 
 }
+const getCharacterCountWithoutWhitespace = (script: string): number => {
+    return ((script || '').match(/\S+?/g) || []).length 
+}
+const getLineCount = (script:string): number =>{
+    return ((script || '').match(/\n/g) || []).length 
+}
+const getLineCountWithoutWhitespace = (script:string): number =>{
+    return ((script || '').match(/^.*\S.*$/gm) || []).length 
+}
 
-const createLengthStatistics = (script: string, pdf:pdfstats): lengthStatistics => {
+const createLengthStatistics = (script: string, pdf:pdfstats, parsed:parseoutput): lengthStatistics => {
     return {
         characters: getCharacterCount(script),
+        characterswithoutwhitespace: getCharacterCountWithoutWhitespace(script),
+        lines: getLineCount(script),
+        lineswithoutwhitespace: getLineCountWithoutWhitespace(script),
         words: getWordCount(script),
-        pages: pdf.pagecount
+        pagesreal: pdf.pagecountReal,
+        pages: pdf.pagecount,
+        scenes: parsed.properties.scenes.length
     }
 }
 
-const createTimeLengthStatistics = (parsed: parseoutput): timelengthStatistics => {
+const createdurationStatistics = (parsed: parseoutput): durationStatistics => {
     return {
         dialogue: secondsToString(parsed.lengthDialogue),
         action: secondsToString(parsed.lengthAction),
@@ -150,7 +169,7 @@ export const retrieveScreenPlayStatistics = async (script: string, parsed: parse
     return {
         characterStats: createCharacterStatistics(parsed),
         sceneStats: createSceneStatistics(parsed),
-        lengthStats: createLengthStatistics(script, pdfstats),
-        timelengthStats: createTimeLengthStatistics(parsed)
+        lengthStats: createLengthStatistics(script, pdfstats, parsed),
+        durationStats: createdurationStatistics(parsed)
     }
 }

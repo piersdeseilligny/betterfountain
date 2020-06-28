@@ -87,6 +87,62 @@
     .splitview #content{
         margin-left:224px;
     }
+    .flexgroup{
+        display: flex;
+        flex-wrap: wrap;
+        margin-left: 24px;
+    }
+    .flexgroup{
+        margin-top:-12px;
+    }
+    .flexgroup.durationstats{
+        flex-flow: column;
+    }
+    .flexitem:first-child{
+        margin-left: -20px;
+    }
+    .flexgroup.durationstats .flexitem{
+        margin-left: 0px;
+        padding: 6px 0px 0px 0px;
+    }
+    .flexgroup.durationstats .description, .flexgroup.durationstats .number{
+        text-align: start;
+    }
+    .flexitem{
+        padding:12px 20px;
+        max-width:min-content;
+    }
+    .flexitem .description{
+        text-align: center;
+        opacity: 0.75;
+        user-select: none;
+    }
+    .flexitem .number{
+        text-align: center;;
+        font-size: 22px;
+    }
+    .flexitem.minor .number{
+        font-size:16px;
+        opacity:0.8;
+    }
+    #lengthStats-pagesFractional{
+        font-size: 0.75em;
+        transform: translate(2px,-2px);
+        display: inline-block;
+        opacity: 0.8;
+    }
+    h1{
+        font-weight: 500;
+        margin-top:12px;
+        margin-bottom:12px;
+        user-select: none;
+    }
+    h1 .codicon{
+        font-size: 20px !important;
+        vertical-align: middle;
+        margin-top: -4px;
+        margin-left: -4px;
+    }
     </style>
 </head>
 <body>
@@ -125,19 +181,48 @@
     </div>
     <div id="content">
         <div data-group="overview">
-            <div class="statcategory">Length</div>
-            <p>
-                <b>Word count:</b><span id="lengthStats.words"></span><br>
-                <b>Page count:</b><span id="lengthStats.pages"></span><br>
-            </p>
-            <p><b>Length (approx.):</b><span id="timelengthStats.total"></span>
-                <ul>
-                    <li><b>Dialogue (approx.):</b><span id="timelengthstats_dialogue"></span></li>
-                    <li><b>Action (approx.):</b><span id="timelengthstats_action"></span></li>
-                </ul>
-            </p>
-            <h1>Scene statistics</h1>
-            <p>Total amount of scenes: ${stats.sceneStats.length}</p>
+            <h1><span class="codicon codicon-symbol-ruler" style="margin-top: -4px;margin-left:-10px"></span>&nbsp;Length</h1>
+            <div class="flexgroup lengthstats">
+                <div class="flexitem">
+                    <div class="description" title="The length of the screenplay in pages, excluding the title page and any forced page breaks">Pages</div>
+                    <div class="number" title="The length of the screenplay in pages, excluding the title page and any forced page breaks"><span id="lengthStats-pagesWhole">0</span><span id="lengthStats-pagesFractional"></span></div>
+                    <div class="description" title="The length of the screenplay in pages that will be printed (including the title page and any forced page breaks)"><span id="lengthStats-pagesReal">0</span>&nbsp;printed</div>
+                </div>
+                <div class="flexitem">
+                    <div class="description">Scenes</div>
+                    <div id="lengthStats-scenes" class="number">0</div>
+                </div>
+                <div class="flexitem">
+                    <div class="description">Words</div>
+                    <div id="lengthStats-words" class="number">0</div>
+                </div>
+                <div class="flexitem">
+                    <div class="description">Characters</div>
+                    <div id="lengthStats-characters" class="number">0</div>
+                    <div class="description"><span id="lengthStats-characterswithoutwhitespace">0</span>&nbsp;without spaces</div>
+                </div>
+                <div class="flexitem">
+                    <div class="description">Lines</div>
+                    <div id="lengthStats-lines" class="number">0</div>
+                    <div class="description"><span id="lengthStats-lineswithoutwhitespace"></span>&nbsp;without spaces</div>
+                </div>
+
+            </div>
+            <h1><span class="codicon codicon-watch" style="margin-top: -4px;margin-left:-10px"></span>&nbsp;Duration</h1>
+            <div class="flexgroup durationstats">
+                <div class="flexitem">
+                    <div class="description">Total</div>
+                    <div id="durationStats-total" class="number">0</div>
+                </div>
+                <div class="flexitem minor">
+                    <div class="description">Action</div>
+                    <div id="durationStats-action" class="number">0</div>
+                </div>
+                <div class="flexitem minor">
+                    <div class="description">Dialogue</div>
+                    <div id="durationStats-dialogue" class="number">0</div>
+                </div>
+            </div>
         </div>
         <div style="display:none" data-group="characters">
             <table id="characterTable" style="width:100%">
@@ -177,11 +262,52 @@ Locations
         window.addEventListener('focus', event =>{
             document.getElementById("maincontent").classList.add('isactive');
         });
+
+        function getEights(input){
+            let output = "";
+            switch(input){
+                case 0: return "";
+                case 1: output+="\u00B9"; break;
+                case 2: output+="\u00B2"; break;
+                case 3: output+="\u00B3"; break;
+                case 4: output+="\u2074"; break;
+                case 5: output+="\u2075"; break;
+                case 6: output+="\u2076"; break;
+                case 7: output+="\u2077"; break;
+                case 8: output+="\u2078"; break;
+            }
+            return output + "\u2044\u2088";
+        }
+        function formatNumber(input){
+            return new Intl.NumberFormat().format(input)
+        }
+
         function updateStats(){
             //overview
-            document.getElementById("lengthStats.words").innerText = state.stats.lengthStats.words;
-            document.getElementById("lengthStats.pages").innerText = state.stats.lengthStats.pages;
-            document.getElementById("timelengthStats.total").innerText = state.stats.timelengthStats.total;
+            document.getElementById("lengthStats-words").innerText = formatNumber(state.stats.lengthStats.words);
+            document.getElementById("lengthStats-characters").innerText = formatNumber(state.stats.lengthStats.characters);
+            document.getElementById("lengthStats-characterswithoutwhitespace").innerText = formatNumber(state.stats.lengthStats.characterswithoutwhitespace);
+            document.getElementById("lengthStats-lines").innerText = formatNumber(state.stats.lengthStats.lines);
+            document.getElementById("lengthStats-scenes").innerText = formatNumber(state.stats.lengthStats.scenes);
+            document.getElementById("lengthStats-lineswithoutwhitespace").innerText = formatNumber(state.stats.lengthStats.lineswithoutwhitespace);
+            document.getElementById("lengthStats-pagesReal").innerText = formatNumber(state.stats.lengthStats.pagesreal);
+            let wholePage = Math.floor(state.stats.lengthStats.pages);
+            let fractionalPage = getEights(Math.round((state.stats.lengthStats.pages - wholePage) * 8));
+            if(fractionalPage == "\u2078\u2044\u2088") //page eigth is 8/8
+            {
+                fractionalPage = "";
+                wholePage++;
+            }
+            if(wholePage == "0" && fractionalPage != ""){
+                wholePage = "";
+                document.getElementById("lengthStats-pagesFractional").style.opacity="1";
+
+            }
+            document.getElementById("lengthStats-pagesWhole").innerText = wholePage;
+            document.getElementById("lengthStats-pagesFractional").innerText = fractionalPage;
+            document.getElementById("durationStats-total").innerText = state.stats.durationStats.total;
+            document.getElementById("durationStats-action").innerText = state.stats.durationStats.action;
+            document.getElementById("durationStats-dialogue").innerText = state.stats.durationStats.dialogue;
             //characters
             document.getElementById("characterTable").innerHTML =
             `<tr>
