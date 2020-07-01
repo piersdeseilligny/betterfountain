@@ -34,10 +34,18 @@ type lengthStatistics = {
     scenes: number;
 }
 
+type lengthchartitem = {
+    line:number,
+    scene:string,
+    length:number
+}
+
 type durationStatistics = {
     dialogue: string
     action: string
-    total: string
+    total: string,
+    lengthchart_action: lengthchartitem[]
+    lengthchart_dialogue: lengthchartitem[]
 }
 
 type screenPlayStatistics = {
@@ -127,6 +135,42 @@ const createSceneStatistics = (parsed: parseoutput): singleSceneStatistic[] => {
     return sceneStats
 }
 
+
+
+const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:lengthchartitem[]} => {
+    let action:lengthchartitem[] = [{line:undefined, length: 0, scene:undefined }]
+    let dialogue:lengthchartitem[] = [{line:undefined, length: 0, scene:undefined }]
+    let previousLengthAction = 0;
+    let previousLengthDialogue = 0;
+    let currentScene = "";
+    parsed.tokens.forEach(element => {
+        if(element.type=="scene_heading"){
+            currentScene = element.text;
+        }
+        else if(element.type == "action" || element.type == "dialogue"){
+            let time = Number(element.time);
+            if(!isNaN(time)){
+                if(element.type == "action"){
+                    previousLengthAction += Number(element.time);
+                }
+                else if(element.type == "dialogue"){
+                    previousLengthDialogue += Number(element.time);
+                }
+            }
+
+            if(element.type == "action"){
+                action.push({line:element.line, length: previousLengthAction, scene:currentScene });
+                dialogue.push({line:undefined, length: previousLengthDialogue, scene:undefined });
+            }
+            else if(element.type == "dialogue"){
+                action.push({line:undefined, length: previousLengthAction, scene:undefined });
+                dialogue.push({line:element.line, length: previousLengthDialogue, scene:currentScene });
+            }
+        }
+    });
+    return {action:action, dialogue:dialogue};
+};
+
 const getWordCount = (script: string): number => {
     return ((script || '').match(/\S+/g) || []).length 
 }
@@ -156,11 +200,14 @@ const createLengthStatistics = (script: string, pdf:pdfstats, parsed:parseoutput
     }
 }
 
-const createdurationStatistics = (parsed: parseoutput): durationStatistics => {
+const createDurationStatistics = (parsed: parseoutput): durationStatistics => {
+    let lengthcharts =  getLengthChart(parsed);
     return {
         dialogue: secondsToString(parsed.lengthDialogue),
         action: secondsToString(parsed.lengthAction),
-        total: secondsToString(parsed.lengthDialogue + parsed.lengthAction)
+        total: secondsToString(parsed.lengthDialogue + parsed.lengthAction),
+        lengthchart_action: lengthcharts.action,
+        lengthchart_dialogue: lengthcharts.dialogue
     }
 }
 
@@ -170,6 +217,6 @@ export const retrieveScreenPlayStatistics = async (script: string, parsed: parse
         characterStats: createCharacterStatistics(parsed),
         sceneStats: createSceneStatistics(parsed),
         lengthStats: createLengthStatistics(script, pdfstats, parsed),
-        durationStats: createdurationStatistics(parsed)
+        durationStats: createDurationStatistics(parsed)
     }
 }

@@ -1,5 +1,6 @@
 const vscode = acquireVsCodeApi();
 const $ = require("jquery");
+const LineChart = require("./charts/line");
 
 var state = {
     stats: {}
@@ -44,6 +45,14 @@ function formatNumber(input){
     return new Intl.NumberFormat().format(input)
 }
 
+function getWidth() {
+    var deviceWidth = !window.orientation ? window.screen.width : window.screen.height;
+    if (navigator.userAgent.indexOf('Android') >= 0 && window.devicePixelRatio) {
+        deviceWidth = deviceWidth / window.devicePixelRatio;
+    }
+    return deviceWidth;
+}
+
 function updateStats(){
     //overview
     document.getElementById("lengthStats-words").innerText = formatNumber(state.stats.lengthStats.words);
@@ -86,6 +95,10 @@ function updateStats(){
         </tr>
         `
     }, '')}`
+    LineChart.renderTwo('#durationStats-lengthchart', state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue, {
+        value: 'length',
+        small: getWidth()
+    });
 }
 
 $(".sidenav [data-group]").on("click", function () {

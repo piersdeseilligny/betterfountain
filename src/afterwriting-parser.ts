@@ -431,7 +431,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             }
             else {
                 thistoken.type = "action";
-                result.lengthAction += thistoken.text.length/20;
+                thistoken.time = thistoken.text.length/20;
+                result.lengthAction += thistoken.time;
             }
         } else {
             if (thistoken.text.match(regex.parenthetical)) {

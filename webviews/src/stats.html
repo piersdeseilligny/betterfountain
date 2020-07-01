@@ -143,6 +143,23 @@
         margin-top: -4px;
         margin-left: -4px;
     }
+    #durationStats-lengthchart .chart-data1{
+        stroke: var(--vscode-symbolIcon-constructorForeground);
+    }
+    #durationStats-action{
+        color: var(--vscode-symbolIcon-constructorForeground);
+    }
+    #durationStats-lengthchart .chart-data2{
+        stroke: var(--vscode-symbolIcon-fieldForeground);
+    }
+    #durationStats-dialogue{
+        color: var(--vscode-symbolIcon-fieldForeground);
+    }
+    #durationStats-lengthchart .chart-container{
+        stroke:var(--vscode-panel-border);
+        fill:var(--vscode-panel-background);
+    }
+
     </style>
 </head>
 <body>
@@ -179,7 +196,7 @@
             </li>
         </ul>
     </div>
-    <div id="content">
+    <div id="content" class="content">
         <div data-group="overview">
             <h1><span class="codicon codicon-symbol-ruler" style="margin-top: -4px;margin-left:-10px"></span>&nbsp;Length</h1>
             <div class="flexgroup lengthstats">
@@ -209,19 +226,22 @@
 
             </div>
             <h1><span class="codicon codicon-watch" style="margin-top: -4px;margin-left:-10px"></span>&nbsp;Duration</h1>
-            <div class="flexgroup durationstats">
-                <div class="flexitem">
-                    <div class="description">Total</div>
-                    <div id="durationStats-total" class="number">0</div>
+            <div style="display: flex;">
+                <div class="flexgroup durationstats">
+                    <div class="flexitem">
+                        <div class="description">Total</div>
+                        <div id="durationStats-total" class="number">0</div>
+                    </div>
+                    <div class="flexitem minor">
+                        <div class="description">Action</div>
+                        <div id="durationStats-action" class="number">0</div>
+                    </div>
+                    <div class="flexitem minor">
+                        <div class="description">Dialogue</div>
+                        <div id="durationStats-dialogue" class="number">0</div>
+                    </div>
                 </div>
-                <div class="flexitem minor">
-                    <div class="description">Action</div>
-                    <div id="durationStats-action" class="number">0</div>
-                </div>
-                <div class="flexitem minor">
-                    <div class="description">Dialogue</div>
-                    <div id="durationStats-dialogue" class="number">0</div>
-                </div>
+                <div style="width:100%;margin:0px 12px;" id="durationStats-lengthchart"></div>
             </div>
         </div>
         <div style="display:none" data-group="characters">
