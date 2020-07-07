@@ -309,6 +309,8 @@
 		"webpack-cli": "^3.3.12"
 	},
 	"dependencies": {
+		"@types/d3": "^5.7.2",
+		"@types/jquery": "^3.5.0",
 		"@types/username": "^3.0.0",
 		"blob": "0.1.0",
 		"d3": "^5.16.0",

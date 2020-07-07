@@ -95,7 +95,7 @@ function updateStats(){
         </tr>
         `
     }, '')}`
-    LineChart.renderTwo('#durationStats-lengthchart', state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue, {
+    LineChart.render('#durationStats-lengthchart', [state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue], {
         value: 'length',
         small: getWidth()
     });
