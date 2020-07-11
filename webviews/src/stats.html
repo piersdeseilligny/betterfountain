@@ -145,7 +145,7 @@
     }
 
     .mouse-line{
-        stroke: var(--vscode-panel-border);
+        fill: var(--vscode-panel-border);
     }
     #durationStats-lengthchart .chart-data[data-line="0"]{
         stroke: var(--vscode-symbolIcon-constructorForeground);
@@ -163,11 +163,13 @@
         stroke:var(--vscode-panel-border);
         fill:var(--vscode-panel-background);
     }
-    .pageNumber{
-        transform: translateY(24px);
-        fill:white;
+    .mouse-over-effects text{
+        fill:var(--vscode-breadcrumb-foreground);
+        background-color: var(--vscode-breadcrumb-background);
     }
-
+    tspan.chevron{
+        font: normal normal normal 16px/1 codicon;
+    }
     </style>
 </head>
 <body>

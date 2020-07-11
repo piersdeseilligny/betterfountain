@@ -6,6 +6,7 @@
     import * as vscode from 'vscode';
 import helpers from "../helpers";
 import { openFile, revealFile } from "../utils";
+import * as he from 'he';
    // import * as blobUtil from "blob-util";
     export class Options{
         filepath:string;
@@ -510,7 +511,7 @@ import { openFile, revealFile } from "../utils";
                         let sectiontext = sectiontoken.text;
                         current_section_level = sectiontoken.level;
                         currentSections.length = sectiontoken.level-1;
-                        currentSections.push(sectiontext);
+                        currentSections.push(he.encode(sectiontext));
                         if(!hasInvisibleSection)
                             feed += current_section_level * print.section.level_indent;
                         if (cfg.number_sections) {

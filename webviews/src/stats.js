@@ -58,7 +58,7 @@ function getWidth() {
 function objectToMap(jsonObject){
     let map = new Map()
     for (var value in jsonObject) {  
-        map.set(value,jsonObject[value])  
+        map.set(value,jsonObject[value]);
     }
     return map;
 }
