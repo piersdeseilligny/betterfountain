@@ -53,6 +53,7 @@ type screenPlayStatistics = {
     sceneStats: singleSceneStatistic[]
     lengthStats: lengthStatistics
     durationStats: durationStatistics
+    pdfmap: string
 }
 
 const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCharacter[] => {
@@ -138,8 +139,8 @@ const createSceneStatistics = (parsed: parseoutput): singleSceneStatistic[] => {
 
 
 const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:lengthchartitem[]} => {
-    let action:lengthchartitem[] = [{line:undefined, length: 0, scene:undefined }]
-    let dialogue:lengthchartitem[] = [{line:undefined, length: 0, scene:undefined }]
+    let action:lengthchartitem[] = [{line:0, length: 0, scene:undefined }]
+    let dialogue:lengthchartitem[] = [{line:0, length: 0, scene:undefined }]
     let previousLengthAction = 0;
     let previousLengthDialogue = 0;
     let currentScene = "";
@@ -160,10 +161,8 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
 
             if(element.type == "action"){
                 action.push({line:element.line, length: previousLengthAction, scene:currentScene });
-                dialogue.push({line:undefined, length: previousLengthDialogue, scene:undefined });
             }
             else if(element.type == "dialogue"){
-                action.push({line:undefined, length: previousLengthAction, scene:undefined });
                 dialogue.push({line:element.line, length: previousLengthDialogue, scene:currentScene });
             }
         }
@@ -211,12 +210,21 @@ const createDurationStatistics = (parsed: parseoutput): durationStatistics => {
     }
 }
 
+function mapToObject(map:any):any{
+    let jsonObject:any = {};  
+    map.forEach((value:any, key:any) => {  
+        jsonObject[key] = value  
+    });  
+    return jsonObject;
+}
+
 export const retrieveScreenPlayStatistics = async (script: string, parsed: parseoutput, config:FountainConfig): Promise<screenPlayStatistics> => {
     let pdfstats = await GeneratePdf("$STATS$", config, parsed, undefined);
     return {
         characterStats: createCharacterStatistics(parsed),
         sceneStats: createSceneStatistics(parsed),
         lengthStats: createLengthStatistics(script, pdfstats, parsed),
-        durationStats: createDurationStatistics(parsed)
+        durationStats: createDurationStatistics(parsed),
+        pdfmap: JSON.stringify(mapToObject(pdfstats.linemap))
     }
 }

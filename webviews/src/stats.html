@@ -143,13 +143,17 @@
         margin-top: -4px;
         margin-left: -4px;
     }
-    #durationStats-lengthchart .chart-data1{
+
+    .mouse-line{
+        stroke: var(--vscode-panel-border);
+    }
+    #durationStats-lengthchart .chart-data[data-line="0"]{
         stroke: var(--vscode-symbolIcon-constructorForeground);
     }
     #durationStats-action{
         color: var(--vscode-symbolIcon-constructorForeground);
     }
-    #durationStats-lengthchart .chart-data2{
+    #durationStats-lengthchart .chart-data[data-line="1"]{
         stroke: var(--vscode-symbolIcon-fieldForeground);
     }
     #durationStats-dialogue{
@@ -158,6 +162,10 @@
     #durationStats-lengthchart .chart-container{
         stroke:var(--vscode-panel-border);
         fill:var(--vscode-panel-background);
+    }
+    .pageNumber{
+        transform: translateY(24px);
+        fill:white;
     }
 
     </style>

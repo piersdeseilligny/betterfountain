@@ -13,6 +13,7 @@ if(previousState != undefined){
 
 
 window.addEventListener('message', event => {
+    console.log("Got message!");
     if (event.data.command == 'updateStats') {
         state.stats = event.data.content;
         vscode.setState(state);
@@ -53,8 +54,21 @@ function getWidth() {
     return deviceWidth;
 }
 
+
+function objectToMap(jsonObject){
+    let map = new Map()
+    for (var value in jsonObject) {  
+        map.set(value,jsonObject[value])  
+    }
+    return map;
+}
+
+let pdfmap = new Map();
+
 function updateStats(){
-    //overview
+    console.log("make pdfmap");
+    pdfmap = objectToMap(JSON.parse(state.stats.pdfmap));
+    console.log("made pdf map");
     document.getElementById("lengthStats-words").innerText = formatNumber(state.stats.lengthStats.words);
     document.getElementById("lengthStats-characters").innerText = formatNumber(state.stats.lengthStats.characters);
     document.getElementById("lengthStats-characterswithoutwhitespace").innerText = formatNumber(state.stats.lengthStats.characterswithoutwhitespace);
@@ -96,9 +110,37 @@ function updateStats(){
         `
     }, '')}`
     LineChart.render('#durationStats-lengthchart', [state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue], {
-        value: 'length',
-        small: getWidth()
+        yvalue: 'length',
+        xvalue: 'line',
+        small: getWidth(),
+        map:pdfmap,
+        hover:function(show,x,yvalues){
+            if(show){
+                document.getElementById("durationStats-action").innerText = secondsToString(yvalues[0]);
+                document.getElementById("durationStats-dialogue").innerText = secondsToString(yvalues[1]);
+                document.getElementById("durationStats-total").innerText = secondsToString(yvalues[0]+yvalues[1]);
+            }
+            else{
+                document.getElementById("durationStats-action").innerText = state.stats.durationStats.action;
+                document.getElementById("durationStats-dialogue").innerText = state.stats.durationStats.dialogue;
+                document.getElementById("durationStats-total").innerText = state.stats.durationStats.total;
+            }
+        }
     });
+}
+
+function secondsToString(seconds){
+	var time = new Date(null);
+	time.setHours(0);
+	time.setMinutes(0);
+	time.setSeconds(seconds);
+	return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
+}
+function padZero(i) {
+	if (i < 10) {
+		i = "0" + i;
+	}
+	return i;
 }
 
 $(".sidenav [data-group]").on("click", function () {
