@@ -34,13 +34,13 @@ define(function(require) {
         var height = $(id).height();
         var padding = 4;
         let headerHeight = 32;
-        let footerHeight = 0;
+        let footerHeight = 20;
         let innerHeight = height-headerHeight-footerHeight;
 
         var x,y;
         function calculateScales(w,h){
-            y = d3.scaleLinear().domain([min, max]).range([h - padding+headerHeight+footerHeight, padding+headerHeight+footerHeight]);
-            x = d3.scaleLinear().domain([0, longestData - 1]).range([0, w]);
+            y = d3.scaleLinear().domain([min, max]).range([h - padding+headerHeight, padding+headerHeight]);
+            x = d3.scaleLinear().domain([0, longestData - 1]).range([0, w]); 
         }
 
         calculateScales(width,innerHeight);
@@ -59,10 +59,42 @@ define(function(require) {
             .attr('height', height);
 
         vis.append('rect').attr('width', width).attr('height', innerHeight).attr('fill', 'none').attr('class', 'chart-container').attr('y',headerHeight);
+        let linecontainer = vis.append('g').attr('class', 'chart-linecontainer');
         for (let i = 0; i < datas.length; i++) {
-            vis.append('path').attr('d', line(datas[i])).attr('fill', 'none').attr('class', 'chart-data').attr('data-line', i).attr('y',headerHeight);
+            linecontainer.append('path').attr('d', line(datas[i])).attr('fill', 'none').attr('class', 'chart-data').attr('data-line', i).attr('y',headerHeight);
         }
+
+
+
+
+       /* let mouserect = mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
+              .attr('width', width) // can't catch mouse events on a g element
+              .attr('height', innerHeight)
+              .attr('y', headerHeight)
+              .attr('class', "mouseG")
+              .attr('fill', 'none')
+              .attr('pointer-events', 'all')
+              .on('mouseout', mouseout)
+              .on('mouseover', mouseover)
+              .on('mousemove', mousemove);*/
+
+        ///
+        /// HOVERING FEATURES
+        ///
+
+        let brushSelection = [0,0];
         var mouseG = vis.append("g").attr("class", "mouse-over-effects");
+        mouseG.append("text").attr("class", "pageNumber").text("p.1").attr("x", "100%").attr("text-anchor", "end").attr("y", "1em");
+        mouseG.append("text").attr("class", "breadcrumbs").text("test").attr("y","1em");
+        mouseG.append("text").attr("class", "scene").text("test").attr("y","2.1em").style("opacity",0.5);
+        mouseG.append("text").attr("class", "button openineditor").html("&#xeae9").attr('y', height).attr("visibility","collapse");
+        mouseG.append("text").attr("class", "button zoom").html("&#xeb81").attr('y', height).attr("visibility","collapse").on('click', function(){
+            x.domain([ x.invert(brushSelection[0]), x.invert(brushSelection[1]) ])
+            vis.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
+            vis.selectAll('.chart-data').each(function(d,i){
+                d3.select(this).transition().duration(500).attr('d', line(datas[i]));
+            });
+        });
 
         mouseG.append("rect") // this is the vertical line to follow mouse
           .attr("class", "mouse-line")
@@ -71,49 +103,110 @@ define(function(require) {
           .attr("height", innerHeight)
           .style("opacity", "0");
 
-        mouseG.append("text").attr("class", "pageNumber").text("p.1").attr("x", "100%").attr("text-anchor", "end").attr("y", "1em");
-        mouseG.append("text").attr("class", "breadcrumbs").text("test").attr("y","1em");
-        mouseG.append("text").attr("class", "scene").text("test").attr("y","2.1em").style("opacity",0.5);
-        var offsetLeft = $(id)[0].offsetLeft;
-        mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
-              .attr('width', width) // can't catch mouse events on a g element
-              .attr('height', innerHeight)
-              .attr('y', headerHeight)
-              .attr('class', "mouseG")
-              .attr('fill', 'none')
-              .attr('pointer-events', 'all')
-              .on('mouseout', function() { // on mouse out hide line, circles and text
-                d3.select(".mouse-line").style("opacity", "0");
-                if(config.hover){
-                    config.hover(false);
-                }
-              })
-              .on('mouseover', function() { // on mouse in show line, circles and text
-                d3.select(".mouse-line").style("opacity", "1")
-              })
-              .on('mousemove', function() { // mouse moving over canvas
-                var mouse = d3.mouse(this);
-                d3.select(".mouse-line")
-                  .attr('x', mouse[0]);
-                let xval = x.invert(mouse[0]);
-                if(config.hover){
-                    yvalues = [];
-                    d3.selectAll('.chart-data').each(function(d,i){
-                        yvalues.push(bisect(xval, i));
-                    });
-                    config.hover(true, xval, yvalues)
-                }
-                if(config.map){
-                    let lineNb = Math.floor(xval).toString();
-                    if(config.map.has(lineNb)){
-                        let lineinfo = config.map.get(lineNb);
-                        mouseG.select(".pageNumber").text("p."+lineinfo.page);
-                        mouseG.select(".scene").text(lineinfo.scene);
-                        mouseG.select(".breadcrumbs").html(lineinfo.sections.join("<tspan class='chevron' alignment-baseline='middle'>&#xeab6</tspan>"));
-                    }
-                }
+        ///
+        /// BRUSHING
+        ///
+        
+        var idleTimeout
+        function idled() { idleTimeout = null; }
 
-            });
+        let buttonsize = 22;
+        let brush = d3.brushX().extent([[0,headerHeight],[width,height-footerHeight]])
+        .on('brush', function(){
+            let extent = d3.event.selection;
+            if(extent){
+                hover(x.invert(extent[0]), x.invert(extent[1]));
+                let buttons = mouseG.selectAll(".button");
+                let buttonsWidth = buttons.size() * buttonsize;
+                let offset = 0;
+                
+                if(buttonsWidth>extent[1]) 
+                    //selection is too far to the left, add an offset so they don't clip
+                    offset = extent[1]-buttonsWidth; 
+                else if(buttonsWidth>extent[1]-extent[0]){
+                    //selection is smaller than buttons, center it between the two
+                    offset = -((buttonsWidth-(extent[1]-extent[0]))/2)
+                }
+                    
+                buttons.each(function(d,i){
+                    d3.select(this).attr("visibility","visible").attr("x", extent[1]+(i*buttonsize)-offset-buttonsWidth);
+                });
+            }
+                
+        })
+        .on('end', function(){
+            let extent = d3.event.selection;
+            brushSelection = extent;
+            if(!extent){
+                mouseG.selectAll(".button").each(function(d,i){
+                    d3.select(this).attr("visibility","collapse");
+                });
+            }
+            return;
+
+        })
+        .on('start', function(){
+
+        });
+        vis.append("g").attr("class", "brush").call(brush)
+        
+        d3.select(".brush > .overlay").on('mouseout', mouseout)
+        .on('mouseover', mouseover)
+        .on('mousemove', mousemove)
+
+
+        function eventToBrush(){
+            const new_click_event = new MouseEvent(d3.event.type, {
+                pageX: d3.event.pageX,
+                pageY: d3.event.pageY,
+                clientX: d3.event.clientX,
+                clientY: d3.event.clientY,
+                layerX: d3.event.layerX,
+                layerY: d3.event.layerY,
+                bubbles: true,
+                cancelable: true,
+                view: window });
+                mouserect.node().dispatchEvent(new_click_event);
+        }
+
+        function mouseout(){
+            vis.select(".mouse-line").style("opacity", "0");
+            if(config.hover){
+                config.hover(false);
+            }
+        }
+        
+        function mouseover(){
+            vis.select(".mouse-line").style("opacity", "1")
+        }
+        function mousemove(){
+            var mouse = d3.mouse(this);
+            vis.select(".mouse-line")
+              .attr('x', mouse[0]);
+            hover(x.invert(mouse[0]));
+        }
+
+        function hover(xval, xval2){
+            yvalues = [];
+            if(config.hover){
+                d3.selectAll('.chart-data').each(function(d,i){
+                    if(xval2)
+                        yvalues.push([bisect(xval, i), bisect(xval2, i)]);
+                    else
+                        yvalues.push(bisect(xval, i));
+                });
+                config.hover(true, xval, yvalues, (xval2 != undefined))
+            }
+            if(config.map){
+                let lineNb = Math.floor(xval).toString();
+                if(config.map.has(lineNb)){
+                    let lineinfo = config.map.get(lineNb);
+                    mouseG.select(".pageNumber").text("p."+lineinfo.page);
+                    mouseG.select(".scene").text(lineinfo.scene);
+                    mouseG.select(".breadcrumbs").html(lineinfo.sections.join("<tspan class='chevron' alignment-baseline='middle'>&#xeab6</tspan>"));
+                }
+            }
+        }
 
         function bisect(xval, lineindex){
             const bisect = d3.bisector(d => d[config.xvalue]).left;

@@ -170,6 +170,20 @@
     tspan.chevron{
         font: normal normal normal 16px/1 codicon;
     }
+
+    svg .button{
+        font: normal normal normal 16px/1 codicon;
+        width:24px;
+        fill:var(--vscode-breadcrumb-foreground);
+        user-select: none;
+        cursor: pointer;
+    }
+    svg .button:hover{
+        fill:var(--vscode-breadcrumb-focusForeground);
+    }
+    svg .button:active{
+        fill:var(--vscode-breadcrumb-activeSelectionForeground);
+    }
     </style>
 </head>
 <body>
@@ -237,7 +251,7 @@
             </div>
             <h1><span class="codicon codicon-watch" style="margin-top: -4px;margin-left:-10px"></span>&nbsp;Duration</h1>
             <div style="display: flex;">
-                <div class="flexgroup durationstats">
+                <div class="flexgroup durationstats" style="padding-bottom: 24px;">
                     <div class="flexitem">
                         <div class="description">Total</div>
                         <div id="durationStats-total" class="number">0</div>

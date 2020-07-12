@@ -114,11 +114,17 @@ function updateStats(){
         xvalue: 'line',
         small: getWidth(),
         map:pdfmap,
-        hover:function(show,x,yvalues){
+        hover:function(show,x,yvalues, isrange){
             if(show){
-                document.getElementById("durationStats-action").innerText = secondsToString(yvalues[0]);
-                document.getElementById("durationStats-dialogue").innerText = secondsToString(yvalues[1]);
-                document.getElementById("durationStats-total").innerText = secondsToString(yvalues[0]+yvalues[1]);
+                let actionLength = yvalues[0];
+                let dialogueLength = yvalues[1];
+                if(isrange){
+                    actionLength = Math.max(yvalues[0][0],yvalues[0][1]) - Math.min(yvalues[0][0],yvalues[0][1]);
+                    dialogueLength = Math.max(yvalues[1][0],yvalues[1][1]) - Math.min(yvalues[1][0],yvalues[1][1]);
+                }
+                document.getElementById("durationStats-action").innerText = secondsToString(actionLength);
+                document.getElementById("durationStats-dialogue").innerText = secondsToString(dialogueLength);
+                document.getElementById("durationStats-total").innerText = secondsToString(actionLength+dialogueLength);
             }
             else{
                 document.getElementById("durationStats-action").innerText = state.stats.durationStats.action;
