@@ -287,7 +287,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         var lastChild = last(prevSection.children.filter(condition))
                         if (lastChild) return lastChild
                     }
-                    // nest ###xyz inside #abc if there's no ##ijk to next within
+                    // nest ###xyz inside #abc if there's no ##ijk to nest within
                     return prevSection;
                 }
             }
