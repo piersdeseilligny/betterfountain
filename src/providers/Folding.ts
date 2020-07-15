@@ -11,7 +11,7 @@ export class FountainFoldingRangeProvider implements FoldingRangeProvider {
 
 				if(nextStructItem != undefined) //this is the last child, so the end of the folding range is the end of the parent
 					lastline = nextStructItem.range.start.line;
-				ranges.push(new FoldingRange(structItem.range.start.line, lastline-1, FoldingRangeKind.Region));
+				ranges.push(new FoldingRange(structItem.range.start.line, lastline-1));
 
 				if(structItem.children && structItem.children.length){
 					//for each child of the structtoken, repeat this process recursively
