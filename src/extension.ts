@@ -26,7 +26,12 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 				item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
 			}
 			if (token.synopses && token.synopses.length>0) {
-				item.tooltip = token.text + "\n= " + token.synopses.join("\n= ")
+				if(token.synopses.length == 1){
+					item.tooltip = token.synopses[0]
+				}
+				else{
+					item.tooltip = token.synopses.join('\n= ');
+				}
 			}
 			item.command = {
 				command: 'fountain.jumpto',
