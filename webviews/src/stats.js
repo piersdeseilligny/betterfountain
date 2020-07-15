@@ -114,6 +114,7 @@ function updateStats(){
         xvalue: 'line',
         small: getWidth(),
         map:pdfmap,
+        structure: state.stats.structure,
         hover:function(show,x,values, isrange){
             if(show){
                 let actionLength = values[0].length;

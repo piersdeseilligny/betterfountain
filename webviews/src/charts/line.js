@@ -52,6 +52,7 @@ define(function(require) {
                 return y(d[config.yvalue]);
             })
             .curve(d3.curveBasis);
+    
 
         var vis = d3.select(id)
             .append('svg:svg')
@@ -59,11 +60,34 @@ define(function(require) {
             .attr('height', height);
 
         vis.append('rect').attr('width', width).attr('height', innerHeight).attr('fill', 'none').attr('class', 'chart-container').attr('y',headerHeight);
+        
+        var structurecontainer = vis.append('g').attr('class', 'chart-structurecontainer');
+        if(config.structure){
+            function appendStructLine(token, opacity){
+                let tokenline = token.range[0].line;
+                structurecontainer.append('rect').attr('class', 'verticalline')
+                    .attr('x',x(tokenline))
+                    .attr('data-line', tokenline)
+                    .attr('width',1)
+                    .attr('height', innerHeight)
+                    .attr('y',headerHeight)
+                    .attr('fill', 'none').attr('stroke','#fff').attr('opacity', opacity);
+                if(token.children){
+                    for (let i = 0; i < token.children.length; i++) {
+                        appendStructLine(token.children[i], opacity/3);
+                    }
+                }
+            }
+            for (let i = 0; i < config.structure.length; i++) {
+                opacity = 1;
+                appendStructLine(config.structure[i], 1);
+            }
+        }
+        
         let linecontainer = vis.append('g').attr('class', 'chart-linecontainer');
         for (let i = 0; i < datas.length; i++) {
             linecontainer.append('path').attr('d', line(datas[i])).attr('fill', 'none').attr('class', 'chart-data').attr('data-line', i).attr('y',headerHeight);
         }
-
 
 
 
@@ -108,8 +132,9 @@ define(function(require) {
             let ymax = d3.max(ymaxs);
             y.domain([ymin, ymax]);
             vis.selectAll('.chart-data').each(function(d,i){
-                d3.select(this).transition().duration(500).attr('d', line(datas[i]));
+                d3.select(this).transition().ease(d3.easeCubic).duration(500).attr('d', line(datas[i]));
             });
+            repositionStructure(true);
             rightbuttons.select(".unzoom").attr("visibility", "visible");
             
             rightbuttons.select(".buttonseperator").attr('x', width-(72)).attr("visibility", "collapse");
@@ -124,10 +149,11 @@ define(function(require) {
             y.domain([min, max]);
             vis.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
             vis.selectAll('.chart-data').each(function(d,i){
-                d3.select(this).transition().duration(500).attr('d', line(datas[i]));
+                d3.select(this).transition().ease(d3.easeCubic).duration(500).attr('d', line(datas[i]));
             });
             rightbuttons.select(".unzoom").attr("visibility", "collapse");
             rightbuttons.select(".buttonseperator").attr('x', width-(48)).attr("visibility", "collapse");
+            repositionStructure(true);
             rightbuttonsWidth = 48;
         })
         rightbuttons.append("rect").attr("class", "buttonseperator rightbutton").attr('y', height-14).attr('x', width-(48)).attr('height', 14).attr('width',1).attr("visibility", "collapse");
@@ -298,11 +324,21 @@ define(function(require) {
             vis.selectAll('.chart-data').each(function(d,i){
                 d3.select(this).attr('d', line(datas[i]));
             });
+            repositionStructure();
             brush.extent([[0,headerHeight],[width,height-footerHeight]])
             vis.selectAll('.rightbutton').each(function(d,i){
                 d3.select(this).attr('x', width-24*(i+1));
             });
         });
+        function repositionStructure(transition){
+            structurecontainer.selectAll('rect').each(function(d,i){
+                let structline = d3.select(this);
+                if(transition)
+                    structline.transition().duration(500).ease(d3.easeCubic).attr('x', x(structline.attr('data-line')));
+                else
+                    structline.attr('x', x(structline.attr('data-line')));
+            });
+        }
     };
 
     return plugin;

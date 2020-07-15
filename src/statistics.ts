@@ -1,4 +1,4 @@
-import { parseoutput } from "./afterwriting-parser"
+import { parseoutput, StructToken } from "./afterwriting-parser"
 import { secondsToString } from "./utils"
 import { GeneratePdf } from "./pdf/pdf"
 import { FountainConfig } from "./configloader"
@@ -54,6 +54,7 @@ type screenPlayStatistics = {
     lengthStats: lengthStatistics
     durationStats: durationStatistics
     pdfmap: string
+    structure: StructToken[]
 }
 
 const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCharacter[] => {
@@ -225,6 +226,7 @@ export const retrieveScreenPlayStatistics = async (script: string, parsed: parse
         sceneStats: createSceneStatistics(parsed),
         lengthStats: createLengthStatistics(script, pdfstats, parsed),
         durationStats: createDurationStatistics(parsed),
-        pdfmap: JSON.stringify(mapToObject(pdfstats.linemap))
+        pdfmap: JSON.stringify(mapToObject(pdfstats.linemap)),
+        structure: parsed.properties.structure
     }
 }
