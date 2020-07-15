@@ -192,8 +192,8 @@ export const statsAsHtml = (stats: screenPlayStatistics): string => {
 ${pageStyle}
     <h1>General</h1>
     <p>
-        <b>Word count:</b>${stats.lengthStats.words}<br>
-        <b>Page count:</b>${stats.lengthStats.pages}
+        <b>Word count:</b> ${stats.lengthStats.words}<br>
+        <b>Page count:</b> ${stats.lengthStats.pages}
     </p>
     <p><b>Length (approx.):</b> ${stats.timelengthStats.total}
         <ul>

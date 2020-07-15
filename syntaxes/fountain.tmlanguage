@@ -168,7 +168,7 @@
          <key>contentName</key>
          <string>string</string>
          <key>begin</key>
-         <string>^\s*(([[:upper:]'\-0-9- \.]+(\([A-z0-9 '\-.()]+\))*|(@.*))(\s*\^)?$)</string>
+         <string>^\s*(?:(?:([[:upper:]][[:upper:]'\-0-9 \.#]*|@[^\(\^]*)(\([A-z0-9 '\-.()]+\))*)(\s*\^)?$)</string>
          <key>end</key>
          <string>^$</string>
          <key>beginCaptures</key>
@@ -180,10 +180,16 @@
                <string>entity.name.type</string>
             </dict>
             <!--Parenthesis after character name (CONT'D, O.S., MORE)-->
-            <key>3</key>
+            <key>2</key>
             <dict>
                <key>name</key>
                <string>variable.other</string>
+            </dict>
+            <!--Dual dialogue ^ -->
+            <key>3</key>
+            <dict>
+               <key>name</key>
+               <string>entity.name.function</string>
             </dict>
          </dict>
          <key>applyEndPatternLast</key>

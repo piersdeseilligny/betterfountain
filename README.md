@@ -13,6 +13,8 @@ And because it's an extension for vscode, you get access to some incredibly adva
 
 [Sponsor on GitHub ❤](https://github.com/sponsors/piersdeseilligny)
 
+[Discuss on Discord](https://discord.gg/QBm7tKQ)
+
 ![Screenshot of BetterFountain in dark mode](https://raw.githubusercontent.com/piersdeseilligny/betterfountain/master/screenshots/Dark_plus.PNG)
 
 ## Features
