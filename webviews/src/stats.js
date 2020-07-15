@@ -114,13 +114,13 @@ function updateStats(){
         xvalue: 'line',
         small: getWidth(),
         map:pdfmap,
-        hover:function(show,x,yvalues, isrange){
+        hover:function(show,x,values, isrange){
             if(show){
-                let actionLength = yvalues[0];
-                let dialogueLength = yvalues[1];
+                let actionLength = values[0].length;
+                let dialogueLength = values[1].length;
                 if(isrange){
-                    actionLength = Math.max(yvalues[0][0],yvalues[0][1]) - Math.min(yvalues[0][0],yvalues[0][1]);
-                    dialogueLength = Math.max(yvalues[1][0],yvalues[1][1]) - Math.min(yvalues[1][0],yvalues[1][1]);
+                    actionLength = Math.max(values[0][0].length,values[0][1].length) - Math.min(values[0][0].length,values[0][1].length);
+                    dialogueLength = Math.max(values[1][0].length,values[1][1].length) - Math.min(values[1][0].length,values[1][1].length);
                 }
                 document.getElementById("durationStats-action").innerText = secondsToString(actionLength);
                 document.getElementById("durationStats-dialogue").innerText = secondsToString(dialogueLength);

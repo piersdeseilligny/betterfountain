@@ -87,14 +87,50 @@ define(function(require) {
         mouseG.append("text").attr("class", "pageNumber").text("p.1").attr("x", "100%").attr("text-anchor", "end").attr("y", "1em");
         mouseG.append("text").attr("class", "breadcrumbs").text("test").attr("y","1em");
         mouseG.append("text").attr("class", "scene").text("test").attr("y","2.1em").style("opacity",0.5);
-        mouseG.append("text").attr("class", "button openineditor").html("&#xeae9").attr('y', height).attr("visibility","collapse");
-        mouseG.append("text").attr("class", "button zoom").html("&#xeb81").attr('y', height).attr("visibility","collapse").on('click', function(){
-            x.domain([ x.invert(brushSelection[0]), x.invert(brushSelection[1]) ])
+        mouseG.append("text").attr("class", "button selectbutton openineditor").attr("title", "Select in editor").html("&#xeae9").attr('y', height).attr("visibility","collapse").on('click', function(){
+            //select code in editor
+        });
+        var rightbuttonsWidth = 48;
+        mouseG.append("text").attr("class", "button selectbutton zoom").attr("title", "Zoom In").html("&#xeb81").attr('y', height).attr("visibility","collapse").on('click', function(){
+            let xstart = x.invert(brushSelection[0]);
+            let xend = x.invert(brushSelection[1])
+            x.domain([ xstart, xend ])
+            vis.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
+            let ymins = [];
+            let ymaxs = [];
+            for (let i = 0; i < datas.length; i++) {
+                let sliced = datas[i].slice(bisect(xstart,i).index,bisect(xend,i).index);
+                let extent = d3.extent(sliced, function(d){return d[config.yvalue]});
+                ymins.push(extent[0]);
+                ymaxs.push(extent[1]);
+            }
+            let ymin = d3.min(ymins);
+            let ymax = d3.max(ymaxs);
+            y.domain([ymin, ymax]);
+            vis.selectAll('.chart-data').each(function(d,i){
+                d3.select(this).transition().duration(500).attr('d', line(datas[i]));
+            });
+            rightbuttons.select(".unzoom").attr("visibility", "visible");
+            
+            rightbuttons.select(".buttonseperator").attr('x', width-(72)).attr("visibility", "collapse");
+            rightbuttonsWidth = 72;
+        });
+
+        var rightbuttons = mouseG.append("g").attr("class", "rightbuttons")
+        
+        rightbuttons.append("text").attr("class", "button rightbutton snap").attr("title", "Grid snapping").html("&#xeb56").attr('y', height).attr('x', width-24);
+        rightbuttons.append("text").attr("class", "button rightbutton unzoom").attr("title","Zoom Out").html("&#xeb82").attr('y', height).attr('x', width-48).attr("visibility", "collapse").on('click', function(){
+            x.domain([0, longestData - 1])
+            y.domain([min, max]);
             vis.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
             vis.selectAll('.chart-data').each(function(d,i){
                 d3.select(this).transition().duration(500).attr('d', line(datas[i]));
             });
-        });
+            rightbuttons.select(".unzoom").attr("visibility", "collapse");
+            rightbuttons.select(".buttonseperator").attr('x', width-(48)).attr("visibility", "collapse");
+            rightbuttonsWidth = 48;
+        })
+        rightbuttons.append("rect").attr("class", "buttonseperator rightbutton").attr('y', height-14).attr('x', width-(48)).attr('height', 14).attr('width',1).attr("visibility", "collapse");
 
         mouseG.append("rect") // this is the vertical line to follow mouse
           .attr("class", "mouse-line")
@@ -116,18 +152,26 @@ define(function(require) {
             let extent = d3.event.selection;
             if(extent){
                 hover(x.invert(extent[0]), x.invert(extent[1]));
-                let buttons = mouseG.selectAll(".button");
+                let buttons = mouseG.selectAll(".selectbutton");
                 let buttonsWidth = buttons.size() * buttonsize;
                 let offset = 0;
                 
-                if(buttonsWidth>extent[1]) 
+                if(buttonsWidth>extent[1]){
                     //selection is too far to the left, add an offset so they don't clip
                     offset = extent[1]-buttonsWidth; 
-                else if(buttonsWidth>extent[1]-extent[0]){
-                    //selection is smaller than buttons, center it between the two
-                    offset = -((buttonsWidth-(extent[1]-extent[0]))/2)
                 }
-                    
+                else if(extent[1]>(width-rightbuttonsWidth)){
+                    //selection is too far to the right
+                    offset = extent[1]-(width-rightbuttonsWidth);
+                    rightbuttons.select(".buttonseperator").attr('visibility', "visible");
+                }
+                else{
+                    rightbuttons.select(".buttonseperator").attr('visibility', "collapse");
+                    if(buttonsWidth>extent[1]-extent[0]){
+                        //selection is smaller than buttons, center it between the two
+                        offset = -((buttonsWidth-(extent[1]-extent[0]))/2)
+                    }
+                } 
                 buttons.each(function(d,i){
                     d3.select(this).attr("visibility","visible").attr("x", extent[1]+(i*buttonsize)-offset-buttonsWidth);
                 });
@@ -138,9 +182,10 @@ define(function(require) {
             let extent = d3.event.selection;
             brushSelection = extent;
             if(!extent){
-                mouseG.selectAll(".button").each(function(d,i){
+                mouseG.selectAll(".selectbutton").each(function(d,i){
                     d3.select(this).attr("visibility","collapse");
                 });
+                rightbuttons.select(".buttonseperator").attr('visibility', "collapse");
             }
             return;
 
@@ -187,15 +232,15 @@ define(function(require) {
         }
 
         function hover(xval, xval2){
-            yvalues = [];
+            values = [];
             if(config.hover){
                 d3.selectAll('.chart-data').each(function(d,i){
                     if(xval2)
-                        yvalues.push([bisect(xval, i), bisect(xval2, i)]);
+                        values.push([bisect(xval, i), bisect(xval2, i)]);
                     else
-                        yvalues.push(bisect(xval, i));
+                        values.push(bisect(xval, i));
                 });
-                config.hover(true, xval, yvalues, (xval2 != undefined))
+                config.hover(true, xval, values, (xval2 != undefined))
             }
             if(config.map){
                 let lineNb = Math.floor(xval).toString();
@@ -213,8 +258,14 @@ define(function(require) {
             const index = bisect(datas[lineindex], xval, 1);
             const a = datas[lineindex][index - 1];
             const b = datas[lineindex][index];
-            const yval= b && (xval - a[config.xvalue] > b[config.xvalue] - xval) ? b : a;
-            return yval[config.yvalue];
+            if(b && (xval - a[config.xvalue] > b[config.xvalue] - xval)){
+                b.index = index;
+                return b;
+            }
+            else{
+                a.index = index-1;
+                return a;
+            }
           }
         function getInterpolatedY(x0, lineIndex){
             var bisect = d3.bisector(function(d) { return d[config.xvalue]; }).left;
@@ -240,12 +291,16 @@ define(function(require) {
 
         $(window).resize(function(e){
             console.log("resized");
-            let width = $(id).width();
+            width = $(id).width();
             vis.select('rect').attr('width', width);
             vis.select('.mouseG').attr('width', width);
             calculateScales(width,innerHeight);
             vis.selectAll('.chart-data').each(function(d,i){
                 d3.select(this).attr('d', line(datas[i]));
+            });
+            brush.extent([[0,headerHeight],[width,height-footerHeight]])
+            vis.selectAll('.rightbutton').each(function(d,i){
+                d3.select(this).attr('x', width-24*(i+1));
             });
         });
     };
