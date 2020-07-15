@@ -91,7 +91,8 @@ export class StructToken {
 	id: any;
     children: any; //Children of the section
     range: Range; //Range of the scene/section header
-    section:boolean;
+    section: boolean; // true->section, false->scene
+    synopses: string[];
 }
 export class screenplayProperties {
     scenes: { scene: string; line: number, actionLength:number, dialogueLength:number }[];
@@ -272,6 +273,33 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             }
         }
 
+        const latestSectionOrScene = (depth:number, condition: (token:StructToken)=>boolean ):StructToken => {
+            try {
+                if (depth==0) {
+                    return null;
+                } 
+                else if (depth==1) {
+                    return last(result.properties.structure)
+                }
+                else {
+                    var prevSection = latestSectionOrScene(depth-1, condition)
+                    if (prevSection.children != null) {
+                        var lastChild = last(prevSection.children.filter(condition))
+                        if (lastChild) return lastChild
+                    }
+                    // nest ###xyz inside #abc if there's no ##ijk to nest within
+                    return prevSection;
+                }
+            }
+            catch {
+                var section:StructToken = null;
+                while (!section) section = latestSectionOrScene(--depth, condition);
+                return section;
+            }
+        }
+
+        const latestSection = (depth:number):StructToken => latestSectionOrScene(depth, token=>token.section)
+        
         if (state === "normal") {
             if (thistoken.text.match(regex.line_break)) {
                 token_category = "none";
@@ -302,25 +330,13 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 if (current_depth == 0) {
 					cobj.id = '/' + thistoken.line;
 					result.properties.structure.push(cobj);
-				}
-				else if (current_depth == 1) {
-					var level1 = last(result.properties.structure);
-					cobj.id = level1.id + '/' + thistoken.line;
-					level1.children.push(cobj);
-				}
-				else if (current_depth == 2) {
-					var level1 = last(result.properties.structure);
-					var level2 = last(level1.children);
-					cobj.id = level2.id + '/' + thistoken.line;
-					level2.children.push(cobj);
-				}
-				else if (current_depth >= 3) {
-					var level1 = last(result.properties.structure);
-					var level2 = last(level1.children);
-					var level3 = last(level2.children);
-					cobj.id = level3.id + '/' + thistoken.line;
-					level3.children.push(cobj);
                 }
+                else {
+                    var level = latestSection(current_depth);
+                    cobj.id = level.id + '/' + thistoken.line;
+                    level.children.push(cobj);
+                }
+                
                 updatePreviousSceneLength();
                 result.properties.scenes.push({scene: thistoken.number, line: thistoken.line, actionLength: 0, dialogueLength:0})
                 result.properties.sceneLines.push(thistoken.line);
@@ -335,6 +351,13 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             } else if (match = thistoken.text.match(regex.synopsis)) {
                 thistoken.text = match[1];
                 thistoken.type = thistoken.text ? "synopsis" : "separator";
+
+                var level = latestSectionOrScene(current_depth+1, ()=>true);
+                if (level) {
+                    level.synopses = level.synopses || []
+                    level.synopses.push(thistoken.text)
+                }
+
             } else if (match = thistoken.text.match(regex.section)) {
                 thistoken.level = match[1].length;
                 thistoken.text = match[2];
@@ -346,21 +369,15 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 cobj.range = new Range(new Position(thistoken.line, 0), new Position(thistoken.line, thistoken.text.length));
                 cobj.section = true;
 
-				if (thistoken.level == 1) {
+				if (current_depth == 1) {
 					cobj.id = '/' + thistoken.line;
 					result.properties.structure.push(cobj)
 				}
-				else if (thistoken.level == 2) {
-					var level1 = last(result.properties.structure);
-					cobj.id = level1.id + '/' + thistoken.line;
-					level1.children.push(cobj);
-				}
-				else if (thistoken.level == 3) {
-					var level1 = last(result.properties.structure);
-					var level2 = last(level1.children);
-					cobj.id = level2.id + '/' + thistoken.line;
-					level2.children.push(cobj);
-				}
+				else {
+                    var level = latestSection(current_depth-1);
+                    cobj.id = level.id + '/' + thistoken.line;
+                    level.children.push(cobj);
+                }
             } else if (thistoken.text.match(regex.page_break)) {
                 thistoken.text = "";
                 thistoken.type = "page_break";

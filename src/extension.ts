@@ -18,96 +18,51 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 	}
 	getChildren(element?: vscode.TreeItem): vscode.ProviderResult<any[]> {
 		var elements: vscode.TreeItem[] = [];
-		if (element == null) {
-			for (let index = 0; index < activeParsedDocument().properties.structure.length; index++) {
-				const token = activeParsedDocument().properties.structure[index];
-				var item = new vscode.TreeItem(token.text);
-				item.id = token.id;
-				if (token.children != null) {
-					item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-				}
-				item.contextValue = "scene_heading"
-				item.command = {
-					command: 'fountain.jumpto',
-					title: '',
-					arguments: [token.id.substring(1)]
-				};
-				elements.push(item);
+
+		const pushSection = (token:afterparser.StructToken, lineNo:string) => {
+			var item = new vscode.TreeItem(token.text);
+			item.id = token.id;
+			if (token.children != null && token.children.length > 0) {
+				item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
 			}
+			if (token.synopses && token.synopses.length>0) {
+				item.tooltip = token.text + "\n= " + token.synopses.join("\n= ")
+			}
+			item.command = {
+				command: 'fountain.jumpto',
+				title: '',
+				arguments: [lineNo]
+			};
+			elements.push(item);
 		}
 
-		//What follows is possibly the ugliest code I have ever written. My apologies.
+		const structure = activeParsedDocument().properties.structure;
+
+		if (element == null) {
+			// push in the top level sections (Acts) or Scenes outside of Acts
+			for (let index = 0; index < structure.length; index++) {
+				const token = structure[index];
+				pushSection(token, token.id.substring(1))
+			}
+		}
 		else if (element.collapsibleState != vscode.TreeItemCollapsibleState.None) {
-			var ids: string[] = element.id.split("/");
-			if (ids.length >= 2) {
-				for (let index = 0; index < activeParsedDocument().properties.structure.length; index++) {
-					const token = activeParsedDocument().properties.structure[index];
-					var tokenids: string[] = token.id.split("/");
-					if (tokenids[1] == ids[1]) {
-						for (let index1 = 0; index1 < token.children.length; index1++) {
-							const token1 = token.children[index1];
-							var token1ids: string[] = token1.id.split("/");
-							if (ids.length >= 3) {
-								//START
-								if (token1ids[2] == ids[2]) {
-									for (let index2 = 0; index2 < token1.children.length; index2++) {
-										const token2 = token1.children[index2];
-										var token2ids: string[] = token2.id.split("/");
-										if (ids.length >= 4) {
-											//START
-											if (token2ids[3] == ids[3]) {
-												for (let index3 = 0; index3 < token2.children.length; index3++) {
-													const token3 = token2.children[index3];
-													var item = new vscode.TreeItem(token3.text);
-													item.id = token3.id;
-													var token3ids: string[] = token3.id.split("/");
-													if (token3.children != null) {
-														item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-													}
-													item.command = {
-														command: 'fountain.jumpto',
-														title: '',
-														arguments: [token3ids[4]]
-													};
-													elements.push(item);
-												}
-											}
-											//END
-										}
-										else {
-											var item = new vscode.TreeItem(token2.text);
-											item.id = token2.id;
-											if (token2.children != null) {
-												item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-											}
-											item.command = {
-												command: 'fountain.jumpto',
-												title: '',
-												arguments: [token2ids[3]]
-											};
-											elements.push(item);
-										}
-									}
-								}
-								//END
-							}
-							else {
-								var item = new vscode.TreeItem(token1.text);
-								item.id = token1.id;
-								if (token1.children != null) {
-									item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-								}
-								item.command = {
-									command: 'fountain.jumpto',
-									title: '',
-									arguments: [token1ids[2]]
-								};
-								elements.push(item);
-							}
-						}
+			// find sections and scenes within the given element 
+			var elementPath: string[] = element.id.split("/");
+
+			// to recursively find sections and scenes
+			const findSections = (token:afterparser.StructToken, depth:number) => {
+				var tokenPath: string[] = token.id.split("/");
+				if (elementPath.length >= depth+1) {
+					if (tokenPath[depth] == elementPath[depth]) {
+						token.children.forEach((subToken:afterparser.StructToken) => findSections(subToken, depth+1))
 					}
 				}
+				else {
+					pushSection(token, tokenPath[depth]);											
+				}
 			}
+
+			structure.forEach(token => findSections(token, 1));
 		}
 		return elements;
 	}
