@@ -1,5 +1,5 @@
 'use strict';
-import { getFountainConfig } from "./configloader";
+import { getFountainConfig, changeFountainUIPersistence, uiPersistence, initFountainUIPersistence } from "./configloader";
 import { ExtensionContext, languages, TextDocument } from 'vscode';
 import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
@@ -7,74 +7,6 @@ import { GeneratePdf } from "./pdf/pdf";
 import { secondsToString, numberScenes } from "./utils";
 import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
 
-export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
-	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
-		new vscode.EventEmitter<vscode.TreeItem | null>();
-	public readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | null> = this.onDidChangeTreeDataEmitter.event;
-
-	getTreeItem(element: vscode.TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
-		//throw new Error("Method not implemented.");
-		return element;
-	}
-	getChildren(element?: vscode.TreeItem): vscode.ProviderResult<any[]> {
-		var elements: vscode.TreeItem[] = [];
-
-		const pushSection = (token:afterparser.StructToken, lineNo:string) => {
-			var item = new vscode.TreeItem(token.text);
-			item.id = token.id;
-			if (token.children != null && token.children.length > 0) {
-				item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-			}
-			if (token.synopses && token.synopses.length>0) {
-				if(token.synopses.length == 1){
-					item.tooltip = token.synopses[0]
-				}
-				else{
-					item.tooltip = token.synopses.join('\n= ');
-				}
-			}
-			item.command = {
-				command: 'fountain.jumpto',
-				title: '',
-				arguments: [lineNo]
-			};
-			elements.push(item);
-		}
-
-		const structure = activeParsedDocument().properties.structure;
-
-		if (element == null) {
-			// push in the top level sections (Acts) or Scenes outside of Acts
-			for (let index = 0; index < structure.length; index++) {
-				const token = structure[index];
-				pushSection(token, token.id.substring(1))
-			}
-		}
-		else if (element.collapsibleState != vscode.TreeItemCollapsibleState.None) {
-			// find sections and scenes within the given element 
-			var elementPath: string[] = element.id.split("/");
-
-			// to recursively find sections and scenes
-			const findSections = (token:afterparser.StructToken, depth:number) => {
-				var tokenPath: string[] = token.id.split("/");
-				if (elementPath.length >= depth+1) {
-					if (tokenPath[depth] == elementPath[depth]) {
-						token.children.forEach((subToken:afterparser.StructToken) => findSections(subToken, depth+1))
-					}
-				}
-				else {
-					pushSection(token, tokenPath[depth]);											
-				}
-			}
-
-			structure.forEach(token => findSections(token, 1));
-		}
-		return elements;
-	}
-	update(): void {
-		this.onDidChangeTreeDataEmitter.fire(void 0);
-	}
-}
 export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	getTreeItem(element: vscode.TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
 		//throw new Error("Method not implemented.");
@@ -126,6 +58,7 @@ import { FountainSymbolProvider } from "./providers/Symbols";
 import { showDecorations, clearDecorations } from "./providers/Decorations";
 
 import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToUpdate } from "./providers/Preview";
+import { FountainOutlineTreeDataProvider } from "./providers/Outline";
 
 
 /**
@@ -259,6 +192,12 @@ export function activate(context: ExtensionContext) {
 		const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config)
 		const statsHTML = statsAsHtml(stats)
 		statsPanel.webview.html = statsHTML
+	}));
+
+	initFountainUIPersistence(); //create the ui persistence save file
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.togglesynopses', ()=>{
+		changeFountainUIPersistence("outline_visibleSynopses", !uiPersistence.outline_visibleSynopses);
+		outlineViewProvider.update();
 	}));
 
 	vscode.workspace.onWillSaveTextDocument(e => {

@@ -1,6 +1,19 @@
+## **1.6.5** - *2020-07-16*
+*The statistics page is currently being completely rethought (see the `feature-statsrevamp` branch) so there won't be any updates to it until the revamped version is ready. But when it is, it'll probably be the most advanced screenplay statistic systems available.*
+
+**If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
+
+    + Synopses are now included in the outline (can be toggled on/off)
+    + Folding for sections! (Finally)
+    + Infinite potential outline depth (Thanks @daryluren for the PR!)
+    + Improved syntax highlighting (Thanks @daryluren for the PR!)
+
+
+
+
 ## **1.6.4** - *2020-06-22*
     + Add page count to statistics
-    + Fix multiple synopsis in a row preventing PDF Creation when bookmarks are enabled
+    + Fix multiple sections in a row preventing PDF Creation when bookmarks are enabled
     + Fix synopses not being syntax highlighted
 
 ## **1.6.3** - *2020-06-21*

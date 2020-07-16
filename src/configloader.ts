@@ -1,3 +1,7 @@
+var fs = require('fs');
+import * as vscode from 'vscode';
+import * as path from 'path';
+
 export class FountainConfig{
     number_scenes_on_save: boolean;
     embolden_scene_headers:boolean;
@@ -27,7 +31,56 @@ export class FountainConfig{
     preview_theme:string;
     preview_texture:boolean;
 }
-import * as vscode from 'vscode';
+
+export type FountainUIPersistence = {
+    [key: string]: any,
+    outline_visibleSynopses:boolean,
+}
+export let uiPersistence:FountainUIPersistence = {
+    outline_visibleSynopses: true
+}
+
+function checkFileExistsSync(filepath:string){
+    let flag = true;
+    try{
+      fs.accessSync(filepath, fs.constants.F_OK);
+    }catch(e){
+      flag = false;
+    }
+    return flag;
+  }
+
+let uiPersistenceFile = path.join(__dirname, "uipersistence.json");
+
+export var initFountainUIPersistence = function(){
+    if(checkFileExistsSync(uiPersistenceFile)){
+        let savedUiPersistenceStr = fs.readFileSync(uiPersistenceFile);
+        if(savedUiPersistenceStr == undefined){
+            return;
+        }
+        let savedUiPersistence = JSON.parse(savedUiPersistenceStr);
+        Object.keys(uiPersistence).forEach((v)=>{
+            if(Object.keys(savedUiPersistence).includes(v)){
+                uiPersistence[v] = savedUiPersistence[v];
+            }
+        });
+        console.log("Loaded FountainUIPersistence from " + uiPersistenceFile);
+    }
+    else{
+        console.log("Failed to load FountainUIPersistence from " + uiPersistenceFile);
+    }
+
+}
+
+export var changeFountainUIPersistence = function(key:"outline_visibleSynopses", value:any){
+    if(Object.keys(uiPersistence).indexOf(key)>=0){
+        uiPersistence[key] = value;
+        fs.writeFileSync(uiPersistenceFile, JSON.stringify(uiPersistence));
+    }
+    else{
+        throw new Error("The requested fountainUIPersistence key does not exist!");
+    }
+}
 
 export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
     if(!docuri && vscode.window.activeTextEditor != undefined) 

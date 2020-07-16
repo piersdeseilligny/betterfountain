@@ -5,7 +5,7 @@
 	"author": "Piers Deseilligny",
 	"license": "MIT",
 	"icon": "icon.png",
-	"version": "1.6.4",
+	"version": "1.6.5",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
@@ -60,6 +60,15 @@
 				{
 					"id": "fountain-commands",
 					"name": "Commands"
+				}
+			]
+		},
+		"menus":{
+			"view/title": [
+				{
+					"command": "fountain.outline.togglesynopses",
+					"group": "navigation",
+					"when": "view == fountain-outline"
 				}
 			]
 		},
@@ -227,6 +236,15 @@
 			}
 		],
 		"commands": [
+			{
+				"command": "fountain.outline.togglesynopses",
+				"title":"Toggle outline synopses visibility",
+				"category": "Fountain",
+				"icon":{
+					"light": "/assets/synopse_light.svg",
+					"dark": "/assets/synopse_dark.svg"
+				}
+			},
 			{
 				"command": "fountain.livepreview",
 				"title": "Show screenplay live preview (Dynamic switching)",
