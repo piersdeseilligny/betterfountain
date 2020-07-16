@@ -6,6 +6,8 @@ import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import { secondsToString, numberScenes } from "./utils";
 import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
+import * as telemetry from "./telemetry";
+
 
 export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	getTreeItem(element: vscode.TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
@@ -59,6 +61,7 @@ import { showDecorations, clearDecorations } from "./providers/Decorations";
 
 import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToUpdate } from "./providers/Preview";
 import { FountainOutlineTreeDataProvider } from "./providers/Outline";
+import { performance } from "perf_hooks";
 
 
 /**
@@ -120,7 +123,12 @@ export function getEditor(uri:vscode.Uri): vscode.TextEditor{
 	return undefined;
 }
 
+
 export function activate(context: ExtensionContext) {
+
+	//Init telemetry
+	telemetry.initTelemetry();
+
 	//Register for outline tree view
 	vscode.window.registerTreeDataProvider("fountain-outline", outlineViewProvider)
 	vscode.window.createTreeView("fountain-outline", { treeDataProvider: outlineViewProvider });
@@ -137,11 +145,13 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreview', () => {
 		// Create and show a new dynamic webview for the active text editor
 		createPreviewPanel(vscode.window.activeTextEditor,true);
+		telemetry.reportTelemetry("command:fountain.livepreview");
 	}));
 	//Register for live preview (static)
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreviewstatic', () => {
 		// Create and show a new dynamic webview for the active text editor
 		createPreviewPanel(vscode.window.activeTextEditor,false);
+		telemetry.reportTelemetry("command:fountain.livepreviewstatic");
 	}));
 
 	//Jump to line command
@@ -158,6 +168,7 @@ export function activate(context: ExtensionContext) {
 					p.panel.webview.postMessage({ command: 'scrollTo', content: args });
 			});
 		}
+		telemetry.reportTelemetry("command:fountain.jumpto");
 	}));
 
 
@@ -174,6 +185,7 @@ export function activate(context: ExtensionContext) {
 		if (filepath == undefined) return;
 
 		var config = getFountainConfig(activeFountainDocument());
+		telemetry.reportTelemetry("command:fountain.exportpdf");
 		vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async progress => {
 			progress.report({message: "Parsing document", increment: 0});
 			var parsed = afterparser.parse(editor.document.getText(), config, false);
@@ -192,12 +204,14 @@ export function activate(context: ExtensionContext) {
 		const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config)
 		const statsHTML = statsAsHtml(stats)
 		statsPanel.webview.html = statsHTML
+		telemetry.reportTelemetry("command:fountain.statistics");
 	}));
 
 	initFountainUIPersistence(); //create the ui persistence save file
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.togglesynopses', ()=>{
 		changeFountainUIPersistence("outline_visibleSynopses", !uiPersistence.outline_visibleSynopses);
 		outlineViewProvider.update();
+		telemetry.reportTelemetry("command:fountain.outline.togglesynopses");
 	}));
 
 	vscode.workspace.onWillSaveTextDocument(e => {
@@ -277,8 +291,12 @@ var fontTokenExisted: boolean = false;
 const decortypesDialogue = vscode.window.createTextEditorDecorationType({
 });
 
+let parseTelemetryLimiter = 5;
+let parseTelemetryFrequency = 5;
+
 export function parseDocument(document: TextDocument) {
-	console.time("parsing");
+	let t0 = performance.now()
+
 	clearDecorations();
 
 	var previewsToUpdate = getPreviewsToUpdate(document.uri)
@@ -330,7 +348,16 @@ export function parseDocument(document: TextDocument) {
 		outlineViewProvider.update();
 	updateStatus(output.lengthAction, output.lengthDialogue);
 	showDecorations(document.uri);
-	console.timeEnd("parsing");
+
+	let t1 = performance.now()
+	let parseTime = t1-t0;
+	console.info("parsed in " + parseTime);
+	if(parseTelemetryLimiter == parseTelemetryFrequency){
+		telemetry.reportTelemetry("afterparser.parsing", undefined, { linecount: document.lineCount, parseduration: 5 });
+	}
+	parseTelemetryLimiter--;
+	if(parseTelemetryLimiter == 0 ) parseTelemetryLimiter = parseTelemetryFrequency;
+
 }
 
 vscode.window.onDidChangeActiveTextEditor(change => {

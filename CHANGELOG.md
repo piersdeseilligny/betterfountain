@@ -7,6 +7,7 @@
     + Folding for sections! (Finally)
     + Infinite potential outline depth (Thanks @daryluren for the PR!)
     + Improved syntax highlighting (Thanks @daryluren for the PR!)
+    + Anonymized telemetry (respects vscode's "Enable telemetry" toggle)
 
 
 

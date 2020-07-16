@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { FountainStructureProperties } from "./extension";
 import * as parser from "./afterwriting-parser";
 import * as path from "path";
+import * as telemetry from "./telemetry";
 
 //var syllable = require('syllable');
 
@@ -134,6 +135,7 @@ export function secondsToMinutesString(seconds:number):string{
 }
 
 export const numberScenes = () => {
+	telemetry.reportTelemetry("command:fountain.statistics");
 	const regexSceneHeadings = new RegExp(parser.regex.scene_heading.source, "igm");
 	const fullText = vscode.window.activeTextEditor.document.getText()
 	let sceneNumber: number = 1
@@ -179,4 +181,21 @@ export function revealFile(p:string){
 	}
 	var exec = require('child_process').exec;
 	exec(cmd); 
+}
+
+interface IPackageInfo {
+	name: string;
+	version: string;
+	aiKey: string;
+}
+export function getPackageInfo(): IPackageInfo | null {
+	const extension = vscode.extensions.getExtension('piersdeseilligny.betterfountain');
+	if (extension && extension.packageJSON) {
+		return {
+			name: extension.packageJSON.name,
+			version: extension.packageJSON.version,
+			aiKey: extension.packageJSON.aiKey
+		};
+	}
+	return null;
 }
