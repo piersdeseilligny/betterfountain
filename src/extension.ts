@@ -4,10 +4,7 @@ import { ExtensionContext, languages, TextDocument } from 'vscode';
 import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
-import { secondsToString, numberScenes, assetsPath } from "./utils";
-import { retrieveScreenPlayStatistics } from "./statistics";
-import * as fs from "fs";
-import * as path from "path";
+import { secondsToString, numberScenes } from "./utils";
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
@@ -168,6 +165,7 @@ import { FountainSymbolProvider } from "./providers/Symbols";
 import { showDecorations, clearDecorations } from "./providers/Decorations";
 
 import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToUpdate } from "./providers/Preview";
+import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer } from "./providers/Statistics";
 
 
 /**
@@ -252,6 +250,9 @@ export function activate(context: ExtensionContext) {
 		// Create and show a new dynamic webview for the active text editor
 		createPreviewPanel(vscode.window.activeTextEditor,false);
 	}));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
+		createStatisticsPanel(getEditor(activeFountainDocument()));
+	}));
 
 	//Jump to line command
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.jumpto', (args) => {
@@ -290,29 +291,6 @@ export function activate(context: ExtensionContext) {
 		});
 	}));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', numberScenes));
-
-	const statsHtml = fs.readFileSync(assetsPath() + path.sep + "webviews" + path.sep + "stats.html", 'utf8');
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
-		const statsPanel = vscode.window.createWebviewPanel('fountain-statistics', 'Screenplay statistics', -1,{enableScripts:true})
-		const cssDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'node_modules', 'vscode-codicons', 'dist', 'codicon.css'));
-		const jsDiskPath = vscode.Uri.file(path.join(context.extensionPath, 'out', 'webviews', 'stats.bundle.js'));
-
-		statsPanel.webview.html = statsHtml.replace("$CODICON_CSS$", statsPanel.webview.asWebviewUri(cssDiskPath).toString())
-										   .replace("$STATSJS$", statsPanel.webview.asWebviewUri(jsDiskPath).toString())
-		
-		var editor = getEditor(activeFountainDocument());
-		var config = getFountainConfig(activeFountainDocument());
-		var parsed = afterparser.parse(editor.document.getText(), config, false);
-
-		const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config)
-		statsPanel.webview.postMessage({command:"updateStats", content:stats});
-	}));
-	class FountainStatsSerializer implements vscode.WebviewPanelSerializer {
-		async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
-			console.log(webviewPanel);
-			console.log(state);
-		}
-	  }
 
 	vscode.workspace.onWillSaveTextDocument(e => {
 		const config = getFountainConfig(e.document.uri);
@@ -357,7 +335,7 @@ export function activate(context: ExtensionContext) {
 		parseDocument(vscode.window.activeTextEditor.document);
 
 	vscode.window.registerWebviewPanelSerializer('fountain-preview', new FountainPreviewSerializer());
-	vscode.window.registerWebviewPanelSerializer('fountain-statistics', new FountainStatsSerializer());
+	vscode.window.registerWebviewPanelSerializer('fountain-statistics', new FountainStatsPanelSerializer());
 }
 
 

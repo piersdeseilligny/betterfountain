@@ -113,9 +113,9 @@ define(function(require) {
         mouseG.append("text").attr("class", "scene").text("test").attr("y","2.1em").style("opacity",0.5);
         mouseG.append("text").attr("class", "button selectbutton openineditor").attr("title", "Select in editor").html("&#xeae9").attr('y', height).attr("visibility","collapse").on('click', function(){
             //select code in editor
-        });
+        }).append("title").text("Select in Editor");
         var rightbuttonsWidth = 48;
-        mouseG.append("text").attr("class", "button selectbutton zoom").attr("title", "Zoom In").html("&#xeb81").attr('y', height).attr("visibility","collapse").on('click', function(){
+        mouseG.append("text").attr("class", "button selectbutton zoom").html("&#xeb81").attr('y', height).attr("visibility","collapse").on('click', function(){
             let xstart = x.invert(brushSelection[0]);
             let xend = x.invert(brushSelection[1])
             x.domain([ xstart, xend ])
@@ -139,12 +139,12 @@ define(function(require) {
             
             rightbuttons.select(".buttonseperator").attr('x', width-(72)).attr("visibility", "collapse");
             rightbuttonsWidth = 72;
-        });
+        }).append("title").text("Zoom In");;
 
         var rightbuttons = mouseG.append("g").attr("class", "rightbuttons")
         
-        rightbuttons.append("text").attr("class", "button rightbutton snap").attr("title", "Grid snapping").html("&#xeb56").attr('y', height).attr('x', width-24);
-        rightbuttons.append("text").attr("class", "button rightbutton unzoom").attr("title","Zoom Out").html("&#xeb82").attr('y', height).attr('x', width-48).attr("visibility", "collapse").on('click', function(){
+        rightbuttons.append("text").attr("class", "button rightbutton snap").html("&#xeb56").attr('y', height).attr('x', width-24).append("title").text("Grid snapping");
+        rightbuttons.append("text").attr("class", "button rightbutton unzoom").html("&#xeb82").attr('y', height).attr('x', width-48).attr("visibility", "collapse").on('click', function(){
             x.domain([0, longestData - 1])
             y.domain([min, max]);
             vis.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
@@ -155,7 +155,7 @@ define(function(require) {
             rightbuttons.select(".buttonseperator").attr('x', width-(48)).attr("visibility", "collapse");
             repositionStructure(true);
             rightbuttonsWidth = 48;
-        })
+        }).append("title").text("Zoom Out");
         rightbuttons.append("rect").attr("class", "buttonseperator rightbutton").attr('y', height-14).attr('x', width-(48)).attr('height', 14).attr('width',1).attr("visibility", "collapse");
 
         mouseG.append("rect") // this is the vertical line to follow mouse

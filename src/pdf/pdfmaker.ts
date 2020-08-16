@@ -7,6 +7,7 @@
 import helpers from "../helpers";
 import { openFile, revealFile } from "../utils";
 import * as he from 'he';
+
    // import * as blobUtil from "blob-util";
     export class Options{
         filepath:string;

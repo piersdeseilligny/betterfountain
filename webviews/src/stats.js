@@ -3,11 +3,14 @@ const $ = require("jquery");
 const LineChart = require("./charts/line");
 
 var state = {
-    stats: {}
+    stats: {},
+    docuri: ""
 }
 const previousState = vscode.getState();
 if(previousState != undefined){
     state = previousState;
+    console.log("old state=");
+    console.log(state);
     updateStats();
 }
 
@@ -18,7 +21,12 @@ window.addEventListener('message', event => {
         state.stats = event.data.content;
         vscode.setState(state);
         updateStats();
+    } else if(event.data.command == 'setstate'){
+        if(event.data.uri !== undefined)
+            state.docuri = event.data.uri;
+        vscode.setState(state);
     }
+    
 });
 window.addEventListener('blur', event =>{
     document.getElementById("maincontent").classList.remove('isactive');
@@ -63,11 +71,11 @@ function objectToMap(jsonObject){
     return map;
 }
 
-let pdfmap = new Map();
 
 function updateStats(){
     console.log("make pdfmap");
-    pdfmap = objectToMap(JSON.parse(state.stats.pdfmap));
+    console.log(state);
+    let pdfmap = objectToMap(JSON.parse(state.stats.pdfmap));
     console.log("made pdf map");
     document.getElementById("lengthStats-words").innerText = formatNumber(state.stats.lengthStats.words);
     document.getElementById("lengthStats-characters").innerText = formatNumber(state.stats.lengthStats.characters);
