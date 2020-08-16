@@ -4,7 +4,7 @@
 	"description": "Fountain autocomplete, syntax highlighting, and export to PDF",
 	"author": "Piers Deseilligny",
 	"license": "MIT",
-	"aiKey":"0c2689ab-4ce9-416d-a585-c9765b7f4c88",
+	"aiKey": "0c2689ab-4ce9-416d-a585-c9765b7f4c88",
 	"icon": "icon.png",
 	"version": "1.6.5",
 	"repository": {

@@ -208,7 +208,7 @@
                <key>name</key>
                <string>constant.character.escape</string>
                <key>match</key>
-               <string>^[ ]*\(.*\)$</string>
+               <string>^[ \t]*\(.*\)$</string>
                <key>patterns</key>
                <array>
                   <dict>
