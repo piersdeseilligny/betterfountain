@@ -1,8 +1,14 @@
-## **1.6.5** - *2020-07-16*
 *The statistics page is currently being completely rethought (see the `feature-statsrevamp` branch) so there won't be any updates to it until the revamped version is ready. But when it is, it'll probably be the most advanced screenplay statistic systems available.*
 
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.6.7** - *2020-08-24*
+    + Character extensions can now contain typesetters apostrophes (’) in addition to typewritters apostrophes (')
+
+## **1.6.6** - *2020-08-16*
+    + Any line (except action) can now start with spaces or tabs
+
+## **1.6.5** - *2020-07-16*
     + Synopses are now included in the outline (can be toggled on/off)
     + Folding for sections! (Finally)
     + Infinite potential outline depth (Thanks @daryluren for the PR!)
