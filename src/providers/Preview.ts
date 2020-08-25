@@ -75,6 +75,7 @@ function assetsPath(): string{
     return __dirname.substr(0, __dirname.lastIndexOf(path.sep));
 }
 
+
 function loadWebView(docuri: vscode.Uri, preview:vscode.WebviewPanel, dynamic:boolean) {
     let id = Date.now()+Math.floor((Math.random()*1000));
     previews.push({uri:docuri.toString(), dynamic:dynamic, panel:preview, id:id });
