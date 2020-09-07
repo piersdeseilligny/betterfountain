@@ -35,9 +35,11 @@ export class FountainConfig{
 export type FountainUIPersistence = {
     [key: string]: any,
     outline_visibleSynopses:boolean,
+    outline_visibleNotes:boolean
 }
 export let uiPersistence:FountainUIPersistence = {
-    outline_visibleSynopses: true
+    outline_visibleSynopses: true,
+    outline_visibleNotes: true
 }
 
 function checkFileExistsSync(filepath:string){
@@ -72,7 +74,7 @@ export var initFountainUIPersistence = function(){
 
 }
 
-export var changeFountainUIPersistence = function(key:"outline_visibleSynopses", value:any){
+export var changeFountainUIPersistence = function(key:"outline_visibleSynopses"|"outline_visibleNotes", value:any){
     if(Object.keys(uiPersistence).indexOf(key)>=0){
         uiPersistence[key] = value;
         fs.writeFileSync(uiPersistenceFile, JSON.stringify(uiPersistence));

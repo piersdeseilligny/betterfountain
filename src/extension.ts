@@ -213,7 +213,12 @@ export function activate(context: ExtensionContext) {
 		outlineViewProvider.update();
 		telemetry.reportTelemetry("command:fountain.outline.togglesynopses");
 	}));
-
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.togglenotes', ()=>{
+		changeFountainUIPersistence("outline_visibleNotes", !uiPersistence.outline_visibleNotes);
+		outlineViewProvider.update();
+		telemetry.reportTelemetry("command:fountain.outline.togglenotes");
+	}));
+	
 	vscode.workspace.onWillSaveTextDocument(e => {
 		const config = getFountainConfig(e.document.uri);
 		if (config.number_scenes_on_save === true) {

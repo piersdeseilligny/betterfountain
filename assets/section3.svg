@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+    viewBox="-105 -80 160 160" >
+  <g id="root">
+    <path d="M -20 -70 L -10 -50 L -70 70 L -80 50 L -20 -70 M 20 -70 L 30 -50 L -30 70 L -40 50 L 20 -70 " stroke-linecap="round" stroke-linejoin="round" fill="#f7931eff" />
+    <path d="M -70 -30 L -60 -10 L 30 -10 L 40 -30 L -70 -30 M -90 10 L 20 10 L 10 30 L -80 30 L -90 10 " stroke-linecap="round" stroke-linejoin="round" fill="#f7931eff" />
+  </g>
+</svg>
