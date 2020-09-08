@@ -26,10 +26,10 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 
 			if (token.section) {
 				var sectionDepth = ((token.id.match(/\//g) || []).length - 1) % 3 + 1;
-				item.iconPath = __filename + '/..' + '/..' + '/..' + '/assets' + '/section' + sectionDepth + '.svg';
+				item.iconPath = __filename + '/../../../assets/section' + sectionDepth + '.svg';
 			}
 			else {
-				item.iconPath =  __filename + '/..' + '/..' + '/..' + '/assets' + '/scene.svg';					
+				item.iconPath = __filename + '/../../../assets/scene.svg';					
 			}
 			item.command = {
 				command: 'fountain.jumpto',
@@ -41,7 +41,7 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
             if (token.synopses && token.synopses.length>0 && config.uiPersistence.outline_visibleSynopses) {
                 for (let i = 0; i < token.synopses.length; i++) {
                     let item = new vscode.TreeItem("");
-					item.iconPath = __filename + '/..' + '/..' + '/..' + '/assets' + '/synopsis.svg';
+					item.iconPath = __filename + '/../../../assets/synopsis.svg';
 					item.description = token.synopses[i].synopsis;
 					item.tooltip = item.description;
                     item.command = {
@@ -56,7 +56,7 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 			if (token.notes && token.notes.length > 0 && config.uiPersistence.outline_visibleNotes) {
                 for (let i = 0; i < token.notes.length; i++) {
                     let item = new vscode.TreeItem("");
-					item.iconPath = __filename + '/..' + '/..' + '/..' + '/assets' + '/note.svg';
+					item.iconPath = __filename + '/../../../assets/note.svg';
 					item.description = token.notes[i].note;
 					item.tooltip = item.description;
 					item.command = {
