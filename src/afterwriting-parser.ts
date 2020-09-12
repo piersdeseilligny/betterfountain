@@ -92,6 +92,7 @@ export class StructToken {
     children: any; //Children of the section
     range: Range; //Range of the scene/section header
     section:boolean;
+    level: number;
 }
 export class screenplayProperties {
     scenes: { scene: string; line: number, actionLength:number, dialogueLength:number }[];
@@ -341,7 +342,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 thistoken.type = "section";
                 let cobj: StructToken = new StructToken();
                 cobj.text = thistoken.text;
-				current_depth = thistoken.level;
+                current_depth = thistoken.level;
+                cobj.level = thistoken.level;
                 cobj.children = [];
                 cobj.range = new Range(new Position(thistoken.line, 0), new Position(thistoken.line, thistoken.text.length));
                 cobj.section = true;

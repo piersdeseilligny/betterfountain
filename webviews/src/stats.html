@@ -42,6 +42,12 @@
         top:0;
         background-color:var(--vscode-sideBar-background);
         user-select: none;
+        display: flex;
+        flex-direction: column;
+    }
+    .sidenav .footer{
+        margin-top:auto;
+        margin-bottom:12px;
     }
     .sidenav .title{
         margin-left: 24px;
@@ -189,6 +195,25 @@
         opacity:0.5;
         transform: translateX(8px);
     }
+    .footer .codicon{
+        font-size:18px;
+        color: var(--vscode-editorwarning-foreground) !important;
+    }
+    .footer .btntitle{
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--vscode-editorwarning-foreground) !important;
+    }
+    .footer .details {
+        line-height: 16px;
+        display: block;
+        margin-left: 28px;
+        margin-right: -12px;
+    }
+    .footer li{
+        padding-top:12px;
+        padding-bottom: 12px;
+    }
     </style>
 </head>
 <body>
@@ -211,8 +236,7 @@
                 <span class="codicon codicon-location"></span>Locations
             </li>
         </ul>
-        <div class="title"><span class="codicon codicon-book"></span>Reports</div>
-        
+        <div class="title"><span class="codicon codicon-book"></span>Reports</div> 
         <ul>
             <li data-group="characters">
                 <span class="codicon codicon-organization"></span>Characters
@@ -222,6 +246,13 @@
             </li>
             <li data-group="locations">
                 <span class="codicon codicon-location"></span>Locations
+            </li>
+        </ul>
+        <ul class="footer">
+            <li>
+                <span class="codicon codicon-sync"></span>
+                <span class="btntitle">Refresh</span>
+                <span class="details">The fountain document has been updated</span>
             </li>
         </ul>
     </div>

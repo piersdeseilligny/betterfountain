@@ -62,19 +62,31 @@ define(function(require) {
         vis.append('rect').attr('width', width).attr('height', innerHeight).attr('fill', 'none').attr('class', 'chart-container').attr('y',headerHeight);
         
         var structurecontainer = vis.append('g').attr('class', 'chart-structurecontainer');
+        var structurePositions = [0];
         if(config.structure){
-            function appendStructLine(token, opacity){
+            function appendStructLine(token){
                 let tokenline = token.range[0].line;
+                let opacity = 0.1;
+                let rulerheight = 6;
+                if(token.section){
+                    switch(token.level){
+                        case 1: opacity = 1; rulerheight = 12; break;
+                        case 2: opacity = 0.5; rulerheight = 8; break;
+                        case 3: opacity = 0.25; rulerheight = 6; break;
+                    }
+                }
+                let xpos = x(tokenline);
+                structurePositions.push(xpos);
                 structurecontainer.append('rect').attr('class', 'verticalline')
-                    .attr('x',x(tokenline))
+                    .attr('x',xpos)
                     .attr('data-line', tokenline)
                     .attr('width',1)
-                    .attr('height', innerHeight)
-                    .attr('y',headerHeight)
+                    .attr('height', rulerheight)
+                    .attr('y',headerHeight+innerHeight-rulerheight)
                     .attr('fill', 'none').attr('stroke','#fff').attr('opacity', opacity);
                 if(token.children){
                     for (let i = 0; i < token.children.length; i++) {
-                        appendStructLine(token.children[i], opacity/3);
+                        appendStructLine(token.children[i]);
                     }
                 }
             }
@@ -82,6 +94,7 @@ define(function(require) {
                 opacity = 1;
                 appendStructLine(config.structure[i], 1);
             }
+            structurePositions.push(width)
         }
         
         let linecontainer = vis.append('g').attr('class', 'chart-linecontainer');
@@ -143,7 +156,7 @@ define(function(require) {
 
         var rightbuttons = mouseG.append("g").attr("class", "rightbuttons")
         
-        rightbuttons.append("text").attr("class", "button rightbutton snap").html("&#xeb56").attr('y', height).attr('x', width-24).append("title").text("Grid snapping");
+        rightbuttons.append("text").attr("class", "button rightbutton snap").html("&#xebae").attr('y', height).attr('x', width-24).append("title").text("Grid snapping");
         rightbuttons.append("text").attr("class", "button rightbutton unzoom").html("&#xeb82").attr('y', height).attr('x', width-48).attr("visibility", "collapse").on('click', function(){
             x.domain([0, longestData - 1])
             y.domain([min, max]);
@@ -177,6 +190,15 @@ define(function(require) {
         .on('brush', function(){
             let extent = d3.event.selection;
             if(extent){
+                    if (d3.event.sourceEvent.type !== "brush"){
+                        const d0 = d3.event.selection.map(x.invert);
+                        console.log("selected ["+extent[0]+", "+extent[1]+"]")
+                        let snappedX0 = structurePositions[d3.bisectLeft(structurePositions, extent[0])];
+                        let snappedX1 = structurePositions[d3.bisectLeft(structurePositions, extent[1])];
+                        console.log("snap to ["+snappedX0+", "+snappedX1+"]")
+                        d3.select(this).call(brush.move, [snappedX0, snappedX1]);
+                    }
+                if(!extent[0] || !extent[1]) return;
                 hover(x.invert(extent[0]), x.invert(extent[1]));
                 let buttons = mouseG.selectAll(".selectbutton");
                 let buttonsWidth = buttons.size() * buttonsize;
@@ -331,13 +353,17 @@ define(function(require) {
             });
         });
         function repositionStructure(transition){
+            structurePositions = [0];
             structurecontainer.selectAll('rect').each(function(d,i){
                 let structline = d3.select(this);
+                let xpos = x(structline.attr('data-line'));
+                structurePositions.push(xpos);
                 if(transition)
                     structline.transition().duration(500).ease(d3.easeCubic).attr('x', x(structline.attr('data-line')));
                 else
                     structline.attr('x', x(structline.attr('data-line')));
             });
+            structurePositions.push(width);
         }
     };
 
