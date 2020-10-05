@@ -247,8 +247,8 @@
 				"title": "Toggle outline synopses visibility",
 				"category": "Fountain",
 				"icon": {
-					"light": "/assets/synopsis.svg",
-					"dark": "/assets/synopsis.svg"
+					"light": "/assets/synopse.svg",
+					"dark": "/assets/synopse.svg"
 				}
 			},
 			{
@@ -256,8 +256,8 @@
 				"title": "Toggle outline note visibility",
 				"category": "Fountain",
 				"icon": {
-					"light": "/assets/note.svg",
-					"dark": "/assets/note.svg"
+					"light": "/assets/note_light.svg",
+					"dark": "/assets/note_dark.svg"
 				}
 			},
 			{

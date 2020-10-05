@@ -41,7 +41,7 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
             if (token.synopses && token.synopses.length>0 && config.uiPersistence.outline_visibleSynopses) {
                 for (let i = 0; i < token.synopses.length; i++) {
                     let item = new vscode.TreeItem("");
-					item.iconPath = __filename + '/../../../assets/synopsis.svg';
+					item.iconPath = __filename + '/../../../assets/synopse_offset.svg';
 					item.description = token.synopses[i].synopsis;
 					item.tooltip = item.description;
                     item.command = {
@@ -55,8 +55,11 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 
 			if (token.notes && token.notes.length > 0 && config.uiPersistence.outline_visibleNotes) {
                 for (let i = 0; i < token.notes.length; i++) {
-                    let item = new vscode.TreeItem("");
-					item.iconPath = __filename + '/../../../assets/note.svg';
+					let item = new vscode.TreeItem("");
+					item.iconPath = {
+						light: __filename + '/../../../assets/note_light.svg',
+						dark: __filename + '/../../../assets/note_dark.svg'
+					};
 					item.description = token.notes[i].note;
 					item.tooltip = item.description;
 					item.command = {
