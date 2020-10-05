@@ -25,7 +25,7 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 			}
 
 			if (token.section) {
-				var sectionDepth = ((token.id.match(/\//g) || []).length - 1) % 3 + 1;
+				var sectionDepth = Math.min((token.id.match(/\//g) || []).length, 5); //maximum depth is 5 - anything deeper is the same color as 5
 				item.iconPath = __filename + '/../../../assets/section' + sectionDepth + '.svg';
 			}
 			else {
@@ -57,8 +57,8 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
                 for (let i = 0; i < token.notes.length; i++) {
 					let item = new vscode.TreeItem("");
 					item.iconPath = {
-						light: __filename + '/../../../assets/note_light.svg',
-						dark: __filename + '/../../../assets/note_dark.svg'
+						light: __filename + '/../../../assets/note_light_offset.svg',
+						dark: __filename + '/../../../assets/note_dark_offset.svg'
 					};
 					item.description = token.notes[i].note;
 					item.tooltip = item.description;
