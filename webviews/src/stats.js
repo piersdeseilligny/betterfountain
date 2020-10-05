@@ -1,3 +1,4 @@
+import "./lib/contextmenu.css"
 const vscode = acquireVsCodeApi();
 const $ = require("jquery");
 const LineChart = require("./charts/line");

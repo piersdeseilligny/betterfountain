@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require("webpack");
 
 module.exports = {
   entry: './webviews/src/stats.js',
@@ -9,5 +10,19 @@ module.exports = {
   optimization: {
     minimize: false
   },
+  module:{
+    rules:[
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      }
+    ]
+  },
+  plugins:[
+    new webpack.ProvidePlugin({
+      $: "jquery",
+      jQuery:"jquery"
+    })
+  ],
   devtool: 'eval-cheap-source-map'
 };

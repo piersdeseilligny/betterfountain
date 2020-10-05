@@ -2,8 +2,10 @@ define(function(require) {
 
     /** @type {import('@types/d3')} */
     var d3 = require('d3');
-    /** @type {import('@types/jquery/index')} */
-    var $ = require('jquery');
+
+    require("../lib/jquery.ui.position.min.js");
+    require("../lib/contextmenu.js");
+    
 
     console.log("d3=");
     console.log(d3);
@@ -154,9 +156,30 @@ define(function(require) {
             rightbuttonsWidth = 72;
         }).append("title").text("Zoom In");;
 
-        var rightbuttons = mouseG.append("g").attr("class", "rightbuttons")
+        var rightbuttons = mouseG.append("g").attr("class", "rightbuttons");
         
-        rightbuttons.append("text").attr("class", "button rightbutton snap").html("&#xebae").attr('y', height).attr('x', width-24).append("title").text("Grid snapping");
+        let magnetbtn = rightbuttons.append("text").attr("class", "button rightbutton snap").html("&#xebae").attr('y', height).attr('x', width-24).append("title").text("Grid snapping").on("click",function(){
+            console.log("Clicked on snap thing");
+        });
+         $.contextMenu({
+            selector:".button.rightbutton.snap",
+            trigger:"left",
+            build: function($trigger, e) {
+                return {
+                    callback: function(key, options) {
+                        var m = "clicked: " + key;
+                        window.console && console.log(m) || alert(m); 
+                    },
+                    items: {
+                        snapsection:{name:"Snap to sections", type:"checkbox"},
+                        snapscenes:{name:"Snap to scenes", type:"checkbox"}
+                    }
+                }
+            }
+        });
+            
+        console.log(magnetbtn);
+
         rightbuttons.append("text").attr("class", "button rightbutton unzoom").html("&#xeb82").attr('y', height).attr('x', width-48).attr("visibility", "collapse").on('click', function(){
             x.domain([0, longestData - 1])
             y.domain([min, max]);
