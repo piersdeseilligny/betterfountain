@@ -30,6 +30,8 @@ export class FountainConfig{
     synchronized_markup_and_preview:boolean;
     preview_theme:string;
     preview_texture:boolean;
+    text_more:string;
+    text_contd:string;
 }
 
 export type FountainUIPersistence = {
@@ -114,6 +116,8 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         print_dialogue_numbers: pdfConfig.showDialogueNumbers,
         create_bookmarks: pdfConfig.createBookmarks,
         invisible_section_bookmarks: pdfConfig.invisibleSectionBookmarks,
+        text_more: pdfConfig.textMORE,
+        text_contd: pdfConfig.textCONTD,
         synchronized_markup_and_preview: generalConfig.synchronizedMarkupAndPreview,
         preview_theme: generalConfig.previewTheme,
         preview_texture: generalConfig.previewTexture

@@ -237,6 +237,16 @@
 						"type": "boolean",
 						"default": true,
 						"description": "If 'Print Sections' is false, add a bookmark for the section to the following scene header instead"
+					},
+					"fountain.pdf.textMORE": {
+						"type": "string",
+						"default": "(MORE)",
+						"description": "Text to print when dialogue is cut before a page break - \"(MORE)\" in English."
+					},
+					"fountain.pdf.textCONTD": {
+						"type": "string",
+						"default": "(CONT'D)",
+						"description": "Text to print by a character's name when continuing dialogue after a page break - \"(CONT'D)\" in English."
 					}
 				}
 			}
