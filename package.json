@@ -106,6 +106,16 @@
 						"type": "boolean",
 						"default": true,
 						"description": "Noise texture on the live preview (absent from PDF)"
+					},
+					"fountain.general.textCONTD": {
+						"type": "string",
+						"default": "(CONT'D)",
+						"description": "Text to print next to character when his/her part continues on the next page"
+					},
+					"fountain.general.textMORE": {
+						"type": "string",
+						"default": "(MORE)",
+						"description": "Text to print next to character when his/her part has been continued from the previous page"
 					}
 				}
 			},

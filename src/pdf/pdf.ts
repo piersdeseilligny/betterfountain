@@ -66,8 +66,8 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, p
         config.print_watermark = watermark;
     parsedDocument.lines = liner.line(parsedDocument.tokens, {
         print: print.print_profiles[config.print_profile],
-        text_more: "(MORE)",
-        text_contd: "(CONT'D)",
+        text_more: config.text_more,
+        text_contd: config.text_contd,
         split_dialogue: true
     });
 
