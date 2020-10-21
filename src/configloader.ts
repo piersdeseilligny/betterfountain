@@ -116,10 +116,10 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         print_dialogue_numbers: pdfConfig.showDialogueNumbers,
         create_bookmarks: pdfConfig.createBookmarks,
         invisible_section_bookmarks: pdfConfig.invisibleSectionBookmarks,
+        text_more: pdfConfig.textMORE,
+        text_contd: pdfConfig.textCONTD,
         synchronized_markup_and_preview: generalConfig.synchronizedMarkupAndPreview,
         preview_theme: generalConfig.previewTheme,
-        preview_texture: generalConfig.previewTexture,
-        text_more: generalConfig.textMORE,
-        text_contd: generalConfig.textCONTD
+        preview_texture: generalConfig.previewTexture
     }
 }
