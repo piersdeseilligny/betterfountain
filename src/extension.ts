@@ -20,7 +20,6 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		const treeExportPdfDebug = new vscode.TreeItem("Export PDF with default name");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
 		const numberScenes = new vscode.TreeItem("Number all scenes (replaces existing scene numbers)");
-		const scriptbreakdown = new vscode.TreeItem("Break down script and generate call sheets");
 		const statistics = new vscode.TreeItem("Calculate screenplay statistics");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
@@ -42,10 +41,6 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			command: 'fountain.numberScenes',
 			title: ''
 		};
-		scriptbreakdown.command = {
-			command: 'fountain.scriptbreakdown',
-			title: ''
-		};
 		statistics.command = {
 			command: 'fountain.statistics',
 			title: ''
@@ -54,7 +49,6 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		elements.push(treeExportPdfDebug);
 		elements.push(treeLivePreview);
 		elements.push(numberScenes);
-		elements.push(scriptbreakdown);
 		elements.push(statistics);
 		return elements;
 	}
@@ -213,8 +207,6 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => exportPdf()));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfdebug', async () => exportPdf(false,true)));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', numberScenes));
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.scriptbreakdown', async () => {
-	}));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
 		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
 		statsPanel.webview.html = `Calculating screenplay statistics...`

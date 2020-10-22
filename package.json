@@ -1,5 +1,5 @@
 {
-	"name": "betterfountaindev",
+	"name": "betterfountain",
 	"displayName": "Better Fountain",
 	"description": "Fountain autocomplete, syntax highlighting, and export to PDF",
 	"author": "Piers Deseilligny",
@@ -33,7 +33,6 @@
 		"onCommand:fountain.livepreview",
 		"onCommand:fountain.exportpdf",
 		"onCommand:fountain.exportpdfdebug",
-		"onCommand:fountain.breakdownscript",
 		"onWebviewPanel:fountainPreview"
 	],
 	"main": "./out/extension",
@@ -300,11 +299,6 @@
 			{
 				"command": "fountain.numberScenes",
 				"title": "Number all scenes (overwrites existing scene numbers)",
-				"category": "Fountain"
-			},
-			{
-				"command": "fountain.scriptbreakdown",
-				"title": "Break down script and generate call sheet",
 				"category": "Fountain"
 			},
 			{
