@@ -236,7 +236,7 @@
 					"fountain.pdf.invisibleSectionBookmarks": {
 						"type": "boolean",
 						"default": true,
-						"description": "If 'Print Sections' is false, add a bookmark for the section to the following scene header instead"
+						"markdownDescription": "If `#fountain.pdf.printSections#` is false, add a bookmark for the section to the following scene header instead"
 					}
 				}
 			}
