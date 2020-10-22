@@ -33,6 +33,7 @@
 		"onCommand:fountain.livepreview",
 		"onCommand:fountain.exportpdf",
 		"onCommand:fountain.exportpdfdebug",
+		"onCommand:fountain.exportpdfcustom",
 		"onWebviewPanel:fountainPreview"
 	],
 	"main": "./out/extension",
@@ -289,6 +290,11 @@
 			{
 				"command": "fountain.exportpdfdebug",
 				"title": "Export screenplay PDF with default name and open it",
+				"category": "Fountain"
+			},
+			{
+				"command": "fountain.exportpdfcustom",
+				"title": "Export screenplay PDF with custom settings",
 				"category": "Fountain"
 			},
 			{

@@ -1,12 +1,12 @@
 import * as pdfmaker from "./pdfmaker";
 import * as print from "./print";
-import { FountainConfig } from "../configloader";
+import { FountainConfig, ExportConfig } from "../configloader";
 import * as helpers from "../helpers";
 import * as fliner from "./liner";
 import * as vscode from "vscode";
 
 //Creates the PDF, or returns stats if output path is "$STATS$"
-export var GeneratePdf = function (outputpath: string, config: FountainConfig, parsedDocument: any, progress?: vscode.Progress<{ message?: string; increment?: number; }> ):any {
+export var GeneratePdf = function (outputpath: string, config: FountainConfig, exportconfig: ExportConfig, parsedDocument: any, progress?: vscode.Progress<{ message?: string; increment?: number; }> ):any {
 
     if(progress) progress.report({message: "Converting to individual lines", increment: 25});
     var liner: any = new fliner.Liner(helpers.default, config.print_dialogue_numbers);
@@ -76,7 +76,8 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, p
         parsed: parsedDocument,
         print: print.print_profiles[config.print_profile],
         config: config,
-        font: font
+        font: font,
+        exportconfig:exportconfig
     }
 
     if(outputpath=="$STATS$") 

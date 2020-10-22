@@ -34,6 +34,10 @@ export class FountainConfig{
     text_contd:string;
 }
 
+export class ExportConfig {
+    highlighted_characters: Array<String>;
+}
+
 export type FountainUIPersistence = {
     [key: string]: any,
     outline_visibleSynopses:boolean,

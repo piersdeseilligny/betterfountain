@@ -13,6 +13,7 @@ import { openFile, revealFile } from "../utils";
         parsed:any;
         print:print.PrintProfile;
         font:string;
+        exportconfig:fountainconfig.ExportConfig;
     }
     var PDFDocument = require('pdfkit'),
         //helper = require('../helpers'),
@@ -169,6 +170,10 @@ import { openFile, revealFile } from "../utils";
 
             doc.fill(color);
 
+            if (options.highlight) {
+                doc.highlight(x * 72,y * 72, doc.widthOfString(text), doc.currentLineHeight());
+            }
+            
             if (print.note.italic) {
                 text = text.replace(/\[\[/g, '*[[').replace(/\]\]/g, ']]*');
             }
@@ -253,7 +258,8 @@ import { openFile, revealFile } from "../utils";
         var parsed = opts.parsed,
             cfg = opts.config,
             print = opts.print,
-            lines = parsed.lines;
+            lines = parsed.lines,
+            exportcfg = opts.exportconfig;
 
         var title_token = get_title_page_token(parsed, 'title');
         var author_token = get_title_page_token(parsed, 'author');
@@ -475,10 +481,22 @@ import { openFile, revealFile } from "../utils";
                 text = line.text;
 
                 var color = (print[line.type] && print[line.type].color) || '#000000';
-                var text_properties = {
-                    color: color
-                };
+
+                var general_text_properties = {
+                    color: color,
+                    highlight: false
+                }
                 
+                function get_text_properties(lline = line, expcfg = exportcfg, old_text_properties = general_text_properties) {
+                    var  new_text_properties = Object.assign({},old_text_properties)
+                    if (lline.type === 'character' && expcfg.highlighted_characters.includes(lline.text.toUpperCase())) {
+                        new_text_properties.highlight = true;
+                    };
+                    return new_text_properties
+                }
+
+                var text_properties = get_text_properties();
+
                 if(line.type == "parenthetical" && !text.startsWith("(")){
                     text = " " + text;
                 }
@@ -559,11 +577,13 @@ import { openFile, revealFile } from "../utils";
                     if (line.token && line.token.dual) {
                         if (line.right_column) {
                             var y_right = y;
-                            line.right_column.forEach(function(line:any) {
+                            line.right_column.forEach(function(right_line:any) {
                                 var feed_right = (print[line.type] || {}).feed || print.action.feed;
                                 feed_right -= (feed_right - print.left_margin) / 2;
                                 feed_right += (print.page_width - print.right_margin - print.left_margin) / 2;
-                                doc.text(line.text, feed_right, print.top_margin + print.font_height * y_right++, text_properties);
+                                var right_text_properties = get_text_properties(right_line);
+                                doc.text(right_line.text, feed_right, print.top_margin + print.font_height * y_right++, right_text_properties);
+
                             });
                         }
 
