@@ -4,7 +4,7 @@ import { ExtensionContext, languages, TextDocument } from 'vscode';
 import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
-import { secondsToString, numberScenes } from "./utils";
+import { secondsToString, numberScenes, openFile } from "./utils";
 import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
 import * as telemetry from "./telemetry";
 
@@ -17,12 +17,17 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 	getChildren(/*element?: vscode.TreeItem*/): vscode.ProviderResult<any[]> {
 		const elements: vscode.TreeItem[] = [];
 		const treeExportPdf = new vscode.TreeItem("Export PDF");
+		const treeExportPdfDebug = new vscode.TreeItem("Export PDF with default name");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
 		const numberScenes = new vscode.TreeItem("Number all scenes (replaces existing scene numbers)");
 		const scriptbreakdown = new vscode.TreeItem("Break down script and generate call sheets");
 		const statistics = new vscode.TreeItem("Calculate screenplay statistics");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
+			title: ''
+		};
+		treeExportPdfDebug.command = {
+			command: 'fountain.exportpdfdebug',
 			title: ''
 		};
 		treeLivePreview.command = {
@@ -46,6 +51,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			title: ''
 		};
 		elements.push(treeExportPdf);
+		elements.push(treeExportPdfDebug);
 		elements.push(treeLivePreview);
 		elements.push(numberScenes);
 		elements.push(scriptbreakdown);
@@ -128,7 +134,33 @@ export function getEditor(uri:vscode.Uri): vscode.TextEditor{
 	//the editor was not visible,
 	return undefined;
 }
+export async function exportPdf(showSaveDialog:boolean = true, openFileOnSave:boolean = false) {
+	var canceled = false;
+	if (canceled) return;
+	var editor = getEditor(activeFountainDocument());
+	var saveuri = vscode.Uri.file(editor.document.fileName.replace('.fountain', '.pdf'));
+	var filepath:vscode.Uri = undefined;
+	if (showSaveDialog) {
+		filepath = await vscode.window.showSaveDialog(
+			{
+				filters: { "PDF File": ["pdf"] },
+				defaultUri: saveuri
+			});
+	} else {
+		filepath = saveuri;
+	}
+	if (filepath == undefined) return;
 
+	var config = getFountainConfig(activeFountainDocument());
+	telemetry.reportTelemetry("command:fountain.exportpdf");
+	vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async progress => {
+		progress.report({message: "Parsing document", increment: 0});
+		var parsed = afterparser.parse(editor.document.getText(), config, false);
+		GeneratePdf(filepath.fsPath, config, parsed, progress);
+	});
+	if (openFileOnSave) {openFile(filepath.fsPath)}
+}
+	
 
 export function activate(context: ExtensionContext) {
 
@@ -178,26 +210,8 @@ export function activate(context: ExtensionContext) {
 	}));
 
 
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => {
-		var canceled = false;
-		if (canceled) return;
-		var editor = getEditor(activeFountainDocument());
-		var saveuri = vscode.Uri.file(editor.document.fileName.replace('.fountain', '.pdf'));
-		var filepath = await vscode.window.showSaveDialog(
-			{
-				filters: { "PDF File": ["pdf"] },
-				defaultUri: saveuri
-			});
-		if (filepath == undefined) return;
-
-		var config = getFountainConfig(activeFountainDocument());
-		telemetry.reportTelemetry("command:fountain.exportpdf");
-		vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async progress => {
-			progress.report({message: "Parsing document", increment: 0});
-			var parsed = afterparser.parse(editor.document.getText(), config, false);
-			GeneratePdf(filepath.fsPath, config, parsed, progress);
-		});
-	}));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => exportPdf()));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfdebug', async () => exportPdf(false,true)));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', numberScenes));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.scriptbreakdown', async () => {
 	}));
