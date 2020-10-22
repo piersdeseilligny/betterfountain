@@ -19,6 +19,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		const treeExportPdf = new vscode.TreeItem("Export PDF");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
 		const numberScenes = new vscode.TreeItem("Number all scenes (replaces existing scene numbers)");
+		const scriptbreakdown = new vscode.TreeItem("Break down script and generate call sheets");
 		const statistics = new vscode.TreeItem("Calculate screenplay statistics");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
@@ -35,7 +36,11 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		numberScenes.command = {
 			command: 'fountain.numberScenes',
 			title: ''
-		}
+		};
+		scriptbreakdown.command = {
+			command: 'fountain.scriptbreakdown',
+			title: ''
+		};
 		statistics.command = {
 			command: 'fountain.statistics',
 			title: ''
@@ -43,6 +48,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		elements.push(treeExportPdf);
 		elements.push(treeLivePreview);
 		elements.push(numberScenes);
+		elements.push(scriptbreakdown);
 		elements.push(statistics);
 		return elements;
 	}
@@ -176,7 +182,7 @@ export function activate(context: ExtensionContext) {
 		var canceled = false;
 		if (canceled) return;
 		var editor = getEditor(activeFountainDocument());
-		var saveuri = vscode.Uri.file(editor.document.fileName.replace('.fountain', ''));
+		var saveuri = vscode.Uri.file(editor.document.fileName.replace('.fountain', '.pdf'));
 		var filepath = await vscode.window.showSaveDialog(
 			{
 				filters: { "PDF File": ["pdf"] },
@@ -193,6 +199,8 @@ export function activate(context: ExtensionContext) {
 		});
 	}));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', numberScenes));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.scriptbreakdown', async () => {
+	}));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
 		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
 		statsPanel.webview.html = `Calculating screenplay statistics...`
