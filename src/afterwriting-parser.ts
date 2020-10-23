@@ -209,6 +209,49 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         }
     }
 
+    const latestSectionOrScene = (depth:number, condition: (token:StructToken)=>boolean ):StructToken => {
+        try {
+            if (depth==0) {
+                return null;
+            } 
+            else if (depth==1) {
+                return last(result.properties.structure)
+            }
+            else {
+                var prevSection = latestSectionOrScene(depth-1, condition)
+                if (prevSection.children != null) {
+                    var lastChild = last(prevSection.children.filter(condition))
+                    if (lastChild) return lastChild
+                }
+                // nest ###xyz inside #abc if there's no ##ijk to nest within
+                return prevSection;
+            }
+        }
+        catch {
+            var section:StructToken = null;
+            while (!section) section = latestSectionOrScene(--depth, condition);
+            return section;
+        }
+    }
+
+    const processInlineNote = (text:string):number =>{
+        let irrelevantTextLength = 0;
+        if (match = text.match(new RegExp(regex.note_inline))) {
+            var level = latestSectionOrScene(current_depth+1, ()=>true);
+            if (level) {
+                level.notes = level.notes || []
+                for (let i = 0; i < match.length; i++) {
+                    match[i] = match[i].slice(2,match[i].length-2);
+                    level.notes.push({note: match[i], line:thistoken.line});
+                    irrelevantTextLength+=match[i].length;
+                }
+            }
+        }
+        return irrelevantTextLength;
+    }
+
+
+
     for (var i = 0; i < lines_length; i++) {
         text = lines[i];
 
@@ -274,31 +317,6 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             }
         }
 
-        const latestSectionOrScene = (depth:number, condition: (token:StructToken)=>boolean ):StructToken => {
-            try {
-                if (depth==0) {
-                    return null;
-                } 
-                else if (depth==1) {
-                    return last(result.properties.structure)
-                }
-                else {
-                    var prevSection = latestSectionOrScene(depth-1, condition)
-                    if (prevSection.children != null) {
-                        var lastChild = last(prevSection.children.filter(condition))
-                        if (lastChild) return lastChild
-                    }
-                    // nest ###xyz inside #abc if there's no ##ijk to nest within
-                    return prevSection;
-                }
-            }
-            catch {
-                var section:StructToken = null;
-                while (!section) section = latestSectionOrScene(--depth, condition);
-                return section;
-            }
-        }
-
         const latestSection = (depth:number):StructToken => latestSectionOrScene(depth, token=>token.section)
         
         if (state === "normal") {
@@ -356,15 +374,6 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 if (level) {
                     level.synopses = level.synopses || []
                     level.synopses.push({synopsis:thistoken.text, line:thistoken.line})
-                }
-            } else if (match = thistoken.text.match(new RegExp(regex.note_inline, ""))) {
-                thistoken.text = match[1];
-                thistoken.type = "note";
-
-                var level = latestSectionOrScene(current_depth+1, ()=>true);
-                if (level) {
-                    level.notes = level.notes || []
-                    level.notes.push({note: thistoken.text, line:thistoken.line})
                 }
             } else if (match = thistoken.text.match(regex.section)) {
                 thistoken.level = match[1].length;
@@ -455,8 +464,9 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 }
             }
             else {
+                let irrelevantActionLength = processInlineNote(thistoken.text);
                 thistoken.type = "action";
-                result.lengthAction += thistoken.text.length/20;
+                result.lengthAction += (thistoken.text.length-irrelevantActionLength)/20;
             }
         } else {
             if (thistoken.text.match(regex.parenthetical)) {

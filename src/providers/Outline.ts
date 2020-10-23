@@ -37,20 +37,31 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 				arguments: [lineNo]
 			};
 			
-            elements.push(item);
+            
             if (token.synopses && token.synopses.length>0 && config.uiPersistence.outline_visibleSynopses) {
-                for (let i = 0; i < token.synopses.length; i++) {
-                    let item = new vscode.TreeItem("");
-					item.iconPath = __filename + '/../../../assets/synopse_offset.svg';
-					item.description = token.synopses[i].synopsis;
-					item.tooltip = item.description;
-                    item.command = {
+				let loopCounterStart = 0;
+				// the loop counter starts allows us to not show the first synopse of a collapsible item (seeing as it's added to the description)
+				if(item.collapsibleState!=vscode.TreeItemCollapsibleState.None){
+					//If the item is collapsable, also render the synopse as a description (otherwise it's after all the children of the item)
+					item.description=token.synopses[0].synopsis;
+					loopCounterStart = 1;
+				}
+				elements.push(item);
+                for (let i = loopCounterStart; i < token.synopses.length; i++) {
+                    let synopse = new vscode.TreeItem("");
+					synopse.iconPath = __filename + '/../../../assets/synopse_offset.svg';
+					synopse.description = token.synopses[i].synopsis;
+					synopse.tooltip = synopse.description;
+                    synopse.command = {
                         command: 'fountain.jumpto',
                         title: '',
                         arguments: [token.synopses[i].line]
                     };
-                    elements.push(item);
+                    elements.push(synopse);
                 }
+			}
+			else{
+				elements.push(item);
 			}
 
 			if (token.notes && token.notes.length > 0 && config.uiPersistence.outline_visibleNotes) {

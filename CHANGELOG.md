@@ -2,6 +2,10 @@
 
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.6.10** - *2020-10-23*
+    · Fixed inline notes replacing the entire action block
+    · Notes for sections now also appear as a description in the outline
+
 ## **1.6.9** - *2020-10-22*
     + "(MORE)" and "(CONT'D)" text can now be changed in the settings (Thanks @rnwzd for the PR!)
     · Very minor adjustments to some descriptions in the PDF Settings
