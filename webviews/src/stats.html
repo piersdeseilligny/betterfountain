@@ -153,6 +153,9 @@
     .mouse-line{
         fill: var(--vscode-panel-border);
     }
+    .chart-data{
+        stroke:var(--vscode-panel-border);
+    }
     #durationStats-lengthchart .chart-data[data-line="0"]{
         stroke: var(--vscode-symbolIcon-constructorForeground);
     }
@@ -213,6 +216,9 @@
     .footer li{
         padding-top:12px;
         padding-bottom: 12px;
+    }
+    #characterStats-lengthchart{
+        height:120px;
     }
     </style>
 </head>
@@ -301,13 +307,14 @@
                         <div id="durationStats-dialogue" class="number">0</div>
                     </div>
                 </div>
-                <div style="width:100%;margin:0px 12px;" id="durationStats-lengthchart"></div>
+                <div style="width:100%;margin:0px 12px;" class="linechart" id="durationStats-lengthchart"></div>
             </div>
         </div>
         <div style="display:none" data-group="characters">
             <table id="characterTable" style="width:100%">
 
             </table>
+            <div style="width:100%;margin:0px 12px;" class="linechart" id="characterStats-lengthchart"></div>
         </div>
         <div style="display:none" data-group="scenes">
             Scenes

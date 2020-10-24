@@ -1,11 +1,62 @@
 import "./lib/contextmenu.css"
 const vscode = acquireVsCodeApi();
 const $ = require("jquery");
+
+require("./lib/contextmenu.js");
+require("./lib/jquery.ui.position.min.js");
+
+$.contextMenu.defaults.animation = {
+    duration: 83,
+    show: 'fadeIn',
+    hide: 'fadeOut'
+}
+$.contextMenu.defaults.autoHide=false;
+$.contextMenu.types.check = function(item, opt, root) {
+    $(`<span><span class="codicon codicon-check ${item.selected ? 'checked':''}"></span>` + item.name + '</span>').appendTo(this);
+    function toggleState(){
+        if(item.settingskey){
+            let newstate = !state.uipersistence[item.settingskey];
+            item.selected = newstate;
+            state.uipersistence[item.settingskey] = newstate;
+            if(newstate){
+                $(item.$node[0]).find(".codicon-check").addClass('checked');
+            }
+            else{
+                $(item.$node[0]).find(".codicon-check").removeClass('checked');
+            }
+            
+        }
+    }
+    this.on('contextmenu:focus', function(e) {
+        // setup some awesome stuff
+    }).on('contextmenu:blur', function(e) {
+        // tear down whatever you did
+    }).on('keydown', function(e) {
+        console.log("keydownnn");
+        toggleState();
+    }).on('mouseup', function(e){
+        console.log("clickkk");
+        toggleState();
+        if(item.updateOnClick){
+            $.contextMenu('update');
+        }
+        item.callback();
+        return false;
+    });
+};
+
 const LineChart = require("./charts/line");
 
 var state = {
     stats: {},
-    docuri: ""
+    uipersistence:{
+        freeSelection:false,
+        snapToSection1:true,
+        snapToSection2:true,
+        snapToSection3:false,
+        snapToScene:true
+    },
+    docuri: "",
 }
 const previousState = vscode.getState();
 if(previousState != undefined){
@@ -118,7 +169,7 @@ function updateStats(){
         </tr>
         `
     }, '')}`
-    LineChart.render('#durationStats-lengthchart', [state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue], {
+    LineChart.render('#durationStats-lengthchart', [state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue], state.uipersistence, {
         yvalue: 'length',
         xvalue: 'line',
         small: getWidth(),
@@ -142,6 +193,15 @@ function updateStats(){
                 document.getElementById("durationStats-total").innerText = state.stats.durationStats.total;
             }
         }
+    });
+    console.log("duration stats=");
+    
+    LineChart.render('#characterStats-lengthchart', state.stats.durationStats.characters, state.uipersistence, {
+        yvalue: 'length',
+        xvalue: 'line',
+        small: getWidth(),
+        map:pdfmap,
+        structure: state.stats.structure
     });
 }
 

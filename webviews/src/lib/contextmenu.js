@@ -1,17 +1,17 @@
 /**
- * jQuery contextMenu v2.9.2 - Plugin for simple contextMenu handling
+ * jQuery contextMenu v@VERSION - Plugin for simple contextMenu handling
  *
- * Version: v2.9.2
+ * Version: v@VERSION
  *
  * Authors: Björn Brala (SWIS.nl), Rodney Rehm, Addy Osmani (patches for FF)
  * Web: http://swisnl.github.io/jQuery-contextMenu/
  *
- * Copyright (c) 2011-2020 SWIS BV and contributors
+ * Copyright (c) 2011-@YEAR SWIS BV and contributors
  *
  * Licensed under
  *   MIT License http://www.opensource.org/licenses/mit-license
  *
- * Date: 2020-05-13T13:55:36.983Z
+ * Date: @DATE
  */
 
 // jscs:disable
@@ -233,9 +233,9 @@
             zIndex: 1,
             // show hide animation settings
             animation: {
-                duration: 83,
-                show: 'fadeIn',
-                hide: ''
+                duration: 50,
+                show: 'slideDown',
+                hide: 'slideUp'
             },
             // events
             events: {
@@ -1082,7 +1082,7 @@
                 $(document).off('.contextMenuAutoHide').off('keydown.contextMenu');
                 // hide menu
                 if (opt.$menu) {
-                    opt.$menu[opt.animation.hide](opt.animation.duration, function () {
+                    opt.$menu[opt.animation.hide](0, function () {
                         // tear down dynamically built menu after animation is completed.
                         if (opt.build) {
                             opt.$menu.remove();

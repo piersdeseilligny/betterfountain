@@ -297,3 +297,21 @@
 .context-menu-accesskey {
   text-decoration: underline;
 }
+
+.context-menu-item{
+  height: 1.8em;
+  line-height: 1.8em;
+}
+.context-menu-item .codicon-check{
+  display: none;
+  position: absolute;
+  left: 0;
+  width: 2em;
+  height: 1.8em;
+  font-size: 1em;
+  line-height: 1.8em;
+}
+
+.context-menu-item .codicon-check.checked{
+  display: inline-block;
+}

@@ -171,6 +171,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         last_character_index,
         dual_right,
         state = "normal",
+        previousCharacter,
         cache_state_for_comment,
         nested_comments = 0,
         title_page_started = false
@@ -378,6 +379,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     thistoken.takeNumber = takeCount++;
                     if(config.print_dialogue_numbers) AddDialogueNumberDecoration(thistoken)
                     thistoken.text = thistoken.text.replace(/^@/, "");
+                    previousCharacter = thistoken.text;
                     if (thistoken.text[thistoken.text.length - 1] === "^") {
                         if (cfg.use_dual_dialogue) {
                             state = "dual_dialogue"
@@ -442,6 +444,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             } else {
                 thistoken.type = "dialogue";
                 thistoken.time = calculateDialogueDuration(thistoken.text);
+                thistoken.character = previousCharacter;
                 result.lengthDialogue += thistoken.time;
             }
             if (dual_right) {

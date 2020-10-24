@@ -40,12 +40,18 @@ type lengthchartitem = {
     length:number
 }
 
+type characterDuration={
+    name:string,
+    lengthchart: lengthchartitem[]
+}
+
 type durationStatistics = {
     dialogue: string
     action: string
     total: string,
-    lengthchart_action: lengthchartitem[]
-    lengthchart_dialogue: lengthchartitem[]
+    lengthchart_action: lengthchartitem[],
+    lengthchart_dialogue: lengthchartitem[],
+    characters:characterDuration[]
 }
 
 type screenPlayStatistics = {
@@ -139,9 +145,10 @@ const createSceneStatistics = (parsed: parseoutput): singleSceneStatistic[] => {
 
 
 
-const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:lengthchartitem[]} => {
+const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:lengthchartitem[], characters:characterDuration[]} => {
     let action:lengthchartitem[] = [{line:0, length: 0, scene:undefined }]
     let dialogue:lengthchartitem[] = [{line:0, length: 0, scene:undefined }]
+    let characters = new Map<string, lengthchartitem[]>();
     let previousLengthAction = 0;
     let previousLengthDialogue = 0;
     let currentScene = "";
@@ -165,10 +172,16 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
             }
             else if(element.type == "dialogue"){
                 dialogue.push({line:element.line, length: previousLengthDialogue, scene:currentScene });
+                if(!characters.has(element.character)) characters.set(element.character, []);
+                characters.get(element.character).push({line:element.line, length: previousLengthDialogue, scene:currentScene });
             }
         }
     });
-    return {action:action, dialogue:dialogue};
+    let characterDuration = [];
+    for (const [key, value] of characters) {
+        characterDuration.push({name:key, lengthchart:value});
+    }
+    return {action:action, dialogue:dialogue, characters: characterDuration};
 };
 
 const getWordCount = (script: string): number => {
@@ -207,7 +220,8 @@ const createDurationStatistics = (parsed: parseoutput): durationStatistics => {
         action: secondsToString(parsed.lengthAction),
         total: secondsToString(parsed.lengthDialogue + parsed.lengthAction),
         lengthchart_action: lengthcharts.action,
-        lengthchart_dialogue: lengthcharts.dialogue
+        lengthchart_dialogue: lengthcharts.dialogue,
+        characters: lengthcharts.characters
     }
 }
 
