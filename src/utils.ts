@@ -3,6 +3,7 @@ import { FountainStructureProperties } from "./extension";
 import * as parser from "./afterwriting-parser";
 import * as path from "path";
 import * as telemetry from "./telemetry";
+import { GenerateSceneNumbers } from "./scenenumbering";
 
 //var syllable = require('syllable');
 
@@ -134,7 +135,7 @@ export function secondsToMinutesString(seconds:number):string{
 	
 }
 
-export const numberScenes = () => {
+export const numberScenes1 = () => {
 	telemetry.reportTelemetry("command:fountain.statistics");
 	const regexSceneHeadings = new RegExp(parser.regex.scene_heading.source, "igm");
 	const fullText = vscode.window.activeTextEditor.document.getText()
@@ -153,7 +154,35 @@ export const numberScenes = () => {
 	})
 }
 
-export const last = function(array: any[]): any {
+export const numberScenes2 = () => {
+	telemetry.reportTelemetry("command:fountain.statistics");
+	const regexSceneHeadings = new RegExp(parser.regex.scene_heading.source, "igm");
+	const fullText = vscode.window.activeTextEditor.document.getText();
+
+	const oldNumbers: string[] = [];
+	var m;
+	while (m = regexSceneHeadings.exec(fullText)) {
+		const n = m[0].match(/#(.*)#$/);
+		if (n) oldNumbers.push(n[0]);
+		else oldNumbers.push(null);
+	}
+
+	const newNumbers = GenerateSceneNumbers(oldNumbers);
+
+	const newText = fullText.replace(regexSceneHeadings, (heading) => {
+		const noPrevHeadingNumbers = heading.replace(/ #.+#$/, "")
+		const newHeading = `${noPrevHeadingNumbers} #${newNumbers.shift()}#`		
+		return newHeading
+	})
+	vscode.window.activeTextEditor.edit((editBuilder) => {
+		editBuilder.replace(
+			new vscode.Range(new vscode.Position(0, 0), new vscode.Position(vscode.window.activeTextEditor.document.lineCount, 0)),
+			newText
+		)
+	})
+}
+
+export const last = function (array: any[]): any {
 	return array[array.length - 1];
 }
 

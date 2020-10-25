@@ -67,9 +67,5 @@ describe("Scene Number Strategy: Standard", () => {
         expect(sn.GenerateSceneNumbers([null, null, "2"]))
             .toEqual(["A0", "B0", "2"]); // because "1" must have been used.
     })
-    it("Generate [ 100 _ ]", () => {
-        expect(sn.GenerateSceneNumbers(["100", null]))
-            .toEqual(["100", "101"]); // because "1" must have been used.
-    })
 
 })
