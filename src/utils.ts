@@ -163,7 +163,7 @@ export const numberScenes2 = () => {
 	var m;
 	while (m = regexSceneHeadings.exec(fullText)) {
 		const n = m[0].match(/#(.*)#$/);
-		if (n) oldNumbers.push(n[0]);
+		if (n) oldNumbers.push(n[1]);
 		else oldNumbers.push(null);
 	}
 
@@ -171,7 +171,7 @@ export const numberScenes2 = () => {
 
 	const newText = fullText.replace(regexSceneHeadings, (heading) => {
 		const noPrevHeadingNumbers = heading.replace(/ #.+#$/, "")
-		const newHeading = `${noPrevHeadingNumbers} #${newNumbers.shift()}#`		
+		const newHeading = `${noPrevHeadingNumbers} #${newNumbers.shift()}#`
 		return newHeading
 	})
 	vscode.window.activeTextEditor.edit((editBuilder) => {

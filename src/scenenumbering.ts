@@ -1,8 +1,12 @@
 import * as diff from 'diff';
 
-export function GenerateSceneNumbers(currentSceneNumbers: string[], strategy?: SceneNumberingStrategy): string[] {
-    strategy = strategy || new StandardSceneNumberingStrategy();
+export enum SceneNumberingStrategyTypes {
+    "Standard"
+};
 
+export function GenerateSceneNumbers(currentSceneNumbers: string[], strategyType?: SceneNumberingStrategyTypes): string[] {
+
+    const strategy = MakeSceneNumberingStrategy(strategyType);
     const used = strategy.deduceUsedNumbers(currentSceneNumbers.filter(v => v));
     const alignment = expandChanges(diff.diffArrays(used, currentSceneNumbers));
 
@@ -10,7 +14,7 @@ export function GenerateSceneNumbers(currentSceneNumbers: string[], strategy?: S
         var i = start;
         while (true) {
             i += direction;
-            if (i < 0) return strategy.zeroth();
+            if (i < 0) return strategy.getZeroth();
             if (i >= alignment.length) return null;
             if (!alignment[i].added && !alignment[i].removed) return alignment[i].value[0];
         }
@@ -36,6 +40,14 @@ export function GenerateSceneNumbers(currentSceneNumbers: string[], strategy?: S
         .filter(v => v);
 }
 
+export function MakeSceneNumberingStrategy(_strategyType: SceneNumberingStrategyTypes) {
+    // future Strategies could be selectable in the settings
+    return new StandardSceneNumberingStrategy();
+}
+
+// turns a Change like
+// {count:2,values:['a','b']} into 
+// [{values:['a']},{values:['b']}]
 function expandChanges(changes: diff.ArrayChange<string>[]): diff.ArrayChange<string>[] {
     const result: diff.ArrayChange<string>[] = [];
     while (changes.length > 0) {
@@ -53,25 +65,24 @@ function expandChanges(changes: diff.ArrayChange<string>[]): diff.ArrayChange<st
 
 interface SceneNumberingStrategy {
 
-    /* For sorting purposes */
+    /// For sorting purposes
     compare(a: string, b: string): number;
 
-    /* To deduce which numbers have been used already
-        in case the author has deleted some. 
-        Numbers ideally shouldn't be reused even 
-        if deleted. */
+    /// To deduce which numbers have been used already
+    ///    in case the author has deleted some. 
+    ///    Numbers ideally shouldn't be reused even 
+    ///    if deleted.
     deduceUsedNumbers(existing: string[]): string[];
 
-    /* Calculate what an inserted scene should be numbered. */
+    /// Calculate what an inserted scene should be numbered.
     getInBetween(a: string, b: string, illegal?: string[]): string;
 
-    /* Get a number bigger than all those provided */
+    /// Get a number bigger than all those provided
     getNext(smalls: string[]): string;
 
-    /* what if you insert before the first scene? */
-    zeroth(): string;
+    /// what if you insert before the first scene?
+    getZeroth(): string;
 }
-
 
 export class StandardSceneNumberingStrategy
     implements SceneNumberingStrategy {
@@ -147,7 +158,7 @@ export class StandardSceneNumberingStrategy
     }
 
     // hmmm
-    zeroth(): string { return "0" }
+    getZeroth(): string { return "0" }
 
     // helpers
     static toNumeric = function (s: string): number[] {
