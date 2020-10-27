@@ -1,3 +1,7 @@
+const {
+    values
+} = require('d3');
+
 define(function (require) {
 
     /** @type {import('@types/d3')} */
@@ -7,6 +11,24 @@ define(function (require) {
     console.log("d3=");
     console.log(d3);
     var plugin = {};
+
+
+    function padZero(i) {
+        if (i < 10) {
+            i = "0" + i;
+        }
+        return i;
+    }
+
+    function secondsToString(seconds) {
+        var time = new Date(null);
+        time.setHours(0);
+        time.setMinutes(0);
+        time.setSeconds(seconds);
+        return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
+    }
+
+    vis = {}
 
     plugin.render = function (id, datas, uipersistence, config) {
         $(id).empty();
@@ -31,8 +53,8 @@ define(function (require) {
         var width = $(id).width();
         var height = $(id).height();
         var padding = 4;
-        let headerHeight = 32;
-        let footerHeight = 20;
+        let headerHeight = 36;
+        let footerHeight = 64;
         let innerHeight = height - headerHeight - footerHeight;
 
         var x, y;
@@ -64,39 +86,45 @@ define(function (require) {
         var structurePositions = [0];
 
         function calculateStructurePositions() {
+            structurecontainer.selectAll('rect').remove();
             if (config.structure) {
+                structurePositions = [0]
+
                 function appendStructLine(token) {
-                    structurePositions = []
                     let tokenline = token.range[0].line;
                     let opacity = 0.1;
                     let rulerheight = 6;
                     let xpos = x(tokenline);
+                    let tokentype = "";
                     if (token.section) {
                         switch (token.level) {
                             case 1:
-                                if(uipersistence.snapToSection1) structurePositions.push(xpos);
+                                if (uipersistence.chartSnapToSection1) structurePositions.push(xpos);
+                                tokentype = "section1";
                                 opacity = 1;
                                 rulerheight = 12;
                                 break;
                             case 2:
-                                if(uipersistence.snapToSection2) structurePositions.push(xpos);
+                                if (uipersistence.chartSnapToSection2) structurePositions.push(xpos);
+                                tokentype = "section2";
                                 opacity = 0.5;
                                 rulerheight = 8;
                                 break;
-                            case 3:
-                                if(uipersistence.snapToSection3) structurePositions.push(xpos);
+                            default:
+                                if (uipersistence.chartSnapToSection3) structurePositions.push(xpos);
+                                tokentype = "section3";
                                 opacity = 0.25;
                                 rulerheight = 6;
                                 break;
                         }
+                    } else {
+                        if (uipersistence.chartSnapToScene) structurePositions.push(xpos);
+                        tokentype = "scene";
                     }
-                    else{
-                        if(uipersistence.snapToScene) structurePositions.push(xpos);
-                    }
-
                     structurecontainer.append('rect').attr('class', 'verticalline')
                         .attr('x', xpos)
                         .attr('data-line', tokenline)
+                        .attr('data-type', tokentype)
                         .attr('width', 1)
                         .attr('height', rulerheight)
                         .attr('y', headerHeight + innerHeight - rulerheight)
@@ -140,14 +168,399 @@ define(function (require) {
 
         let brushSelection = [0, 0];
         var mouseG = vis.append("g").attr("class", "mouse-over-effects");
-        mouseG.append("text").attr("class", "pageNumber").text("p.1").attr("x", "100%").attr("text-anchor", "end").attr("y", "1em");
-        mouseG.append("text").attr("class", "breadcrumbs").text("test").attr("y", "1em");
-        mouseG.append("text").attr("class", "scene").text("test").attr("y", "2.1em").style("opacity", 0.5);
-        mouseG.append("text").attr("class", "button selectbutton openineditor").attr("title", "Select in editor").html("&#xeae9").attr('y', height).attr("visibility", "collapse").on('click', function () {
+        var selectionRightFooter = mouseG.append("g").attr("class", "selectionrightfooter").attr("visibility", "collapse");
+        var selectionLeftFooter = mouseG.append("g").attr("class", "selectionleftfooter").attr("visibility", "collapse");
+        var selectionRightFooterWidth = 0;
+        var selectionLeftFooterWidth = 0;
+        var mouseGhover = mouseG.append("g").style("opacity", "0");
+        mouseGhover.append("text").attr("class", "pageNumber").text("p.1").attr("x", "100%").attr("text-anchor", "end").attr("y", "1em");
+        mouseGhover.append("text").attr("class", "currentTime").text("00:00:00").attr("x", "100%").attr("text-anchor", "end").attr("y", "2.25em");
+        mouseGhover.append("text").attr("class", "breadcrumbs").text("test").attr("y", "1em");
+        mouseGhover.append("text").attr("class", "scene").text("test").attr("y", "2.25em").style("opacity", 0.5);
+        selectionRightFooter.append("text").attr("class", "button openineditor").attr("title", "Select in editor").html("&#xeae9").attr('y', height - footerHeight + 24).on('click', function () {
+            if (config.revealSelection && brush.extent()) {
+                config.revealSelection(x.invert(brushSelection[0]), x.invert(brushSelection[1]));
+            }
             //select code in editor
         }).append("title").text("Select in Editor");
+        selectionRightFooterWidth += 16; //width of button
+        selectionRightFooterWidth += 8; //added margin between buttons
+
         var rightbuttonsWidth = 48;
-        mouseG.append("text").attr("class", "button selectbutton zoom").html("&#xeb81").attr('y', height).attr("visibility", "collapse").on('click', function () {
+        var leftbuttonsWidth = 0;
+        selectionRightFooter.append("text").attr("class", "button zoom").html("&#xeb81").attr('y', height - footerHeight + 24).attr('x', selectionRightFooterWidth).on('click', zoomChart).append("title").text("Zoom In");
+        selectionRightFooterWidth += 16; //width of button
+        selectionRightFooterWidth += 8; //added margin between buttons
+
+
+        var rightbuttons = mouseG.append("g").attr("class", "rightbuttons");
+        var selectionhtml = mouseG.append("g").attr("class", "selectionhtml");
+
+        let magnetbtn = rightbuttons.append("text").attr("class", "button rightbutton snap").html("&#xebae").attr('y', height - footerHeight + 24).attr('x', width - 24).append("title").text("Grid snapping").on("click", function () {
+            console.log("Clicked on snap thing");
+        });
+
+        var snapMenu = $.contextMenu({
+            selector: ".button.rightbutton.snap",
+            trigger: "left",
+
+            build: function ($trigger, e) {
+                return {
+                    callback: function (key, options) {
+                        var m = "clicked: " + key;
+                    },
+                    items: {
+                        freeSelection: {
+                            name: "Free Selection",
+                            selected: uipersistence.chartFreeSelection,
+                            updateOnClick: true,
+                            settingskey: "chartFreeSelection",
+                            type: "check",
+                            callback: function () {
+                                console.log("called back!");
+                                calculateStructurePositions();
+                                return false;
+                            }
+                        },
+                        snapToSection1: {
+                            name: "Snap to # section",
+                            selected: uipersistence.chartSnapToSection1,
+                            settingskey: "chartSnapToSection1",
+                            type: "check",
+                            disabled: () => uipersistence.chartFreeSelection,
+                            callback: function () {
+                                console.log("called back!");
+                                calculateStructurePositions();
+                                return false;
+                            }
+                        },
+                        snapToSection2: {
+                            name: "Snap to ## section",
+                            selected: uipersistence.chartSnapToSection2,
+                            settingskey: "chartSnapToSection2",
+                            type: "check",
+                            disabled: () => uipersistence.chartFreeSelection,
+                            callback: function () {
+                                console.log("called back!");
+                                calculateStructurePositions();
+                                return false;
+                            }
+                        },
+                        snapToSection3: {
+                            name: "Snap to ###+ section",
+                            selected: uipersistence.chartSnapToSection3,
+                            settingskey: "chartSnapToSection3",
+                            type: "check",
+                            disabled: () => uipersistence.chartFreeSelection,
+                            callback: function () {
+                                console.log("called back!");
+                                calculateStructurePositions();
+                                return false;
+                            }
+                        },
+                        snapToScene: {
+                            name: "Snap to scenes",
+                            selected: uipersistence.chartSnapToScene,
+                            settingskey: "chartSnapToScene",
+                            type: "check",
+                            disabled: () => uipersistence.chartFreeSelection,
+                            callback: function () {
+                                console.log("called back!");
+                                calculateStructurePositions();
+                            }
+                        },
+                    }
+                }
+            },
+        });
+
+        rightbuttons.append("text").attr("class", "button rightbutton unzoom").html("&#xeb82").attr('y', height - footerHeight + 24).attr('x', width - 48).attr("visibility", "collapse").on('click', function () {
+            x.domain([0, longestData - 1])
+            y.domain([min, max]);
+            vis.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
+            vis.selectAll('.chart-data').each(function (d, i) {
+                d3.select(this).transition().ease(d3.easeCubic).duration(500).attr('d', line(datas[i]));
+            });
+            vis.select(".caret-line").transition().ease(d3.easeCubic).duration(500).attr('x',x(caretline));
+            rightbuttons.select(".unzoom").attr("visibility", "collapse");
+            rightbuttons.select(".buttonseperator").attr('x', width - (48)).attr("visibility", "collapse");
+            repositionStructure(true);
+            rightbuttonsWidth = 48;
+        }).append("title").text("Zoom Out");
+        rightbuttons.append("rect").attr("class", "buttonseperator rightbutton").attr('y', height - footerHeight + 24 - 14).attr('x', width - (48)).attr('height', 14).attr('width', 1).attr("visibility", "collapse");
+
+        mouseG.append("rect") // this is the vertical line to follow mouse
+            .attr("class", "mouse-line")
+            .attr("width", "1px")
+            .attr("y", headerHeight)
+            .attr("height", innerHeight)
+            .style("opacity", "0");
+
+        mouseG.append("rect") // this is the vertical line to follow mouse
+            .attr("class", "caret-line")
+            .attr("width", "1px")
+            .attr("y", headerHeight)
+            .attr("height", innerHeight)
+            .style("opacity", "1");
+
+        ///
+        /// BRUSHING
+        ///
+
+        var idleTimeout
+
+        function idled() {
+            idleTimeout = null;
+        }
+
+        let buttonsize = 22;
+        let selectionExists = false;
+        let brush = d3.brushX().extent([
+                [0, headerHeight],
+                [width, height - footerHeight]
+            ])
+            .on('brush', function () {
+                let extent = d3.event.selection;
+                if (extent) {
+                    if (d3.event.sourceEvent.type !== "brush" && !uipersistence.chartFreeSelection) {
+                        const d0 = d3.event.selection.map(x.invert);
+                        console.log("selected [" + extent[0] + ", " + extent[1] + "]")
+                        let snappedX0 = structurePositions[d3.bisectLeft(structurePositions, extent[0])];
+                        let snappedX1 = structurePositions[d3.bisectLeft(structurePositions, extent[1])];
+                        console.log("snap to [" + snappedX0 + ", " + snappedX1 + "]")
+                        d3.select(this).call(brush.move, [snappedX0, snappedX1]);
+                        extent[0] = snappedX0;
+                        extent[1] = snappedX1;
+                    }
+                    if (!extent[0] && !extent[1]) return;
+                    let invertedExtent0 = x.invert(extent[0]);
+                    let invertedExtent1 = x.invert(extent[1]);
+                    let vals = hover(invertedExtent0, invertedExtent1);
+                    let rightoffset = 0;
+
+                    let selectionLeftFooterContent = "";
+                    let selectionLeftFooterWidth
+                    if (config.selectionSvg) {
+                        let selectionSvg = config.selectionSvg(vals);
+                        selectionLeftFooterWidth = selectionSvg.width;
+                        selectionLeftFooter.html(selectionSvg.svg)
+                    }
+                    selectionRightFooter.attr("transform", `translate(${extent[1] - rightoffset - selectionRightFooterWidth},0)`);
+                    selectionRightFooter.attr("visibility", "visible");
+                    selectionLeftFooter.attr("visibility", "visible");
+
+                    let rightfooterX = 0;
+                    let leftfooterX = 0;
+                    let generaloffset = 0;
+
+                    let maximumPosition = width - rightbuttonsWidth;
+                    let minimumPosition = leftbuttonsWidth;
+
+                    let selectFooterWidth = selectionRightFooterWidth + selectionLeftFooterWidth;
+                    let selectionWidth = extent[1] - extent[0];
+
+                    if (selectFooterWidth > selectionWidth) {
+                        //the width of the buttons is bigger than the width of the selection: center the buttons below the selection
+                        let selectionCenter = extent[0] + ((extent[1] - extent[0]) / 2);
+                        rightfooterX = selectionCenter + selectionLeftFooterWidth - (selectFooterWidth / 2);
+                        if (rightfooterX + selectionRightFooterWidth > maximumPosition) {
+                            //too far right
+                            rightfooterX = rightfooterX + (maximumPosition - (rightfooterX + selectionRightFooterWidth));
+                            rightbuttons.select(".buttonseperator").attr('visibility', "visible");
+                        } else {
+                            rightbuttons.select(".buttonseperator").attr('visibility', "collapse");
+                        }
+
+                        if (rightfooterX - selectionLeftFooterWidth < minimumPosition) {
+                            //too far left
+                            rightfooterX = rightfooterX + (minimumPosition - (rightfooterX - selectionLeftFooterWidth));
+                        }
+
+                        leftfooterX = rightfooterX - selectionLeftFooterWidth;
+                        iscentered = true;
+                    } else {
+                        leftfooterX = extent[0];
+                        rightfooterX = extent[1] - selectionRightFooterWidth;
+                        if (rightfooterX + selectionRightFooterWidth > maximumPosition) {
+                            //too far right
+                            rightfooterX = rightfooterX + (maximumPosition - (rightfooterX + selectionRightFooterWidth));
+                            if (rightfooterX - selectionLeftFooterWidth < extent[0])
+                                leftfooterX = rightfooterX - selectionLeftFooterWidth;
+                            rightbuttons.select(".buttonseperator").attr('visibility', "visible");
+                        } else {
+                            rightbuttons.select(".buttonseperator").attr('visibility', "collapse");
+                        }
+                        if (leftfooterX < minimumPosition) {
+                            //too far left
+                            leftfooterX = minimumPosition;
+                            if (leftfooterX + selectionLeftFooterWidth > rightfooterX) {
+                                rightfooterX = leftfooterX + selectionLeftFooterWidth;
+                            }
+                        }
+                        //the buttons can all fit in the selection area without being center-aligned
+                    }
+                    selectionRightFooter.attr("transform", `translate(${rightfooterX},0)`).attr("visibility", "visible");;
+                    selectionLeftFooter.attr("transform", `translate(${leftfooterX},${height-footerHeight+16})`).attr("visibility", "visible");
+
+                    //buttons.each(function (d, i) {
+                    //    d3.select(this).attr("visibility", "visible").attr("x", );
+                    //});
+                    let pageextent0 = config.map.get(Math.floor(x.invert(extent[0])).toString());
+                    let pageextent1 = config.map.get(Math.floor(x.invert(extent[1])).toString());
+                    if (pageextent0 && pageextent1)
+                        pageExtent = pageextent0.page + "-" + pageextent1.page;
+                    mouseG.select(".pageNumber").text("p." + pageExtent);
+                } else {
+                    selectionExists = false;
+                }
+            })
+            .on('end', function () {
+                let extent = d3.event.selection;
+                brushSelection = extent;
+                if (!extent) {
+                    selectionRightFooter.attr("visibility", "collapse");
+                    selectionLeftFooter.attr("visibility", "collapse");
+                    rightbuttons.select(".buttonseperator").attr('visibility', "collapse");
+                }
+                return;
+
+            })
+            .on('start', function () {
+                selectionExists = true;
+            });
+        vis.append("g").attr("class", "brush").call(brush)
+
+        d3.select(".brush > .overlay").on('mouseout', mouseout)
+            .on('mouseover', mouseover)
+            .on('mousemove', mousemove)
+            .on('dblclick', doubleclick)
+
+
+        function eventToBrush() {
+            const new_click_event = new MouseEvent(d3.event.type, {
+                pageX: d3.event.pageX,
+                pageY: d3.event.pageY,
+                clientX: d3.event.clientX,
+                clientY: d3.event.clientY,
+                layerX: d3.event.layerX,
+                layerY: d3.event.layerY,
+                bubbles: true,
+                cancelable: true,
+                view: window
+            });
+            mouserect.node().dispatchEvent(new_click_event);
+        }
+
+        function doubleclick() {
+            var mouse = d3.mouse(this);
+            if (config.revealLine)
+                config.revealLine(x.invert(mouse[0]));
+        }
+
+        function mouseout() {
+            vis.select(".mouse-line").style("opacity", "0");
+            mouseGhover.style("opacity", "0");
+        }
+
+        function mouseover() {
+            vis.select(".mouse-line").style("opacity", "1");
+            mouseGhover.style("opacity", "1");
+        }
+
+        function mousemove() {
+            var mouse = d3.mouse(this);
+            vis.select(".mouse-line")
+                .attr('x', mouse[0]);
+            hover(x.invert(mouse[0]));
+        }
+
+        function hover(xval, xval2) {
+            let values = [];
+            d3.selectAll('.chart-data').each(function (d, i) {
+                if (xval2)
+                    values.push([bisect(xval, i), bisect(xval2, i)]);
+                else
+                    values.push(bisect(xval, i));
+            });
+            if (config.map) {
+                let lineNb = Math.floor(xval).toString();
+                if (config.map.has(lineNb)) {
+                    let lineinfo = config.map.get(lineNb);
+                    mouseG.select(".pageNumber").text("p." + lineinfo.page);
+                    mouseG.select(".currentTime").text(secondsToString(lineinfo.cumulativeDuration));
+                    mouseG.select(".scene").text(lineinfo.scene);
+                    mouseG.select(".breadcrumbs").html(lineinfo.sections.join("<tspan class='chevron' alignment-baseline='middle'>&#xeab6</tspan>"));
+                }
+            }
+            return values;
+        }
+
+        function bisect(xval, lineindex) {
+            const bisect = d3.bisector(d => d[config.xvalue]).left;
+            const index = bisect(datas[lineindex], xval, 1);
+            const a = datas[lineindex][index - 1];
+            const b = datas[lineindex][index];
+            if (b && (xval - a[config.xvalue] > b[config.xvalue] - xval)) {
+                b.index = index;
+                return b;
+            } else {
+                a.index = index - 1;
+                return a;
+            }
+        }
+
+        $(window).on('resize', function (e) {
+            console.log("resized");
+            width = $(id).width();
+            vis.select('rect').attr('width', width);
+            vis.select('.mouseG').attr('width', width);
+            calculateScales(width, innerHeight);
+            vis.selectAll('.chart-data').each(function (d, i) {
+                d3.select(this).attr('d', line(datas[i]));
+            });
+            repositionStructure();
+            brush.extent([
+                [0, headerHeight],
+                [width, height - footerHeight]
+            ]);
+            vis.select('.brush').call(brush).call(brush.move, null);
+            vis.selectAll('.rightbutton').each(function (d, i) {
+                d3.select(this).attr('x', width - 24 * (i + 1));
+            });
+            vis.select(".buttonseperator.rightbutton").attr('x', width-48);
+            rightbuttons.select(".unzoom").attr("visibility", "collapse");
+            vis.select(".caret-line").attr('x',x(caretline));
+
+        });
+
+        function repositionStructure(transition) {
+            structurePositions = [0];
+            structurecontainer.selectAll('rect').each(function (d, i) {
+                let structline = d3.select(this);
+                let xpos = x(structline.attr('data-line'));
+                switch (structline.attr('data-type')) {
+                    case 'section1':
+                        if (uipersistence.chartSnapToSection1) structurePositions.push(xpos);
+                        break;
+                    case 'section2':
+                        if (uipersistence.chartSnapToSection2) structurePositions.push(xpos);
+                        break;
+                    case 'section3':
+                        if (uipersistence.chartSnapToSection3) structurePositions.push(xpos);
+                        break;
+                    case 'scene':
+                        if (uipersistence.chartSnapToScene) structurePositions.push(xpos);
+                }
+                if (transition)
+                    structline.transition().duration(500).ease(d3.easeCubic).attr('x', x(structline.attr('data-line')));
+                else
+                    structline.attr('x', x(structline.attr('data-line')));
+            });
+            structurePositions.push(width);
+        }
+
+        var caretline = 0;
+        function zoomChart() {
             let xstart = x.invert(brushSelection[0]);
             let xend = x.invert(brushSelection[1])
             x.domain([xstart, xend])
@@ -168,314 +581,20 @@ define(function (require) {
             vis.selectAll('.chart-data').each(function (d, i) {
                 d3.select(this).transition().ease(d3.easeCubic).duration(500).attr('d', line(datas[i]));
             });
+            vis.select(".caret-line").transition().ease(d3.easeCubic).duration(500).attr('x',x(caretline))
             repositionStructure(true);
             rightbuttons.select(".unzoom").attr("visibility", "visible");
 
             rightbuttons.select(".buttonseperator").attr('x', width - (72)).attr("visibility", "collapse");
             rightbuttonsWidth = 72;
-        }).append("title").text("Zoom In");;
-
-        var rightbuttons = mouseG.append("g").attr("class", "rightbuttons");
-
-        let magnetbtn = rightbuttons.append("text").attr("class", "button rightbutton snap").html("&#xebae").attr('y', height).attr('x', width - 24).append("title").text("Grid snapping").on("click", function () {
-            console.log("Clicked on snap thing");
-        });
-
-        var snapMenu = $.contextMenu({
-            selector: ".button.rightbutton.snap",
-            trigger: "left",
-
-            build: function ($trigger, e) {
-                return {
-                    callback: function (key, options) {
-                        var m = "clicked: " + key;
-                    },
-                    items: {
-                        freeSelection: {
-                            name: "Free Selection",
-                            selected: uipersistence.freeSelection,
-                            updateOnClick:true,
-                            settingskey: "freeSelection",
-                            type: "check",
-                            callback:function(){
-                                console.log("called back!");
-                                calculateStructurePositions();
-                                return false;
-                            }
-                        },
-                        snapToSection1: {
-                            name: "Snap to # section",
-                            selected: uipersistence.snapToSection1,
-                            settingskey: "snapToSection1",
-                            type: "check",
-                            disabled:()=>uipersistence.freeSelection,
-                            callback:function(){
-                                console.log("called back!");
-                                calculateStructurePositions();
-                                return false;
-                            }
-                        },
-                        snapToSection2: {
-                            name: "Snap to ## section",
-                            selected: uipersistence.snapToSection2,
-                            settingskey: "snapToSection2",
-                            type: "check",
-                            disabled:()=>uipersistence.freeSelection,
-                            callback:function(){
-                                console.log("called back!");
-                                calculateStructurePositions();
-                                return false;
-                            }
-                        },
-                        snapToSection3: {
-                            name: "Snap to ###+ section",
-                            selected: uipersistence.snapToSection3,
-                            settingskey: "snapToSection3",
-                            type: "check",
-                            disabled:()=>uipersistence.freeSelection,
-                            callback:function(){
-                                console.log("called back!");
-                                calculateStructurePositions();
-                                return false;
-                            }
-                        },
-                        snapToScene: {
-                            name: "Snap to scenes",
-                            selected: uipersistence.snapToScene,
-                            settingskey: "snapToScene",
-                            type: "check",
-                            disabled:()=>uipersistence.freeSelection,
-                            callback:function(){
-                                console.log("called back!");
-                                calculateStructurePositions();
-                            }
-                        },
-                    }
-                }
-            },
-        });
-
-        console.log(magnetbtn);
-
-        rightbuttons.append("text").attr("class", "button rightbutton unzoom").html("&#xeb82").attr('y', height).attr('x', width - 48).attr("visibility", "collapse").on('click', function () {
-            x.domain([0, longestData - 1])
-            y.domain([min, max]);
-            vis.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
-            vis.selectAll('.chart-data').each(function (d, i) {
-                d3.select(this).transition().ease(d3.easeCubic).duration(500).attr('d', line(datas[i]));
-            });
-            rightbuttons.select(".unzoom").attr("visibility", "collapse");
-            rightbuttons.select(".buttonseperator").attr('x', width - (48)).attr("visibility", "collapse");
-            repositionStructure(true);
-            rightbuttonsWidth = 48;
-        }).append("title").text("Zoom Out");
-        rightbuttons.append("rect").attr("class", "buttonseperator rightbutton").attr('y', height - 14).attr('x', width - (48)).attr('height', 14).attr('width', 1).attr("visibility", "collapse");
-
-        mouseG.append("rect") // this is the vertical line to follow mouse
-            .attr("class", "mouse-line")
-            .attr("width", "1px")
-            .attr("y", headerHeight)
-            .attr("height", innerHeight)
-            .style("opacity", "0");
-
-        ///
-        /// BRUSHING
-        ///
-
-        var idleTimeout
-
-        function idled() {
-            idleTimeout = null;
         }
 
-        let buttonsize = 22;
-        let brush = d3.brushX().extent([
-                [0, headerHeight],
-                [width, height - footerHeight]
-            ])
-            .on('brush', function () {
-                let extent = d3.event.selection;
-                if (extent) {
-                    if (d3.event.sourceEvent.type !== "brush" && !uipersistence.freeSelection) {
-                        const d0 = d3.event.selection.map(x.invert);
-                        console.log("selected [" + extent[0] + ", " + extent[1] + "]")
-                        let snappedX0 = structurePositions[d3.bisectLeft(structurePositions, extent[0])];
-                        let snappedX1 = structurePositions[d3.bisectLeft(structurePositions, extent[1])];
-                        console.log("snap to [" + snappedX0 + ", " + snappedX1 + "]")
-                        d3.select(this).call(brush.move, [snappedX0, snappedX1]);
-                    }
-                    if (!extent[0] || !extent[1]) return;
-                    hover(x.invert(extent[0]), x.invert(extent[1]));
-                    let buttons = mouseG.selectAll(".selectbutton");
-                    let buttonsWidth = buttons.size() * buttonsize;
-                    let offset = 0;
-
-                    if (buttonsWidth > extent[1]) {
-                        //selection is too far to the left, add an offset so they don't clip
-                        offset = extent[1] - buttonsWidth;
-                    } else if (extent[1] > (width - rightbuttonsWidth)) {
-                        //selection is too far to the right
-                        offset = extent[1] - (width - rightbuttonsWidth);
-                        rightbuttons.select(".buttonseperator").attr('visibility', "visible");
-                    } else {
-                        rightbuttons.select(".buttonseperator").attr('visibility', "collapse");
-                        if (buttonsWidth > extent[1] - extent[0]) {
-                            //selection is smaller than buttons, center it between the two
-                            offset = -((buttonsWidth - (extent[1] - extent[0])) / 2)
-                        }
-                    }
-                    buttons.each(function (d, i) {
-                        d3.select(this).attr("visibility", "visible").attr("x", extent[1] + (i * buttonsize) - offset - buttonsWidth);
-                    });
-                }
-
-            })
-            .on('end', function () {
-                let extent = d3.event.selection;
-                brushSelection = extent;
-                if (!extent) {
-                    mouseG.selectAll(".selectbutton").each(function (d, i) {
-                        d3.select(this).attr("visibility", "collapse");
-                    });
-                    rightbuttons.select(".buttonseperator").attr('visibility', "collapse");
-                }
-                return;
-
-            })
-            .on('start', function () {
-
-            });
-        vis.append("g").attr("class", "brush").call(brush)
-
-        d3.select(".brush > .overlay").on('mouseout', mouseout)
-            .on('mouseover', mouseover)
-            .on('mousemove', mousemove)
-
-
-        function eventToBrush() {
-            const new_click_event = new MouseEvent(d3.event.type, {
-                pageX: d3.event.pageX,
-                pageY: d3.event.pageY,
-                clientX: d3.event.clientX,
-                clientY: d3.event.clientY,
-                layerX: d3.event.layerX,
-                layerY: d3.event.layerY,
-                bubbles: true,
-                cancelable: true,
-                view: window
-            });
-            mouserect.node().dispatchEvent(new_click_event);
-        }
-
-        function mouseout() {
-            vis.select(".mouse-line").style("opacity", "0");
-            if (config.hover) {
-                config.hover(false);
+        return{
+            updatecaret:function(line){
+                caretline = line;
+                vis.select(".caret-line")
+                .attr('x', x(line));
             }
-        }
-
-        function mouseover() {
-            vis.select(".mouse-line").style("opacity", "1")
-        }
-
-        function mousemove() {
-            var mouse = d3.mouse(this);
-            vis.select(".mouse-line")
-                .attr('x', mouse[0]);
-            hover(x.invert(mouse[0]));
-        }
-
-        function hover(xval, xval2) {
-            values = [];
-            if (config.hover) {
-                d3.selectAll('.chart-data').each(function (d, i) {
-                    if (xval2)
-                        values.push([bisect(xval, i), bisect(xval2, i)]);
-                    else
-                        values.push(bisect(xval, i));
-                });
-                config.hover(true, xval, values, (xval2 != undefined))
-            }
-            if (config.map) {
-                let lineNb = Math.floor(xval).toString();
-                if (config.map.has(lineNb)) {
-                    let lineinfo = config.map.get(lineNb);
-                    mouseG.select(".pageNumber").text("p." + lineinfo.page);
-                    mouseG.select(".scene").text(lineinfo.scene);
-                    mouseG.select(".breadcrumbs").html(lineinfo.sections.join("<tspan class='chevron' alignment-baseline='middle'>&#xeab6</tspan>"));
-                }
-            }
-        }
-
-        function bisect(xval, lineindex) {
-            const bisect = d3.bisector(d => d[config.xvalue]).left;
-            const index = bisect(datas[lineindex], xval, 1);
-            const a = datas[lineindex][index - 1];
-            const b = datas[lineindex][index];
-            if (b && (xval - a[config.xvalue] > b[config.xvalue] - xval)) {
-                b.index = index;
-                return b;
-            } else {
-                a.index = index - 1;
-                return a;
-            }
-        }
-
-        function getInterpolatedY(x0, lineIndex) {
-            var bisect = d3.bisector(function (d) {
-                return d[config.xvalue];
-            }).left;
-
-            var item = datas[lineIndex][bisect(datas[lineIndex], x0)];
-            return y(item[config.yvalue]);
-            //For a given non-whole value X, get the corresponding interpolated Y value for the chart of index=lineindex
-            /*let yArray = pureDatas[lineIndex];
-            let flooredX = Math.floor(x0);
-            if(flooredX<0)flooredX=0;
-            if(flooredX>yArray.length) flooredX = yArray.length;
-            var flooredY = yArray[flooredX];
-            if(yArray[flooredX+1]!=undefined){
-                let rangeInY = yArray[flooredX+1]-yArray[flooredX];
-                let fractionalY = flooredY+(rangeInY*(x0-flooredX));
-                return fractionalY;
-            }
-            else{
-                return flooredY;
-            }*/
-            return 0;
-        }
-
-        $(window).resize(function (e) {
-            console.log("resized");
-            width = $(id).width();
-            vis.select('rect').attr('width', width);
-            vis.select('.mouseG').attr('width', width);
-            calculateScales(width, innerHeight);
-            vis.selectAll('.chart-data').each(function (d, i) {
-                d3.select(this).attr('d', line(datas[i]));
-            });
-            repositionStructure();
-            brush.extent([
-                [0, headerHeight],
-                [width, height - footerHeight]
-            ])
-            vis.selectAll('.rightbutton').each(function (d, i) {
-                d3.select(this).attr('x', width - 24 * (i + 1));
-            });
-        });
-
-        function repositionStructure(transition) {
-            structurePositions = [0];
-            structurecontainer.selectAll('rect').each(function (d, i) {
-                let structline = d3.select(this);
-                let xpos = x(structline.attr('data-line'));
-                structurePositions.push(xpos);
-                if (transition)
-                    structline.transition().duration(500).ease(d3.easeCubic).attr('x', x(structline.attr('data-line')));
-                else
-                    structline.attr('x', x(structline.attr('data-line')));
-            });
-            structurePositions.push(width);
         }
     };
 

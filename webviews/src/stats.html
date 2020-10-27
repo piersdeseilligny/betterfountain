@@ -91,32 +91,36 @@
         background-color:var(--vscode-list-activeSelectionBackground)
     }
     .splitview #content{
-        margin-left:224px;
+        margin-left:200px;
+        box-sizing:border-box;
+    }
+    #content > div{
+        margin: 0 24px 0px 48px;
     }
     .flexgroup{
         display: flex;
         flex-wrap: wrap;
-        margin-left: 24px;
     }
     .flexgroup{
         margin-top:-12px;
     }
     .flexgroup.durationstats{
-        flex-flow: column;
+        flex-flow: row;
     }
-    .flexitem:first-child{
-        margin-left: -20px;
-    }
+
     .flexgroup.durationstats .flexitem{
         margin-left: 0px;
-        padding: 6px 0px 0px 0px;
     }
     .flexgroup.durationstats .description, .flexgroup.durationstats .number{
         text-align: start;
     }
     .flexitem{
-        padding:12px 20px;
         max-width:min-content;
+        margin-right: 43px;
+        margin-top:12px;
+    }
+    .flexitem:last-child{
+        margin-right: 0;
     }
     .flexitem .description{
         text-align: center;
@@ -127,9 +131,8 @@
         text-align: center;;
         font-size: 22px;
     }
-    .flexitem.minor .number{
+    .flexitem .minor .number{
         font-size:16px;
-        opacity:0.8;
     }
     #lengthStats-pagesFractional{
         font-size: 0.75em;
@@ -139,33 +142,41 @@
     }
     h1{
         font-weight: 500;
-        margin-top:12px;
+        margin-top:24px;
         margin-bottom:12px;
         user-select: none;
+        position: relative;
     }
     h1 .codicon{
         font-size: 20px !important;
-        vertical-align: middle;
-        margin-top: -4px;
-        margin-left: -4px;
+        position: absolute;
+        bottom: 5px;
+        left: -32px;
     }
 
     .mouse-line{
         fill: var(--vscode-panel-border);
     }
+    .caret-line{
+        fill: var(--vscode-panel-border);
+    }
     .chart-data{
         stroke:var(--vscode-panel-border);
+    }
+    .durationstats-selection{
+        font-size:12px;
+        opacity:0.8;
     }
     #durationStats-lengthchart .chart-data[data-line="0"]{
         stroke: var(--vscode-symbolIcon-constructorForeground);
     }
-    #durationStats-action{
+    #durationStats-action, #durationStats-action-hover, .durationstats-selection-action{
         color: var(--vscode-symbolIcon-constructorForeground);
     }
     #durationStats-lengthchart .chart-data[data-line="1"]{
         stroke: var(--vscode-symbolIcon-fieldForeground);
     }
-    #durationStats-dialogue{
+    #durationStats-dialogue, #durationStats-dialogue-hoverm .durationstats-selection-dialogue{
         color: var(--vscode-symbolIcon-fieldForeground);
     }
     #durationStats-lengthchart .chart-container{
@@ -175,6 +186,12 @@
     .mouse-over-effects text{
         fill:var(--vscode-breadcrumb-foreground);
         background-color: var(--vscode-breadcrumb-background);
+    }
+    .durationstats-selection-action{
+        fill:var(--vscode-symbolIcon-constructorForeground) !important;
+    }
+    .durationstats-selection-dialogue{
+        fill:var(--vscode-symbolIcon-fieldForeground) !important;
     }
     tspan.chevron{
         font: normal normal normal 16px/1 codicon;
@@ -220,6 +237,9 @@
     #characterStats-lengthchart{
         height:120px;
     }
+    .deemphasize{
+        opacity:0.5;
+    }
     </style>
 </head>
 <body>
@@ -264,7 +284,7 @@
     </div>
     <div id="content" class="content">
         <div data-group="overview">
-            <h1><span class="codicon codicon-symbol-ruler" style="margin-top: -4px;margin-left:-10px"></span>&nbsp;Length</h1>
+            <h1><span class="codicon codicon-symbol-ruler"></span>Length</h1>
             <div class="flexgroup lengthstats">
                 <div class="flexitem">
                     <div class="description" title="The length of the screenplay in pages, excluding the title page and any forced page breaks">Pages</div>
@@ -291,12 +311,12 @@
                 </div>
 
             </div>
-            <h1><span class="codicon codicon-watch" style="margin-top: -4px;margin-left:-10px"></span>&nbsp;Duration</h1>
-            <div style="display: flex;">
-                <div class="flexgroup durationstats" style="padding-bottom: 24px;">
+            <h1><span class="codicon codicon-watch"></span>Duration</h1>
+            <div>
+                <div class="flexgroup durationstats">
                     <div class="flexitem">
                         <div class="description">Total</div>
-                        <div id="durationStats-total" class="number">0</div>
+                        <div id="durationStats-total" class="number" style="font-weight: 600;">0</div>
                     </div>
                     <div class="flexitem minor">
                         <div class="description">Action</div>
@@ -307,14 +327,15 @@
                         <div id="durationStats-dialogue" class="number">0</div>
                     </div>
                 </div>
-                <div style="width:100%;margin:0px 12px;" class="linechart" id="durationStats-lengthchart"></div>
+                <div id="durationStats-summary" style="margin: 6px 0 12px 0;opacity:0.75;"></div>
+                <div style="height:200px;box-sizing: border-box;" class="linechart" id="durationStats-lengthchart"></div>
             </div>
         </div>
         <div style="display:none" data-group="characters">
             <table id="characterTable" style="width:100%">
 
             </table>
-            <div style="width:100%;margin:0px 12px;" class="linechart" id="characterStats-lengthchart"></div>
+            <div style="width:100%;margin:0px 12px;height: 172px;" class="linechart" id="characterStats-lengthchart"></div>
         </div>
         <div style="display:none" data-group="scenes">
             Scenes

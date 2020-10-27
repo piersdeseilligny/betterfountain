@@ -74,7 +74,48 @@ async function loadWebView(docuri: vscode.Uri, statspanel:vscode.WebviewPanel) {
                                        .replace("$STATSJS$", statspanel.webview.asWebviewUri(jsDiskPath).toString())
 
 	statspanel.webview.onDidReceiveMessage(async message => {
-        console.log(message);
+        if(message.command == "revealLine"){
+            console.log("jump to line:"+message.content);
+            const sourceLine = message.content;
+            let editor = getEditor(vscode.Uri.parse(message.uri));
+            if(editor == undefined){
+                var doc = await vscode.workspace.openTextDocument(vscode.Uri.parse(message.uri));
+                editor = await vscode.window.showTextDocument(doc)
+            }
+            else{
+                await vscode.window.showTextDocument(editor.document, editor.viewColumn, false);
+            }
+            if(editor && !Number.isNaN(sourceLine))
+            {
+                editor.selection = new vscode.Selection(new vscode.Position(sourceLine,0),new vscode.Position(sourceLine,0));
+                editor.revealRange(
+                    new vscode.Range(sourceLine, 0, sourceLine + 1, 0),
+                    vscode.TextEditorRevealType.Default);
+            }
+        }
+        if(message.command == "selectLines"){
+            let startline = Math.floor(message.content.start);
+            let endline = Math.floor(message.content.end);
+            let editor = getEditor(vscode.Uri.parse(message.uri));
+            if(editor == undefined){
+                var doc = await vscode.workspace.openTextDocument(vscode.Uri.parse(message.uri));
+                editor = await vscode.window.showTextDocument(doc)
+            }
+            else{
+                await vscode.window.showTextDocument(editor.document, editor.viewColumn, false);
+            }
+            if(editor && !Number.isNaN(startline) && !Number.isNaN(endline))
+            {
+                let startpos = new vscode.Position(startline,0);
+                let endpos = new vscode.Position(endline,editor.document.lineAt(endline).text.length);
+                editor.selection = new vscode.Selection(startpos,endpos);
+                editor.revealRange(new vscode.Range(startpos,endpos), vscode.TextEditorRevealType.Default);
+                vscode.window.showTextDocument(editor.document);
+            }
+        }
+        if(message.command=="saveUiPersistence"){
+            //save ui persistence
+        }
     });
     statspanel.onDidDispose(()=>{
         removeStatisticsPanel(id);

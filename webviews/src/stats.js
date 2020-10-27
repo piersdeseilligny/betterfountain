@@ -24,24 +24,31 @@ $.contextMenu.types.check = function(item, opt, root) {
             else{
                 $(item.$node[0]).find(".codicon-check").removeClass('checked');
             }
-            
+            vscode.setState(state);
+            vscode.postMessage({
+                command: 'saveUiPersistence',
+                content:  { key: item.settingskey, value:newstate },
+                uri:state.docuri
+            });
         }
     }
-    this.on('contextmenu:focus', function(e) {
-        // setup some awesome stuff
-    }).on('contextmenu:blur', function(e) {
-        // tear down whatever you did
-    }).on('keydown', function(e) {
-        console.log("keydownnn");
-        toggleState();
-    }).on('mouseup', function(e){
-        console.log("clickkk");
-        toggleState();
-        if(item.updateOnClick){
-            $.contextMenu('update');
+    this.on('mouseup', function(e){
+        if(e.keyCode ? (e.keyCode==13) : true && (typeof item.disabled === "function") ? (item.disabled()==false) : true){ //if e.keyCode is defined, it must be 13. If it isn't defined, that's ok too. if "disabled" is a function, make sure it's false
+            toggleState();
+            if(item.updateOnClick){
+                opt.$menu.children().each(function () {
+                    var $item = $(this),
+                        key = $item.data('contextMenuKey'),
+                        item = opt.items[key],
+                        disabled = (typeof item.disabled === "function" && item.disabled.call(key, root)) || item.disabled === true;
+
+                    // dis- / enable item
+                    $item[disabled ? 'addClass' : 'removeClass'](root.classNames.disabled);
+                });
+            }
+            item.callback();
+            return false;
         }
-        item.callback();
-        return false;
     });
 };
 
@@ -50,11 +57,11 @@ const LineChart = require("./charts/line");
 var state = {
     stats: {},
     uipersistence:{
-        freeSelection:false,
-        snapToSection1:true,
-        snapToSection2:true,
-        snapToSection3:false,
-        snapToScene:true
+        chartFreeSelection:false,
+        chartSnapToSection1:true,
+        chartSnapToSection2:true,
+        chartSnapToSection3:true,
+        chartSnapToScene:true
     },
     docuri: "",
 }
@@ -77,8 +84,12 @@ window.addEventListener('message', event => {
         if(event.data.uri !== undefined)
             state.docuri = event.data.uri;
         vscode.setState(state);
+    } else if(event.data.command == 'showsourceline' && durationchart){
+        durationchart.updatecaret(event.data.content);
+    } else if(event.data.command == 'updateUiPersistence'){
+        state.uipersistence[event.data.content.key] = event.data.content.value;
+        vscode.setState(state);
     }
-    
 });
 window.addEventListener('blur', event =>{
     document.getElementById("maincontent").classList.remove('isactive');
@@ -123,6 +134,14 @@ function objectToMap(jsonObject){
     return map;
 }
 
+function revealLine(line){
+    vscode.postMessage({command: 'revealLine', content: line, uri:state.docuri });
+}
+function revealSelection(linestart,lineend){
+    vscode.postMessage({command: 'selectLines', content: {start:linestart, end:lineend}, uri:state.docuri });
+}
+
+var durationchart;
 
 function updateStats(){
     console.log("make pdfmap");
@@ -150,9 +169,51 @@ function updateStats(){
     }
     document.getElementById("lengthStats-pagesWhole").innerText = wholePage;
     document.getElementById("lengthStats-pagesFractional").innerText = fractionalPage;
-    document.getElementById("durationStats-total").innerText = state.stats.durationStats.total;
-    document.getElementById("durationStats-action").innerText = state.stats.durationStats.action;
-    document.getElementById("durationStats-dialogue").innerText = state.stats.durationStats.dialogue;
+    document.getElementById("durationStats-total").innerText = secondsToString(state.stats.durationStats.total);
+    document.getElementById("durationStats-action").innerText = secondsToString(state.stats.durationStats.action);
+    document.getElementById("durationStats-dialogue").innerText = secondsToString(state.stats.durationStats.dialogue);
+
+    let runtime = state.stats.durationStats.total/60;
+    let runtimeDescription = "";
+
+    //0-3min:     very short film
+    //3-15min:    short film
+    //15-25min:   medium-length short film
+    //25-40min:   long short film
+    //40-50min:   somewhere between short and feature film
+    //50min-1h25: short feature film
+    //1h25>2h20:  feature film
+    //2h20>3h:    long feature film
+    //3h+:        very long feature film
+
+    let summary = "The screenplay is "
+    if(runtime>180) summary += "the length of a very long feature film. ";
+    else if(runtime>140) summary += "the length of a long feature film. ";
+    else if(runtime>85) summary += "the length of a feature film. ";
+    else if(runtime>50) summary += "the length of a short feature film. ";
+    else if(runtime>40) summary += "between the length of a short and a feature film. ";
+    else if(runtime>25) summary += "the length of a featurette. ";
+    else if(runtime>15) summary += "the length of a medium-length short film. ";
+    else if(runtime>3) summary += "the length of a short film. ";
+    else summary += "the length of a small short film. ";
+
+    const actionPercent = Math.round((100*state.stats.durationStats.action)/state.stats.durationStats.total);
+    const dialoguePercent = 100-actionPercent;
+
+    if(actionPercent>90) summary += "It is extremely action-heavy ("+actionPercent+"% of the runtime).";
+    else if(actionPercent>75) summary += "It is very action-heavy ("+actionPercent+"% of the runtime).";
+    else if(actionPercent>60) summary += "It is action-heavy ("+actionPercent+"% of the runtime).";
+    else if(actionPercent>55) summary += "It is fairly balanced between action ("+actionPercent+"%) and dialogue ("+dialoguePercent+"%).";
+    else if(actionPercent>50) summary += "It is balanced between action ("+actionPercent+"%) and dialogue ("+dialoguePercent+"%).";
+
+    else if(dialoguePercent>90) summary += "It is extremely dialogue-heavy ("+dialoguePercent+"% of the runtime).";
+    else if(dialoguePercent>75) summary += "It is very dialogue-heavy ("+dialoguePercent+"% of the runtime).";
+    else if(dialoguePercent>60) summary += "It is dialogue-heavy ("+dialoguePercent+"% of the runtime).";
+    else if(dialoguePercent>55) summary += "It is fairly balanced between dialogue ("+dialoguePercent+"%) and action ("+actionPercent+"%).";
+    else if(dialoguePercent>50) summary += "It is balanced between dialogue ("+dialoguePercent+"%) and action ("+actionPercent+"%).";
+
+
+    document.getElementById("durationStats-summary").innerText = summary;
     //characters
     document.getElementById("characterTable").innerHTML =
     `<tr>
@@ -169,32 +230,31 @@ function updateStats(){
         </tr>
         `
     }, '')}`
-    LineChart.render('#durationStats-lengthchart', [state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue], state.uipersistence, {
+    
+    durationchart = LineChart.render('#durationStats-lengthchart', [state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue], state.uipersistence, {
         yvalue: 'length',
         xvalue: 'line',
         small: getWidth(),
         map:pdfmap,
         structure: state.stats.structure,
         hover:function(show,x,values, isrange){
-            if(show){
-                let actionLength = values[0].length;
-                let dialogueLength = values[1].length;
-                if(isrange){
-                    actionLength = Math.max(values[0][0].length,values[0][1].length) - Math.min(values[0][0].length,values[0][1].length);
-                    dialogueLength = Math.max(values[1][0].length,values[1][1].length) - Math.min(values[1][0].length,values[1][1].length);
-                }
-                document.getElementById("durationStats-action").innerText = secondsToString(actionLength);
-                document.getElementById("durationStats-dialogue").innerText = secondsToString(dialogueLength);
-                document.getElementById("durationStats-total").innerText = secondsToString(actionLength+dialogueLength);
+            let actionLength = values[0].length;
+            let dialogueLength = values[1].length;
+            return values[0].length+values[1].length;
+        },
+        selectionSvg:function(values){
+            let actionLength = Math.max(values[0][0].length,values[0][1].length) - Math.min(values[0][0].length,values[0][1].length);
+            let dialogueLength = Math.max(values[1][0].length,values[1][1].length) - Math.min(values[1][0].length,values[1][1].length);
+            return{
+                svg:`<text class='durationstats-selection'>${secondsToString(actionLength+dialogueLength)}</text>
+                     <text class='durationstats-selection durationstats-selection-action' y='12'>${secondsToString(actionLength)}</text>
+                     <text class='durationstats-selection durationstats-selection-dialogue' y='24'>${secondsToString(dialogueLength)}</text>`,
+                width:64
             }
-            else{
-                document.getElementById("durationStats-action").innerText = state.stats.durationStats.action;
-                document.getElementById("durationStats-dialogue").innerText = state.stats.durationStats.dialogue;
-                document.getElementById("durationStats-total").innerText = state.stats.durationStats.total;
-            }
-        }
+        },
+        revealLine:revealLine,
+        revealSelection:revealSelection
     });
-    console.log("duration stats=");
     
     LineChart.render('#characterStats-lengthchart', state.stats.durationStats.characters, state.uipersistence, {
         yvalue: 'length',

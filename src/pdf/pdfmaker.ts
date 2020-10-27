@@ -435,6 +435,7 @@ import * as he from 'he';
 
         let currentScene:string = "";
         let currentSections:string[] = [];
+        let currentDuration:number=0;
         lines.forEach(function(line:any) {
         
             if (line.type === "page_break") {
@@ -447,7 +448,7 @@ import * as he from 'he';
 
                 if(lineStructs){
                     if(line.token.line && !lineStructs.has(line.token.line)){
-                        lineStructs.set(line.token.line, {page:page, scene:currentScene, sections:currentSections.slice(0)})
+                        lineStructs.set(line.token.line, {page:page, scene:currentScene, cumulativeDuration:currentDuration, sections:currentSections.slice(0)})
                     }
                 }
 
@@ -483,7 +484,7 @@ import * as he from 'he';
                 y++;
                 if(lineStructs){
                     if(line.token.line && !lineStructs.has(line.token.line)){
-                        lineStructs.set(line.token.line, {page:page, scene:currentScene, sections:currentSections.slice(0)})
+                        lineStructs.set(line.token.line, {page:page, scene:currentScene, cumulativeDuration:currentDuration, sections:currentSections.slice(0)})
                     }
                 }
             } else {
@@ -618,7 +619,8 @@ import * as he from 'he';
                 }
                 if(lineStructs){
                     if(line.token.line && !lineStructs.has(line.token.line)){
-                        lineStructs.set(line.token.line, {page:page, scene:currentScene, sections:currentSections.slice(0)})
+                        if(line.token.time) currentDuration+=line.token.time;
+                        lineStructs.set(line.token.line, {page:page, scene:currentScene, sections:currentSections.slice(0),cumulativeDuration:currentDuration})
                     }
                 }
             }
@@ -647,6 +649,7 @@ export type lineStruct ={
     sections: string[],
     scene: string,
     page: number,
+    cumulativeDuration:number
 }
 
 export type pdfstats = {

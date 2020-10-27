@@ -1,5 +1,4 @@
 import { parseoutput, StructToken } from "./afterwriting-parser"
-import { secondsToString } from "./utils"
 import { GeneratePdf } from "./pdf/pdf"
 import { FountainConfig } from "./configloader"
 import { pdfstats } from "./pdf/pdfmaker"
@@ -46,9 +45,9 @@ type characterDuration={
 }
 
 type durationStatistics = {
-    dialogue: string
-    action: string
-    total: string,
+    dialogue: number
+    action: number
+    total: number,
     lengthchart_action: lengthchartitem[],
     lengthchart_dialogue: lengthchartitem[],
     characters:characterDuration[]
@@ -216,9 +215,9 @@ const createLengthStatistics = (script: string, pdf:pdfstats, parsed:parseoutput
 const createDurationStatistics = (parsed: parseoutput): durationStatistics => {
     let lengthcharts =  getLengthChart(parsed);
     return {
-        dialogue: secondsToString(parsed.lengthDialogue),
-        action: secondsToString(parsed.lengthAction),
-        total: secondsToString(parsed.lengthDialogue + parsed.lengthAction),
+        dialogue: parsed.lengthDialogue,
+        action: parsed.lengthAction,
+        total: parsed.lengthDialogue + parsed.lengthAction,
         lengthchart_action: lengthcharts.action,
         lengthchart_dialogue: lengthcharts.dialogue,
         characters: lengthcharts.characters

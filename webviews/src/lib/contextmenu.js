@@ -1392,33 +1392,35 @@
                 // kinda sucks hard...
 
                 // determine width of absolutely positioned element
-                $menu.css({position: 'absolute', display: 'block'});
-                // don't apply yet, because that would break nested elements' widths
-                $menu.data('width',
-                    (domMenu = $menu.get(0)).getBoundingClientRect ?
-                        Math.ceil(domMenu.getBoundingClientRect().width) :
-                        $menu.outerWidth() + 1); // outerWidth() returns rounded pixels
-                // reset styles so they allow nested elements to grow/shrink naturally
-                $menu.css({
-                    position: 'static',
-                    minWidth: '0px',
-                    maxWidth: '100000px'
-                });
-                // identify width of nested menus
-                $menu.find('> li > ul').each(function () {
-                    op.resize($(this), true);
-                });
-                // reset and apply changes in the end because nested
-                // elements' widths wouldn't be calculatable otherwise
-                if (!nested) {
-                    $menu.find('ul').addBack().css({
-                        position: '',
-                        display: '',
-                        minWidth: '',
-                        maxWidth: ''
-                    }).outerWidth(function () {
-                        return $(this).data('width');
+                if($menu){
+                    $menu.css({position: 'absolute', display: 'block'});
+                    // don't apply yet, because that would break nested elements' widths
+                    $menu.data('width',
+                        (domMenu = $menu.get(0)).getBoundingClientRect ?
+                            Math.ceil(domMenu.getBoundingClientRect().width) :
+                            $menu.outerWidth() + 1); // outerWidth() returns rounded pixels
+                    // reset styles so they allow nested elements to grow/shrink naturally
+                    $menu.css({
+                        position: 'static',
+                        minWidth: '0px',
+                        maxWidth: '100000px'
                     });
+                    // identify width of nested menus
+                    $menu.find('> li > ul').each(function () {
+                        op.resize($(this), true);
+                    });
+                    // reset and apply changes in the end because nested
+                    // elements' widths wouldn't be calculatable otherwise
+                    if (!nested) {
+                        $menu.find('ul').addBack().css({
+                            position: '',
+                            display: '',
+                            minWidth: '',
+                            maxWidth: ''
+                        }).outerWidth(function () {
+                            return $(this).data('width');
+                        });
+                    }
                 }
             },
             update: function (opt, root) {
