@@ -80,7 +80,17 @@ define(function (require) {
             .attr('width', "100%")
             .attr('height', height);
 
+
         vis.append('rect').attr('width', width).attr('height', innerHeight).attr('fill', 'none').attr('class', 'chart-container').attr('y', headerHeight);
+
+
+        vis.append("rect")
+        .attr("class", "selection-box")
+        .attr("width", 0)
+        .attr("y", headerHeight)
+        .attr("x", 0)
+        .attr("height", innerHeight)
+        .style("opacity", "1");
 
         var structurecontainer = vis.append('g').attr('class', 'chart-structurecontainer');
         var structurePositions = [0];
@@ -281,22 +291,23 @@ define(function (require) {
             vis.selectAll('.chart-data').each(function (d, i) {
                 d3.select(this).transition().ease(d3.easeCubic).duration(500).attr('d', line(datas[i]));
             });
-            vis.select(".caret-line").transition().ease(d3.easeCubic).duration(500).attr('x',x(caretline));
             rightbuttons.select(".unzoom").attr("visibility", "collapse");
             rightbuttons.select(".buttonseperator").attr('x', width - (48)).attr("visibility", "collapse");
             repositionStructure(true);
+            positionSelection(true);
+            positionCaret(true);
             rightbuttonsWidth = 48;
         }).append("title").text("Zoom Out");
         rightbuttons.append("rect").attr("class", "buttonseperator rightbutton").attr('y', height - footerHeight + 24 - 14).attr('x', width - (48)).attr('height', 14).attr('width', 1).attr("visibility", "collapse");
 
-        mouseG.append("rect") // this is the vertical line to follow mouse
+        mouseG.append("rect") // this is the vertical line to follow the mouse
             .attr("class", "mouse-line")
             .attr("width", "1px")
             .attr("y", headerHeight)
             .attr("height", innerHeight)
             .style("opacity", "0");
 
-        mouseG.append("rect") // this is the vertical line to follow mouse
+        mouseG.append("rect") // this is the vertical line to follow the caret in the document
             .attr("class", "caret-line")
             .attr("width", "1px")
             .attr("y", headerHeight)
@@ -529,8 +540,8 @@ define(function (require) {
             });
             vis.select(".buttonseperator.rightbutton").attr('x', width-48);
             rightbuttons.select(".unzoom").attr("visibility", "collapse");
-            vis.select(".caret-line").attr('x',x(caretline));
-
+            positionSelection();
+            positionCaret();
         });
 
         function repositionStructure(transition) {
@@ -560,6 +571,8 @@ define(function (require) {
         }
 
         var caretline = 0;
+        var selectionstart = 0;
+        var selectionend = 0;
         function zoomChart() {
             let xstart = x.invert(brushSelection[0]);
             let xend = x.invert(brushSelection[1])
@@ -581,19 +594,42 @@ define(function (require) {
             vis.selectAll('.chart-data').each(function (d, i) {
                 d3.select(this).transition().ease(d3.easeCubic).duration(500).attr('d', line(datas[i]));
             });
-            vis.select(".caret-line").transition().ease(d3.easeCubic).duration(500).attr('x',x(caretline))
+            
             repositionStructure(true);
             rightbuttons.select(".unzoom").attr("visibility", "visible");
 
             rightbuttons.select(".buttonseperator").attr('x', width - (72)).attr("visibility", "collapse");
             rightbuttonsWidth = 72;
+            positionSelection(true);
+            positionCaret(true);
+        }
+
+        function positionSelection(animate){
+            let linestartX = x(selectionstart);
+            let lineendX = x(selectionend);
+            if(animate)
+                vis.select(".selection-box").transition().ease(d3.easeCubic).duration(500).attr('x', linestartX).attr('width', lineendX-linestartX);
+            else
+                vis.select(".selection-box").attr('x', linestartX).attr('width', lineendX-linestartX);
+        }
+        function positionCaret(animate){
+            if(animate){
+                mouseG.select(".caret-line").transition().ease(d3.easeCubic).duration(500).attr('x',x(caretline))
+            }
+            else{
+                mouseG.select(".caret-line").attr('x', x(caretline));
+            }
         }
 
         return{
             updatecaret:function(line){
                 caretline = line;
-                vis.select(".caret-line")
-                .attr('x', x(line));
+                positionCaret();
+            },
+            updateselection:function(start,end){
+                selectionstart = start;
+                selectionend = end;
+                positionSelection();
             }
         }
     };

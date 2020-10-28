@@ -84,8 +84,10 @@ window.addEventListener('message', event => {
         if(event.data.uri !== undefined)
             state.docuri = event.data.uri;
         vscode.setState(state);
-    } else if(event.data.command == 'showsourceline' && durationchart){
+    } else if(event.data.command == 'updatecaret' && durationchart){
         durationchart.updatecaret(event.data.content);
+    } else if(event.data.command == 'updateselection' && durationchart){
+        durationchart.updateselection(event.data.content.start, event.data.content.end);
     } else if(event.data.command == 'updateUiPersistence'){
         state.uipersistence[event.data.content.key] = event.data.content.value;
         vscode.setState(state);

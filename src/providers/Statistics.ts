@@ -142,12 +142,25 @@ vscode.workspace.onDidChangeConfiguration(change => {
     });
 })
 
+let previousCaretLine = 0;
+let previousSelectionStart = 0;
+let previousSelectionEnd = 0;
 vscode.window.onDidChangeTextEditorSelection(change => {
 	if(change.textEditor.document.languageId == "fountain")
     var selection = change.selections[0];
     statsPanels.forEach(p => {
-        if(p.uri == change.textEditor.document.uri.toString())
-            p.panel.webview.postMessage({ command: 'showsourceline', content: selection.active.line, linescount: change.textEditor.document.lineCount, source: "click" });
+        if(p.uri == change.textEditor.document.uri.toString()){
+            if(selection.active.line != previousCaretLine){
+                previousCaretLine = selection.active.line;
+                p.panel.webview.postMessage({ command: 'updatecaret', content: selection.active.line, linescount: change.textEditor.document.lineCount, source: "click" });
+            } 
+            if(previousSelectionStart != selection.start.line || previousSelectionEnd != selection.end.line){
+                previousSelectionStart = selection.start.line;
+                previousSelectionEnd = selection.end.line;
+                p.panel.webview.postMessage({ command: 'updateselection', content: { start:selection.start.line, end:selection.end.line }});
+            }
+                
+        }
     });
 })
 

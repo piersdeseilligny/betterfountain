@@ -160,6 +160,9 @@
     .caret-line{
         fill: var(--vscode-panel-border);
     }
+    .selection-box{
+        fill:var(--vscode-editor-selectionBackground);
+    }
     .chart-data{
         stroke:var(--vscode-panel-border);
     }
@@ -210,6 +213,7 @@
     svg .button:active{
         fill:var(--vscode-breadcrumb-activeSelectionForeground);
     }
+
     .buttonseperator{
         fill:var(--vscode-breadcrumb-foreground);
         opacity:0.5;
@@ -332,6 +336,16 @@
             </div>
         </div>
         <div style="display:none" data-group="characters">
+            <h1><span class="codicon codicon-organization"></span>Characters</h1>
+            <div class="flexgroup lengthstats">
+                <div class="flexitem">
+                    <div class="description">Characters</div>
+                    <div id="lengthStats-scenes" class="number">15</div>
+                </div>
+                <div class="flexitem">
+                    <div class="description">Monologues</div>
+                    <div id="lengthStats-scenes" class="number">2</div>
+                </div>
             <table id="characterTable" style="width:100%">
 
             </table>
