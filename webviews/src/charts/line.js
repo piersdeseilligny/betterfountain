@@ -7,9 +7,6 @@ define(function (require) {
     /** @type {import('@types/d3')} */
     var d3 = require('d3');
 
-
-    console.log("d3=");
-    console.log(d3);
     var plugin = {};
 
 
@@ -19,7 +16,6 @@ define(function (require) {
         }
         return i;
     }
-
     function secondsToString(seconds) {
         var time = new Date(null);
         time.setHours(0);
@@ -28,15 +24,15 @@ define(function (require) {
         return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
     }
 
-    vis = {}
-
     plugin.render = function (id, datas, uipersistence, config) {
+        let vis = {};
         $(id).empty();
         var min = 0,
             max = 0;
 
         var longestData = 0;
         var screenplaylineInfo = [];
+        
         datas.forEach(data => {
             data.forEach(function (item) {
                 var value = item[config.yvalue];
@@ -75,7 +71,7 @@ define(function (require) {
             .curve(d3.curveBasis);
 
 
-        var vis = d3.select(id)
+        vis = d3.select(id)
             .append('svg:svg')
             .attr('width', "100%")
             .attr('height', height);
@@ -421,6 +417,9 @@ define(function (require) {
                     if (pageextent0 && pageextent1)
                         pageExtent = pageextent0.page + "-" + pageextent1.page;
                     mouseG.select(".pageNumber").text("p." + pageExtent);
+                    mouseG.select(".currentTime").text(secondsToString(pageextent0.cumulativeDuration)+"-"+secondsToString(pageextent1.cumulativeDuration));
+                    mouseG.select(".scene").text("");
+                    mouseG.select(".breadcrumbs").html("");
                 } else {
                     selectionExists = false;
                 }
@@ -441,7 +440,7 @@ define(function (require) {
             });
         vis.append("g").attr("class", "brush").call(brush)
 
-        d3.select(".brush > .overlay").on('mouseout', mouseout)
+        vis.select(".brush > .overlay").on('mouseout', mouseout)
             .on('mouseover', mouseover)
             .on('mousemove', mousemove)
             .on('dblclick', doubleclick)
@@ -487,7 +486,7 @@ define(function (require) {
 
         function hover(xval, xval2) {
             let values = [];
-            d3.selectAll('.chart-data').each(function (d, i) {
+            vis.selectAll('.chart-data').each(function (d, i) {
                 if (xval2)
                     values.push([bisect(xval, i), bisect(xval2, i)]);
                 else
@@ -507,10 +506,12 @@ define(function (require) {
         }
 
         function bisect(xval, lineindex) {
+            let data = datas[lineindex];
+            if(!data) return 0;
             const bisect = d3.bisector(d => d[config.xvalue]).left;
-            const index = bisect(datas[lineindex], xval, 1);
-            const a = datas[lineindex][index - 1];
-            const b = datas[lineindex][index];
+            const index = bisect(data, xval, 1);
+            const a = data[index - 1];
+            const b = data[index];
             if (b && (xval - a[config.xvalue] > b[config.xvalue] - xval)) {
                 b.index = index;
                 return b;
@@ -520,7 +521,7 @@ define(function (require) {
             }
         }
 
-        $(window).on('resize', function (e) {
+        function resize(e) {
             console.log("resized");
             width = $(id).width();
             vis.select('rect').attr('width', width);
@@ -542,7 +543,7 @@ define(function (require) {
             rightbuttons.select(".unzoom").attr("visibility", "collapse");
             positionSelection();
             positionCaret();
-        });
+        };
 
         function repositionStructure(transition) {
             structurePositions = [0];
@@ -630,7 +631,8 @@ define(function (require) {
                 selectionstart = start;
                 selectionend = end;
                 positionSelection();
-            }
+            },
+            resize:resize
         }
     };
 

@@ -52,6 +52,7 @@ $.contextMenu.types.check = function(item, opt, root) {
     });
 };
 
+var charts = [];
 const LineChart = require("./charts/line");
 
 var state = {
@@ -64,6 +65,7 @@ var state = {
         chartSnapToScene:true
     },
     docuri: "",
+    selectedCategory:"overview"
 }
 const previousState = vscode.getState();
 if(previousState != undefined){
@@ -72,6 +74,9 @@ if(previousState != undefined){
     console.log(state);
     updateStats();
 }
+changeStatCategory($("#sidenav [data-group='"+state.selectedCategory+"']"));
+
+
 
 
 window.addEventListener('message', event => {
@@ -84,10 +89,16 @@ window.addEventListener('message', event => {
         if(event.data.uri !== undefined)
             state.docuri = event.data.uri;
         vscode.setState(state);
-    } else if(event.data.command == 'updatecaret' && durationchart){
-        durationchart.updatecaret(event.data.content);
-    } else if(event.data.command == 'updateselection' && durationchart){
-        durationchart.updateselection(event.data.content.start, event.data.content.end);
+    } else if(event.data.command == 'updatecaret'){
+        for (let i = 0; i < charts.length; i++) {
+            if(charts[i].chart.updatecaret)
+                charts[i].chart.updatecaret(event.data.content);
+        }
+    } else if(event.data.command == 'updateselection'){
+        for (let i = 0; i < charts.length; i++) {
+            if(charts[i].chart.updateselection)
+                charts[i].chart.updateselection(event.data.content.start, event.data.content.end);
+        }
     } else if(event.data.command == 'updateUiPersistence'){
         state.uipersistence[event.data.content.key] = event.data.content.value;
         vscode.setState(state);
@@ -98,6 +109,13 @@ window.addEventListener('blur', event =>{
 });
 window.addEventListener('focus', event =>{
     document.getElementById("maincontent").classList.add('isactive');
+});
+window.addEventListener('resize', event=>{
+    for (let i = 0; i < charts.length; i++) {
+        if(charts[i].group == state.selectedCategory){
+            charts[i].chart.resize(event);
+        }
+    }
 });
 
 function getEights(input){
@@ -232,38 +250,44 @@ function updateStats(){
         </tr>
         `
     }, '')}`
-    
-    durationchart = LineChart.render('#durationStats-lengthchart', [state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue], state.uipersistence, {
-        yvalue: 'length',
-        xvalue: 'line',
-        small: getWidth(),
-        map:pdfmap,
-        structure: state.stats.structure,
-        hover:function(show,x,values, isrange){
-            let actionLength = values[0].length;
-            let dialogueLength = values[1].length;
-            return values[0].length+values[1].length;
-        },
-        selectionSvg:function(values){
-            let actionLength = Math.max(values[0][0].length,values[0][1].length) - Math.min(values[0][0].length,values[0][1].length);
-            let dialogueLength = Math.max(values[1][0].length,values[1][1].length) - Math.min(values[1][0].length,values[1][1].length);
-            return{
-                svg:`<text class='durationstats-selection'>${secondsToString(actionLength+dialogueLength)}</text>
-                     <text class='durationstats-selection durationstats-selection-action' y='12'>${secondsToString(actionLength)}</text>
-                     <text class='durationstats-selection durationstats-selection-dialogue' y='24'>${secondsToString(dialogueLength)}</text>`,
-                width:64
-            }
-        },
-        revealLine:revealLine,
-        revealSelection:revealSelection
+    charts.push({
+        group:'overview',
+        chart: LineChart.render('#durationStats-lengthchart', [state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue], state.uipersistence, {
+            yvalue: 'length',
+            xvalue: 'line',
+            small: getWidth(),
+            map:pdfmap,
+            structure: state.stats.structure,
+            hover:function(show,x,values, isrange){
+                let actionLength = values[0].length;
+                let dialogueLength = values[1].length;
+                return values[0].length+values[1].length;
+            },
+            selectionSvg:function(values){
+                let actionLength = Math.max(values[0][0].length,values[0][1].length) - Math.min(values[0][0].length,values[0][1].length);
+                let dialogueLength = Math.max(values[1][0].length,values[1][1].length) - Math.min(values[1][0].length,values[1][1].length);
+                return{
+                    svg:`<text class='durationstats-selection'>${secondsToString(actionLength+dialogueLength)}</text>
+                         <text class='durationstats-selection durationstats-selection-action' y='12'>${secondsToString(actionLength)}</text>
+                         <text class='durationstats-selection durationstats-selection-dialogue' y='24'>${secondsToString(dialogueLength)}</text>`,
+                    width:64
+                }
+            },
+            revealLine:revealLine,
+            revealSelection:revealSelection
+        })
     });
-    
-    LineChart.render('#characterStats-lengthchart', state.stats.durationStats.characters, state.uipersistence, {
-        yvalue: 'length',
-        xvalue: 'line',
-        small: getWidth(),
-        map:pdfmap,
-        structure: state.stats.structure
+    charts.push({
+        group:'characters',
+        chart:LineChart.render('#characterStats-lengthchart', state.stats.durationStats.characters, state.uipersistence, {
+            yvalue: 'length',
+            xvalue: 'line',
+            small: getWidth(),
+            map:pdfmap,
+            structure: state.stats.structure,
+            revealLine:revealLine,
+            revealSelection:revealSelection
+        })
     });
 }
 
@@ -302,6 +326,16 @@ function changeStatCategory(e){
         }
         else{
             groups[i].style.display = "none";
+        }
+    }
+
+    
+    if(activegroup != state.selectedCategory)
+        state.selectedCategory = activegroup;
+
+    for (let i = 0; i < charts.length; i++) {
+        if(charts[i].group == state.selectedCategory){
+            charts[i].chart.resize();
         }
     }
 }

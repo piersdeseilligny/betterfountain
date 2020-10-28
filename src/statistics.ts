@@ -39,18 +39,14 @@ type lengthchartitem = {
     length:number
 }
 
-type characterDuration={
-    name:string,
-    lengthchart: lengthchartitem[]
-}
-
 type durationStatistics = {
     dialogue: number
     action: number
     total: number,
     lengthchart_action: lengthchartitem[],
     lengthchart_dialogue: lengthchartitem[],
-    characters:characterDuration[]
+    characters:lengthchartitem[][],
+    characternames:string[]
 }
 
 type screenPlayStatistics = {
@@ -144,7 +140,7 @@ const createSceneStatistics = (parsed: parseoutput): singleSceneStatistic[] => {
 
 
 
-const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:lengthchartitem[], characters:characterDuration[]} => {
+const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:lengthchartitem[], characters:lengthchartitem[][], characternames:string[]} => {
     let action:lengthchartitem[] = [{line:0, length: 0, scene:undefined }]
     let dialogue:lengthchartitem[] = [{line:0, length: 0, scene:undefined }]
     let characters = new Map<string, lengthchartitem[]>();
@@ -171,16 +167,28 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
             }
             else if(element.type == "dialogue"){
                 dialogue.push({line:element.line, length: previousLengthDialogue, scene:currentScene });
-                if(!characters.has(element.character)) characters.set(element.character, []);
-                characters.get(element.character).push({line:element.line, length: previousLengthDialogue, scene:currentScene });
+                if(!characters.has(element.character)){
+                    
+                }
+                let currentCharacter = characters.get(element.character);
+                let dialogueLength = 0;
+                if(!currentCharacter){
+                    characters.set(element.character, []);
+                }
+                else if(currentCharacter.length>1){
+                    dialogueLength = currentCharacter[currentCharacter.length-1].length;
+                }
+                characters.get(element.character).push({line:element.line, length: dialogueLength+Number(element.time), scene:currentScene });
             }
         }
     });
-    let characterDuration = [];
-    for (const [key, value] of characters) {
-        characterDuration.push({name:key, lengthchart:value});
-    }
-    return {action:action, dialogue:dialogue, characters: characterDuration};
+    let characterDuration:lengthchartitem[][] = [];
+    let characterNames:string[] = [];
+    characters.forEach((value:lengthchartitem[], key:string) =>{
+        characterNames.push(key);
+        characterDuration.push(value);
+    });
+    return {action:action, dialogue:dialogue, characters: characterDuration, characternames:characterNames};
 };
 
 const getWordCount = (script: string): number => {
@@ -214,13 +222,15 @@ const createLengthStatistics = (script: string, pdf:pdfstats, parsed:parseoutput
 
 const createDurationStatistics = (parsed: parseoutput): durationStatistics => {
     let lengthcharts =  getLengthChart(parsed);
+    console.log("Created duration stats");
     return {
         dialogue: parsed.lengthDialogue,
         action: parsed.lengthAction,
         total: parsed.lengthDialogue + parsed.lengthAction,
         lengthchart_action: lengthcharts.action,
         lengthchart_dialogue: lengthcharts.dialogue,
-        characters: lengthcharts.characters
+        characters: lengthcharts.characters,
+        characternames: lengthcharts.characternames
     }
 }
 

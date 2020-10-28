@@ -182,7 +182,7 @@
     #durationStats-dialogue, #durationStats-dialogue-hoverm .durationstats-selection-dialogue{
         color: var(--vscode-symbolIcon-fieldForeground);
     }
-    #durationStats-lengthchart .chart-container{
+    .chart-container{
         stroke:var(--vscode-panel-border);
         fill:var(--vscode-panel-background);
     }
@@ -346,10 +346,12 @@
                     <div class="description">Monologues</div>
                     <div id="lengthStats-scenes" class="number">2</div>
                 </div>
-            <table id="characterTable" style="width:100%">
+            </div>
+            <div style="height:256px;box-sizing: border-box;" class="linechart" id="characterStats-lengthchart"></div>
+            <table id="characterTable" style="width:100%;margin-top:24px;">
 
             </table>
-            <div style="width:100%;margin:0px 12px;height: 172px;" class="linechart" id="characterStats-lengthchart"></div>
+
         </div>
         <div style="display:none" data-group="scenes">
             Scenes
