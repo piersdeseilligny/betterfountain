@@ -66,7 +66,7 @@ function expandChanges(changes: diff.ArrayChange<string>[]): diff.ArrayChange<st
     return result;
 }
 
-interface SceneNumberingSchema {
+export interface SceneNumberingSchema {
 
     /** For sorting purposes */
     compare(a: string, b: string): number;
@@ -84,24 +84,98 @@ interface SceneNumberingSchema {
 
     /** Get a number bigger than all those provided
      */
-    getNext(onLeft: string[]): string;
+    getNext(used: string[]): string;
 
     /** Get a number smaller than all those provided
      */
-    getPrevious(onRight: string[]): string;
+    getPrevious(used: string[]): string;
 }
 
-// inspired by https://johnaugust.com/2007/renumbering
-export class StandardSceneNumberingSchema
+/** Base class for anything that behaves like a series of non-negative number
+ *      i.e. 2 < 3 < 3.1 < 3.2 < 3.2.1
+ *   derived classes need only determine how this series is displayed
+ */
+abstract class NumericSeriesSceneNumberingSchema
     implements SceneNumberingSchema {
 
-    // "3" comes before "A3"
     compare(a: string, b: string): number {
-        const splitA = StandardSceneNumberingSchema.toNumeric(a);
-        const splitB = StandardSceneNumberingSchema.toNumeric(b);
-        return StandardSceneNumberingSchema.compareNumeric(splitA, splitB);
+        const nA = this.toNumeric(a);
+        const nB = this.toNumeric(b);
+        return NumericSeriesSceneNumberingSchema.compareNumeric(nA, nB);
     }
 
+    // if a screenplay has "3", it must have used "1" and "2" at some point
+    deduceUsedNumbers(existing: string[]): string[] {
+        var result: string[] = [];
+        existing.forEach(s => {
+            result.push(s);
+            const vals = this.toNumeric(s);
+
+            while (vals.length > 0) {
+                const index = vals.length - 1;
+                while (vals[index] > 0) {
+                    result.push(this.toDisplay(vals));
+                    vals[index] = vals[index] - 1;
+                }
+                while (vals[index] < 0) {
+                    result.push(this.toDisplay([0]));
+                    result.push(this.toDisplay(vals));
+                    vals[index] = vals[index] + 1;
+                }
+                vals.pop();
+                result = result.filter(onlyUnique);
+            }
+        })
+        return result.filter(onlyUnique).sort((a, b) => this.compare(a, b));
+
+        function onlyUnique(value: string, index: number, self: string[]) {
+            return self.indexOf(value) === index;
+        }
+    }
+
+    // a scene inserted between [3] and [4] is [3,1] (think "3.1" or "A3")
+    getInBetween(a: string, b: string, except?: string[]): string {
+        try {
+            const left = this.toNumeric(a);
+            const right = this.toNumeric(b);
+            // check a,b are already in order
+            if (NumericSeriesSceneNumberingSchema.compareNumeric(left, right) >= 0) return "?";
+
+            for (var index = 0; index < 100; index++) {
+                const mid = left.slice();
+                while (mid.length <= index) mid.push(0);
+                while (mid.length - 1 > index) mid.pop();
+                mid[index]++;
+                const serial = this.toDisplay(mid)
+                if (NumericSeriesSceneNumberingSchema.compareNumeric(mid, right) < 0) {
+                    if (!except || !except.includes(serial)) return serial;
+                    return this.getInBetween(a, serial, except);
+                }
+            }
+        } catch { }
+        return "?"
+    }
+
+    // return the next number bigger than what's in @used
+    getNext = (used: string[]): string => {
+        if (used.length == 0) return "1";
+        const valids = used.filter(v => v).map(v => this.toNumeric(v));
+        const last = valids.sort(NumericSeriesSceneNumberingSchema.compareNumeric)[valids.length - 1];
+        return (last[0] + 1).toString();
+    }
+
+    // return the next number smaller than what's in @used
+    getPrevious = (used: string[]): string => {
+        if (used.length == 0) return "1";
+        const valids = used.filter(v => v).map(v => this.toNumeric(v));
+        const first = valids.sort(NumericSeriesSceneNumberingSchema.compareNumeric)[0];
+        const newbie = first[0] - 1;
+        if (newbie > 0) return this.toDisplay([newbie]);
+        return this.getInBetween("0", this.toDisplay(first));
+    }
+
+    // numeric form is used because it's more intuitive to us coders.
+    // [2,1,1] < [2,1,2] < [2,2] < [3] 
     static compareNumeric(a: number[], b: number[]): number {
         const min = Math.min(a.length, b.length);
         for (var i = 0; i < min; i++) {
@@ -115,100 +189,36 @@ export class StandardSceneNumberingSchema
         return 0;
     }
 
-    // if a screenplay has "3", it must have used "1" and "2" at some point
-    deduceUsedNumbers(existing: string[]): string[] {
-        const result: string[] = [];
-        existing.forEach(s => {
-            result.push(s);
-            const vals = StandardSceneNumberingSchema.toNumeric(s);
+    /** How to interpret the Scene Number as a series of numbers */
+    abstract toNumeric(s: string): number[];
+    /** How to turn the numbers back into a scene number for the script */
+    abstract toDisplay(n: number[]): string;
+}
 
-            while (vals.length > 0) {
-                const index = vals.length - 1;
-                while (vals[index] > 0) {
-                    result.push(StandardSceneNumberingSchema.toSerial(vals));
-                    vals[index] = vals[index] - 1;
-                }
-                while (vals[index] < 0) {
-                    result.push(StandardSceneNumberingSchema.toSerial([0]));
-                    result.push(StandardSceneNumberingSchema.toSerial(vals));
-                    vals[index] = vals[index] + 1;
-                }
-                vals.pop();
-            }
-        })
-        return result.filter(onlyUnique).sort(this.compare);
+/** inspired by https://johnaugust.com/2007/renumbering
+ */
+export class StandardSceneNumberingSchema
+    extends NumericSeriesSceneNumberingSchema {
 
-        function onlyUnique(value: string, index: number, self: string[]) {
-            return self.indexOf(value) === index;
-        }
-    }
-
-    // a scene inserted between "3" and "4" is "A3"
-    getInBetween(a: string, b: string, except?: string[]): string {
-        // assume a,b are already in order
-        try {
-            const left = StandardSceneNumberingSchema.toNumeric(a);
-            const right = StandardSceneNumberingSchema.toNumeric(b);
-            for (var index = 0; ; index++) {
-                const mid = left.slice();
-                while (mid.length <= index) mid.push(0);
-                while (mid.length - 1 > index) mid.pop();
-                mid[index]++;
-                const serial = StandardSceneNumberingSchema.toSerial(mid)
-                if (StandardSceneNumberingSchema.compareNumeric(mid, right) < 0) {
-                    if (!(except && except.includes(serial)))
-                        return serial;
-                    return this.getInBetween(a, serial, except);
-                }
-            }
-        } catch {
-            return "?"
-        }
-    }
-
-    // 'smalls' have all been used. return a scene number bigger
-    getNext(smalls: string[]): string {
-        if (smalls.length == 0) return "1";
-        const valids = smalls.filter(v => v);
-        const last = valids.sort(this.compare)[valids.length - 1];
-        const biggest = StandardSceneNumberingSchema.toNumeric(last);
-        return (biggest[0] + 1).toString();
-    }
-
-    // 'bigs' have all been used. return a scene number smaller
-    getPrevious(bigs: string[]): string {
-        if (bigs.length == 0) return "1";
-        const valids = bigs.filter(v => v);
-        const first = valids.sort(this.compare)[0];
-        const smallest = StandardSceneNumberingSchema.toNumeric(first)[0];
-        return StandardSceneNumberingSchema.toSerial([smallest - 1]);
-    }
-
-    // helpers
-
-    static toNumeric = function (s: string): number[] {
-        var zeros;
-        var digits: number = null;
-        if (zeros = s.match(/^[A-Z]*0(0+)$/)) {
-            digits = -zeros[1].length;
-        }
-        else {
-            digits = +s.match(/\d+$/)[0]
-        }
-
+    toNumeric = function (s: string): number[] {
+        const format = s.match(/^([A-Z0]*)([1-9]\d*)?$/);
+        const letters = format[1];
+        const digits = format[2];
         const result: number[] = [];
-        const re = /[A-Z]/g;
-        var m;
-        while (m = re.exec(s))
-            result.push(m[0].charCodeAt(0) - 64)
-        result.push(digits);
+
+        // letters and leading zeros
+        result.push(...Array.from(letters).map(char => char == '0' ? 0 : char.charCodeAt(0) - 64))
+
+        // positives
+        if (digits) result.push(+digits)
+
         return result.reverse();
     }
 
-    static toSerial = function (n: number[]): string {
+    toDisplay = function (n: number[]): string {
         const m = n.slice();
         const first = m.shift();
-        const letters = m.reverse().map(num => String.fromCharCode(num + 64));
+        const letters = m.reverse().map(num => num == 0 ? '0' : String.fromCharCode(num + 64));
         return letters.join("") + (first >= 0 ? first.toString() : "0".repeat(1 - first));
     }
 

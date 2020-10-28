@@ -18,8 +18,10 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		const elements: vscode.TreeItem[] = [];
 		const treeExportPdf = new vscode.TreeItem("Export PDF");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
-		const numberScenes1 = new vscode.TreeItem("Number all scenes (replaces existing scene numbers)");
-		const numberScenes2 = new vscode.TreeItem("Number un-numbered scenes");
+		const numberScenesOverwrite = new vscode.TreeItem("Number scenes - overwrite");
+		numberScenesOverwrite.tooltip = 'Replaces existing scene numbers.';
+		const numberScenesUpdate = new vscode.TreeItem("Number scenes - update");
+		numberScenesUpdate.tooltip = 'Retains existing numbers as much as possible. Fills gaps and re-numbers moved scenes.';
 		const statistics = new vscode.TreeItem("Calculate screenplay statistics");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
@@ -33,28 +35,26 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			command: 'fountain.livepreviewstatic',
 			title: ''
 		};
-		numberScenes1.command = {
+		numberScenesOverwrite.command = {
 			command: 'fountain.overwriteSceneNumbers',
 			title: ''
-		}		
-		numberScenes2.command = {
+		};
+		numberScenesUpdate.command = {
 			command: 'fountain.updateSceneNumbers',
 			title: ''
-		}
+		};
 		statistics.command = {
 			command: 'fountain.statistics',
 			title: ''
 		};
 		elements.push(treeExportPdf);
 		elements.push(treeLivePreview);
-		elements.push(numberScenes1);
-		elements.push(numberScenes2);
+		elements.push(numberScenesOverwrite);
+		elements.push(numberScenesUpdate);
 		elements.push(statistics);
 		return elements;
 	}
 }
-
-//hierarchyend is the last line of the token's hierarchy. Last line of document for the root, last line of current section, etc...
 
 
 

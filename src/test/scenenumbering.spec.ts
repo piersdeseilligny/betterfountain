@@ -46,53 +46,57 @@ describe("Scene Number Strategy: Standard", () => {
         expect(standard.getInBetween("1", "2")).toBe("A1");
         expect(standard.getInBetween("2", "4")).toBe("3");
     }, 10)
+    it("getInBetween (bad input)", () => {
+        expect(standard.getInBetween("1", "1")).toBe("?");
+        expect(standard.getInBetween("2", "1")).toBe("?");
+    }, 10)
 
-    it("Generate", () => {
+    it("generate [ 1 _ 2 ]", () => {
         expect(sn.generateSceneNumbers(["1", null, "2"]))
             .toEqual(["1", "A1", "2"]);
     }, 10)
-    it("Generate [ 1 2 5 3 4 ]", () => {
+    it("generate [ 1 2 5 3 4 ]", () => {
         expect(sn.generateSceneNumbers(["1", "2", "5", "3", "4"]))
             .toEqual(["1", "2", "A2", "3", "4"]);
     }, 10)
-    it("Generate [ _ _ ]", () => {
+    it("generate [ _ _ ]", () => {
         expect(sn.generateSceneNumbers([null, null]))
             .toEqual(["1", "2"]);
     }, 10)
-    it("Generate [ 1 _ ]", () => {
+    it("generate [ 1 _ ]", () => {
         expect(sn.generateSceneNumbers(["1", null]))
             .toEqual(["1", "2"]);
     }, 10)
-    it("Generate [ 2 _ ]", () => {
+    it("generate [ 2 _ ]", () => {
         expect(sn.generateSceneNumbers(["2", null]))
             .toEqual(["2", "3"]);
     }, 10)
-    it("Generate [ 2 _ 4 ]", () => {
+    it("generate [ 2 _ 4 ]", () => {
         expect(sn.generateSceneNumbers(["2", null, "4"]))
             .toEqual(["2", "A2", "4"]); // because "3" must have been used.
     }, 10)
-    it("Generate [ _ 1 ]", () => {
+    it("generate [ _ 1 ]", () => {
         expect(sn.generateSceneNumbers([null, "1"]))
-            .toEqual(["0", "1"]);
+            .toEqual(["A0", "1"]);
     }, 10)
-    it("Generate [ _ _ 2 ]", () => {
+    it("generate [ _ _ 2 ]", () => {
         expect(sn.generateSceneNumbers([null, null, "2"]))
-            .toEqual(["0", "A0", "2"]); // because "1" must have been used.
+            .toEqual(["A0", "B0", "2"]); // because "1" must have been used.
     }, 10)
-    it("Generate [ _ 2 ]", () => {
-        expect(sn.generateSceneNumbers([null, "2"]))
-            .toEqual(["0", "2"]); // because "1" must have been used.
+    it("generate [ _ A0 2 ]", () => {
+        expect(sn.generateSceneNumbers([null, "A0", "2"]))
+            .toEqual(["A00", "A0", "2"]); // like 0.0.1 < 0.1 < 2
     }, 10)
-    it("Generate [ _ 0 2 ]", () => {
-        expect(sn.generateSceneNumbers([null, "0", "2"]))
-            .toEqual(["00", "0", "2"]); // because "00" is like -1
+    it("generate [ A00 _ A0 ]", () => {
+        expect(sn.generateSceneNumbers(["A00", null, "A0"]))
+            .toEqual(["A00", "B00", "A0"]); // like 0.0.1 < 0.0.2 < 0.1
     }, 10)
-    it("Generate [ 00 _ 0 ]", () => {
-        expect(sn.generateSceneNumbers(["00", null, "0"]))
-            .toEqual(["00", "A00", "0"]);
+    it("generate [ A00 B00 _ A0 ]", () => {
+        expect(sn.generateSceneNumbers(["A00", "B00", null, "A0"]))
+            .toEqual(["A00", "B00", "C00", "A0"]);
     }, 10)
-    it("Generate [ 00 A00 _ 0 ]", () => {
-        expect(sn.generateSceneNumbers(["00", "A00", null, "0"]))
-            .toEqual(["00", "A00", "B00", "0"]);
+    it("generate [ 5 _ A5 ]", () => {
+        expect(sn.generateSceneNumbers(["5", null, "A5"]))
+            .toEqual(["5", "A05", "A5"]);
     }, 10)
 })

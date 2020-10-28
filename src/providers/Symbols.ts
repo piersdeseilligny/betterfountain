@@ -10,6 +10,7 @@ export class FountainSymbolProvider implements vscode.DocumentSymbolProvider{
 		var symbols:vscode.DocumentSymbol[] = []
 		var scenecounter = 0;
 
+		//hierarchyend is the last line of the token's hierarchy. Last line of document for the root, last line of current section, etc...
 		function symbolFromStruct(token:afterparser.StructToken, nexttoken:afterparser.StructToken, hierarchyend:number):{symbol:vscode.DocumentSymbol, length:number}{
 			var returnvalue:{symbol:vscode.DocumentSymbol, length:number} = {symbol:undefined, length:0};
 			var start = token.range.start;
