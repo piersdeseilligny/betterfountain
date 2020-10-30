@@ -3,7 +3,7 @@ import { FountainStructureProperties } from "./extension";
 import * as parser from "./afterwriting-parser";
 import * as path from "path";
 import * as telemetry from "./telemetry";
-import { generateSceneNumbers } from "./scenenumbering";
+import * as sceneNumbering from './scenenumbering';
 
 //var syllable = require('syllable');
 
