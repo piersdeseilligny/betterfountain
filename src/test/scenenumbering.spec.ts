@@ -1,6 +1,6 @@
 import * as sn from "../scenenumbering";
 
-describe("Scene Number Strategy: Standard", () => {
+describe("Scene Number Schema: Standard", () => {
 
     const standard = new sn.StandardSceneNumberingSchema();
 

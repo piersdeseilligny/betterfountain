@@ -151,39 +151,45 @@ export const updateSceneNumbers = () => {
 	writeSceneNumbers(fullText);
 }
 
-const clearSceneNumbers = (fullText:string):string => {
+const clearSceneNumbers = (fullText: string): string => {
 	const regexSceneHeadings = new RegExp(parser.regex.scene_heading.source, "igm");
-	const newText = fullText.replace(regexSceneHeadings, (heading:string) => heading.replace(/ #.*#$/, ""))
+	const newText = fullText.replace(regexSceneHeadings, (heading: string) => heading.replace(/ #.*#$/, ""))
 	return newText
 }
 
 // rewrites/updates Scene Numbers using the configured Numbering Schema (currently only 'Standard', not yet configurable)
-const writeSceneNumbers = (fullText:string) => {
+const writeSceneNumbers = (fullText: string) => {
 	// collect existing numbers (they mostly shouldn't change)
 	const oldNumbers: string[] = [];
 	const regexSceneHeadings = new RegExp(parser.regex.scene_heading.source, "igm");
+	const numberingSchema = sceneNumbering.makeSceneNumberingSchema(sceneNumbering.SceneNumberingSchemas.Standard);
 	var m;
 	while (m = regexSceneHeadings.exec(fullText)) {
-		const n = m[0].match(/#(.+)#$/);
-		if (n) oldNumbers.push(n[1]);
-		else oldNumbers.push(null);
+		const matchExisting = m[0].match(/#(.+)#$/);
+
+		if (!matchExisting) oldNumbers.push(null) /* no match = no number = new number required in this slot */
+		else if (numberingSchema.canParse(matchExisting[1])) oldNumbers.push(matchExisting[1]); /* existing scene number */
+		/* ELSE: didn't parse - custom scene numbers are skipped */
 	}
 
 	// work out what they should actually be, according to the schema
-	const newNumbers = generateSceneNumbers(oldNumbers);
+	const newNumbers = sceneNumbering.generateSceneNumbers(oldNumbers);
+	if (newNumbers) {
+		// replace scene numbers
+		const newText = fullText.replace(regexSceneHeadings, (heading) => {
+			const matchExisting = heading.match(/#(.+)#$/);
+			if (matchExisting && !numberingSchema.canParse(matchExisting[1]))
+				return heading; /* skip re-writing custom scene numbers */
 
-	// replace scene numbers
-	const newText = fullText.replace(regexSceneHeadings, (heading) => {
-		const noPrevHeadingNumbers = heading.replace(/ #.+#$/, "")
-		const newHeading = `${noPrevHeadingNumbers} #${newNumbers.shift()}#`
-		return newHeading
-	})
-	vscode.window.activeTextEditor.edit((editBuilder) => {
-		editBuilder.replace(
+			const noPrevHeadingNumbers = heading.replace(/ #.+#$/, "")
+			const newHeading = `${noPrevHeadingNumbers} #${newNumbers.shift()}#`
+			return newHeading
+		})
+		vscode.window.activeTextEditor.edit(editBuilder => editBuilder.replace(
 			new vscode.Range(new vscode.Position(0, 0), new vscode.Position(vscode.window.activeTextEditor.document.lineCount, 0)),
 			newText
-		)
-	})
+		))
+	}
 }
 
 export const last = function (array: any[]): any {

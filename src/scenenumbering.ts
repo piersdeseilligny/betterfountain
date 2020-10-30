@@ -4,45 +4,49 @@ export enum SceneNumberingSchemas {
     "Standard"
 };
 
-export function generateSceneNumbers(currentSceneNumbers: string[], schemaType?: SceneNumberingSchemas): string[] {
+export function generateSceneNumbers(currentSceneNumbers: string[], schema?: SceneNumberingSchema): string[] {
+    try {
+        schema = schema || makeSceneNumberingSchema(SceneNumberingSchemas.Standard);
+        const used = schema.deduceUsedNumbers(currentSceneNumbers.filter(v => v));
+        const alignment = expandChanges(diff.diffArrays(used, currentSceneNumbers));
 
-    const schema = makeSceneNumberingSchema(schemaType);
-    const used = schema.deduceUsedNumbers(currentSceneNumbers.filter(v => v));
-    const alignment = expandChanges(diff.diffArrays(used, currentSceneNumbers));
-
-    const findNextKnownNumber = function (start: number, direction: number): string {
-        var i = start;
-        while (true) {
-            i += direction;
-            if (i < 0) return null;
-            if (i >= alignment.length) return null;
-            if (!alignment[i].added && !alignment[i].removed) return alignment[i].value[0];
-        }
-    }
-
-    var previous: string;
-    return alignment
-        .map((alignmentPair, i) => {
-            if (alignmentPair.removed) return null;
-            if (!alignmentPair.added) {
-                // keep existing scene number
-                previous = alignmentPair.value[0];
-                return previous;
+        const findNextKnownNumber = function (start: number, direction: number): string {
+            var i = start;
+            while (true) {
+                i += direction;
+                if (i < 0) return null;
+                if (i >= alignment.length) return null;
+                if (!alignment[i].added && !alignment[i].removed) return alignment[i].value[0];
             }
-            // calculate unknown scene number
-            const left = previous || findNextKnownNumber(i, -1);
-            const right = findNextKnownNumber(i, 1);
-            const inserted = right == null ? schema.getNext(used) /*
+        }
+
+        var previous: string;
+        return alignment
+            .map((alignmentPair, i) => {
+                if (alignmentPair.removed) return null;
+                if (!alignmentPair.added) {
+                    // keep existing scene number
+                    previous = alignmentPair.value[0];
+                    return previous;
+                }
+                // calculate unknown scene number
+                const left = previous || findNextKnownNumber(i, -1);
+                const right = findNextKnownNumber(i, 1);
+                const inserted = right == null ? schema.getNext(used) /*
                         */ : left == null ? schema.getPrevious(used) /*
                         */ : schema.getInBetween(left, right, used);
-            used.push(inserted);
-            previous = inserted;
-            return inserted;
-        })
-        .filter(v => v);
+                used.push(inserted);
+                previous = inserted;
+                return inserted;
+            })
+            .filter(v => v);
+    } catch (e) {
+        console.error(e);
+    }
+    return null;
 }
 
-function makeSceneNumberingSchema(_schemaType: SceneNumberingSchemas) {
+export function makeSceneNumberingSchema(_schemaType: SceneNumberingSchemas): SceneNumberingSchema {
     // future Strategies could be selectable in the settings
     return new StandardSceneNumberingSchema();
 }
@@ -67,6 +71,9 @@ function expandChanges(changes: diff.ArrayChange<string>[]): diff.ArrayChange<st
 }
 
 export interface SceneNumberingSchema {
+
+    /** Determines if an existing scene number belongs to this schema */
+    canParse(s: string): boolean;
 
     /** For sorting purposes */
     compare(a: string, b: string): number;
@@ -116,11 +123,6 @@ abstract class NumericSeriesSceneNumberingSchema
                 while (vals[index] > 0) {
                     result.push(this.toDisplay(vals));
                     vals[index] = vals[index] - 1;
-                }
-                while (vals[index] < 0) {
-                    result.push(this.toDisplay([0]));
-                    result.push(this.toDisplay(vals));
-                    vals[index] = vals[index] + 1;
                 }
                 vals.pop();
                 result = result.filter(onlyUnique);
@@ -189,6 +191,14 @@ abstract class NumericSeriesSceneNumberingSchema
         return 0;
     }
 
+    canParse(s: string): boolean {
+        try {
+            return this.toNumeric(s) != null;
+        }
+        catch { }
+        return false;
+    }
+
     /** How to interpret the Scene Number as a series of numbers */
     abstract toNumeric(s: string): number[];
     /** How to turn the numbers back into a scene number for the script */
@@ -201,7 +211,8 @@ export class StandardSceneNumberingSchema
     extends NumericSeriesSceneNumberingSchema {
 
     toNumeric = function (s: string): number[] {
-        const format = s.match(/^([A-Z0]*)([1-9]\d*)?$/);
+        const format = s.match(/^([A-Z0]*)(0|[1-9]\d*)$/);
+        if (!format) return null;
         const letters = format[1];
         const digits = format[2];
         const result: number[] = [];
