@@ -39,14 +39,25 @@ type lengthchartitem = {
     length:number
 }
 
+type dialoguechartitem = {
+    line:number,
+    scene:string,
+    lengthTimeGlobal:number,
+    lengthWordsGlobal:number,
+    monologue:boolean,
+    lengthTime:number,
+    lengthWords:number
+}
+
 type durationStatistics = {
     dialogue: number
     action: number
     total: number,
     lengthchart_action: lengthchartitem[],
     lengthchart_dialogue: lengthchartitem[],
-    characters:lengthchartitem[][],
-    characternames:string[]
+    characters:dialoguechartitem[][],
+    characternames:string[],
+    monologues:number
 }
 
 type screenPlayStatistics = {
@@ -140,13 +151,14 @@ const createSceneStatistics = (parsed: parseoutput): singleSceneStatistic[] => {
 
 
 
-const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:lengthchartitem[], characters:lengthchartitem[][], characternames:string[]} => {
+const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:lengthchartitem[], characters:dialoguechartitem[][], characternames:string[], monologues:number} => {
     let action:lengthchartitem[] = [{line:0, length: 0, scene:undefined }]
     let dialogue:lengthchartitem[] = [{line:0, length: 0, scene:undefined }]
-    let characters = new Map<string, lengthchartitem[]>();
+    let characters = new Map<string, dialoguechartitem[]>();
     let previousLengthAction = 0;
     let previousLengthDialogue = 0;
     let currentScene = "";
+    let monologues=0;
     parsed.tokens.forEach(element => {
         if(element.type=="scene_heading"){
             currentScene = element.text;
@@ -167,28 +179,42 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
             }
             else if(element.type == "dialogue"){
                 dialogue.push({line:element.line, length: previousLengthDialogue, scene:currentScene });
-                if(!characters.has(element.character)){
-                    
-                }
                 let currentCharacter = characters.get(element.character);
                 let dialogueLength = 0;
+                let wordsLength = 0;
+                let wordcount = getWordCount(element.text);
+                let time = Number(element.time);
                 if(!currentCharacter){
                     characters.set(element.character, []);
                 }
                 else if(currentCharacter.length>1){
-                    dialogueLength = currentCharacter[currentCharacter.length-1].length;
+                    dialogueLength = currentCharacter[currentCharacter.length-1].lengthTimeGlobal;
+                    wordsLength = currentCharacter[currentCharacter.length-1].lengthWordsGlobal;
                 }
-                characters.get(element.character).push({line:element.line, length: dialogueLength+Number(element.time), scene:currentScene });
+                let monologue = false;
+                if(time>30){
+                    monologue=true;
+                    monologues++;
+                }
+                characters.get(element.character).push({
+                    line:element.line, 
+                    lengthTime:element.time, 
+                    lengthWords:wordcount,
+                    lengthTimeGlobal: dialogueLength+time, 
+                    lengthWordsGlobal: wordsLength+wordcount,
+                    monologue:monologue, //monologue if dialogue is longer than 30 seconds
+                    scene:currentScene,
+                });
             }
         }
     });
-    let characterDuration:lengthchartitem[][] = [];
+    let characterDuration:dialoguechartitem[][] = [];
     let characterNames:string[] = [];
-    characters.forEach((value:lengthchartitem[], key:string) =>{
+    characters.forEach((value:dialoguechartitem[], key:string) =>{
         characterNames.push(key);
         characterDuration.push(value);
     });
-    return {action:action, dialogue:dialogue, characters: characterDuration, characternames:characterNames};
+    return {action:action, dialogue:dialogue, characters: characterDuration, characternames:characterNames, monologues:monologues};
 };
 
 const getWordCount = (script: string): number => {
@@ -230,7 +256,8 @@ const createDurationStatistics = (parsed: parseoutput): durationStatistics => {
         lengthchart_action: lengthcharts.action,
         lengthchart_dialogue: lengthcharts.dialogue,
         characters: lengthcharts.characters,
-        characternames: lengthcharts.characternames
+        characternames: lengthcharts.characternames,
+        monologues:lengthcharts.monologues
     }
 }
 

@@ -277,12 +277,16 @@ function updateStats(){
             revealSelection:revealSelection
         })
     });
+
+    document.getElementById("characterStats-monologues").innerText = state.stats.durationStats.monologues;
     charts.push({
         group:'characters',
         chart:LineChart.render('#characterStats-lengthchart', state.stats.durationStats.characters, state.uipersistence, {
-            yvalue: 'length',
+            yvalue: 'lengthTimeGlobal',
             xvalue: 'line',
+            pointvalue: 'monologue',
             small: getWidth(),
+            labels: state.stats.durationStats.characternames,
             map:pdfmap,
             structure: state.stats.structure,
             revealLine:revealLine,

@@ -68,8 +68,7 @@ define(function (require) {
             .y(function (d) {
                 return y(d[config.yvalue]);
             })
-            .curve(d3.curveBasis);
-
+            .curve(d3.curveLinear);
 
         vis = d3.select(id)
             .append('svg:svg')
@@ -151,8 +150,16 @@ define(function (require) {
         calculateStructurePositions();
 
         let linecontainer = vis.append('g').attr('class', 'chart-linecontainer');
+        let pointcontainer = vis.append('g').attr('class', 'chart-pointcontainer');
         for (let i = 0; i < datas.length; i++) {
             linecontainer.append('path').attr('d', line(datas[i])).attr('fill', 'none').attr('class', 'chart-data').attr('data-line', i).attr('y', headerHeight);
+            for (let j = 0; j < datas[i].length; j++) {
+                if(config.pointvalue && datas[i][j][config.pointvalue]){
+                    let xpos = datas[i][j][config.xvalue];
+                    let ypos = datas[i][j][config.yvalue];
+                    pointcontainer.append('circle').attr('r',2).attr('cx', x(xpos)).attr('cy', y(ypos)).style('fill', 'white').attr('data-xpos', xpos).attr('data-ypos', ypos);
+                }
+            }
         }
 
 
@@ -530,6 +537,11 @@ define(function (require) {
             vis.selectAll('.chart-data').each(function (d, i) {
                 d3.select(this).attr('d', line(datas[i]));
             });
+            pointcontainer.selectAll('circle').each(function(d,i){
+                let point = d3.select(this);
+                point.attr('cx', x(point.attr('data-xpos')));
+                point.attr('cy', y(point.attr('data-ypos')));
+            })
             repositionStructure();
             brush.extent([
                 [0, headerHeight],
