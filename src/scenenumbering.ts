@@ -47,7 +47,7 @@ export function generateSceneNumbers(currentSceneNumbers: string[], schema?: Sce
 }
 
 export function makeSceneNumberingSchema(_schemaType: SceneNumberingSchemas): SceneNumberingSchema {
-    // future Strategies could be selectable in the settings
+    // future Schemas could be selectable in the settings
     return new StandardSceneNumberingSchema();
 }
 
