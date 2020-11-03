@@ -294,7 +294,7 @@
 			},
 			{
 				"command": "fountain.exportpdfcustom",
-				"title": "Export screenplay PDF with custom settings",
+				"title": "Export screenplay PDF with highlighted characters",
 				"category": "Fountain"
 			},
 			{

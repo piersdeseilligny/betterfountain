@@ -15,7 +15,7 @@ export class Liner {
             var tmpText;
 
             if (token.type === "character" && this.printTakeNumbers) {
-                tmpText = token.takeNumber + " – " + text;
+                tmpText = token.takeNumber + " - " + text;
             } else {
                 tmpText = text;
             }

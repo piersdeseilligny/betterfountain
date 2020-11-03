@@ -5,7 +5,7 @@
     import * as path from 'path';
     import * as vscode from 'vscode';
 import helpers from "../helpers";
-import { openFile, revealFile } from "../utils";
+import { openFile, revealFile, trimCharacterExtension } from "../utils";
    // import * as blobUtil from "blob-util";
     export class Options{
         filepath:string;
@@ -489,8 +489,13 @@ import { openFile, revealFile } from "../utils";
                 
                 function get_text_properties(lline = line, expcfg = exportcfg, old_text_properties = general_text_properties) {
                     var  new_text_properties = Object.assign({},old_text_properties)
-                    if (lline.type === 'character' && expcfg.highlighted_characters.includes(lline.text.toUpperCase())) {
-                        new_text_properties.highlight = true;
+                    if (lline.type === 'character') {
+                        var character = trimCharacterExtension(lline.text)
+                        // refer to Liner in ./liner.ts
+                        character = character.replace(/([0-9]* - )/, "");
+                        if (expcfg.highlighted_characters.includes(character)) {
+                            new_text_properties.highlight = true;
+                        };
                     };
                     return new_text_properties
                 }

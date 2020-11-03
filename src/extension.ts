@@ -17,8 +17,8 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 	getChildren(/*element?: vscode.TreeItem*/): vscode.ProviderResult<any[]> {
 		const elements: vscode.TreeItem[] = [];
 		const treeExportPdf = new vscode.TreeItem("Export PDF");
-		const treeExportPdfDebug = new vscode.TreeItem("Export PDF with default name");
-		const treeExportPdfCustom= new vscode.TreeItem("Export PDF with custom settings");
+		//const treeExportPdfDebug = new vscode.TreeItem("Export PDF with default name");
+		const treeExportPdfCustom= new vscode.TreeItem("Export PDF with highlighted characters");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
 		const numberScenes = new vscode.TreeItem("Number all scenes (replaces existing scene numbers)");
 		const statistics = new vscode.TreeItem("Calculate screenplay statistics");
@@ -26,10 +26,10 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			command: 'fountain.exportpdf',
 			title: ''
 		};
-		treeExportPdfDebug.command = {
+		/*treeExportPdfDebug.command = {
 			command: 'fountain.exportpdfdebug',
 			title: ''
-		};
+		};*/
 		treeExportPdfCustom.command = {
 			command: 'fountain.exportpdfcustom',
 			title: ''
@@ -51,7 +51,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			title: ''
 		};
 		elements.push(treeExportPdf);
-		elements.push(treeExportPdfDebug);
+	//	elements.push(treeExportPdfDebug);
 		elements.push(treeExportPdfCustom);
 		elements.push(treeLivePreview);
 		elements.push(numberScenes);
@@ -145,7 +145,7 @@ export async function exportPdf(showSaveDialog:boolean = true, openFileOnSave:bo
 
 	var parsed = await afterparser.parse(editor.document.getText(), config, false);
 	
-	if ( true || highlightCharacters ) {
+	if ( highlightCharacters ) {
 		var highlighted_characters = await vscode.window.showQuickPick(Array.from(parsed.properties.characters.keys()) ,{canPickMany:true})
 		var exportconfig : ExportConfig = {highlighted_characters: highlighted_characters}
 	}
