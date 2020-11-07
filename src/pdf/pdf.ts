@@ -6,7 +6,7 @@ import * as fliner from "./liner";
 import * as vscode from "vscode";
 
 //Creates the PDF, or returns stats if output path is "$STATS$"
-export var GeneratePdf = function (outputpath: string, config: FountainConfig, exportconfig: ExportConfig, parsedDocument: any, progress?: vscode.Progress<{ message?: string; increment?: number; }> ):any {
+export var GeneratePdf = function (outputpath: string, config: FountainConfig, exportconfig : ExportConfig, parsedDocument: any, progress?: vscode.Progress<{ message?: string; increment?: number; }> ):any {
 
     if(progress) progress.report({message: "Converting to individual lines", increment: 25});
     var liner: any = new fliner.Liner(helpers.default, config.print_dialogue_numbers);

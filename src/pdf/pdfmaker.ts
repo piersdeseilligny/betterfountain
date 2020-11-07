@@ -5,7 +5,7 @@
     import * as path from 'path';
     import * as vscode from 'vscode';
 import helpers from "../helpers";
-import { openFile, revealFile, trimCharacterExtension } from "../utils";
+import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../utils";
    // import * as blobUtil from "blob-util";
     export class Options{
         filepath:string;
@@ -171,7 +171,7 @@ import { openFile, revealFile, trimCharacterExtension } from "../utils";
             doc.fill(color);
 
             if (options.highlight) {
-                doc.highlight(x * 72,y * 72, doc.widthOfString(text), doc.currentLineHeight());
+                doc.highlight(x * 72,y * 72, doc.widthOfString(text), doc.currentLineHeight(), {color: options.highlightcolor});
             }
             
             if (print.note.italic) {
@@ -484,7 +484,8 @@ import { openFile, revealFile, trimCharacterExtension } from "../utils";
 
                 var general_text_properties = {
                     color: color,
-                    highlight: false
+                    highlight: false,
+                    highlightcolor: [0,0,0]
                 }
                 
                 function get_text_properties(lline = line, expcfg = exportcfg, old_text_properties = general_text_properties) {
@@ -495,6 +496,7 @@ import { openFile, revealFile, trimCharacterExtension } from "../utils";
                         character = character.replace(/([0-9]* - )/, "");
                         if (expcfg.highlighted_characters.includes(character)) {
                             new_text_properties.highlight = true;
+                            new_text_properties.highlightcolor = wordToColor(character);
                         };
                     };
                     return new_text_properties
