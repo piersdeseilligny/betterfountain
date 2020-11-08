@@ -19,7 +19,7 @@ export class Liner {
             } else {
                 tmpText = text;
             }
-            
+
             return [this.h.create_line({
                 type: token.type,
                 token: token,
@@ -89,23 +89,27 @@ export class Liner {
             return false;
         } else if (cfg.split_dialogue && token_on_break.is("dialogue") && token_after && token_after.is("dialogue") && token_before.is("dialogue") && !(token_on_break.dual)) {
             var new_page_character;
-            for (var character = before; lines[character].type !== "character"; character--) {
+            for (var character = before; lines[character] && lines[character].type !== "character"; character--) {
             }
-            lines.splice(index, 0, this.h.create_line({
+            var charactername = "";
+            if(lines[character]) charactername = lines[character].text;
+
+            let moreitem = {
                 type: "more",
                 text: MORE,
                 start: token_on_break.start,
                 end: token_on_break.end,
                 token: token_on_break.token
-            }), new_page_character = this.h.create_line({
+            };
+            lines.splice(index, 0, this.h.create_line(moreitem), new_page_character = this.h.create_line({
                 type: "character",
-                text: lines[character].text.trim() + " " + (lines[character].text.indexOf(CONTD) !== -1 ? "" : CONTD),
+                text: charactername.trim() + " " + (charactername.indexOf(CONTD) !== -1 ? "" : CONTD),
                 start: token_after.start,
                 end: token_after.end,
                 token: token_on_break.token
             }));
 
-            if (lines[character].right_column) {
+            if (lines[character] && lines[character].right_column) {
                 var dialogue_on_page_length = index - character;
                 var right_lines_on_this_page = lines[character].right_column.slice(0, dialogue_on_page_length).concat([
                         this.h.create_line({
