@@ -392,7 +392,7 @@ export function parseDocument(document: TextDocument) {
 	let parseTime = t1-t0;
 	console.info("parsed in " + parseTime);
 	if(parseTelemetryLimiter == parseTelemetryFrequency){
-		telemetry.reportTelemetry("afterparser.parsing", undefined, { linecount: document.lineCount, parseduration: 5 });
+		telemetry.reportTelemetry("afterparser.parsing", undefined, { linecount: document.lineCount, parseduration: parseTime });
 	}
 	parseTelemetryLimiter--;
 	if(parseTelemetryLimiter == 0 ) parseTelemetryLimiter = parseTelemetryFrequency;
