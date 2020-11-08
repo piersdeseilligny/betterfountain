@@ -93,6 +93,11 @@
 						"default": true,
 						"description": "Automatically synchronize preview and text editor position."
 					},
+					"fountain.general.parentheticalNewLineHelper":{
+						"type":"boolean",
+						"default": true,
+						"markdownDescription": "Automatically skip to the next line if the caret is just before the last parenthesis within a parenthetical (right here:**|**). **If you are using a vim emulator, you should disable this settings - an [issue with vscode](https://github.com/Microsoft/vscode/issues/13441) means it is impossible for two extensions to simultaneously intercept typing."
+					},
 					"fountain.general.previewTheme": {
 						"type": "string",
 						"enum": [
