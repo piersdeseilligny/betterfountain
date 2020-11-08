@@ -315,6 +315,11 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
         const latestSection = (depth: number): StructToken => latestSectionOrScene(depth, token => token.section)
 
+        function processActionBlock(token:token){
+            let irrelevantActionLength = processInlineNote(token.text);
+            result.lengthAction += (token.text.length - irrelevantActionLength) / 20;
+        }
+
         if (state === "normal") {
             if (thistoken.text.match(regex.line_break)) {
                 token_category = "none";
@@ -356,6 +361,11 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 result.properties.sceneLines.push(thistoken.line);
                 result.properties.sceneNames.push(thistoken.text);
                 scene_number++;
+                
+            } else if (thistoken.text.length && thistoken.text[0] === "!") {
+                thistoken.type = "action";
+                thistoken.text = thistoken.text.substr(1);
+                processActionBlock(thistoken);
             } else if (thistoken.text.match(regex.centered)) {
                 thistoken.type = "centered";
                 thistoken.text = thistoken.text.replace(/>|</g, "").trim();
@@ -394,9 +404,6 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             } else if (thistoken.text.match(regex.page_break)) {
                 thistoken.text = "";
                 thistoken.type = "page_break";
-            } else if (thistoken.text.length && thistoken.text[0] === "!") {
-                thistoken.type = "action";
-                thistoken.text = thistoken.text.substr(1);
             } else if (thistoken.text.match(regex.character) && i != lines_length && i != lines_length - 1 && ((lines[i + 1].trim().length == 0) ? (lines[i + 1] == "  ") : true)) {
                 // The last part of the above statement ('(lines[i + 1].trim().length == 0) ? (lines[i+1] == "  ") : false)')
                 // means that if the trimmed length of the following line (i+1) is equal to zero, the statement will only return 'true',
@@ -460,9 +467,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 last_character_index = result.tokens.length;
             }
             else {
-                let irrelevantActionLength = processInlineNote(thistoken.text);
                 thistoken.type = "action";
-                result.lengthAction += (thistoken.text.length - irrelevantActionLength) / 20;
+                processActionBlock(thistoken);
             }
         } else {
             if (thistoken.text.match(regex.parenthetical)) {
