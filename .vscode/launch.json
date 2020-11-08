@@ -1,7 +1,8 @@
 // A launch configuration that compiles the extension and then opens it inside a new window
 {
 	"version": "0.2.0",
-	"configurations": [{
+	"configurations": [
+		{
 			"name": "Run Extension",
 			"type": "extensionHost",
 			"request": "launch",
@@ -13,5 +14,18 @@
 				"${workspaceFolder}/out/**/*.js"
 			],
 			"preLaunchTask": "npm: compile"
-		}]
+		},
+		{
+			"name": "Debug Jest Tests",
+			"type": "node",
+			"request": "launch",
+			"runtimeArgs": [
+				"--inspect-brk",
+				"${workspaceRoot}/node_modules/jest/bin/jest.js",
+				"--runInBand"
+			],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen",
+		}
+	]
 }
