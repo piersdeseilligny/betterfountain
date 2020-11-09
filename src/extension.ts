@@ -146,11 +146,23 @@ export async function exportPdf(showSaveDialog:boolean = true, openFileOnSave:bo
 	var parsed = await afterparser.parse(editor.document.getText(), config, false);
 	
 	var exportconfig : ExportConfig = {highlighted_characters: []}
-	if ( highlightCharacters ) {
-		var highlighted_characters = await vscode.window.showQuickPick(Array.from(parsed.properties.characters.keys()) ,{canPickMany:true})
-		var exportconfig : ExportConfig = {highlighted_characters: highlighted_characters}
+	var filename = editor.document.fileName.replace(/(\.(((better)?fountain)|spmd|txt))$/, ''); //screenplay.fountain -> screenplay
+	if (highlightCharacters) {
+		var highlighted_characters = await vscode.window.showQuickPick(Array.from(parsed.properties.characters.keys()) ,{canPickMany:true});
+		exportconfig.highlighted_characters = highlighted_characters;
+
+		if(highlighted_characters.length>0){
+			var filenameCharacters = [...highlighted_characters]; //clone array
+			if(filenameCharacters.length>3){
+				filenameCharacters.length=3;
+				filenameCharacters.push('+'+(highlighted_characters.length-3)) //add "+n" if there's over 3 highlighted characters
+			}
+			filename += '(' + filenameCharacters.map(v => v.replace(' ', '')).join(',') + ')'; //remove spaces from names and join
+		}
 	}
-	var saveuri = vscode.Uri.file(editor.document.fileName.replace('.fountain', '.pdf'));
+	filename+='.pdf'; //screenplay -> screenplay.pdf
+	
+	var saveuri = vscode.Uri.file(filename);
 	var filepath:vscode.Uri = undefined;
 	if (showSaveDialog) {
 		filepath = await vscode.window.showSaveDialog(
