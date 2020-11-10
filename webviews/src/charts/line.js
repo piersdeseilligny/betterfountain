@@ -421,10 +421,11 @@ define(function (require) {
                     //});
                     let pageextent0 = config.map.get(Math.floor(x.invert(extent[0])).toString());
                     let pageextent1 = config.map.get(Math.floor(x.invert(extent[1])).toString());
+                    let pageextentstr = "";
                     if (pageextent0 && pageextent1)
-                        pageExtent = pageextent0.page + "-" + pageextent1.page;
-                    mouseG.select(".pageNumber").text("p." + pageExtent);
-                    mouseG.select(".currentTime").text(secondsToString(pageextent0.cumulativeDuration)+"-"+secondsToString(pageextent1.cumulativeDuration));
+                        pageextentstr = pageextent0.page + "-" + pageextent1.page;
+                    mouseG.select(".pageNumber").text("p." + pageextentstr);
+                    mouseG.select(".currentTime").text(secondsToString(pageextent0 ? pageextent0.cumulativeDuration : 0)+"-"+secondsToString(pageextent1 ? pageextent1.cumulativeDuration : 0));
                     mouseG.select(".scene").text("");
                     mouseG.select(".breadcrumbs").html("");
                 } else {
@@ -594,7 +595,7 @@ define(function (require) {
             let ymins = [];
             let ymaxs = [];
             for (let i = 0; i < datas.length; i++) {
-                let sliced = datas[i].slice(bisect(xstart, i).index, bisect(xend, i).index);
+                let sliced = datas[i].slice(bisect(xstart, i).index, bisect(xend, i).index+1);
                 let extent = d3.extent(sliced, function (d) {
                     return d[config.yvalue]
                 });

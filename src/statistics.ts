@@ -187,7 +187,7 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
                 if(!currentCharacter){
                     characters.set(element.character, []);
                 }
-                else if(currentCharacter.length>1){
+                else if(currentCharacter.length>0){
                     dialogueLength = currentCharacter[currentCharacter.length-1].lengthTimeGlobal;
                     wordsLength = currentCharacter[currentCharacter.length-1].lengthWordsGlobal;
                 }
