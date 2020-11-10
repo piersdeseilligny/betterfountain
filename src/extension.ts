@@ -145,7 +145,7 @@ export async function exportPdf(showSaveDialog:boolean = true, openFileOnSave:bo
 
 	var parsed = await afterparser.parse(editor.document.getText(), config, false);
 	
-	var exportconfig : ExportConfig = {highlighted_characters: []}
+	var exportconfig : ExportConfig = undefined
 	if ( highlightCharacters ) {
 		var highlighted_characters = await vscode.window.showQuickPick(Array.from(parsed.properties.characters.keys()) ,{canPickMany:true})
 		var exportconfig : ExportConfig = {highlighted_characters: highlighted_characters}

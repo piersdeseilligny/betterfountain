@@ -490,11 +490,11 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
                 
                 function get_text_properties(lline = line, expcfg = exportcfg, old_text_properties = general_text_properties) {
                     var  new_text_properties = Object.assign({},old_text_properties)
-                    if (lline.type === 'character') {
+                    if (!!expcfg && lline.type === 'character') {
                         var character = trimCharacterExtension(lline.text)
                         // refer to Liner in ./liner.ts
                         character = character.replace(/([0-9]* - )/, "");
-                        if (expcfg.highlighted_characters.includes(character)) {
+                        if (!!expcfg.highlighted_characters && expcfg.highlighted_characters.includes(character)) {
                             new_text_properties.highlight = true;
                             new_text_properties.highlightcolor = wordToColor(character);
                         };
