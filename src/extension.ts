@@ -290,9 +290,19 @@ export function activate(context: ExtensionContext) {
 		}
 	}
 
+import * as avenue from "./avenue";
+let av = new avenue.parser();
+
+
 vscode.workspace.onDidChangeTextDocument(change => {
-	if (change.document.languageId=="fountain")
+	if (change.document.languageId=="fountain"){
+		av.stateChanged = (s) =>{
+			console.log("state changed to " + s);
+		}
+		av.parseChanges(change);
+		
 		parseDocument(change.document);
+	}
 });
 
 vscode.workspace.onDidChangeConfiguration(change => {
@@ -390,7 +400,7 @@ export function parseDocument(document: TextDocument) {
 
 	let t1 = performance.now()
 	let parseTime = t1-t0;
-	console.info("parsed in " + parseTime);
+
 	if(parseTelemetryLimiter == parseTelemetryFrequency){
 		telemetry.reportTelemetry("afterparser.parsing", undefined, { linecount: document.lineCount, parseduration: parseTime });
 	}
