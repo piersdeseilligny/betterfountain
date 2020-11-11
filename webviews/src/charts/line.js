@@ -157,7 +157,7 @@ define(function (require) {
                 if(config.pointvalue && datas[i][j][config.pointvalue]){
                     let xpos = datas[i][j][config.xvalue];
                     let ypos = datas[i][j][config.yvalue];
-                    pointcontainer.append('circle').attr('r',2).attr('cx', x(xpos)).attr('cy', y(ypos)).style('fill', 'white').attr('data-xpos', xpos).attr('data-ypos', ypos);
+                    pointcontainer.append('circle').attr('r',2).attr('cx', x(xpos)).attr('cy', y(ypos)).style('fill', 'white').attr('data-line', xpos).attr('data-ypos', ypos);
                 }
             }
         }
@@ -299,6 +299,7 @@ define(function (require) {
             repositionStructure(true);
             positionSelection(true);
             positionCaret(true);
+            positionPoints(true);
             rightbuttonsWidth = 48;
         }).append("title").text("Zoom Out");
         rightbuttons.append("rect").attr("class", "buttonseperator rightbutton").attr('y', height - footerHeight + 24 - 14).attr('x', width - (48)).attr('height', 14).attr('width', 1).attr("visibility", "collapse");
@@ -538,11 +539,7 @@ define(function (require) {
             vis.selectAll('.chart-data').each(function (d, i) {
                 d3.select(this).attr('d', line(datas[i]));
             });
-            pointcontainer.selectAll('circle').each(function(d,i){
-                let point = d3.select(this);
-                point.attr('cx', x(point.attr('data-xpos')));
-                point.attr('cy', y(point.attr('data-ypos')));
-            })
+            
             repositionStructure();
             brush.extent([
                 [0, headerHeight],
@@ -554,6 +551,7 @@ define(function (require) {
             });
             vis.select(".buttonseperator.rightbutton").attr('x', width-48);
             rightbuttons.select(".unzoom").attr("visibility", "collapse");
+            positionPoints()
             positionSelection();
             positionCaret();
         };
@@ -608,6 +606,7 @@ define(function (require) {
             vis.selectAll('.chart-data').each(function (d, i) {
                 d3.select(this).transition().ease(d3.easeCubic).duration(500).attr('d', line(datas[i]));
             });
+           
             
             repositionStructure(true);
             rightbuttons.select(".unzoom").attr("visibility", "visible");
@@ -616,6 +615,7 @@ define(function (require) {
             rightbuttonsWidth = 72;
             positionSelection(true);
             positionCaret(true);
+            positionPoints(true);
         }
 
         function positionSelection(animate){
@@ -625,6 +625,22 @@ define(function (require) {
                 vis.select(".selection-box").transition().ease(d3.easeCubic).duration(500).attr('x', linestartX).attr('width', lineendX-linestartX);
             else
                 vis.select(".selection-box").attr('x', linestartX).attr('width', lineendX-linestartX);
+        }
+        function positionPoints(animate){
+            pointcontainer.selectAll('circle').each(function(d,i){
+                let point = d3.select(this);
+                let xpos = x(point.attr('data-line'));
+                console.log("new xpos="+xpos);
+                let ypos = y(point.attr('data-ypos'));
+                if(animate){
+                    point.transition().ease(d3.easeCubic).duration(500).attr('cx', xpos).attr('cy', ypos);
+                }
+                else{
+                    point.attr('cx', xpos);
+                    point.attr('cy', ypos);
+                }
+
+            })
         }
         function positionCaret(animate){
             if(animate){
