@@ -233,26 +233,8 @@ export function activate(context: ExtensionContext) {
 		}
 	})
 
-	vscode.commands.registerCommand('type', (args) => {
+	registerTyping();
 
-		//Automatically skip to the next line at the end of parentheticals
-		if (args.text == "\n") {
-			const editor = vscode.window.activeTextEditor;
-			if (editor.selection.isEmpty) {
-				const position = editor.selection.active;
-				var linetext = editor.document.getText(new vscode.Range(new vscode.Position(position.line, 0), new vscode.Position(position.line, 256)));
-				if (position.character == linetext.length - 1) {
-					if (linetext.match(/^\s*\(.*\)$/g) || linetext.match(/^\s*((([A-Z0-9 ]+|@.*)(\([A-z0-9 '\-.()]+\))+|)$)/)) {
-						var newpos = new vscode.Position(position.line, linetext.length);
-						editor.selection = new vscode.Selection(newpos, newpos);
-					}
-				}
-			}
-		}
-		vscode.commands.executeCommand('default:type', {
-			text: args.text
-		});
-	});
 
 	//Setup custom folding mechanism
 	languages.registerFoldingRangeProvider({ scheme: 'file', language: 'fountain' }, new FountainFoldingRangeProvider());
@@ -271,11 +253,63 @@ export function activate(context: ExtensionContext) {
 	vscode.window.registerWebviewPanelSerializer('fountain-preview', new FountainPreviewSerializer());
 }
 
-
+	var disposeTyping:vscode.Disposable;
+	function registerTyping() {
+		try {
+			const config = getFountainConfig(activeFountainDocument())
+			if (config.parenthetical_newline_helper) {
+				disposeTyping= vscode.commands.registerCommand('type', (args) => {
+					//Automatically skip to the next line at the end of parentheticals
+					if (args.text == "\n") {
+						const editor = vscode.window.activeTextEditor;
+						if (editor.selection.isEmpty) {
+							const position = editor.selection.active;
+							var linetext = editor.document.getText(new vscode.Range(new vscode.Position(position.line, 0), new vscode.Position(position.line, 256)));
+							if (position.character == linetext.length - 1) {
+								if (linetext.match(/^\s*\(.*\)$/g) || linetext.match(/^\s*((([A-Z0-9 ]+|@.*)(\([A-z0-9 '\-.()]+\))+|)$)/)) {
+									var newpos = new vscode.Position(position.line, linetext.length);
+									editor.selection = new vscode.Selection(newpos, newpos);
+								}
+							}
+						}
+					}
+					vscode.commands.executeCommand('default:type', {
+						text: args.text
+					});
+				});
+			}
+		}
+		catch {
+			let moreDetails = "More details";
+			let openGithub1 = "View issue on vscode repo";
+			vscode.window.showInformationMessage("Conflict with another extension! The 'type' command for vscode can only be registered by a single extension. You may want to disable the 'Parenthetical New Line Helper' setting in order to avoid further conflicts from BetterFountain", moreDetails, openGithub1).then(val => {
+				switch (val) {
+					case moreDetails: {
+						vscode.env.openExternal(vscode.Uri.parse('https://github.com/piersdeseilligny/betterfountain/issues/84'));
+						break;
+					}
+					case openGithub1: {
+						vscode.env.openExternal(vscode.Uri.parse('https://github.com/Microsoft/vscode/issues/13441'));
+						break;
+					}
+				}
+			})
+		}
+	}
 
 vscode.workspace.onDidChangeTextDocument(change => {
 	if (change.document.languageId=="fountain")
 		parseDocument(change.document);
+});
+
+vscode.workspace.onDidChangeConfiguration(change => {
+	if(change.affectsConfiguration("fountain.general.parentheticalNewLineHelper")){
+		let config = getFountainConfig(activeFountainDocument());
+		if(disposeTyping) disposeTyping.dispose();
+		if(config.parenthetical_newline_helper){
+			registerTyping();
+		}
+	}
 })
 
 
@@ -365,7 +399,7 @@ export function parseDocument(document: TextDocument) {
 	let parseTime = t1-t0;
 	console.info("parsed in " + parseTime);
 	if(parseTelemetryLimiter == parseTelemetryFrequency){
-		telemetry.reportTelemetry("afterparser.parsing", undefined, { linecount: document.lineCount, parseduration: 5 });
+		telemetry.reportTelemetry("afterparser.parsing", undefined, { linecount: document.lineCount, parseduration: parseTime });
 	}
 	parseTelemetryLimiter--;
 	if(parseTelemetryLimiter == 0 ) parseTelemetryLimiter = parseTelemetryFrequency;

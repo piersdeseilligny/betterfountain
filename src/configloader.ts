@@ -32,6 +32,7 @@ export class FountainConfig{
     preview_texture:boolean;
     text_more:string;
     text_contd:string;
+    parenthetical_newline_helper:boolean;
 }
 
 export type FountainUIPersistence = {
@@ -120,6 +121,7 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         text_contd: pdfConfig.textCONTD,
         synchronized_markup_and_preview: generalConfig.synchronizedMarkupAndPreview,
         preview_theme: generalConfig.previewTheme,
-        preview_texture: generalConfig.previewTexture
+        preview_texture: generalConfig.previewTexture,
+        parenthetical_newline_helper:  generalConfig.parentheticalNewLineHelper
     }
 }

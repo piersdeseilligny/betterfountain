@@ -50,6 +50,10 @@ Here are some features I would like to add, but don't really have time to right 
 
 * Improved statistics (WIP in branch `feature-statsrevamp`)
 
+* PDF Export panel, with more advanced features presented in a more user-friendly way
+
+* Fountain cheat sheet panel
+
 * Optionally leaving synopses visible when folding
 
 * Built-in screenplay templates (such as Blake Snyder's beat sheet)
