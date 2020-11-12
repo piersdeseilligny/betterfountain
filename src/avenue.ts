@@ -48,7 +48,7 @@ export enum ParseState { Preprocess = "preprocess", Remove = "remove", Add = "ad
 
 const staleRange = vscode.window.createTextEditorDecorationType({
     backgroundColor: 'rgba(255,50,50,0.5)',
-
+    isWholeLine:true
   });
 
 /** A high-performance and feature-rich incremental foutain parser */
@@ -80,11 +80,11 @@ export class parser {
             let cc = change.contentChanges[i];
             if(i==0){
                 startStale = cc.rangeOffset;
-                endStale = cc.rangeOffset+cc.rangeLength;
+                endStale = cc.rangeOffset+cc.text.length;
             }
             else{
                 if(startStale > cc.rangeOffset) startStale = cc.rangeOffset;
-                if(endStale < cc.rangeOffset + cc.rangeLength) endStale = cc.rangeOffset + cc.rangeLength;
+                if(endStale < cc.rangeOffset+cc.text.length) endStale = cc.rangeOffset+cc.text.length;
             }
         }
         
@@ -93,36 +93,45 @@ export class parser {
         //move the startStale offset back to the previous empty line
         let prevNewLineCounter = 0;
         while(prevNewLineCounter<2 && startStale > 0){
-            if(documentText[startStale] == '\n'){
+            if(documentText[startStale] == '\n')
                 prevNewLineCounter++;
-            }
-            else if(documentText[startStale] != '\r'){
+            else if(documentText[startStale] != '\r')
                 prevNewLineCounter = 0;
-            }
             startStale--;
         }
+        //and now continue moving back until we hit a non-linebreak
+        var isCRLF = false;
+        while(startStale > 0){
+            if(documentText[startStale] == '\r') isCRLF = true;
+            else if(documentText[startStale] != '\n' && documentText[startStale] != '\r') break;
+            startStale--;
+        }
+        startStale+=2;
+        if(isCRLF) startStale++;
 
         //move the endStale offset towards the next empty line
         let nextNewLineCounter = 0;
         while(nextNewLineCounter<2 && endStale < documentText.length){
-            if(documentText[endStale] == '\n'){
+            if(documentText[endStale] == '\n')
                 nextNewLineCounter++;
-            }
-            else if(documentText[endStale] != '\r'){
+            else if(documentText[endStale] != '\r')
                 nextNewLineCounter = 0;
-            }
             endStale++;
         }
-        
+        //and now continue moving forward until we hit a non-linebreak
+        while(endStale<documentText.length){
+            if(documentText[endStale] != '\n' && documentText[endStale] != '\r') break;
+            endStale++;
+        }
+        endStale--;
+
         this.parseRange(startStale,endStale, change.document);
 
         this.state = ParseState.Idle;
     }
 
     private parseRange(start:number, end:number, doc:vscode.TextDocument){
-        console.log("start="+start+"  end="+end);
         getEditor(doc.uri).setDecorations(staleRange, [new vscode.Range(doc.positionAt(start), doc.positionAt(end))]);
-        doc = doc;
     }
 
     /** Parse the entire document */
