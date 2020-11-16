@@ -349,6 +349,8 @@ export function parseDocument(document: TextDocument) {
 	clearDecorations();
 
 	var previewsToUpdate = getPreviewsToUpdate(document.uri)
+	var av = new avenue.parser();
+	av.parseDocument(document);
 	var output = afterparser.parse(document.getText(), getFountainConfig(document.uri), previewsToUpdate.length>0)
 
 	

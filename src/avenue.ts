@@ -106,28 +106,44 @@ function parseTitlePageChunk(text: string) {
     let titlepage = [];
     let potentialValue = "";
     let potentialKey = "";
-    let afterBreak = true;
+    let potentialKeyOffset = 0;
+    let potentialValueOffset = 0;
+    let colonInLine = false;
+    let forceValue = false;
+    let spaceCounter = -1;
     for (let i = 0; i < text.length; i++) {
         let c = text[i];
-        if (c == ':') {
-            titlepage.push([potentialKey.trim(), ""]);
+        if (c == ':' && !colonInLine && !forceValue) {
+            titlepage.push({key: potentialKey, value:"", keyoffset:potentialKeyOffset, valueoffset:potentialValueOffset});
             potentialValue = "";
+            potentialValueOffset = i+1;
+            colonInLine = true;
         }
         else if (c == '\n' && titlepage.length > 0) {
-            titlepage[titlepage.length - 1][1] = potentialValue.trim();
+            titlepage[titlepage.length - 1].value = potentialValue;
+            titlepage[titlepage.length - 1].valueoffset = potentialValueOffset;
             potentialValue += '\n';
-            afterBreak = true;
-            potentialKey = "";
+            spaceCounter = 0;
+            potentialKey = "\n";
+            potentialKeyOffset = i;
+            colonInLine = false;
+            forceValue = false;
         }
         else {
-            potentialValue += c;
-            if (afterBreak) {
-                potentialKey += c;
+            if(spaceCounter!=-1 && c == ' '){
+                spaceCounter++;
             }
+            else{
+                spaceCounter = -1;
+            }
+            potentialValue += c;
+            potentialKey += c;
+            if(spaceCounter>=3) forceValue=true;
         }
     }
     if (titlepage.length > 0) {
-        titlepage[titlepage.length - 1][1] = potentialValue.trim();
+        titlepage[titlepage.length - 1].value = potentialValue;
+        titlepage[titlepage.length - 1].valueoffset = potentialValueOffset;
     }
     return titlepage;
 }
@@ -158,6 +174,7 @@ export class parser {
 
     /** Parse only the required part of the document based on a set of changes */
     public parseChanges(change: vscode.TextDocumentChangeEvent) {
+        return;
 
         //////////////////////////////////////////
         /// FIGURE OUT WHAT NEEDS TO BE PARSED ///
@@ -301,7 +318,6 @@ export class parser {
 
     private parseRange(start: number, end: number, doc: vscode.TextDocument) {
         let newtokens:AvenueToken[] = [];
-        getEditor(doc.uri).setDecorations(staleRange, [new vscode.Range(doc.positionAt(start), doc.positionAt(end))]);
         let text = doc.getText(new vscode.Range(doc.positionAt(start), doc.positionAt(end)));
 
         var chunks = text.split(regexes.emptyline);
@@ -313,9 +329,15 @@ export class parser {
             let trimmedChunkText = chunks[i].trim();
             if (canBeTitlePage) {
                 let titlepage = parseTitlePageChunk(chunkText);
-                if(titlepage){
-                    newtokens.push({type:TokenType.TitlePage, offset: currentOffset, textReal: chunkText});
+                let keyranges = [];
+                let valueranges = [];
+                for (let i = 0; i < titlepage.length; i++) {
+                    keyranges.push(new vscode.Range(doc.positionAt(titlepage[i].keyoffset), doc.positionAt(titlepage[i].keyoffset+titlepage[i].key.length)));
+                    valueranges.push(new vscode.Range(doc.positionAt(titlepage[i].valueoffset), doc.positionAt(titlepage[i].valueoffset+titlepage[i].value.length)));
                 }
+                this.highlightRanges(keyranges, titlePageKey, doc);
+                this.highlightRanges(valueranges, titlePageValue, doc);
+                canBeTitlePage = false; 
             }
             else if(trimmedChunkText=="") {
                 newtokens.push({type:TokenType.Seperator, offset:currentOffset, textReal:chunkText});
