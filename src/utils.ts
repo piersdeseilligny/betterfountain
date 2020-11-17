@@ -9,7 +9,7 @@ import * as telemetry from "./telemetry";
 /**
  * Trims character extensions, for example the parantheses part in `JOE (on the radio)`
  */
-export const trimCharacterExtension = (character: string): string => character.replace(/( \([A-z0-9 '\-.()]+\))*(\s*\^*)?$/, "");
+export const trimCharacterExtension = (character: string): string => character.replace(/( \([A-z0-9 '’\-.()]+\))*(\s*\^*)?$/, "");
 
 /**
  * Trims the `@` symbol necesary in character names if they contain lower-case letters, i.e. `@McCONNOR`
@@ -161,11 +161,11 @@ export function openFile(p:string){
 	let cmd = "xdg-open"
 	switch (process.platform) { 
 		case 'darwin' : cmd = 'open'; break;
-		case 'win32' : cmd = 'start'; break;
+		case 'win32' : cmd = ''; break;
 		default : cmd = 'xdg-open';
 	}
 	var exec = require('child_process').exec;
-	exec(cmd+ ' ' + p); 
+	exec(`${cmd} "${p}"`); 
 }
 export function revealFile(p:string){
 	var cmd = "";
@@ -198,4 +198,46 @@ export function getPackageInfo(): IPackageInfo | null {
 		};
 	}
 	return null;
+}
+//Simple n-bit hash
+function nPearsonHash(message: string, n = 8): number {
+	// Ideally, this table would be shuffled...
+	// 256 will be the highest value provided by this hashing function
+	var table = [...new Array(2**n)].map((_, i) => i)
+
+
+	return message.split('').reduce((hash, c) => {
+		return table[(hash + c.charCodeAt(0)) % (table.length - 1)]
+	}, message.length % (table.length - 1))
+
+}
+
+function HSVToRGB(h: number, s: number, v: number): Array<number> {
+	var [r, g, b] = [0, 0 ,0];
+    
+	var i = Math.floor(h * 6);
+	var f = h * 6 - i;
+	var p = v * (1 - s);
+	var q = v * (1 - f * s);
+	var t = v * (1 - (1 - f) * s);
+	switch (i % 6) {
+		case 0: r = v, g = t, b = p; break;
+		case 1: r = q, g = v, b = p; break;
+		case 2: r = p, g = v, b = t; break;
+		case 3: r = p, g = q, b = v; break;
+		case 4: r = t, g = p, b = v; break;
+		case 5: r = v, g = p, b = q; break;
+	}
+	return [Math.round(r * 255),Math.round(g * 255),Math.round(b * 255)]
+}
+
+//We are using colors with same value and saturation as highlighters
+export function wordToColor(word: string): Array<number> {
+	const s = 0.5;
+	const v = 1;
+	
+	const n = 5; //so that colors are spread apart
+	const h = nPearsonHash(word, n)/2**(8-n);
+	return HSVToRGB(h, s, v)
+
 }

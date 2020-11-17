@@ -35,6 +35,10 @@ export class FountainConfig{
     parenthetical_newline_helper:boolean;
 }
 
+export class ExportConfig {
+    highlighted_characters: Array<String>;
+}
+
 export type FountainUIPersistence = {
     [key: string]: any,
     outline_visibleSynopses:boolean,
