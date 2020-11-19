@@ -363,7 +363,7 @@
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./ && npm run fileops",
-		"fileops":"copyfiles -f src/preview.html out && copyfiles -f src/courierprime/*.ttf out/courierprime && copyfiles -f src/noisetexture.png out",
+		"fileops": "copyfiles -f src/preview.html out && copyfiles -f src/courierprime/*.ttf out/courierprime && copyfiles -f src/noisetexture.png out",
 		"watch": "npm run compile",
 		"test": "node node_modules/jest/bin/jest.js"
 	},
