@@ -32,6 +32,8 @@
 		"onLanguage:fountain",
 		"onCommand:fountain.livepreview",
 		"onCommand:fountain.exportpdf",
+		"onCommand:fountain.exportpdfdebug",
+		"onCommand:fountain.exportpdfcustom",
 		"onWebviewPanel:fountainPreview"
 	],
 	"main": "./out/extension",
@@ -291,6 +293,16 @@
 				"category": "Fountain"
 			},
 			{
+				"command": "fountain.exportpdfdebug",
+				"title": "Export screenplay PDF with default name and open it",
+				"category": "Fountain"
+			},
+			{
+				"command": "fountain.exportpdfcustom",
+				"title": "Export screenplay PDF with highlighted characters",
+				"category": "Fountain"
+			},
+			{
 				"command": "fountain.jumpto",
 				"title": "Jump to line",
 				"category": "Fountain"
@@ -311,6 +323,18 @@
 				"command": "fountain.livepreview",
 				"key": "ctrl+shift+v",
 				"mac": "cmd+shift+v",
+				"when": "editorLangId == fountain"
+			},
+			{
+				"command": "fountain.exportpdf",
+				"key": "ctrl+shift+b",
+				"mac": "cmd+shift+b",
+				"when": "editorLangId == fountain"
+			},
+			{
+				"command": "fountain.exportpdfdebug",
+				"key": "f5",
+				"mac": "f5",
 				"when": "editorLangId == fountain"
 			}
 		],

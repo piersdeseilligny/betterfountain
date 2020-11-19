@@ -1,10 +1,10 @@
 'use strict';
-import { getFountainConfig, changeFountainUIPersistence, uiPersistence, initFountainUIPersistence } from "./configloader";
+import { getFountainConfig, changeFountainUIPersistence, uiPersistence, initFountainUIPersistence, ExportConfig } from "./configloader";
 import { ExtensionContext, languages, TextDocument } from 'vscode';
 import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
-import { secondsToString, overwriteSceneNumbers, updateSceneNumbers } from "./utils";
+import { secondsToString, overwriteSceneNumbers, updateSceneNumbers, openFile } from "./utils";
 import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
 import * as telemetry from "./telemetry";
 
@@ -17,6 +17,8 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 	getChildren(/*element?: vscode.TreeItem*/): vscode.ProviderResult<any[]> {
 		const elements: vscode.TreeItem[] = [];
 		const treeExportPdf = new vscode.TreeItem("Export PDF");
+		//const treeExportPdfDebug = new vscode.TreeItem("Export PDF with default name");
+		const treeExportPdfCustom= new vscode.TreeItem("Export PDF with highlighted characters");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
 		const numberScenesOverwrite = new vscode.TreeItem("Number scenes - overwrite");
 		numberScenesOverwrite.tooltip = 'Replaces existing scene numbers.';
@@ -25,6 +27,14 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		const statistics = new vscode.TreeItem("Calculate screenplay statistics");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
+			title: ''
+		};
+		/*treeExportPdfDebug.command = {
+			command: 'fountain.exportpdfdebug',
+			title: ''
+		};*/
+		treeExportPdfCustom.command = {
+			command: 'fountain.exportpdfcustom',
 			title: ''
 		};
 		treeLivePreview.command = {
@@ -48,6 +58,8 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			title: ''
 		};
 		elements.push(treeExportPdf);
+	//	elements.push(treeExportPdfDebug);
+		elements.push(treeExportPdfCustom);
 		elements.push(treeLivePreview);
 		elements.push(numberScenesOverwrite);
 		elements.push(numberScenesUpdate);
@@ -128,7 +140,52 @@ export function getEditor(uri:vscode.Uri): vscode.TextEditor{
 	//the editor was not visible,
 	return undefined;
 }
+export async function exportPdf(showSaveDialog:boolean = true, openFileOnSave:boolean = false, highlightCharacters = false) {
+	var canceled = false;
+	if (canceled) return;
+	var editor = getEditor(activeFountainDocument());
 
+
+	var config = getFountainConfig(activeFountainDocument());
+	telemetry.reportTelemetry("command:fountain.exportpdf");
+
+	var parsed = await afterparser.parse(editor.document.getText(), config, false);
+	
+	var exportconfig : ExportConfig = {highlighted_characters: []}
+	var filename = editor.document.fileName.replace(/(\.(((better)?fountain)|spmd|txt))$/, ''); //screenplay.fountain -> screenplay
+	if (highlightCharacters) {
+		var highlighted_characters = await vscode.window.showQuickPick(Array.from(parsed.properties.characters.keys()) ,{canPickMany:true});
+		exportconfig.highlighted_characters = highlighted_characters;
+
+		if(highlighted_characters.length>0){
+			var filenameCharacters = [...highlighted_characters]; //clone array
+			if(filenameCharacters.length>3){
+				filenameCharacters.length=3;
+				filenameCharacters.push('+'+(highlighted_characters.length-3)) //add "+n" if there's over 3 highlighted characters
+			}
+			filename += '(' + filenameCharacters.map(v => v.replace(' ', '')).join(',') + ')'; //remove spaces from names and join
+		}
+	}
+	filename+='.pdf'; //screenplay -> screenplay.pdf
+	
+	var saveuri = vscode.Uri.file(filename);
+	var filepath:vscode.Uri = undefined;
+	if (showSaveDialog) {
+		filepath = await vscode.window.showSaveDialog(
+			{
+				filters: { "PDF File": ["pdf"] },
+				defaultUri: saveuri
+			});
+	} else {
+		filepath = saveuri;
+	}
+	if (filepath == undefined) return;
+	vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async progress => {
+		GeneratePdf(filepath.fsPath, config, exportconfig, parsed, progress);
+	});
+	if (openFileOnSave) {openFile(filepath.fsPath)}
+}
+	
 
 export function activate(context: ExtensionContext) {
 
@@ -178,26 +235,9 @@ export function activate(context: ExtensionContext) {
 	}));
 
 
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => {
-		var canceled = false;
-		if (canceled) return;
-		var editor = getEditor(activeFountainDocument());
-		var saveuri = vscode.Uri.file(editor.document.fileName.replace('.fountain', ''));
-		var filepath = await vscode.window.showSaveDialog(
-			{
-				filters: { "PDF File": ["pdf"] },
-				defaultUri: saveuri
-			});
-		if (filepath == undefined) return;
-
-		var config = getFountainConfig(activeFountainDocument());
-		telemetry.reportTelemetry("command:fountain.exportpdf");
-		vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async progress => {
-			progress.report({message: "Parsing document", increment: 0});
-			var parsed = afterparser.parse(editor.document.getText(), config, false);
-			GeneratePdf(filepath.fsPath, config, parsed, progress);
-		});
-	}));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => exportPdf()));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfdebug', async () => exportPdf(false,true)));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfcustom', async () => exportPdf(true,false,true)));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.overwriteSceneNumbers', overwriteSceneNumbers));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.updateSceneNumbers', updateSceneNumbers));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
@@ -206,9 +246,10 @@ export function activate(context: ExtensionContext) {
 		
 		var editor = getEditor(activeFountainDocument());
 		var config = getFountainConfig(activeFountainDocument());
+		var exportconfig : ExportConfig = undefined // ????
 		var parsed = afterparser.parse(editor.document.getText(), config, false);
 
-		const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config)
+		const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config, exportconfig)
 		const statsHTML = statsAsHtml(stats)
 		statsPanel.webview.html = statsHTML
 		telemetry.reportTelemetry("command:fountain.statistics");
