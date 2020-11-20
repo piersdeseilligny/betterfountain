@@ -20,9 +20,9 @@ export const regex: { [index: string]: RegExp } = {
 
     transition: /^[ \t]*((?:FADE (?:TO BLACK|OUT)|CUT TO BLACK)\.|.+ TO\:|^TO\:$)|^(?:> *)(.+)/,
 
-    dialogue: /^[ \t]*([*_]+[0-9\p{Lu} (._\-'’)]*)(\^?)?(?:\n(?!\n+))([\s\S]+)/u,
+    dialogue: /^[ \t]*([*_]+[^\p{Ll}\p{Lo}\p{So}\r\n]*)(\^?)?(?:\n(?!\n+))([\s\S]+)/u,
 
-    character: /^[ \t]*(([\p{Lu}0-9- \.#]+(\([A-z0-9 '’\-.()]+\))*|(@.*))(\s*\^)?$)/u,
+    character: /^[ \t]*(([^\p{Ll}\p{Lo}\p{So}\r\n]|@.*?)+?(\(.+\))*(\s*\^)?$)/u,
     parenthetical: /^[ \t]*(\(.+\))$/,
 
     action: /^(.+)/g,
