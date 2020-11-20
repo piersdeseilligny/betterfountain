@@ -585,12 +585,11 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
                         if (line.right_column) {
                             var y_right = y;
                             line.right_column.forEach(function(right_line:any) {
-                                var feed_right = (print[line.type] || {}).feed || print.action.feed;
+                                var feed_right = (print[right_line.type] || {}).feed || print.action.feed;
                                 feed_right -= (feed_right - print.left_margin) / 2;
                                 feed_right += (print.page_width - print.right_margin - print.left_margin) / 2;
                                 var right_text_properties = get_text_properties(right_line);
                                 doc.text(right_line.text, feed_right, print.top_margin + print.font_height * y_right++, right_text_properties);
-
                             });
                         }
 
