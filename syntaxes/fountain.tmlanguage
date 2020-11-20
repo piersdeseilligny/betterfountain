@@ -268,7 +268,7 @@
       <key>scene_headings</key>
       <dict>
          <key>match</key>
-         <string>(?i)^([.](?=[0-9a-z])|(?:[*]{0,3}_?)(?:int|ext|est|int[.]?\/ext|i[.]?\/e)[. ])(.+?)(#[-.0-9a-z]+#)?$</string>
+         <string>(?i)^([.]|(?:[*]{0,3}_?)(?:int|ext|est|int[.]?\/ext|i[.]?\/e)[. ])(.+?)(#[-.0-9a-z]+#)?$</string>
          <key>captures</key>
          <dict>
             <key>1</key>
