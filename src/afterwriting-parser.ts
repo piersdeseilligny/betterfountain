@@ -22,7 +22,7 @@ export const regex: { [index: string]: RegExp } = {
 
     dialogue: /^[ \t]*([*_]+[^\p{Ll}\p{Lo}\p{So}\r\n]*)(\^?)?(?:\n(?!\n+))([\s\S]+)/u,
 
-    character: /^[ \t]*(([^\p{Ll}\p{Lo}\p{So}\r\n]|@.*?)+?(\(.+\))*(\s*\^)?$)/u,
+    character: /^[ \t]*(((?!@)[^\p{Ll}\r\n]*?\p{Lu}[^\p{Ll}\r\n]*?)|((@)[^\r\n]*?))(\(.*\))?(\s*\^)?$/u,
     parenthetical: /^[ \t]*(\(.+\))$/,
 
     action: /^(.+)/g,
