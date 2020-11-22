@@ -6,7 +6,7 @@
 	"license": "MIT",
 	"aiKey": "0c2689ab-4ce9-416d-a585-c9765b7f4c88",
 	"icon": "icon.png",
-	"version": "1.6.11",
+	"version": "1.7.0",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
@@ -363,7 +363,7 @@
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./ && npm run fileops",
-		"fileops":"copyfiles -f src/preview.html out && copyfiles -f src/courierprime/*.ttf out/courierprime && copyfiles -f src/noisetexture.png out",
+		"fileops": "copyfiles -f src/preview.html out && copyfiles -f src/courierprime/*.ttf out/courierprime && copyfiles -f src/noisetexture.png out",
 		"watch": "npm run compile",
 		"test": "node node_modules/jest/bin/jest.js"
 	},

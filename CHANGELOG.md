@@ -2,6 +2,16 @@
 
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.7.0** - *2020-11-22*
+    + Vastly improved character name detection: It should work absolutely flawlessly now
+        + Support unforced character names from any bicameral alphabet (Greek, Cyrillic, Armenian, etc...)
+        + Character names can now contain any symbol (in addition to at least one uppercase letter)
+        + Syntax highlighting of '@' prefix and '^' suffix
+    + Support for creating PDFs with highlighted characters (Thanks @rnwzd for the PR!)
+    + New 'Export screenplay PDF with default name and open it' command (Thanks @rnwzd for the PR!)
+    · Fix forced scene headings for non-latin alphabets
+    · Fix PDF alignment of dual-dialogue when the right side is longer than the left
+
 ## **1.6.11** - *2020-11-08*
     + Add "Parenthetical New Line Helper" setting - Disabling it will fix BetterFountain's compatibility with Vim emulators!
     · Fix forced action (!Lines which start like this) being interpreted as a transition if they end with 'TO:' (Issue #92)
