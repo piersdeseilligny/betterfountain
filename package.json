@@ -313,6 +313,11 @@
 				"category": "Fountain"
 			},
 			{
+				"command": "fountain.updateSceneNumbers",
+				"title": "Number all scenes (keep existing scene numbers, insert missing ones)",
+				"category": "Fountain"
+			},
+			{
 				"command": "fountain.statistics",
 				"title": "Calculate screenplay statistics",
 				"category": "Fountain"
