@@ -368,6 +368,7 @@
 		"test": "node node_modules/jest/bin/jest.js"
 	},
 	"devDependencies": {
+		"@types/diff": "^4.0.2",
 		"@types/jest": "^24.9.1",
 		"@types/mocha": "^5.2.7",
 		"@types/node": "^8.10.61",
@@ -381,6 +382,7 @@
 	"dependencies": {
 		"@types/username": "^3.0.0",
 		"blob": "0.1.0",
+		"diff": "^4.0.2",
 		"font-finder": "^1.0.4",
 		"os-fonts": "^0.5.0",
 		"pdfkit": "^0.11.0",

@@ -3,6 +3,7 @@ import { FountainStructureProperties } from "./extension";
 import * as parser from "./afterwriting-parser";
 import * as path from "path";
 import * as telemetry from "./telemetry";
+import * as sceneNumbering from './scenenumbering';
 
 //var syllable = require('syllable');
 
@@ -134,26 +135,64 @@ export function secondsToMinutesString(seconds:number):string{
 	
 }
 
-export const numberScenes = () => {
-	telemetry.reportTelemetry("command:fountain.statistics");
-	const regexSceneHeadings = new RegExp(parser.regex.scene_heading.source, "igm");
+export const overwriteSceneNumbers = () => {
+	telemetry.reportTelemetry("command:fountain.overwriteSceneNumbers");
 	const fullText = vscode.window.activeTextEditor.document.getText()
-	let sceneNumber: number = 1
-	const newText = fullText.replace(regexSceneHeadings, (heading) => {
-		const noPrevHeadingNumbers = heading.replace(/ #\d+#$/, "")
-		const newHeading = `${noPrevHeadingNumbers} #${sceneNumber}#`
-		sceneNumber++
-		return newHeading
-	})
-	vscode.window.activeTextEditor.edit((editBuilder) => {
-		editBuilder.replace(
-			new vscode.Range(new vscode.Position(0, 0), new vscode.Position(vscode.window.activeTextEditor.document.lineCount, 0)),
-			newText
-		)
-	})
+	const clearedText = clearSceneNumbers(fullText);
+	writeSceneNumbers(clearedText);
+	/* done like this because using vscode.window.activeTextEditor.edit()
+	 *  multiple times per callback is unpredictable; only writeSceneNumbers() does it
+	 */
 }
 
-export const last = function(array: any[]): any {
+export const updateSceneNumbers = () => {
+	telemetry.reportTelemetry("command:fountain.updateSceneNumbers");
+	const fullText = vscode.window.activeTextEditor.document.getText()
+	writeSceneNumbers(fullText);
+}
+
+const clearSceneNumbers = (fullText: string): string => {
+	const regexSceneHeadings = new RegExp(parser.regex.scene_heading.source, "igm");
+	const newText = fullText.replace(regexSceneHeadings, (heading: string) => heading.replace(/ #.*#$/, ""))
+	return newText
+}
+
+// rewrites/updates Scene Numbers using the configured Numbering Schema (currently only 'Standard', not yet configurable)
+const writeSceneNumbers = (fullText: string) => {
+	// collect existing numbers (they mostly shouldn't change)
+	const oldNumbers: string[] = [];
+	const regexSceneHeadings = new RegExp(parser.regex.scene_heading.source, "igm");
+	const numberingSchema = sceneNumbering.makeSceneNumberingSchema(sceneNumbering.SceneNumberingSchemas.Standard);
+	var m;
+	while (m = regexSceneHeadings.exec(fullText)) {
+		const matchExisting = m[0].match(/#(.+)#$/);
+
+		if (!matchExisting) oldNumbers.push(null) /* no match = no number = new number required in this slot */
+		else if (numberingSchema.canParse(matchExisting[1])) oldNumbers.push(matchExisting[1]); /* existing scene number */
+		/* ELSE: didn't parse - custom scene numbers are skipped */
+	}
+
+	// work out what they should actually be, according to the schema
+	const newNumbers = sceneNumbering.generateSceneNumbers(oldNumbers);
+	if (newNumbers) {
+		// replace scene numbers
+		const newText = fullText.replace(regexSceneHeadings, (heading) => {
+			const matchExisting = heading.match(/#(.+)#$/);
+			if (matchExisting && !numberingSchema.canParse(matchExisting[1]))
+				return heading; /* skip re-writing custom scene numbers */
+
+			const noPrevHeadingNumbers = heading.replace(/ #.+#$/, "")
+			const newHeading = `${noPrevHeadingNumbers} #${newNumbers.shift()}#`
+			return newHeading
+		})
+		vscode.window.activeTextEditor.edit(editBuilder => editBuilder.replace(
+			new vscode.Range(new vscode.Position(0, 0), new vscode.Position(vscode.window.activeTextEditor.document.lineCount, 0)),
+			newText
+		))
+	}
+}
+
+export const last = function (array: any[]): any {
 	return array[array.length - 1];
 }
 

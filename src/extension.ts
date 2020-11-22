@@ -4,7 +4,7 @@ import { ExtensionContext, languages, TextDocument } from 'vscode';
 import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
-import { secondsToString, numberScenes, openFile } from "./utils";
+import { secondsToString, overwriteSceneNumbers, updateSceneNumbers, openFile } from "./utils";
 import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
 import * as telemetry from "./telemetry";
 
@@ -20,7 +20,10 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		//const treeExportPdfDebug = new vscode.TreeItem("Export PDF with default name");
 		const treeExportPdfCustom= new vscode.TreeItem("Export PDF with highlighted characters");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
-		const numberScenes = new vscode.TreeItem("Number all scenes (replaces existing scene numbers)");
+		const numberScenesOverwrite = new vscode.TreeItem("Number scenes - overwrite");
+		numberScenesOverwrite.tooltip = 'Replaces existing scene numbers.';
+		const numberScenesUpdate = new vscode.TreeItem("Number scenes - update");
+		numberScenesUpdate.tooltip = 'Retains existing numbers as much as possible. Fills gaps and re-numbers moved scenes.';
 		const statistics = new vscode.TreeItem("Calculate screenplay statistics");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
@@ -42,8 +45,12 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			command: 'fountain.livepreviewstatic',
 			title: ''
 		};
-		numberScenes.command = {
-			command: 'fountain.numberScenes',
+		numberScenesOverwrite.command = {
+			command: 'fountain.overwriteSceneNumbers',
+			title: ''
+		};
+		numberScenesUpdate.command = {
+			command: 'fountain.updateSceneNumbers',
 			title: ''
 		};
 		statistics.command = {
@@ -54,13 +61,12 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 	//	elements.push(treeExportPdfDebug);
 		elements.push(treeExportPdfCustom);
 		elements.push(treeLivePreview);
-		elements.push(numberScenes);
+		elements.push(numberScenesOverwrite);
+		elements.push(numberScenesUpdate);
 		elements.push(statistics);
 		return elements;
 	}
 }
-
-//hierarchyend is the last line of the token's hierarchy. Last line of document for the root, last line of current section, etc...
 
 
 
@@ -232,7 +238,8 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => exportPdf()));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfdebug', async () => exportPdf(false,true)));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfcustom', async () => exportPdf(true,false,true)));
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', numberScenes));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.overwriteSceneNumbers', overwriteSceneNumbers));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.updateSceneNumbers', updateSceneNumbers));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
 		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
 		statsPanel.webview.html = `Calculating screenplay statistics...`
@@ -263,7 +270,7 @@ export function activate(context: ExtensionContext) {
 	vscode.workspace.onWillSaveTextDocument(e => {
 		const config = getFountainConfig(e.document.uri);
 		if (config.number_scenes_on_save === true) {
-			numberScenes();
+			overwriteSceneNumbers();
 		}
 	})
 
