@@ -592,11 +592,13 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
                                 doc.text(right_line.text, feed_right, print.top_margin + print.font_height * y_right++, right_text_properties);
                             });
                         }
-
                         feed -= (feed - print.left_margin) / 2;
                     }
 
                     doc.text(text, feed, print.top_margin + print.font_height * y, text_properties);
+                    if(line.linediff){
+                        y +=  line.linediff;
+                    } 
 
                     if (line.number) {
                         scene_number = String(line.number);

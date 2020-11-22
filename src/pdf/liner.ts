@@ -220,29 +220,27 @@ export class Liner {
             }
             return -1;
         };
-        var count_dialogue_tokens = (right_index:number) => {
+        var count_dialogue_tokens = (i:number) => {
             var result = 0;
-            while (lines[right_index] && lines[right_index].is_dialogue()) {
+            var canbeCharacter = true;
+            while (lines[i] && (lines[i].type == "parenthetical" || lines[i].type=="dialogue" || (canbeCharacter && lines[i].type=="character")) ) {
+                if(lines[i].type != "character") canbeCharacter=false;
                 result++;
-                right_index++;
+                i++;
             }
-
-            /* 
-            For some reason, the original afterwriting liner had the following line:
-            
-            result++; // collect separator after right dialogue
-
-            ...however uncommenting it causes a bug where there is systematically a 
-            missing seperator after dual dialogue. I don't understand why this 
-            line was here in the first place, but it seems to work better without
-            */
-
             return result;
         };
         var fold_dual_dialogue = (left_index:number, right_index:number) => {
             var dialogue_tokens = count_dialogue_tokens(right_index);
+            var left_tokens = count_dialogue_tokens(left_index);
             var right_lines = lines.splice(right_index, dialogue_tokens);
             lines[left_index].right_column = right_lines;
+
+            if(dialogue_tokens > left_tokens){
+                //there's more dialogue lines on the left than on the right
+                let insertLength = dialogue_tokens-left_tokens;
+                lines[left_index+left_tokens-1].linediff = insertLength;
+            }
         };
 
         while (any_unfolded_dual_dialogue_exists) {
