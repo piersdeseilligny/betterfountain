@@ -8,6 +8,7 @@
         + Character names can now contain any symbol (in addition to at least one uppercase letter)
         + Syntax highlighting of '@' prefix and '^' suffix
     + Support for creating PDFs with highlighted characters (Thanks @rnwzd for the PR!)
+    + New scene renumbering system (Thank you @daryluren!) which supports numbering missing scene numbers, without changing the existing ones
     + New 'Export screenplay PDF with default name and open it' command (Thanks @rnwzd for the PR!)
     · Fix forced scene headings for non-latin alphabets
     · Fix PDF alignment of dual-dialogue when the right side is longer than the left
