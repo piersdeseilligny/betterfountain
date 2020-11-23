@@ -10,18 +10,18 @@ import * as sceneNumbering from './scenenumbering';
 /**
  * Trims character extensions, for example the parantheses part in `JOE (on the radio)`
  */
-export const trimCharacterExtension = (character: string): string => character.replace(/( +\([A-z0-9 '’\-.()]+\))*(\s*\^*)?$/, "");
+export const trimCharacterExtension = (character: string): string => character.replace(/[ \t]*(\(.*\))[ \t]*([ \t]*\^)?$/, "");
 
 /**
  * Trims the `@` symbol necesary in character names if they contain lower-case letters, i.e. `@McCONNOR`
  */
-const trimCharacterForceSymbol = (character: string): string => character.replace(/^@/, "");
+export const trimCharacterForceSymbol = (character: string): string => character.replace(/^[ \t]*@/, "");
 
 /**
  * Character names containing lowercase letters need to be prefixed with an `@` symbol
  */
 export const addForceSymbolToCharacter = (characterName: string): string => {
-	const containsLowerCase = (text: string): boolean =>(/[a-z]/.test(text));
+	const containsLowerCase = (text: string): boolean =>((/[\p{Ll}]/u).test(text));
 	return containsLowerCase(characterName) ? `@${characterName}` : characterName;
 }
 
@@ -37,7 +37,7 @@ export const getCharactersWhoSpokeBeforeLast = (parsedDocument:any, position:vsc
 	while(searchIndex>0 && !stopSearch){
 		var token = parsedDocument.tokens[searchIndex-1];
 		if(token.type=="character"){
-			var name =  trimCharacterExtension(token.text);
+			var name =  trimCharacterForceSymbol(trimCharacterExtension(token.text)).trim();
 			if(lastCharacter==undefined){
 				lastCharacter = name;
 			}

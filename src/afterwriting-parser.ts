@@ -1,4 +1,4 @@
-import { calculateDialogueDuration, trimCharacterExtension, last } from "./utils";
+import { calculateDialogueDuration, trimCharacterExtension, last, trimCharacterForceSymbol } from "./utils";
 import { token, create_token } from "./token";
 import { Range, Position } from "vscode";
 import { getFountainConfig } from "./configloader";
@@ -413,7 +413,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 thistoken.type = "character";
                 thistoken.takeNumber = takeCount++;
                 if (config.print_dialogue_numbers) AddDialogueNumberDecoration(thistoken)
-                thistoken.text = thistoken.text.replace(/^@/, "");
+                thistoken.text = trimCharacterForceSymbol(thistoken.text);
                 if (thistoken.text[thistoken.text.length - 1] === "^") {
                     if (cfg.use_dual_dialogue) {
                         state = "dual_dialogue"
@@ -448,12 +448,12 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         dual_right = true;
                         thistoken.dual = "right";
                     }
-                    thistoken.text = thistoken.text.replace("^", "");
+                    thistoken.text = thistoken.text.replace(/\^$/, "");
                 }
                 else {
                     pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_begin"));
                 }
-                let character = trimCharacterExtension(thistoken.text)
+                let character = trimCharacterExtension(thistoken.text).trim();
                 if (result.properties.characters.has(character)) {
                     var values = result.properties.characters.get(character);
                     if (values.indexOf(scene_number) == -1) {
