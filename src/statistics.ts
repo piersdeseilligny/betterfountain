@@ -269,8 +269,8 @@ function mapToObject(map:any):any{
     return jsonObject;
 }
 
-export const retrieveScreenPlayStatistics = async (script: string, parsed: parseoutput, config:FountainConfig): Promise<screenPlayStatistics> => {
-    let pdfstats = await GeneratePdf("$STATS$", config, parsed, undefined);
+export const retrieveScreenPlayStatistics = async (script: string, parsed: parseoutput, config:FountainConfig, exportconfig:ExportConfig): Promise<screenPlayStatistics> => {
+    let pdfstats = await GeneratePdf("$STATS$", config, exportconfig, parsed, undefined);
     return {
         characterStats: createCharacterStatistics(parsed),
         sceneStats: createSceneStatistics(parsed),

@@ -129,7 +129,7 @@ async function loadWebView(docuri: vscode.Uri, statspanel:vscode.WebviewPanel) {
     var config = getFountainConfig(activeFountainDocument());
     var parsed = afterparser.parse(editor.document.getText(), config, false);
 
-    const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config)
+    const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config, undefined)
     statspanel.webview.postMessage({command:"updateStats", content:stats});
 }
 

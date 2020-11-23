@@ -5,7 +5,6 @@ import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import { secondsToString, overwriteSceneNumbers, updateSceneNumbers, openFile } from "./utils";
-import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
 import * as telemetry from "./telemetry";
 
 
@@ -244,20 +243,6 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfcustom', async () => exportPdf(true,false,true)));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.overwriteSceneNumbers', overwriteSceneNumbers));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.updateSceneNumbers', updateSceneNumbers));
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
-		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
-		statsPanel.webview.html = `Calculating screenplay statistics...`
-		
-		var editor = getEditor(activeFountainDocument());
-		var config = getFountainConfig(activeFountainDocument());
-		var exportconfig : ExportConfig = undefined // ????
-		var parsed = afterparser.parse(editor.document.getText(), config, false);
-
-		const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config, exportconfig)
-		const statsHTML = statsAsHtml(stats)
-		statsPanel.webview.html = statsHTML
-		telemetry.reportTelemetry("command:fountain.statistics");
-	}));
 
 	initFountainUIPersistence(); //create the ui persistence save file
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.togglesynopses', ()=>{
