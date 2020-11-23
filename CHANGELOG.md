@@ -1,3 +1,63 @@
+*The statistics page is currently being completely rethought (see the `feature-statsrevamp` branch) so there won't be any updates to it until the revamped version is ready. But when it is, it'll probably be the most advanced screenplay statistic systems available.*
+
+**If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
+
+## **1.7.1** - *2020-11-23*
+Thanks @daryluren for the PR!
+    · Fix scene headings being forced, even when starting with more than one period
+    · Support multiple spaces between character names and character extensions
+    · Fix various edge-case bugs related to character name detection (when forced/dual dialogue/spacing, etc)
+
+## **1.7.0** - *2020-11-22*
+    + Vastly improved character name detection: It should work absolutely flawlessly now
+        + Support unforced character names from any bicameral alphabet (Greek, Cyrillic, Armenian, etc...)
+        + Character names can now contain any symbol (in addition to at least one uppercase letter)
+        + Syntax highlighting of '@' prefix and '^' suffix
+    + Support for creating PDFs with highlighted characters (Thanks @rnwzd for the PR!)
+    + New scene renumbering system (Thank you @daryluren!) which supports numbering missing scene numbers, without changing the existing ones
+    + New 'Export screenplay PDF with default name and open it' command (Thanks @rnwzd for the PR!)
+    · Fix forced scene headings for non-latin alphabets
+    · Fix PDF alignment of dual-dialogue when the right side is longer than the left
+
+## **1.6.11** - *2020-11-08*
+    + Add "Parenthetical New Line Helper" setting - Disabling it will fix BetterFountain's compatibility with Vim emulators!
+    · Fix forced action (!Lines which start like this) being interpreted as a transition if they end with 'TO:' (Issue #92)
+    · Fix parsing, preview, and export of dialogue with forced line breaks (an 'empty' line with only two spaces)
+
+## **1.6.10** - *2020-10-23*
+    · Fixed inline notes replacing the entire action block
+    · Notes for sections now also appear as a description in the outline
+
+## **1.6.9** - *2020-10-22*
+    + "(MORE)" and "(CONT'D)" text can now be changed in the settings (Thanks @rnwzd for the PR!)
+    · Very minor adjustments to some descriptions in the PDF Settings
+
+## **1.6.8** - *2020-10-05*
+    + Add icons to outline
+    + Notes now show in the outline (toggle-able)
+    · Synopses now show in the correct order in the outline
+
+## **1.6.7** - *2020-08-24*
+    + Character extensions can now contain typesetters apostrophes (’) in addition to typewritters apostrophes (')
+
+## **1.6.6** - *2020-08-16*
+    + Any line (except action) can now start with spaces or tabs
+
+## **1.6.5** - *2020-07-16*
+    + Synopses are now included in the outline (can be toggled on/off)
+    + Folding for sections! (Finally)
+    + Infinite potential outline depth (Thanks @daryluren for the PR!)
+    + Improved syntax highlighting (Thanks @daryluren for the PR!)
+    + Anonymized telemetry (respects vscode's "Enable telemetry" toggle)
+
+
+
+
+## **1.6.4** - *2020-06-22*
+    + Add page count to statistics
+    + Fix multiple sections in a row preventing PDF Creation when bookmarks are enabled
+    + Fix synopses not being syntax highlighted
+
 ## **1.6.3** - *2020-06-21*
     + Fix scene numbers displaying as sourceline_nb in live preview (Fix #68, thanks Gabriel Guedes for reporting it!)
     + Base screenplay statistics on afterparser tokens, rather than even more regex (Thanks @daryluren for the PR!)

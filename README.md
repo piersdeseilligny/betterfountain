@@ -13,6 +13,8 @@ And because it's an extension for vscode, you get access to some incredibly adva
 
 [Sponsor on GitHub ❤](https://github.com/sponsors/piersdeseilligny)
 
+[Discuss on Discord](https://discord.gg/QBm7tKQ)
+
 ![Screenshot of BetterFountain in dark mode](https://raw.githubusercontent.com/piersdeseilligny/betterfountain/master/screenshots/Dark_plus.PNG)
 
 ## Features
@@ -46,11 +48,17 @@ And to get an approximate duration of your screenplay, just look at your status 
 
 Here are some features I would like to add, but don't really have time to right now, in an approximate order of difficulty/priority:
 
-* Import screenplays from PDF files
+* Improved statistics (WIP in branch `feature-statsrevamp`)
+
+* PDF Export panel, with more advanced features presented in a more user-friendly way
+
+* Fountain cheat sheet panel
+
+* Optionally leaving synopses visible when folding
 
 * Built-in screenplay templates (such as Blake Snyder's beat sheet)
 
-* Folding for sections
+* Import screenplays from PDF files
 
 * Some sort of system that would allow the storage of character information alongside the script
 
@@ -64,6 +72,8 @@ I will probably add these features when I have time, but if you're up for the ch
 * The live preview uses elements from the [Fountain.js](https://github.com/mattdaly/Fountain.js) library by Matt Daly, covered by the [MIT License](https://github.com/mattdaly/Fountain.js/blob/master/LICENSE.md)
 
 * The fountain parsing and PDF generation feature is based on Piotr Jamróz's [Afterwriting](https://github.com/ifrost/afterwriting-labs), also covered by the [MIT License](https://github.com/ifrost/afterwriting-labs)
+
+* The project includes Kevin Decker's [`jsdiff`](https://github.com/kpdecker/jsdiff) library, covered by the [BSD License](https://raw.githubusercontent.com/kpdecker/jsdiff/master/LICENSE)
 
 * The project was built using Microsoft's [language server example extension](https://github.com/Microsoft/vscode-extension-samples/tree/master/lsp-sample) as a boilerplate.
 

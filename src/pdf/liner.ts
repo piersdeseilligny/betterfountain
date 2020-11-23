@@ -15,11 +15,11 @@ export class Liner {
             var tmpText;
 
             if (token.type === "character" && this.printTakeNumbers) {
-                tmpText = token.takeNumber + " – " + text;
+                tmpText = token.takeNumber + " - " + text;
             } else {
                 tmpText = text;
             }
-            
+
             return [this.h.create_line({
                 type: token.type,
                 token: token,
@@ -89,23 +89,27 @@ export class Liner {
             return false;
         } else if (cfg.split_dialogue && token_on_break.is("dialogue") && token_after && token_after.is("dialogue") && token_before.is("dialogue") && !(token_on_break.dual)) {
             var new_page_character;
-            for (var character = before; lines[character].type !== "character"; character--) {
+            for (var character = before; lines[character] && lines[character].type !== "character"; character--) {
             }
-            lines.splice(index, 0, this.h.create_line({
+            var charactername = "";
+            if(lines[character]) charactername = lines[character].text;
+
+            let moreitem = {
                 type: "more",
                 text: MORE,
                 start: token_on_break.start,
                 end: token_on_break.end,
                 token: token_on_break.token
-            }), new_page_character = this.h.create_line({
+            };
+            lines.splice(index, 0, this.h.create_line(moreitem), new_page_character = this.h.create_line({
                 type: "character",
-                text: lines[character].text.trim() + " " + (lines[character].text.indexOf(CONTD) !== -1 ? "" : CONTD),
+                text: charactername.trim() + " " + (charactername.indexOf(CONTD) !== -1 ? "" : CONTD),
                 start: token_after.start,
                 end: token_after.end,
                 token: token_on_break.token
             }));
 
-            if (lines[character].right_column) {
+            if (lines[character] && lines[character].right_column) {
                 var dialogue_on_page_length = index - character;
                 var right_lines_on_this_page = lines[character].right_column.slice(0, dialogue_on_page_length).concat([
                         this.h.create_line({
@@ -216,29 +220,27 @@ export class Liner {
             }
             return -1;
         };
-        var count_dialogue_tokens = (right_index:number) => {
+        var count_dialogue_tokens = (i:number) => {
             var result = 0;
-            while (lines[right_index] && lines[right_index].is_dialogue()) {
+            var canbeCharacter = true;
+            while (lines[i] && (lines[i].type == "parenthetical" || lines[i].type=="dialogue" || (canbeCharacter && lines[i].type=="character")) ) {
+                if(lines[i].type != "character") canbeCharacter=false;
                 result++;
-                right_index++;
+                i++;
             }
-
-            /* 
-            For some reason, the original afterwriting liner had the following line:
-            
-            result++; // collect separator after right dialogue
-
-            ...however uncommenting it causes a bug where there is systematically a 
-            missing seperator after dual dialogue. I don't understand why this 
-            line was here in the first place, but it seems to work better without
-            */
-
             return result;
         };
         var fold_dual_dialogue = (left_index:number, right_index:number) => {
             var dialogue_tokens = count_dialogue_tokens(right_index);
+            var left_tokens = count_dialogue_tokens(left_index);
             var right_lines = lines.splice(right_index, dialogue_tokens);
             lines[left_index].right_column = right_lines;
+
+            if(dialogue_tokens > left_tokens){
+                //there's more dialogue lines on the left than on the right
+                let insertLength = dialogue_tokens-left_tokens;
+                lines[left_index+left_tokens-1].linediff = insertLength;
+            }
         };
 
         while (any_unfolded_dual_dialogue_exists) {

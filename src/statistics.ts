@@ -1,6 +1,6 @@
 import { parseoutput, StructToken } from "./afterwriting-parser"
 import { GeneratePdf } from "./pdf/pdf"
-import { FountainConfig } from "./configloader"
+import { ExportConfig, FountainConfig } from "./configloader"
 import { pdfstats } from "./pdf/pdfmaker"
 
 type dialoguePiece = {

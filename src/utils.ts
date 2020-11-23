@@ -2,24 +2,26 @@ import * as vscode from "vscode";
 import { FountainStructureProperties } from "./extension";
 import * as parser from "./afterwriting-parser";
 import * as path from "path";
+import * as telemetry from "./telemetry";
+import * as sceneNumbering from './scenenumbering';
 
 //var syllable = require('syllable');
 
 /**
  * Trims character extensions, for example the parantheses part in `JOE (on the radio)`
  */
-export const trimCharacterExtension = (character: string): string => character.replace(/( \([A-z0-9 '\-.()]+\))*(\s*\^*)?$/, "");
+export const trimCharacterExtension = (character: string): string => character.replace(/[ \t]*(\(.*\))[ \t]*([ \t]*\^)?$/, "");
 
 /**
  * Trims the `@` symbol necesary in character names if they contain lower-case letters, i.e. `@McCONNOR`
  */
-const trimCharacterForceSymbol = (character: string): string => character.replace(/^@/, "");
+export const trimCharacterForceSymbol = (character: string): string => character.replace(/^[ \t]*@/, "");
 
 /**
  * Character names containing lowercase letters need to be prefixed with an `@` symbol
  */
 export const addForceSymbolToCharacter = (characterName: string): string => {
-	const containsLowerCase = (text: string): boolean =>(/[a-z]/.test(text));
+	const containsLowerCase = (text: string): boolean =>((/[\p{Ll}]/u).test(text));
 	return containsLowerCase(characterName) ? `@${characterName}` : characterName;
 }
 
@@ -35,7 +37,7 @@ export const getCharactersWhoSpokeBeforeLast = (parsedDocument:any, position:vsc
 	while(searchIndex>0 && !stopSearch){
 		var token = parsedDocument.tokens[searchIndex-1];
 		if(token.type=="character"){
-			var name =  trimCharacterExtension(token.text);
+			var name =  trimCharacterForceSymbol(trimCharacterExtension(token.text)).trim();
 			if(lastCharacter==undefined){
 				lastCharacter = name;
 			}
@@ -133,25 +135,64 @@ export function secondsToMinutesString(seconds:number):string{
 	
 }
 
-export const numberScenes = () => {
-	const regexSceneHeadings = new RegExp(parser.regex.scene_heading.source, "igm");
+export const overwriteSceneNumbers = () => {
+	telemetry.reportTelemetry("command:fountain.overwriteSceneNumbers");
 	const fullText = vscode.window.activeTextEditor.document.getText()
-	let sceneNumber: number = 1
-	const newText = fullText.replace(regexSceneHeadings, (heading) => {
-		const noPrevHeadingNumbers = heading.replace(/ #\d+#$/, "")
-		const newHeading = `${noPrevHeadingNumbers} #${sceneNumber}#`
-		sceneNumber++
-		return newHeading
-	})
-	vscode.window.activeTextEditor.edit((editBuilder) => {
-		editBuilder.replace(
-			new vscode.Range(new vscode.Position(0, 0), new vscode.Position(vscode.window.activeTextEditor.document.lineCount, 0)),
-			newText
-		)
-	})
+	const clearedText = clearSceneNumbers(fullText);
+	writeSceneNumbers(clearedText);
+	/* done like this because using vscode.window.activeTextEditor.edit()
+	 *  multiple times per callback is unpredictable; only writeSceneNumbers() does it
+	 */
 }
 
-export const last = function(array: any[]): any {
+export const updateSceneNumbers = () => {
+	telemetry.reportTelemetry("command:fountain.updateSceneNumbers");
+	const fullText = vscode.window.activeTextEditor.document.getText()
+	writeSceneNumbers(fullText);
+}
+
+const clearSceneNumbers = (fullText: string): string => {
+	const regexSceneHeadings = new RegExp(parser.regex.scene_heading.source, "igm");
+	const newText = fullText.replace(regexSceneHeadings, (heading: string) => heading.replace(/ #.*#$/, ""))
+	return newText
+}
+
+// rewrites/updates Scene Numbers using the configured Numbering Schema (currently only 'Standard', not yet configurable)
+const writeSceneNumbers = (fullText: string) => {
+	// collect existing numbers (they mostly shouldn't change)
+	const oldNumbers: string[] = [];
+	const regexSceneHeadings = new RegExp(parser.regex.scene_heading.source, "igm");
+	const numberingSchema = sceneNumbering.makeSceneNumberingSchema(sceneNumbering.SceneNumberingSchemas.Standard);
+	var m;
+	while (m = regexSceneHeadings.exec(fullText)) {
+		const matchExisting = m[0].match(/#(.+)#$/);
+
+		if (!matchExisting) oldNumbers.push(null) /* no match = no number = new number required in this slot */
+		else if (numberingSchema.canParse(matchExisting[1])) oldNumbers.push(matchExisting[1]); /* existing scene number */
+		/* ELSE: didn't parse - custom scene numbers are skipped */
+	}
+
+	// work out what they should actually be, according to the schema
+	const newNumbers = sceneNumbering.generateSceneNumbers(oldNumbers);
+	if (newNumbers) {
+		// replace scene numbers
+		const newText = fullText.replace(regexSceneHeadings, (heading) => {
+			const matchExisting = heading.match(/#(.+)#$/);
+			if (matchExisting && !numberingSchema.canParse(matchExisting[1]))
+				return heading; /* skip re-writing custom scene numbers */
+
+			const noPrevHeadingNumbers = heading.replace(/ #.+#$/, "")
+			const newHeading = `${noPrevHeadingNumbers} #${newNumbers.shift()}#`
+			return newHeading
+		})
+		vscode.window.activeTextEditor.edit(editBuilder => editBuilder.replace(
+			new vscode.Range(new vscode.Position(0, 0), new vscode.Position(vscode.window.activeTextEditor.document.lineCount, 0)),
+			newText
+		))
+	}
+}
+
+export const last = function (array: any[]): any {
 	return array[array.length - 1];
 }
 
@@ -159,11 +200,11 @@ export function openFile(p:string){
 	let cmd = "xdg-open"
 	switch (process.platform) { 
 		case 'darwin' : cmd = 'open'; break;
-		case 'win32' : cmd = 'start'; break;
+		case 'win32' : cmd = ''; break;
 		default : cmd = 'xdg-open';
 	}
 	var exec = require('child_process').exec;
-	exec(cmd+ ' ' + p); 
+	exec(`${cmd} "${p}"`); 
 }
 export function revealFile(p:string){
 	var cmd = "";
@@ -183,4 +224,62 @@ export function revealFile(p:string){
 
 export function assetsPath(): string{
     return __dirname;
+}
+interface IPackageInfo {
+	name: string;
+	version: string;
+	aiKey: string;
+}
+export function getPackageInfo(): IPackageInfo | null {
+	const extension = vscode.extensions.getExtension('piersdeseilligny.betterfountain');
+	if (extension && extension.packageJSON) {
+		return {
+			name: extension.packageJSON.name,
+			version: extension.packageJSON.version,
+			aiKey: extension.packageJSON.aiKey
+		};
+	}
+	return null;
+}
+//Simple n-bit hash
+function nPearsonHash(message: string, n = 8): number {
+	// Ideally, this table would be shuffled...
+	// 256 will be the highest value provided by this hashing function
+	var table = [...new Array(2**n)].map((_, i) => i)
+
+
+	return message.split('').reduce((hash, c) => {
+		return table[(hash + c.charCodeAt(0)) % (table.length - 1)]
+	}, message.length % (table.length - 1))
+
+}
+
+function HSVToRGB(h: number, s: number, v: number): Array<number> {
+	var [r, g, b] = [0, 0 ,0];
+    
+	var i = Math.floor(h * 6);
+	var f = h * 6 - i;
+	var p = v * (1 - s);
+	var q = v * (1 - f * s);
+	var t = v * (1 - (1 - f) * s);
+	switch (i % 6) {
+		case 0: r = v, g = t, b = p; break;
+		case 1: r = q, g = v, b = p; break;
+		case 2: r = p, g = v, b = t; break;
+		case 3: r = p, g = q, b = v; break;
+		case 4: r = t, g = p, b = v; break;
+		case 5: r = v, g = p, b = q; break;
+	}
+	return [Math.round(r * 255),Math.round(g * 255),Math.round(b * 255)]
+}
+
+//We are using colors with same value and saturation as highlighters
+export function wordToColor(word: string): Array<number> {
+	const s = 0.5;
+	const v = 1;
+	
+	const n = 5; //so that colors are spread apart
+	const h = nPearsonHash(word, n)/2**(8-n);
+	return HSVToRGB(h, s, v)
+
 }

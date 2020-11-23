@@ -4,8 +4,9 @@
 	"description": "Fountain autocomplete, syntax highlighting, and export to PDF",
 	"author": "Piers Deseilligny",
 	"license": "MIT",
+	"aiKey": "0c2689ab-4ce9-416d-a585-c9765b7f4c88",
 	"icon": "icon.png",
-	"version": "1.6.3",
+	"version": "1.7.1",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
@@ -31,6 +32,8 @@
 		"onLanguage:fountain",
 		"onCommand:fountain.livepreview",
 		"onCommand:fountain.exportpdf",
+		"onCommand:fountain.exportpdfdebug",
+		"onCommand:fountain.exportpdfcustom",
 		"onWebviewPanel:fountainPreview"
 	],
 	"main": "./out/extension",
@@ -63,6 +66,20 @@
 				}
 			]
 		},
+		"menus": {
+			"view/title": [
+				{
+					"command": "fountain.outline.togglesynopses",
+					"group": "navigation",
+					"when": "view == fountain-outline"
+				},
+				{
+					"command": "fountain.outline.togglenotes",
+					"group": "navigation",
+					"when": "view == fountain-outline"
+				}
+			]
+		},
 		"configuration": [
 			{
 				"title": "Fountain General Settings",
@@ -77,6 +94,11 @@
 						"type": "boolean",
 						"default": true,
 						"description": "Automatically synchronize preview and text editor position."
+					},
+					"fountain.general.parentheticalNewLineHelper": {
+						"type": "boolean",
+						"default": true,
+						"markdownDescription": "Automatically skip to the next line if the caret is just before the last parenthesis within a parenthetical (as such❚). If you are using a vim emulator, you should disable this setting - an [issue with vscode](https://github.com/Microsoft/vscode/issues/13441) means it is impossible for two extensions to simultaneously intercept typing."
 					},
 					"fountain.general.previewTheme": {
 						"type": "string",
@@ -221,12 +243,40 @@
 					"fountain.pdf.invisibleSectionBookmarks": {
 						"type": "boolean",
 						"default": true,
-						"description": "If 'Print Sections' is false, add a bookmark for the section to the following scene header instead"
+						"markdownDescription": "If `#fountain.pdf.printSections#` is false, add a bookmark for the section to the following scene header instead"
+					},
+					"fountain.pdf.textMORE": {
+						"type": "string",
+						"default": "(MORE)",
+						"description": "Text to print when dialogue is cut before a page break - \"(MORE)\" in English."
+					},
+					"fountain.pdf.textCONTD": {
+						"type": "string",
+						"default": "(CONT'D)",
+						"description": "Text to print by a character's name when continuing dialogue after a page break - \"(CONT'D)\" in English."
 					}
 				}
 			}
 		],
 		"commands": [
+			{
+				"command": "fountain.outline.togglesynopses",
+				"title": "Toggle outline synopses visibility",
+				"category": "Fountain",
+				"icon": {
+					"light": "/assets/synopse.svg",
+					"dark": "/assets/synopse.svg"
+				}
+			},
+			{
+				"command": "fountain.outline.togglenotes",
+				"title": "Toggle outline note visibility",
+				"category": "Fountain",
+				"icon": {
+					"light": "/assets/note_light.svg",
+					"dark": "/assets/note_dark.svg"
+				}
+			},
 			{
 				"command": "fountain.livepreview",
 				"title": "Show screenplay live preview (Dynamic switching)",
@@ -243,6 +293,16 @@
 				"category": "Fountain"
 			},
 			{
+				"command": "fountain.exportpdfdebug",
+				"title": "Export screenplay PDF with default name and open it",
+				"category": "Fountain"
+			},
+			{
+				"command": "fountain.exportpdfcustom",
+				"title": "Export screenplay PDF with highlighted characters",
+				"category": "Fountain"
+			},
+			{
 				"command": "fountain.jumpto",
 				"title": "Jump to line",
 				"category": "Fountain"
@@ -250,6 +310,11 @@
 			{
 				"command": "fountain.numberScenes",
 				"title": "Number all scenes (overwrites existing scene numbers)",
+				"category": "Fountain"
+			},
+			{
+				"command": "fountain.updateSceneNumbers",
+				"title": "Number all scenes (keep existing scene numbers, insert missing ones)",
 				"category": "Fountain"
 			},
 			{
@@ -263,6 +328,18 @@
 				"command": "fountain.livepreview",
 				"key": "ctrl+shift+v",
 				"mac": "cmd+shift+v",
+				"when": "editorLangId == fountain"
+			},
+			{
+				"command": "fountain.exportpdf",
+				"key": "ctrl+shift+b",
+				"mac": "cmd+shift+b",
+				"when": "editorLangId == fountain"
+			},
+			{
+				"command": "fountain.exportpdfdebug",
+				"key": "f5",
+				"mac": "f5",
 				"when": "editorLangId == fountain"
 			}
 		],
@@ -296,6 +373,7 @@
 		"test": "node node_modules/jest/bin/jest.js"
 	},
 	"devDependencies": {
+		"@types/diff": "^4.0.2",
 		"@types/jest": "^24.9.1",
 		"@types/mocha": "^5.2.7",
 		"@types/node": "^8.10.61",
@@ -317,12 +395,14 @@
 		"@types/username": "^3.0.0",
 		"blob": "0.1.0",
 		"d3": "^5.16.0",
+		"diff": "^4.0.2",
 		"font-finder": "^1.0.4",
 		"he": "^1.2.0",
 		"jquery": "^3.5.1",
 		"os-fonts": "^0.5.0",
 		"pdfkit": "^0.11.0",
 		"username": "^5.1.0",
-		"vscode-codicons": "0.0.10"
+		"vscode-codicons": "0.0.10",
+		"vscode-extension-telemetry": "^0.1.6"
 	}
 }

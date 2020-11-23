@@ -1,119 +1,14 @@
 'use strict';
-import { getFountainConfig } from "./configloader";
+import { getFountainConfig, changeFountainUIPersistence, uiPersistence, initFountainUIPersistence, ExportConfig } from "./configloader";
 import { ExtensionContext, languages, TextDocument } from 'vscode';
 import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
-import { secondsToString, numberScenes } from "./utils";
+import { secondsToString, overwriteSceneNumbers, updateSceneNumbers, openFile } from "./utils";
+import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
+import * as telemetry from "./telemetry";
 
-export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
-	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
-		new vscode.EventEmitter<vscode.TreeItem | null>();
-	public readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | null> = this.onDidChangeTreeDataEmitter.event;
 
-	getTreeItem(element: vscode.TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
-		//throw new Error("Method not implemented.");
-		return element;
-	}
-	getChildren(element?: vscode.TreeItem): vscode.ProviderResult<any[]> {
-		var elements: vscode.TreeItem[] = [];
-		if (element == null) {
-			for (let index = 0; index < activeParsedDocument().properties.structure.length; index++) {
-				const token = activeParsedDocument().properties.structure[index];
-				var item = new vscode.TreeItem(token.text);
-				item.id = token.id;
-				if (token.children != null) {
-					item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-				}
-				item.contextValue = "scene_heading"
-				item.command = {
-					command: 'fountain.jumpto',
-					title: '',
-					arguments: [token.id.substring(1)]
-				};
-				elements.push(item);
-			}
-		}
-
-		//What follows is possibly the ugliest code I have ever written. My apologies.
-		else if (element.collapsibleState != vscode.TreeItemCollapsibleState.None) {
-			var ids: string[] = element.id.split("/");
-			if (ids.length >= 2) {
-				for (let index = 0; index < activeParsedDocument().properties.structure.length; index++) {
-					const token = activeParsedDocument().properties.structure[index];
-					var tokenids: string[] = token.id.split("/");
-					if (tokenids[1] == ids[1]) {
-						for (let index1 = 0; index1 < token.children.length; index1++) {
-							const token1 = token.children[index1];
-							var token1ids: string[] = token1.id.split("/");
-							if (ids.length >= 3) {
-								//START
-								if (token1ids[2] == ids[2]) {
-									for (let index2 = 0; index2 < token1.children.length; index2++) {
-										const token2 = token1.children[index2];
-										var token2ids: string[] = token2.id.split("/");
-										if (ids.length >= 4) {
-											//START
-											if (token2ids[3] == ids[3]) {
-												for (let index3 = 0; index3 < token2.children.length; index3++) {
-													const token3 = token2.children[index3];
-													var item = new vscode.TreeItem(token3.text);
-													item.id = token3.id;
-													var token3ids: string[] = token3.id.split("/");
-													if (token3.children != null) {
-														item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-													}
-													item.command = {
-														command: 'fountain.jumpto',
-														title: '',
-														arguments: [token3ids[4]]
-													};
-													elements.push(item);
-												}
-											}
-											//END
-										}
-										else {
-											var item = new vscode.TreeItem(token2.text);
-											item.id = token2.id;
-											if (token2.children != null) {
-												item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-											}
-											item.command = {
-												command: 'fountain.jumpto',
-												title: '',
-												arguments: [token2ids[3]]
-											};
-											elements.push(item);
-										}
-									}
-								}
-								//END
-							}
-							else {
-								var item = new vscode.TreeItem(token1.text);
-								item.id = token1.id;
-								if (token1.children != null) {
-									item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-								}
-								item.command = {
-									command: 'fountain.jumpto',
-									title: '',
-									arguments: [token1ids[2]]
-								};
-								elements.push(item);
-							}
-						}
-					}
-				}
-			}
-		}
-		return elements;
-	}
-	update(): void {
-		this.onDidChangeTreeDataEmitter.fire(void 0);
-	}
-}
 export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	getTreeItem(element: vscode.TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
 		//throw new Error("Method not implemented.");
@@ -122,11 +17,24 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 	getChildren(/*element?: vscode.TreeItem*/): vscode.ProviderResult<any[]> {
 		const elements: vscode.TreeItem[] = [];
 		const treeExportPdf = new vscode.TreeItem("Export PDF");
+		//const treeExportPdfDebug = new vscode.TreeItem("Export PDF with default name");
+		const treeExportPdfCustom= new vscode.TreeItem("Export PDF with highlighted characters");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
-		const numberScenes = new vscode.TreeItem("Number all scenes (replaces existing scene numbers)");
+		const numberScenesOverwrite = new vscode.TreeItem("Number scenes - overwrite");
+		numberScenesOverwrite.tooltip = 'Replaces existing scene numbers.';
+		const numberScenesUpdate = new vscode.TreeItem("Number scenes - update");
+		numberScenesUpdate.tooltip = 'Retains existing numbers as much as possible. Fills gaps and re-numbers moved scenes.';
 		const statistics = new vscode.TreeItem("Calculate screenplay statistics");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
+			title: ''
+		};
+		/*treeExportPdfDebug.command = {
+			command: 'fountain.exportpdfdebug',
+			title: ''
+		};*/
+		treeExportPdfCustom.command = {
+			command: 'fountain.exportpdfcustom',
 			title: ''
 		};
 		treeLivePreview.command = {
@@ -137,23 +45,28 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			command: 'fountain.livepreviewstatic',
 			title: ''
 		};
-		numberScenes.command = {
-			command: 'fountain.numberScenes',
+		numberScenesOverwrite.command = {
+			command: 'fountain.overwriteSceneNumbers',
 			title: ''
-		}
+		};
+		numberScenesUpdate.command = {
+			command: 'fountain.updateSceneNumbers',
+			title: ''
+		};
 		statistics.command = {
 			command: 'fountain.statistics',
 			title: ''
 		};
 		elements.push(treeExportPdf);
+	//	elements.push(treeExportPdfDebug);
+		elements.push(treeExportPdfCustom);
 		elements.push(treeLivePreview);
-		elements.push(numberScenes);
+		elements.push(numberScenesOverwrite);
+		elements.push(numberScenesUpdate);
 		elements.push(statistics);
 		return elements;
 	}
 }
-
-//hierarchyend is the last line of the token's hierarchy. Last line of document for the root, last line of current section, etc...
 
 
 
@@ -166,6 +79,8 @@ import { showDecorations, clearDecorations } from "./providers/Decorations";
 
 import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToUpdate } from "./providers/Preview";
 import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer } from "./providers/Statistics";
+import { FountainOutlineTreeDataProvider } from "./providers/Outline";
+import { performance } from "perf_hooks";
 
 
 /**
@@ -226,8 +141,58 @@ export function getEditor(uri:vscode.Uri): vscode.TextEditor{
 	//the editor was not visible,
 	return undefined;
 }
+export async function exportPdf(showSaveDialog:boolean = true, openFileOnSave:boolean = false, highlightCharacters = false) {
+	var canceled = false;
+	if (canceled) return;
+	var editor = getEditor(activeFountainDocument());
+
+
+	var config = getFountainConfig(activeFountainDocument());
+	telemetry.reportTelemetry("command:fountain.exportpdf");
+
+	var parsed = await afterparser.parse(editor.document.getText(), config, false);
+	
+	var exportconfig : ExportConfig = {highlighted_characters: []}
+	var filename = editor.document.fileName.replace(/(\.(((better)?fountain)|spmd|txt))$/, ''); //screenplay.fountain -> screenplay
+	if (highlightCharacters) {
+		var highlighted_characters = await vscode.window.showQuickPick(Array.from(parsed.properties.characters.keys()) ,{canPickMany:true});
+		exportconfig.highlighted_characters = highlighted_characters;
+
+		if(highlighted_characters.length>0){
+			var filenameCharacters = [...highlighted_characters]; //clone array
+			if(filenameCharacters.length>3){
+				filenameCharacters.length=3;
+				filenameCharacters.push('+'+(highlighted_characters.length-3)) //add "+n" if there's over 3 highlighted characters
+			}
+			filename += '(' + filenameCharacters.map(v => v.replace(' ', '')).join(',') + ')'; //remove spaces from names and join
+		}
+	}
+	filename+='.pdf'; //screenplay -> screenplay.pdf
+	
+	var saveuri = vscode.Uri.file(filename);
+	var filepath:vscode.Uri = undefined;
+	if (showSaveDialog) {
+		filepath = await vscode.window.showSaveDialog(
+			{
+				filters: { "PDF File": ["pdf"] },
+				defaultUri: saveuri
+			});
+	} else {
+		filepath = saveuri;
+	}
+	if (filepath == undefined) return;
+	vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async progress => {
+		GeneratePdf(filepath.fsPath, config, exportconfig, parsed, progress);
+	});
+	if (openFileOnSave) {openFile(filepath.fsPath)}
+}
+	
 
 export function activate(context: ExtensionContext) {
+
+	//Init telemetry
+	telemetry.initTelemetry();
+
 	//Register for outline tree view
 	vscode.window.registerTreeDataProvider("fountain-outline", outlineViewProvider)
 	vscode.window.createTreeView("fountain-outline", { treeDataProvider: outlineViewProvider });
@@ -244,11 +209,13 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreview', () => {
 		// Create and show a new dynamic webview for the active text editor
 		createPreviewPanel(vscode.window.activeTextEditor,true);
+		telemetry.reportTelemetry("command:fountain.livepreview");
 	}));
 	//Register for live preview (static)
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreviewstatic', () => {
 		// Create and show a new dynamic webview for the active text editor
 		createPreviewPanel(vscode.window.activeTextEditor,false);
+		telemetry.reportTelemetry("command:fountain.livepreviewstatic");
 	}));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
 		createStatisticsPanel(getEditor(activeFountainDocument()));
@@ -268,57 +235,51 @@ export function activate(context: ExtensionContext) {
 					p.panel.webview.postMessage({ command: 'scrollTo', content: args });
 			});
 		}
+		telemetry.reportTelemetry("command:fountain.jumpto");
 	}));
 
 
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => {
-		var canceled = false;
-		if (canceled) return;
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => exportPdf()));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfdebug', async () => exportPdf(false,true)));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfcustom', async () => exportPdf(true,false,true)));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.overwriteSceneNumbers', overwriteSceneNumbers));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.updateSceneNumbers', updateSceneNumbers));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
+		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
+		statsPanel.webview.html = `Calculating screenplay statistics...`
+		
 		var editor = getEditor(activeFountainDocument());
-		var saveuri = vscode.Uri.file(editor.document.fileName.replace('.fountain', ''));
-		var filepath = await vscode.window.showSaveDialog(
-			{
-				filters: { "PDF File": ["pdf"] },
-				defaultUri: saveuri
-			});
-		if (filepath == undefined) return;
-
 		var config = getFountainConfig(activeFountainDocument());
-		vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async progress => {
-			progress.report({message: "Parsing document", increment: 0});
-			var parsed = afterparser.parse(editor.document.getText(), config, false);
-			GeneratePdf(filepath.fsPath, config, parsed, progress);
-		});
-	}));
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.numberScenes', numberScenes));
+		var exportconfig : ExportConfig = undefined // ????
+		var parsed = afterparser.parse(editor.document.getText(), config, false);
 
+		const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config, exportconfig)
+		const statsHTML = statsAsHtml(stats)
+		statsPanel.webview.html = statsHTML
+		telemetry.reportTelemetry("command:fountain.statistics");
+	}));
+
+	initFountainUIPersistence(); //create the ui persistence save file
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.togglesynopses', ()=>{
+		changeFountainUIPersistence("outline_visibleSynopses", !uiPersistence.outline_visibleSynopses);
+		outlineViewProvider.update();
+		telemetry.reportTelemetry("command:fountain.outline.togglesynopses");
+	}));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.togglenotes', ()=>{
+		changeFountainUIPersistence("outline_visibleNotes", !uiPersistence.outline_visibleNotes);
+		outlineViewProvider.update();
+		telemetry.reportTelemetry("command:fountain.outline.togglenotes");
+	}));
+	
 	vscode.workspace.onWillSaveTextDocument(e => {
 		const config = getFountainConfig(e.document.uri);
 		if (config.number_scenes_on_save === true) {
-			numberScenes();
+			overwriteSceneNumbers();
 		}
 	})
 
-	vscode.commands.registerCommand('type', (args) => {
+	registerTyping();
 
-		//Automatically skip to the next line at the end of parentheticals
-		if (args.text == "\n") {
-			const editor = vscode.window.activeTextEditor;
-			if (editor.selection.isEmpty) {
-				const position = editor.selection.active;
-				var linetext = editor.document.getText(new vscode.Range(new vscode.Position(position.line, 0), new vscode.Position(position.line, 256)));
-				if (position.character == linetext.length - 1) {
-					if (linetext.match(/^\s*\(.*\)$/g) || linetext.match(/^\s*((([A-Z0-9 ]+|@.*)(\([A-z0-9 '\-.()]+\))+|)$)/)) {
-						var newpos = new vscode.Position(position.line, linetext.length);
-						editor.selection = new vscode.Selection(newpos, newpos);
-					}
-				}
-			}
-		}
-		vscode.commands.executeCommand('default:type', {
-			text: args.text
-		});
-	});
 
 	//Setup custom folding mechanism
 	languages.registerFoldingRangeProvider({ scheme: 'file', language: 'fountain' }, new FountainFoldingRangeProvider());
@@ -338,11 +299,63 @@ export function activate(context: ExtensionContext) {
 	vscode.window.registerWebviewPanelSerializer('fountain-statistics', new FountainStatsPanelSerializer());
 }
 
-
+	var disposeTyping:vscode.Disposable;
+	function registerTyping() {
+		try {
+			const config = getFountainConfig(activeFountainDocument())
+			if (config.parenthetical_newline_helper) {
+				disposeTyping= vscode.commands.registerCommand('type', (args) => {
+					//Automatically skip to the next line at the end of parentheticals
+					if (args.text == "\n") {
+						const editor = vscode.window.activeTextEditor;
+						if (editor.selection.isEmpty) {
+							const position = editor.selection.active;
+							var linetext = editor.document.getText(new vscode.Range(new vscode.Position(position.line, 0), new vscode.Position(position.line, 256)));
+							if (position.character == linetext.length - 1) {
+								if (linetext.match(/^\s*\(.*\)$/g) || linetext.match(/^\s*((([A-Z0-9 ]+|@.*)(\([A-z0-9 '\-.()]+\))+|)$)/)) {
+									var newpos = new vscode.Position(position.line, linetext.length);
+									editor.selection = new vscode.Selection(newpos, newpos);
+								}
+							}
+						}
+					}
+					vscode.commands.executeCommand('default:type', {
+						text: args.text
+					});
+				});
+			}
+		}
+		catch {
+			let moreDetails = "More details";
+			let openGithub1 = "View issue on vscode repo";
+			vscode.window.showInformationMessage("Conflict with another extension! The 'type' command for vscode can only be registered by a single extension. You may want to disable the 'Parenthetical New Line Helper' setting in order to avoid further conflicts from BetterFountain", moreDetails, openGithub1).then(val => {
+				switch (val) {
+					case moreDetails: {
+						vscode.env.openExternal(vscode.Uri.parse('https://github.com/piersdeseilligny/betterfountain/issues/84'));
+						break;
+					}
+					case openGithub1: {
+						vscode.env.openExternal(vscode.Uri.parse('https://github.com/Microsoft/vscode/issues/13441'));
+						break;
+					}
+				}
+			})
+		}
+	}
 
 vscode.workspace.onDidChangeTextDocument(change => {
 	if (change.document.languageId=="fountain")
 		parseDocument(change.document);
+});
+
+vscode.workspace.onDidChangeConfiguration(change => {
+	if(change.affectsConfiguration("fountain.general.parentheticalNewLineHelper")){
+		let config = getFountainConfig(activeFountainDocument());
+		if(disposeTyping) disposeTyping.dispose();
+		if(config.parenthetical_newline_helper){
+			registerTyping();
+		}
+	}
 })
 
 
@@ -370,8 +383,12 @@ var fontTokenExisted: boolean = false;
 const decortypesDialogue = vscode.window.createTextEditorDecorationType({
 });
 
+let parseTelemetryLimiter = 5;
+let parseTelemetryFrequency = 5;
+
 export function parseDocument(document: TextDocument) {
-	console.time("parsing");
+	let t0 = performance.now()
+
 	clearDecorations();
 
 	var previewsToUpdate = getPreviewsToUpdate(document.uri)
@@ -423,7 +440,16 @@ export function parseDocument(document: TextDocument) {
 		outlineViewProvider.update();
 	updateStatus(output.lengthAction, output.lengthDialogue);
 	showDecorations(document.uri);
-	console.timeEnd("parsing");
+
+	let t1 = performance.now()
+	let parseTime = t1-t0;
+	console.info("parsed in " + parseTime);
+	if(parseTelemetryLimiter == parseTelemetryFrequency){
+		telemetry.reportTelemetry("afterparser.parsing", undefined, { linecount: document.lineCount, parseduration: parseTime });
+	}
+	parseTelemetryLimiter--;
+	if(parseTelemetryLimiter == 0 ) parseTelemetryLimiter = parseTelemetryFrequency;
+
 }
 
 vscode.window.onDidChangeActiveTextEditor(change => {
