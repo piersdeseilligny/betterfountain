@@ -10,7 +10,7 @@ import * as sceneNumbering from './scenenumbering';
 /**
  * Trims character extensions, for example the parantheses part in `JOE (on the radio)`
  */
-export const trimCharacterExtension = (character: string): string => character.replace(/( \([A-z0-9 '’\-.()]+\))*(\s*\^*)?$/, "");
+export const trimCharacterExtension = (character: string): string => character.replace(/( +\([A-z0-9 '’\-.()]+\))*(\s*\^*)?$/, "");
 
 /**
  * Trims the `@` symbol necesary in character names if they contain lower-case letters, i.e. `@McCONNOR`
