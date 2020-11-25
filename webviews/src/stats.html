@@ -18,21 +18,100 @@
 
     table {
         border-collapse: collapse;
-        width: 100%;
-        color: black;
+        border: 1px solid;
+        border-color: var(--vscode-textSeparator-foreground);
+        table-layout: fixed;
     }
-
-    th, td {
-        text-align: left;
-        padding: 8px;
-    }
-
-    tr:nth-child(even){background-color: #f2f2f2}
-    tr:nth-child(odd){background-color: #e3e3e3}
 
     th {
-        background-color: #4c90af;
-        color: white;
+    	text-align: left;
+    	border-bottom: 1px solid;
+        border-color:var(--vscode-textSeparator-foreground);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    tbody>tr:nth-child(even){
+        background-color:rgba(255,255,255,0.025);
+    }
+
+    td, th {
+    	padding: 5px 10px;
+    }
+    td:not(:first-child), th:not(:first-child){
+        border-left: solid 1px;
+        border-color:var(--vscode-textSeparator-foreground) !important;
+    }
+    th.sorting_asc:after {
+        content: '\eab4';
+        font-family: 'codicon';
+        float: right;
+        margin-top: 2px;
+    }
+    th.sorting_desc:after {
+        content: '\eab7';
+        font-family: 'codicon';
+        float: right;
+        margin-top: 2px;
+    }
+
+    .dataTables_length{
+        float: left;
+        margin-bottom: 12px;
+    }
+    .dataTables_filter{
+        float:right;
+        margin-bottom: 12px;
+    }
+
+    .hyperbtn{
+        text-decoration: none;
+        outline:none !important;
+    }
+    .chartinfo{
+        color: var(--vscode-input-placeholderForeground);
+        float: left;
+        margin-top: 8px;
+        margin-left: 10px;
+    }
+    input{
+        background-color: var(--vscode-input-background);
+        outline: solid 1px;
+        border:none;
+        outline-color: transparent;
+        font-family: inherit;
+        color: var(--vscode-input-foreground);
+        height: 25px;
+        padding:3px;
+        padding-left:5px;
+        display:block;
+        outline-offset: -1px;
+        font-size:13px;
+    }
+    input::-webkit-search-cancel-button{
+        display:none;
+    }
+    input::placeholder{
+        color: var(--vscode-input-placeholderForeground);
+    }
+    input:focus{
+        outline-color: var(--vscode-focusBorder);
+    }
+
+    select{
+        background: transparent;
+        font-weight: 600;
+        outline:none;
+        border: none;
+        display: inline-block;
+        width: 40px;
+        color: var(--vscode-textLink-foreground);
+    }
+    option{
+        background: var(--vscode-menu-background);
+        border: none;
+        outline: none;
+        color: var(--vscode-menu-foreground);
     }
 
     .sidenav{
@@ -163,9 +242,7 @@
     .selection-box{
         fill:var(--vscode-editor-selectionBackground);
     }
-    .chart-data{
-        stroke:var(--vscode-panel-border);
-    }
+
     .durationstats-selection{
         font-size:12px;
         opacity:0.8;
@@ -243,6 +320,16 @@
     }
     .deemphasize{
         opacity:0.5;
+    }
+    .dataTables_paginate{
+        float:left;
+        margin-top: 10px;
+        margin-left: 5px;
+    }
+    .dataTables_info{
+        float:right;
+        margin-top: 10px;
+        margin-right: 5px;
     }
     </style>
 </head>

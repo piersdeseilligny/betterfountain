@@ -1,9 +1,12 @@
 import "./lib/contextmenu.css"
 const vscode = acquireVsCodeApi();
 const $ = require("jquery");
-
+window.$ = $;
 require("./lib/contextmenu.js");
 require("./lib/jquery.ui.position.min.js");
+
+require('datatables.net');
+require('datatables.net-dt');
 
 $.contextMenu.defaults.animation = {
     duration: 83,
@@ -47,7 +50,7 @@ $.contextMenu.types.check = function(item, opt, root) {
                 });
             }
             item.callback();
-            return false;
+            return item.hideonclick;
         }
     });
 };
@@ -235,21 +238,91 @@ function updateStats(){
 
     document.getElementById("durationStats-summary").innerText = summary;
     //characters
-    document.getElementById("characterTable").innerHTML =
-    `<tr>
-        <th>Character name</th>
-        <th>Speaking parts</th>
-        <th>Total words spoken</th>
-    </tr>
+    let chartable = document.getElementById("characterTable");
+    
+    chartable.innerHTML =
+    `<thead>
+        <tr>
+            <th>Name</th>
+            <th>Lines</th>
+            <th>Words Spoken</th>
+            <th>Duration</th>
+            <th>Complexity</th>
+        </tr>
+    </thead>
+    <tbody>
     ${state.stats.characterStats.reduce((prev, curr) => {
         return `${prev}
         <tr>
-            <td>${curr.name}</td>
-            <td>${curr.speakingParts}</td>
-            <td>${curr.wordsSpoken}</td>
+            <td style="color:${curr.color}">${curr.name}</td>
+            <td data-sort="${-curr.speakingParts}">${curr.speakingParts}</td>
+            <td data-sort="${-curr.wordsSpoken}">${curr.wordsSpoken}</td>
+            <td data-sort="${-curr.secondsSpoken}">${secondsToString(curr.secondsSpoken)}</td>
+            <td data-sort="${-curr.averageComplexity}">${curr.averageComplexity.toFixed(1)}</td>
         </tr>
         `
-    }, '')}`
+    }, '')}
+    </tbody>`;
+
+    let datatable = $(chartable).DataTable({
+        "language": {
+            "search": "",
+            "searchPlaceholder": "Search",
+            "info":"Showing _START_ to _END_ of _TOTAL_ characters",
+            "lengthMenu":"Show _MENU_ characters",
+            "zeroRecords":"No matching characters found",
+            "paginate": {
+                "next":"&nbsp;Next",
+                "previous":"Previous&nbsp;"
+            }
+          },
+          "lengthChange": false,
+          "pageLength":10,
+          "dom":`<'charttabletoolbar'>frtpi`
+    });
+    function updateLength(length){
+
+    }
+
+    $("div.charttabletoolbar").html('<div class="chartinfo">Show<a class="hyperbtn" id="visiblecharsdd" href="#">&nbsp;<span>10</span><i class="codicon codicon-chevron-down" style="vertical-align: bottom;"></i></a>&nbsp;characters</div>');
+    function changeCharDisplayLength(item){
+        
+    }
+
+    function showItemsGenerator(amount){
+        return {
+            name: amount.toString(),
+            selected: datatable.page.len() == amount,
+            updateOnClick: true,
+            type: "check",
+            hideonclick:true,
+            callback: function () {
+                datatable.page.len(amount).draw();
+                $(visiblecharsdd).find("span").text(amount);
+            }
+        }
+    }
+    var visibleItemsDropDown = $.contextMenu({
+        selector: "#visiblecharsdd",
+        trigger: "left",
+        hideOnSecondTrigger:true,
+        position: function(opt, x, y){
+            opt.$menu.position({ my: "left-24 top", at: "left bottom", of: "#visiblecharsdd"})
+        },
+        build: function ($trigger, e) {
+            return {
+                items: {
+                    show5:showItemsGenerator(5),
+                    show10:showItemsGenerator(10),
+                    show20:showItemsGenerator(20),
+                    show40:showItemsGenerator(40),
+                    show80:showItemsGenerator(80),
+                    show160:showItemsGenerator(160)
+                }
+            }
+        },
+    });
+
     charts.push({
         group:'overview',
         chart: LineChart.render('#durationStats-lengthchart', [state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue], state.uipersistence, {
@@ -279,6 +352,11 @@ function updateStats(){
     });
 
     document.getElementById("characterStats-monologues").innerText = state.stats.durationStats.monologues;
+    let colors = [];
+    state.stats.durationStats.characternames.forEach(e=>{
+        let charstat = state.stats.characterStats.find(x => x.name == e);
+        if(charstat) colors.push(charstat.color);
+    });
     charts.push({
         group:'characters',
         chart:LineChart.render('#characterStats-lengthchart', state.stats.durationStats.characters, state.uipersistence, {
@@ -287,6 +365,7 @@ function updateStats(){
             pointvalue: 'monologue',
             small: getWidth(),
             labels: state.stats.durationStats.characternames,
+            colors:colors,
             map:pdfmap,
             structure: state.stats.structure,
             revealLine:revealLine,

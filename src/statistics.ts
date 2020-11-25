@@ -2,6 +2,8 @@ import { parseoutput, StructToken } from "./afterwriting-parser"
 import { GeneratePdf } from "./pdf/pdf"
 import { ExportConfig, FountainConfig } from "./configloader"
 import { pdfstats } from "./pdf/pdfmaker"
+import { calculateDialogueDuration, rgbToHex, wordToColor } from "./utils"
+import readabilityScores = require("readability-scores")
 
 type dialoguePiece = {
     character: string
@@ -15,7 +17,10 @@ interface dialoguePerCharacter {
 type dialogueStatisticPerCharacter = {
     name: string
     speakingParts: number
-    wordsSpoken: number
+    wordsSpoken: number,
+    secondsSpoken:number,
+    averageComplexity:number,
+    color:string
 }
 
 type singleSceneStatistic = {
@@ -69,6 +74,14 @@ type screenPlayStatistics = {
     structure: StructToken[]
 }
 
+function age(value:number) {
+    var max = 22
+    return value > max ? max : value
+  }
+function gradeToAge(grade:number) {
+    return age(Math.round(grade + 5))
+}
+
 const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCharacter[] => {
     const dialoguePieces: dialoguePiece[] = [];
     for (var i=0; i<parsed.tokens.length; i++)
@@ -90,7 +103,7 @@ const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCha
                 // else skip extensions / parenthesis / dialogue-begin/-end
             }
             
-            speech = speech.trim()
+            speech = speech.trim();
             dialoguePieces.push({
                 character,
                 speech
@@ -111,14 +124,30 @@ const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCha
     const characterStats: dialogueStatisticPerCharacter[] = []
 
     Object.keys(dialoguePerCharacter).forEach((singledialPerChar: string) => {
-        const speakingParts = dialoguePerCharacter[singledialPerChar].length
+        const speakingParts = dialoguePerCharacter[singledialPerChar].length;
+        let averageComplexity = 0;
+        let secondsSpoken = 0;
         const allDialogueCombined = dialoguePerCharacter[singledialPerChar].reduce((prev, curr) => {
-            return `${prev} ${curr} `
+            var readability = readabilityScores(curr);
+            var average = (
+                gradeToAge(readability.daleChall) + 
+                gradeToAge(readability.ari) + 
+                gradeToAge(readability.colemanLiau)+
+                gradeToAge(readability.fleschKincaid)+
+                gradeToAge(readability.smog)+
+                gradeToAge(readability.gunningFog))/6;
+            averageComplexity+=average;
+            secondsSpoken+=calculateDialogueDuration(curr);
+            return `${prev} ${curr} `;
         }, "")
-        const wordsSpoken = getWordCount(allDialogueCombined)
+        averageComplexity=averageComplexity/speakingParts;
+        const wordsSpoken = getWordCount(allDialogueCombined);
         characterStats.push({
             name: singledialPerChar,
+            color: rgbToHex(wordToColor(singledialPerChar, 0.6, 0.5)),
             speakingParts,
+            secondsSpoken,
+            averageComplexity,
             wordsSpoken,
         })
     })

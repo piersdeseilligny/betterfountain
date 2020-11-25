@@ -319,7 +319,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
         function processActionBlock(token:token){
             let irrelevantActionLength = processInlineNote(token.text);
-            result.lengthAction += (token.text.length - irrelevantActionLength) / 20;
+            token.time = (token.text.length - irrelevantActionLength) / 20;
+            result.lengthAction += token.time;
         }
 
         if (state === "normal") {
@@ -457,6 +458,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_begin"));
                 }
                 let character = trimCharacterExtension(thistoken.text).trim();
+                previousCharacter = character;
                 if (result.properties.characters.has(character)) {
                     var values = result.properties.characters.get(character);
                     if (values.indexOf(scene_number) == -1) {

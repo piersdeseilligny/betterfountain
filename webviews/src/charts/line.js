@@ -152,7 +152,10 @@ define(function (require) {
         let linecontainer = vis.append('g').attr('class', 'chart-linecontainer');
         let pointcontainer = vis.append('g').attr('class', 'chart-pointcontainer');
         for (let i = 0; i < datas.length; i++) {
-            linecontainer.append('path').attr('d', line(datas[i])).attr('fill', 'none').attr('class', 'chart-data').attr('data-line', i).attr('y', headerHeight);
+            let path = linecontainer.append('path').attr('d', line(datas[i])).attr('fill', 'none').attr('class', 'chart-data').attr('data-line', i).attr('y', headerHeight);
+            if(config.colors){
+                path.attr('stroke', config.colors[i]);
+            }
             for (let j = 0; j < datas[i].length; j++) {
                 if(config.pointvalue && datas[i][j][config.pointvalue]){
                     let xpos = datas[i][j][config.xvalue];

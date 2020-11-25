@@ -274,12 +274,17 @@ function HSVToRGB(h: number, s: number, v: number): Array<number> {
 }
 
 //We are using colors with same value and saturation as highlighters
-export function wordToColor(word: string): Array<number> {
-	const s = 0.5;
-	const v = 1;
-	
+export function wordToColor(word: string, s:number = 0.5, v:number = 1): Array<number> {
 	const n = 5; //so that colors are spread apart
 	const h = nPearsonHash(word, n)/2**(8-n);
 	return HSVToRGB(h, s, v)
 
+}
+
+function componentToHex(c:number) {
+  var hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
+export function rgbToHex(rgb:number[]):string {
+  return "#" + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
 }
