@@ -234,10 +234,7 @@
   z-index: 1; 
   width: 0;
   height: 0;
-  content: '';
-  border-color: transparent transparent transparent #2f2f2f;
-  border-style: solid;
-  border-width: .25em 0 .25em .25em;
+  content: "\eab6";
   -webkit-transform: translateY(-50%);
       -ms-transform: translateY(-50%);
        -o-transform: translateY(-50%);

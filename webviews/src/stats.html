@@ -62,6 +62,7 @@
     .dataTables_filter{
         float:right;
         margin-bottom: 12px;
+        margin-right:5px;
     }
 
     .hyperbtn{
@@ -73,6 +74,7 @@
         float: left;
         margin-top: 8px;
         margin-left: 10px;
+        user-select:none;
     }
     input{
         background-color: var(--vscode-input-background);
@@ -93,6 +95,7 @@
     }
     input::placeholder{
         color: var(--vscode-input-placeholderForeground);
+        user-select: none;
     }
     input:focus{
         outline-color: var(--vscode-focusBorder);
@@ -277,18 +280,21 @@
         font: normal normal normal 16px/1 codicon;
     }
 
-    svg .button{
+    svg .button, a.smallbtn{
         font: normal normal normal 16px/1 codicon;
         width:24px;
         fill:var(--vscode-breadcrumb-foreground);
+        color:var(--vscode-breadcrumb-foreground);
         user-select: none;
         cursor: pointer;
     }
-    svg .button:hover{
+    svg .button:hover, a.smallbtn:hover{
         fill:var(--vscode-breadcrumb-focusForeground);
+        color:var(--vscode-breadcrumb-focusForeground);
     }
-    svg .button:active{
+    svg .button:active, a.smallbtn:active{
         fill:var(--vscode-breadcrumb-activeSelectionForeground);
+        color:var(--vscode-breadcrumb-activeSelectionForeground);
     }
 
     .buttonseperator{

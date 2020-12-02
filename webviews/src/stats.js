@@ -248,6 +248,7 @@ function updateStats(){
             <th>Words Spoken</th>
             <th>Duration</th>
             <th>Complexity</th>
+            <th>Monologues</th>
         </tr>
     </thead>
     <tbody>
@@ -259,6 +260,7 @@ function updateStats(){
             <td data-sort="${-curr.wordsSpoken}">${curr.wordsSpoken}</td>
             <td data-sort="${-curr.secondsSpoken}">${secondsToString(curr.secondsSpoken)}</td>
             <td data-sort="${-curr.averageComplexity}">${curr.averageComplexity.toFixed(1)}</td>
+            <td data-sort="${-curr.monologues}">${curr.monologues}</td>
         </tr>
         `
     }, '')}
@@ -278,16 +280,10 @@ function updateStats(){
           },
           "lengthChange": false,
           "pageLength":10,
-          "dom":`<'charttabletoolbar'>frtpi`
+          "dom":`<'charttable length'>f<'charttable morebtn'>rtpi`
     });
-    function updateLength(length){
-
-    }
-
-    $("div.charttabletoolbar").html('<div class="chartinfo">Show<a class="hyperbtn" id="visiblecharsdd" href="#">&nbsp;<span>10</span><i class="codicon codicon-chevron-down" style="vertical-align: bottom;"></i></a>&nbsp;characters</div>');
-    function changeCharDisplayLength(item){
-        
-    }
+    $("div.charttable.length").html('<div class="chartinfo">Show<a class="hyperbtn" id="visiblecharsdd" href="#">&nbsp;<span>10</span><i class="codicon codicon-chevron-down" style="vertical-align: bottom;"></i></a>&nbsp;characters</div>');
+    $("div.charttable.morebtn").html('<a class="smallbtn" style="text-align: center;float: right;height: 24px;line-height: 24px;" href="#" id="chartableoptsdd"><i class="codicon codicon-ellipsis"></></a>');
 
     function showItemsGenerator(amount){
         return {
@@ -302,12 +298,70 @@ function updateStats(){
             }
         }
     }
-    var visibleItemsDropDown = $.contextMenu({
-        selector: "#visiblecharsdd",
+    function showColumnsGenerator(columnname){
+        return {
+            name: columnname,
+            selected: datatable.page.len() == columnname,
+            updateOnClick: true,
+            type: "check",
+            hideonclick:true,
+            callback: function () {
+                //toggle visibility
+            }
+        }
+    }
+    var tableoptionsDropDown = $.contextMenu({
+        selector: "#chartableoptsdd",
         trigger: "left",
         hideOnSecondTrigger:true,
         position: function(opt, x, y){
-            opt.$menu.position({ my: "left-24 top", at: "left bottom", of: "#visiblecharsdd"})
+            opt.$menu.position({ my: "right top", at: "right bottom", of: "#chartableoptsdd"})
+        },
+        build: function ($trigger, e) {
+            return {
+                items: {
+                    showSelectedOnly: {
+                        name: "Filter by visible/selected in chart",
+                        selected: true,
+                        updateOnClick: true,
+                        type: "check",
+                        hideonclick:true,
+                        callback: function () {
+                            //toggle visibility
+                        }
+                    },
+                    showColumns:{
+                        name:"Visible columns",
+                        items:{
+                            name:showColumnsGenerator("Name"),
+                            monologues:showColumnsGenerator("Lines"),
+                            monologue1:showColumnsGenerator("Words Spoken"),
+                            monologue2:showColumnsGenerator("Duration"),
+                            monologue3:showColumnsGenerator("Complexity"),
+                            monologue4:showColumnsGenerator("Monologues"),
+                            monologue5:showColumnsGenerator("Gender"),
+                            monologue6:showColumnsGenerator("Custom")
+                        }
+                    },
+                    saveAs:{
+                        name:"Save as",
+                        items:{
+                            name:showColumnsGenerator("CSV"),
+                            name:showColumnsGenerator("Excel"),
+                            name:showColumnsGenerator("PDF"),
+                        }
+                    }
+                }
+            }
+        },
+    });
+
+    var visibleItemsDropDown = $.contextMenu({
+        selector: "#chartableoptsdd",
+        trigger: "left",
+        hideOnSecondTrigger:true,
+        position: function(opt, x, y){
+            opt.$menu.position({ my: "right top+24", at: "right top", of: opt.$trigger});
         },
         build: function ($trigger, e) {
             return {

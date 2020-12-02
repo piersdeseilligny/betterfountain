@@ -2,7 +2,7 @@ import { parseoutput, StructToken } from "./afterwriting-parser"
 import { GeneratePdf } from "./pdf/pdf"
 import { ExportConfig, FountainConfig } from "./configloader"
 import { pdfstats } from "./pdf/pdfmaker"
-import { calculateDialogueDuration, rgbToHex, wordToColor } from "./utils"
+import { calculateDialogueDuration, isMonologue, rgbToHex, wordToColor } from "./utils"
 import readabilityScores = require("readability-scores")
 
 type dialoguePiece = {
@@ -20,6 +20,7 @@ type dialogueStatisticPerCharacter = {
     wordsSpoken: number,
     secondsSpoken:number,
     averageComplexity:number,
+    monologues:number,
     color:string
 }
 
@@ -127,20 +128,25 @@ const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCha
         const speakingParts = dialoguePerCharacter[singledialPerChar].length;
         let averageComplexity = 0;
         let secondsSpoken = 0;
+        let monologues = 0;
+        let combinedSentences = "";
         const allDialogueCombined = dialoguePerCharacter[singledialPerChar].reduce((prev, curr) => {
-            var readability = readabilityScores(curr);
-            var average = (
+            let time = calculateDialogueDuration(curr);
+            secondsSpoken+=time;
+            combinedSentences+="."+curr;
+            if(isMonologue(time)) monologues++;
+            return `${prev} ${curr} `;
+        }, "");
+        var readability = readabilityScores(combinedSentences);
+        if(readability){
+            averageComplexity = (
                 gradeToAge(readability.daleChall) + 
                 gradeToAge(readability.ari) + 
                 gradeToAge(readability.colemanLiau)+
                 gradeToAge(readability.fleschKincaid)+
                 gradeToAge(readability.smog)+
                 gradeToAge(readability.gunningFog))/6;
-            averageComplexity+=average;
-            secondsSpoken+=calculateDialogueDuration(curr);
-            return `${prev} ${curr} `;
-        }, "")
-        averageComplexity=averageComplexity/speakingParts;
+        }
         const wordsSpoken = getWordCount(allDialogueCombined);
         characterStats.push({
             name: singledialPerChar,
@@ -148,6 +154,7 @@ const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCha
             speakingParts,
             secondsSpoken,
             averageComplexity,
+            monologues,
             wordsSpoken,
         })
     })
@@ -221,7 +228,7 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
                     wordsLength = currentCharacter[currentCharacter.length-1].lengthWordsGlobal;
                 }
                 let monologue = false;
-                if(time>30){
+                if(isMonologue(time)){
                     monologue=true;
                     monologues++;
                 }
@@ -300,12 +307,13 @@ function mapToObject(map:any):any{
 
 export const retrieveScreenPlayStatistics = async (script: string, parsed: parseoutput, config:FountainConfig, exportconfig:ExportConfig): Promise<screenPlayStatistics> => {
     let pdfstats = await GeneratePdf("$STATS$", config, exportconfig, parsed, undefined);
+    let pdfmap = mapToObject(pdfstats.linemap);
     return {
         characterStats: createCharacterStatistics(parsed),
         sceneStats: createSceneStatistics(parsed),
         lengthStats: createLengthStatistics(script, pdfstats, parsed),
         durationStats: createDurationStatistics(parsed),
-        pdfmap: JSON.stringify(mapToObject(pdfstats.linemap)),
+        pdfmap: JSON.stringify(pdfmap),
         structure: parsed.properties.structure
     }
 }

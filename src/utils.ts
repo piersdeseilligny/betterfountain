@@ -107,6 +107,11 @@ export const calculateDialogueDuration = (dialogue:string): number =>{
 	return duration
 }
 
+export const isMonologue = (seconds:number): boolean => {
+	if(seconds>30) return true;
+	else return false;
+}
+
 function padZero(i: any) {
 	if (i < 10) {
 		i = "0" + i;

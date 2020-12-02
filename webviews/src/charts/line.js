@@ -219,7 +219,9 @@ define(function (require) {
         var snapMenu = $.contextMenu({
             selector: ".button.rightbutton.snap",
             trigger: "left",
-
+            position: function(opt, x, y){
+                opt.$menu.position({ my: "right top+24", at: "right bottom", of: opt.$trigger})
+            },
             build: function ($trigger, e) {
                 return {
                     callback: function (key, options) {
