@@ -70,12 +70,17 @@
 			"view/title": [
 				{
 					"command": "fountain.outline.togglesynopses",
-					"group": "navigation",
+					"group": "navigation@2",
 					"when": "view == fountain-outline"
 				},
 				{
 					"command": "fountain.outline.togglenotes",
-					"group": "navigation",
+					"group": "navigation@1",
+					"when": "view == fountain-outline"
+				},				
+				{
+					"command": "fountain.outline.reveal",
+					"group": "navigation@3",
 					"when": "view == fountain-outline"
 				}
 			]
@@ -276,6 +281,12 @@
 					"light": "/assets/note_light.svg",
 					"dark": "/assets/note_dark.svg"
 				}
+			},
+			{
+				"command": "fountain.outline.reveal",
+				"title": "Synchronise with active line in document",
+				"category": "Fountain",
+				"icon": "$(remote)"
 			},
 			{
 				"command": "fountain.livepreview",

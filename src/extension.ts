@@ -194,7 +194,7 @@ export function activate(context: ExtensionContext) {
 
 	//Register for outline tree view
 	vscode.window.registerTreeDataProvider("fountain-outline", outlineViewProvider)
-	vscode.window.createTreeView("fountain-outline", { treeDataProvider: outlineViewProvider });
+	outlineViewProvider.treeView = vscode.window.createTreeView("fountain-outline", { treeDataProvider: outlineViewProvider, showCollapseAll: true });
 
 	//Register command tree view
 	vscode.window.registerTreeDataProvider("fountain-commands", outlineViewProvider)
@@ -265,6 +265,10 @@ export function activate(context: ExtensionContext) {
 		changeFountainUIPersistence("outline_visibleNotes", !uiPersistence.outline_visibleNotes);
 		outlineViewProvider.update();
 		telemetry.reportTelemetry("command:fountain.outline.togglenotes");
+	}));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.reveal', ()=>{
+		outlineViewProvider.reveal();
+		telemetry.reportTelemetry("command:fountain.outline.reveal");
 	}));
 	
 	vscode.workspace.onWillSaveTextDocument(e => {
