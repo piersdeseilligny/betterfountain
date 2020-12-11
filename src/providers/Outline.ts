@@ -138,7 +138,7 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 			[0];
 
 		if (closestNode) {
-			this.treeView.reveal(closestNode, {select: true, focus: true});
+			this.treeView.reveal(closestNode, {select: true, focus: false, expand: 3 });
 		}
 	}
 }
