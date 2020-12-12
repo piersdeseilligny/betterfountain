@@ -284,7 +284,7 @@
 			},
 			{
 				"command": "fountain.outline.reveal",
-				"title": "Synchronise with active line in document",
+				"title": "Reveal cursor position",
 				"category": "Fountain",
 				"icon": "$(remote)"
 			},
