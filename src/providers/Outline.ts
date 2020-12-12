@@ -1,22 +1,25 @@
 import * as vscode from 'vscode';
 import * as afterparser from '../afterwriting-parser';
-import { activeParsedDocument } from '../extension';
+import { activeFountainDocument, activeParsedDocument, getEditor } from '../extension';
 import * as config from '../configloader';
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
 		new vscode.EventEmitter<vscode.TreeItem | null>();
 	public readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | null> = this.onDidChangeTreeDataEmitter.event;
+	
+	treeView: vscode.TreeView<any>;
+	private latestReturnedNodes: Array<OutlineTreeItem>;
 
 	getTreeItem(element: vscode.TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
 		//throw new Error("Method not implemented.");
 		return element;
 	}
-	getChildren(element?: vscode.TreeItem): vscode.ProviderResult<any[]> {
-		var elements: vscode.TreeItem[] = [];
+	getChildren(element?: OutlineTreeItem): vscode.ProviderResult<any[]> {
+		var elements: OutlineTreeItem[] = [];
+
 		const pushSection = (token:afterparser.StructToken, lineNo:string) => {
-			var item = new vscode.TreeItem(token.text);
-			item.id = token.id;
+			var item = new OutlineTreeItem(token.text, token.id, +lineNo, element);
 			if (token.children != null && token.children.length > 0) {
 				item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
 			}
@@ -36,8 +39,8 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 				title: '',
 				arguments: [lineNo]
 			};
-			
             
+			// push synopses
             if (token.synopses && token.synopses.length>0 && config.uiPersistence.outline_visibleSynopses) {
 				let loopCounterStart = 0;
 				// the loop counter starts allows us to not show the first synopse of a collapsible item (seeing as it's added to the description)
@@ -48,7 +51,7 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 				}
 				elements.push(item);
                 for (let i = loopCounterStart; i < token.synopses.length; i++) {
-                    let synopse = new vscode.TreeItem("");
+                    let synopse = new OutlineTreeItem("", "", token.synopses[i].line, element);
 					synopse.iconPath = __filename + '/../../../assets/synopse_offset.svg';
 					synopse.description = token.synopses[i].synopsis;
 					synopse.tooltip = synopse.description;
@@ -60,13 +63,14 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
                     elements.push(synopse);
                 }
 			}
-			else{
+			else {
 				elements.push(item);
 			}
 
+			// push notes
 			if (token.notes && token.notes.length > 0 && config.uiPersistence.outline_visibleNotes) {
                 for (let i = 0; i < token.notes.length; i++) {
-					let item = new vscode.TreeItem("");
+					let item = new OutlineTreeItem("", "", token.notes[i].line, element);
 					item.iconPath = {
 						light: __filename + '/../../../assets/note_light_offset.svg',
 						dark: __filename + '/../../../assets/note_dark_offset.svg'
@@ -94,7 +98,7 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 		}
 		else if (element.collapsibleState != vscode.TreeItemCollapsibleState.None) {
 			// find sections and scenes within the given element 
-			var elementPath: string[] = element.id.split("/");
+			var elementPath: string[] = element.path.split("/");
 
 			// to recursively find sections and scenes
 			const findSections = (token:afterparser.StructToken, depth:number) => {
@@ -105,7 +109,7 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 					}
 				}
 				else {
-                    pushSection(token, tokenPath[depth]);
+					pushSection(token, tokenPath[depth]);
                 }
 			}
 
@@ -113,9 +117,35 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 		}
 
 		elements = elements.sort((a,b)=>a.command.arguments[0]-b.command.arguments[0])
+		this.latestReturnedNodes.push(...elements);
 		return elements;
 	}
+	getParent(element: OutlineTreeItem):any{
+		// necessary for reveal() to work
+		return element.parent;
+	}
 	update(): void {
+		this.latestReturnedNodes = [];
 		this.onDidChangeTreeDataEmitter.fire(void 0);
+	}
+	reveal(): void {
+		const currentCursorLine = getEditor(activeFountainDocument()).selection.active.line;
+
+		// find the closest node without going past the current cursor
+		const closestNode = this.latestReturnedNodes
+			.filter(node => node.lineNumber <= currentCursorLine)
+			.sort((a,b) => b.lineNumber - a.lineNumber)
+			[0];
+
+		if (closestNode) {
+			this.treeView.reveal(closestNode, {select: true, focus: false, expand: 3 });
+		}
+	}
+}
+
+class OutlineTreeItem extends vscode.TreeItem
+{
+	constructor(label:string, public path:string, public lineNumber:number, public parent:OutlineTreeItem){
+		super(label);
 	}
 }
