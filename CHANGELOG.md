@@ -2,8 +2,13 @@
 
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.7.2** - *2020-12-15*
+    + Fix outline always showing scenes as open (Issue #96) and add "minimise all" and "reveal" buttons to the outline view - Thanks @daryluren for the PR!
+    + Add 'Debug parsed output' command
+
 ## **1.7.1** - *2020-11-23*
 Thanks @daryluren for the PR!
+
     · Fix scene headings being forced, even when starting with more than one period
     · Support multiple spaces between character names and character extensions
     · Fix various edge-case bugs related to character name detection (when forced/dual dialogue/spacing, etc)

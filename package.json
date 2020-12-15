@@ -6,7 +6,7 @@
 	"license": "MIT",
 	"aiKey": "0c2689ab-4ce9-416d-a585-c9765b7f4c88",
 	"icon": "icon.png",
-	"version": "1.7.1",
+	"version": "1.7.2",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
@@ -77,7 +77,7 @@
 					"command": "fountain.outline.togglenotes",
 					"group": "navigation@1",
 					"when": "view == fountain-outline"
-				},				
+				},
 				{
 					"command": "fountain.outline.reveal",
 					"group": "navigation@3",
@@ -331,6 +331,11 @@
 			{
 				"command": "fountain.statistics",
 				"title": "Calculate screenplay statistics",
+				"category": "Fountain"
+			},
+			{
+				"command": "fountain.debugtokens",
+				"title": "Debug parsed output",
 				"category": "Fountain"
 			}
 		],

@@ -270,6 +270,22 @@ export function activate(context: ExtensionContext) {
 		outlineViewProvider.reveal();
 		telemetry.reportTelemetry("command:fountain.outline.reveal");
 	}));
+
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.debugtokens', ()=>{
+		let uri = activeFountainDocument();
+		let fountain = getEditor(uri).document.getText();
+		vscode.workspace.openTextDocument({language:"json"})
+		.then(doc => vscode.window.showTextDocument(doc))
+        .then(editor => {
+            let editBuilder = (textEdit:vscode.TextEditorEdit) => {	
+                textEdit.insert(new vscode.Position(0,0), JSON.stringify(afterparser.parse(fountain, getFountainConfig(uri), false), null, 4));
+			};
+            return editor.edit( editBuilder, {
+                    undoStopBefore: true,
+                    undoStopAfter: false
+                });
+        });
+	}));
 	
 	vscode.workspace.onWillSaveTextDocument(e => {
 		const config = getFountainConfig(e.document.uri);
