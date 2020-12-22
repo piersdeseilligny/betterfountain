@@ -45,7 +45,9 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 function buildTree(): OutlineTreeItem {
 	const structure = activeParsedDocument().properties.structure;
 	const root = new OutlineTreeItem("", "", null);
-	root.children = structure.map(token => makeTreeItem(token, root));
+	// done this way to take care of root-level synopses and notes
+	root.children.push(...structure.map(token => makeTreeItem(token, root)));
+	root.children = root.children.sort((a, b) => a.lineNumber - b.lineNumber);
 	return root;
 }
 
@@ -61,11 +63,14 @@ function makeTreeItem(token: afterparser.StructToken, parent: OutlineTreeItem): 
 	if (token.children)
 		item.children.push(...token.children.map((tok: afterparser.StructToken) => makeTreeItem(tok, item)));
 
-	if (token.notes && config.uiPersistence.outline_visibleNotes)
-		parent.children.push(...token.notes.map(note => new NoteTreeItem(note, parent)));
+	/* notes and synopses get pushed to this item's parent */
+	{
+		if (token.notes && config.uiPersistence.outline_visibleNotes)
+			parent.children.push(...token.notes.map(note => new NoteTreeItem(note, parent)));
 
-	if (token.synopses && config.uiPersistence.outline_visibleSynopses)
-		parent.children.push(...token.synopses.map(syn => new SynopsisTreeItem(syn, parent)));
+		if (token.synopses && config.uiPersistence.outline_visibleSynopses)
+			parent.children.push(...token.synopses.map(syn => new SynopsisTreeItem(syn, parent)));
+	}
 
 	if (item.children.length > 0)
 		item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
@@ -75,7 +80,7 @@ function makeTreeItem(token: afterparser.StructToken, parent: OutlineTreeItem): 
 }
 
 class OutlineTreeItem extends vscode.TreeItem {
-	children: OutlineTreeItem[];
+	children: OutlineTreeItem[] = [];
 	lineNumber: number;
 
 	constructor(label: string, public path: string, public parent: OutlineTreeItem) {
@@ -97,6 +102,7 @@ class OutlineTreeItem extends vscode.TreeItem {
 	/** returns all nodes in the tree that pass this predicate, including this node */
 	filter(predicate: (node: OutlineTreeItem) => boolean): OutlineTreeItem[] {
 		const result: OutlineTreeItem[] = [];
+
 		if (predicate(this))
 			result.push(this);
 
@@ -145,7 +151,7 @@ class NoteTreeItem extends OutlineTreeItem {
 
 class SynopsisTreeItem extends OutlineTreeItem {
 	constructor(token: { synopsis: string, line: number }, parent: OutlineTreeItem) {
-		super("", "/" + token.line, parent)
+		super("", token.line.toString(), parent)
 
 		this.iconPath = __filename + '/../../../assets/synopse_offset.svg';
 		this.description = token.synopsis;
