@@ -1,0 +1,86 @@
+/*-----------------------------------------------------------------------------
+| Copyright (c) Jupyter Development Team.
+| Copyright (c) 2014-2017, PhosphorJS Contributors
+|
+| Distributed under the terms of the BSD 3-Clause License.
+|
+| The full license is in the file LICENSE, distributed with this software.
+|----------------------------------------------------------------------------*/
+
+
+.lm-Menu {
+  padding: 3px 0px;
+  background: white;
+  color: rgba(0, 0, 0, 0.87);
+  border: 1px solid #C0C0C0;
+  font: 12px Helvetica, Arial, sans-serif;
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+
+.lm-Menu-item.lm-mod-active {
+  background: #E5E5E5;
+}
+
+
+.lm-Menu-item.lm-mod-disabled {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+
+.lm-Menu-itemIcon {
+  width: 21px;
+  padding: 4px 2px;
+}
+
+
+.lm-Menu-itemLabel {
+  padding: 4px 35px 4px 2px;
+}
+
+
+.lm-Menu-itemMnemonic {
+  text-decoration: underline;
+}
+
+
+.lm-Menu-itemShortcut {
+  padding: 4px 0px;
+}
+
+
+.lm-Menu-itemSubmenuIcon {
+  width: 16px;
+  padding: 4px 0px;
+}
+
+
+.lm-Menu-item[data-type='separator'] > div {
+  padding: 0;
+  height: 9px;
+}
+
+
+.lm-Menu-item[data-type='separator'] > div::after {
+  content: '';
+  display: block;
+  position: relative;
+  top: 4px;
+  border-top: 1px solid #DDDDDD;
+}
+
+
+.lm-Menu-itemIcon::before,
+.lm-Menu-itemSubmenuIcon::before {
+  font-family: 'codicon';
+}
+
+
+.lm-Menu-item.lm-mod-toggled > .lm-Menu-itemIcon::before {
+  content: '\eab2'; /* check */
+}
+
+
+.lm-Menu-item[data-type='submenu'] > .lm-Menu-itemSubmenuIcon::before {
+  content: '\eab6'; /* chevron-right */
+}

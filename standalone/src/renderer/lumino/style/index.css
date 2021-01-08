@@ -1,0 +1,59 @@
+/*-----------------------------------------------------------------------------
+| Copyright (c) 2014-2018, PhosphorJS Contributors
+|
+| Distributed under the terms of the BSD 3-Clause License.
+|
+| The full license is in the file LICENSE, distributed with this software.
+|----------------------------------------------------------------------------*/
+
+body{
+    --foreground:black;
+    --background:white;
+    --foreground-hover:black;
+    --background-hover:rgb(210,210,210);
+    --scrollbar-thumb:rgba(0,0,0,0.25);
+    --scrollbar-thumb-hover:rgba(0,0,0,0.5);
+    --scrollbar-thumb-active:rgba(0,0,0,0.75);
+    --scrollbar-thumb-hidden:transparent;
+    --chromeborder: 1px solid #DDDDDD;
+}
+
+@import '~@lumino/widgets/style/index.css'; /* This is the functional css, rather than aesthetic/themable css */
+@import './dragdrop.css';
+@import './commandpalette.css';
+@import './datagrid.css';
+@import './dockpanel.css';
+@import './menu.css';
+@import './menubar.css';
+@import './scrollbar.css';
+@import './tabbar.css';
+@import './toolbar.css';
+@import './statusbar.css';
+@import '~vscode-codicons/dist/codicon.css';
+
+::-webkit-scrollbar-track{
+    background-color: transparent;
+}
+::-webkit-scrollbar-thumb{
+    background-color:var(--scrollbar-thumb);
+}
+::-webkit-scrollbar-thumb:hover{
+    background-color:var(--scrollbar-thumb-hover);
+}
+::-webkit-scrollbar-thumb:active{
+    background-color: var(--scrollbar-thumb-active);
+}
+.scroller-minimal{
+    overflow-x: overlay;
+}
+.scroller-minimal::-webkit-scrollbar-thumb{
+    background-color: var(--scrollbar-thumb-hidden);
+    transition: background-color 1s;
+}
+.scroller-minimal:hover::-webkit-scrollbar-thumb{
+    background-color:var(--scrollbar-thumb);
+    transition: all 1s;
+}
+.scroller-minimal::-webkit-scrollbar {
+    height:3px;
+}

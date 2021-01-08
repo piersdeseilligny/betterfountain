@@ -1,0 +1,131 @@
+/*-----------------------------------------------------------------------------
+| Copyright (c) Jupyter Development Team.
+| Copyright (c) 2014-2017, PhosphorJS Contributors
+|
+| Distributed under the terms of the BSD 3-Clause License.
+|
+| The full license is in the file LICENSE, distributed with this software.
+|----------------------------------------------------------------------------*/
+
+
+.lm-TabBar {
+  min-height: 32px;
+  max-height: 24px;
+  overflow-x: overlay;
+}
+
+
+.lm-TabBar-content {
+  min-width: 0;
+  min-height: 0;
+  align-items: flex-end;
+  border-bottom: 1px solid #C0C0C0;
+  flex-shrink: 0;
+}
+
+.lm-TabBar-tab {
+  padding: 0px 10px;
+  background: #E5E5E5;
+  border: 1px solid #C0C0C0;
+  border-bottom: none;
+  font-size: 12px;
+  min-height: 24px;
+  min-width: 35px;
+  margin-left: -1px;
+  line-height: 24px;
+}
+.lm-mod-borderlesstab .lm-TabBar-tab{
+  border:none;
+  background: transparent;
+  padding:0 4px;
+  position: relative;
+  color:grey;
+  min-width: 0;
+}
+
+
+.lm-TabBar-tabLabel .lm-TabBar-tabInput {
+  padding: 0px;
+  border: 0px;
+  font-size: 12px;
+}
+
+
+.lm-TabBar-tab.lm-mod-current {
+  background: white;
+}
+.lm-mod-borderlesstab .lm-TabBar{
+  padding-left: 12px;
+  min-height: 24px;
+}
+.lm-mod-borderlesstab .lm-TabBar-tab.lm-mod-current{
+  background:transparent;
+  color:black;
+}
+.lm-mod-borderlesstab .lm-TabBar-tab.lm-mod-current::after{
+  position:absolute;
+  content:' ';
+  right:4px;
+  left:4px;
+  height:2px;
+  background-color:black;
+  bottom:0;
+}
+.lm-mod-borderlesstab .lm-TabBar-tab:only-child::after{
+  content:'';
+  background-color: transparent;
+}
+
+.lm-TabBar-tab:hover:not(.lm-mod-current) {
+  background: #F0F0F0;
+}
+.lm-mod-borderlesstab .lm-TabBar-tab.lm-mod-current{
+  background:transparent;
+}
+
+.lm-TabBar-tab:first-child {
+  margin-left: 0;
+}
+
+.lm-TabBar-tab.lm-mod-current {
+
+}
+
+
+.lm-TabBar-tabIcon,
+.lm-TabBar-tabLabel,
+.lm-TabBar-tabCloseIcon {
+  display: inline-block;
+}
+
+
+.lm-TabBar-tab.lm-mod-closable > .lm-TabBar-tabCloseIcon {
+  margin-left: 2px;
+  margin-right:-4px;
+}
+.lm-TabBar-tabCloseIcon:active{
+  transform: scale(1.1);
+}
+
+.lm-TabBar-tab.lm-mod-closable > .lm-TabBar-tabCloseIcon:before {
+  font-family:'codicon';
+  content: '\ea76'; /*close*/
+  font-size:14px;
+  margin-top:2px;
+  opacity:0;
+}
+
+
+.lm-TabBar-tab.lm-mod-drag-image {
+  min-height: 23px;
+  max-height: 23px;
+  min-width: 0;
+  border: none;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  transform: translateX(-40%) translateY(-58%);
+}
+
+
+.lm-TabBar-tab:hover .lm-TabBar-tabCloseIcon:before{
+  opacity:1;
+}

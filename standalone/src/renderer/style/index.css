@@ -1,0 +1,80 @@
+/*-----------------------------------------------------------------------------
+| Copyright (c) 2014-2018, PhosphorJS Contributors
+|
+| Distributed under the terms of the BSD 3-Clause License.
+|
+| The full license is in the file LICENSE, distributed with this software.
+|----------------------------------------------------------------------------*/
+/*@import '~@lumino/default-theme/style/index.css';*/
+@import '../lumino/style/index.css';
+@import './content.css';
+@import '~vscode-codicons/dist/codicon.css';
+
+
+body {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0px;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  font-family: '-apple-system','BlinkMacSystemFont','Segoe UI','Helvetica','Arial','sans-serif','Apple Color Emoji','Segoe UI Emoji';
+}
+body.windowstatus-normal {
+  border: solid rgba(0,0,0,0.2) 1px;
+}
+body.windowstatus-maximized {
+  border: solid rgba(0,0,0,0.2) 0px;
+}
+
+#menuBar {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: space-between;
+	align-items: stretch;
+	align-content: stretch;
+}
+.windowstatus-blurred .lm-MenuBar-buttons-btn{
+  color:rgb(136, 136, 136);
+  transition: color 0.1s;
+}
+body.windowstatus-normal .lm-MenuBar-buttons-btn-maximize:before{
+  content: '\eab9';
+}
+body.windowstatus-maximized .lm-MenuBar-buttons-btn-maximize:before{
+  content: '\eabb';
+}
+body.windowstatus-blurred .lm-MenuBar-windowtitle{
+  opacity:0.5;
+}
+
+#main {
+  flex: 1 1 auto;
+}
+#topbar{
+  display:flex;
+}
+#maincontent{
+  height:100%;
+}
+.topbar-toolbar{
+  max-width: 120px;
+}
+#topbar-tabs{
+  flex-grow: 1;
+}
+#palette {
+  min-width: 300px;
+  border-right: 1px solid #DDDDDD;
+}
+
+
+#dock {
+  padding: 0px;
+}

@@ -1,0 +1,75 @@
+body{
+    --toolbar-height:32px;
+    --toolbar-fontsize:16px;
+    --toolbar-item-background: white;
+    --toolbar-item-foreground: rgb(119, 119, 119);
+    /* Toggle states */
+    --toolbar-item-toggled-background:rgb(240, 240, 240);
+    --toolbar-item-toggled-foreground:rgb(119, 119, 119);
+    --toolbar-item-toggled-indicator-color:rgb(119, 119, 119);
+    /* Hover states */
+    --toolbar-item-hover-background:var(--background-hover);
+    --toolbar-item-hover-foreground:var(--foreground-hover);
+    --toolbar-item-hover-toggled-background:rgb(230,230,230);
+    --toolbar-item-hover-toggled-foreground:rgb(71, 71, 71);
+}
+.lm-Toolbar {
+
+    list-style: none;
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+}
+.lm-Toolbar-item{
+    width: var(--toolbar-height);
+    height:var(--toolbar-height);
+    display: inline-block;
+    margin-right:2px;
+    position:relative;
+    background: var(--toolbar-item-background);
+    color: var(--toolbar-item-foreground);
+    transition: all 0.1s;
+    overflow: hidden;
+}
+.lm-Toolbar-item.lm-mod-toggled{
+    color:var(--toolbar-item-toggled-foreground);
+    background:var(--toolbar-item-toggled-background);
+    transition: all 0.1s;
+}
+.lm-Toolbar-item.lm-mod-toggleable::after{
+    content: ' ';
+    background-color: var(--toolbar-item-toggled-indicator-color);
+    position: absolute;
+    height: 2px;
+    width:100%;
+    bottom:0;
+    transform: translateY(2px);
+    transition: transform 0.1s;
+}
+.lm-Toolbar-item.lm-mod-toggleable.lm-mod-toggled::after{
+    transform: translateY(0);
+}
+.lm-Toolbar-item:hover{
+    background: var(--toolbar-item-hover-background);
+    color: var(--toolbar-item-hover-foreground);
+}
+.lm-Toolbar-item.lm-mod-toggled:hover{
+    background: var(--toolbar-item-hover-toggled-background);
+    color: var(--toolbar-item-hover-toggled-foreground);
+}
+.lm-Toolbar-icon{
+    position: absolute;
+    text-align: center;
+    width:var(--toolbar-height);
+}
+
+.lm-Toolbar-icon::before{
+    font-family: 'codicon';
+    font-size:var(--toolbar-fontsize);
+    vertical-align: middle;
+    line-height: var(--toolbar-height);
+}
+
+.lm-Toolbar-item:active .lm-Toolbar-icon{
+    transform:scale(1.1);
+}

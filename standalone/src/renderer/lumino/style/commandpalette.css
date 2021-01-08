@@ -1,0 +1,107 @@
+/*-----------------------------------------------------------------------------
+| Copyright (c) Jupyter Development Team.
+| Copyright (c) 2014-2017, PhosphorJS Contributors
+|
+| Distributed under the terms of the BSD 3-Clause License.
+|
+| The full license is in the file LICENSE, distributed with this software.
+|----------------------------------------------------------------------------*/
+
+
+.lm-CommandPalette {
+  font-family: sans-serif;
+  background: #F5F5F5;
+}
+
+
+.lm-CommandPalette-search {
+  padding: 8px;
+}
+
+
+.lm-CommandPalette-wrapper {
+  padding: 4px 6px;
+  background: white;
+  border: 1px solid #E0E0E0;
+  position: relative;
+}
+
+.lm-CommandPalette-input {
+  width: 92%;
+  border: none;
+  outline: none;
+  font-size: 16px;
+}
+
+.lm-CommandPalette-header {
+  padding: 4px;
+  color: #757575;
+  font-size: 12px;
+  font-weight: 600;
+  background: #E1E1E1;
+  cursor: pointer;
+}
+
+.lm-CommandPalette-header:hover::before {
+  content: '\2026'; /* ellipsis */
+  float: right;
+  margin-right: 4px;
+}
+
+.lm-CommandPalette-header > mark {
+  background-color: transparent;
+  font-weight: bold;
+}
+
+.lm-CommandPalette-item {
+  padding: 4px 8px;
+  color: #757575;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+
+.lm-CommandPalette-emptyMessage {
+  padding: 4px;
+  color: #757575;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+
+.lm-CommandPalette-item.lm-mod-disabled {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+
+.lm-CommandPalette-item.lm-mod-active {
+  background: #7FDBFF;
+}
+
+
+.lm-CommandPalette-item:hover:not(.lm-mod-active):not(.lm-mod-disabled) {
+  background: #E5E5E5;
+}
+
+
+.lm-CommandPalette-itemIcon {
+  display: none;
+}
+
+.lm-CommandPalette-itemLabel > mark {
+  background-color: transparent;
+  font-weight: bold;
+}
+
+
+.lm-CommandPalette-item.lm-mod-disabled mark {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+
+.lm-CommandPalette-itemCaption {
+  color: #9E9E9E;
+  font-size: 11px;
+  font-weight: 400;
+}

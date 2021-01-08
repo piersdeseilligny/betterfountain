@@ -1,0 +1,104 @@
+/*-----------------------------------------------------------------------------
+| Copyright (c) Jupyter Development Team.
+| Copyright (c) 2014-2017, PhosphorJS Contributors
+|
+| Distributed under the terms of the BSD 3-Clause License.
+|
+| The full license is in the file LICENSE, distributed with this software.
+|----------------------------------------------------------------------------*/
+
+
+.lm-MenuBar {
+  padding-left: 5px;
+  background: #FAFAFA;
+  color: rgba(0, 0, 0, 0.87);
+  border-bottom: var(--chromeborder);
+  font: 13px Helvetica, Arial, sans-serif;
+  min-height: 28px;
+}
+
+
+.lm-MenuBar-menu {
+  transform: translateY(-1px);
+}
+
+
+.lm-MenuBar-item {
+  padding: 0 8px;
+  line-height: 28px;
+  font-size: 12px;
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+}
+
+
+.lm-MenuBar-item.lm-mod-active {
+  background: var(--background-hover);
+  color:var(--foreground-hover);
+}
+
+
+.lm-MenuBar.lm-mod-active .lm-MenuBar-item.lm-mod-active {
+  z-index: 10001;
+  background: white;
+  border-left: 1px solid #C0C0C0;
+  border-right: 1px solid #C0C0C0;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
+}
+
+.lm-MenuBar-buttons{
+  margin:0;
+  padding:0;
+  height:28px;
+  flex-shrink: 0;
+}
+.lm-MenuBar-buttons-btn{
+  min-width: 46px;
+  font-size:16px;
+  min-height: 28px;
+  display: inline-block;
+  transition: background-color 0.3s, color 0.3s;
+  position: relative;
+}
+
+.lm-MenuBar-buttons-btn:hover{
+  background-color:#d5d5d5;
+  transition: background-color 0.1s, color 0.1s;
+}
+.lm-MenuBar-buttons-btn:hover:active{
+  background-color:#bbbbbb;
+  transition: background-color 0, color 0;
+}
+
+.lm-MenuBar-buttons-btn:before{
+  font-family: 'codicon';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.lm-MenuBar-buttons-btn-minimize:before{
+  content: '\eaba'; /*chrome-minimize*/
+}
+
+.lm-MenuBar-buttons-btn-close:before{
+  content: '\eab8'; /*chrome-close*/
+}
+.lm-MenuBar-buttons-btn-close:hover{
+  background-color:#E81123;
+  color:white;
+}
+.lm-MenuBar-buttons-btn-close:hover:active{
+  background-color:#F1707A;
+}
+.lm-MenuBar-windowtitle{
+  margin:0;
+  flex-grow: 1;
+  -webkit-user-select: none;
+  -webkit-app-region: drag;
+  line-height: 28px;
+  font-size: 12px;
+  opacity: 1;
+  text-align: center;
+}

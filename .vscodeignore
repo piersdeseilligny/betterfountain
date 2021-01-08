@@ -23,3 +23,6 @@ node_modules/pdfkit/js/pdfkit.standalone.js
 node_modules/png-js/images/*.png
 node_modules/**/*.md
 node_modules/**/test/
+
+#This is not part of the extension
+standalone
