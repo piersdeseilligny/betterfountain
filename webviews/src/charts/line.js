@@ -153,6 +153,9 @@ define(function (require) {
         let pointcontainer = vis.append('g').attr('class', 'chart-pointcontainer');
         for (let i = 0; i < datas.length; i++) {
             let path = linecontainer.append('path').attr('d', line(datas[i])).attr('fill', 'none').attr('class', 'chart-data').attr('data-line', i).attr('y', headerHeight);
+            if(config.labels){
+                path.attr('data-label', encodeURIComponent(config.labels[i]));
+            }
             if(config.colors){
                 path.attr('stroke', config.colors[i]);
             }
@@ -160,7 +163,13 @@ define(function (require) {
                 if(config.pointvalue && datas[i][j][config.pointvalue]){
                     let xpos = datas[i][j][config.xvalue];
                     let ypos = datas[i][j][config.yvalue];
-                    pointcontainer.append('circle').attr('r',2).attr('cx', x(xpos)).attr('cy', y(ypos)).style('fill', 'white').attr('data-line', xpos).attr('data-ypos', ypos);
+                    let circle = pointcontainer.append('circle').attr('r',3).attr('cx', x(xpos)).attr('cy', y(ypos)).attr('data-line', xpos).attr('data-ypos', ypos).attr('title', 'Monologue');
+                    if(config.labels){
+                        circle.attr('data-label', encodeURIComponent(config.labels[i]));
+                    }
+                    if(config.colors){
+                        circle.style('fill', config.colors[i]);
+                    }
                 }
             }
         }

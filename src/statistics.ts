@@ -2,7 +2,7 @@ import { parseoutput, StructToken } from "./afterwriting-parser"
 import { GeneratePdf } from "./pdf/pdf"
 import { ExportConfig, FountainConfig } from "./configloader"
 import { pdfstats } from "./pdf/pdfmaker"
-import { calculateDialogueDuration, isMonologue, rgbToHex, wordToColor } from "./utils"
+import { calculateDialogueDuration, isMonologue, rgbToHex, wordToColor, median } from "./utils"
 import readabilityScores = require("readability-scores")
 
 type dialoguePiece = {
@@ -66,8 +66,15 @@ type durationStatistics = {
     monologues:number
 }
 
+type characterStatistics = {
+    characters: dialogueStatisticPerCharacter[],
+    complexity: number,
+    characterCount: number,
+    monologues: number,
+}
+
 type screenPlayStatistics = {
-    characterStats: dialogueStatisticPerCharacter[]
+    characterStats: characterStatistics,
     sceneStats: singleSceneStatistic[]
     lengthStats: lengthStatistics
     durationStats: durationStatistics
@@ -83,7 +90,7 @@ function gradeToAge(grade:number) {
     return age(Math.round(grade + 5))
 }
 
-const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCharacter[] => {
+const createCharacterStatistics = (parsed: parseoutput): characterStatistics => {
     const dialoguePieces: dialoguePiece[] = [];
     for (var i=0; i<parsed.tokens.length; i++)
     {
@@ -108,7 +115,7 @@ const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCha
             dialoguePieces.push({
                 character,
                 speech
-            })
+            });
         }
     }
 
@@ -123,6 +130,8 @@ const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCha
     })
 
     const characterStats: dialogueStatisticPerCharacter[] = []
+    let speechcomplexityArray: number[] = [];
+    let monologueCounter = 0;
 
     Object.keys(dialoguePerCharacter).forEach((singledialPerChar: string) => {
         const speakingParts = dialoguePerCharacter[singledialPerChar].length;
@@ -137,6 +146,7 @@ const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCha
             if(isMonologue(time)) monologues++;
             return `${prev} ${curr} `;
         }, "");
+        monologueCounter+=monologues;
         var readability = readabilityScores(combinedSentences);
         if(readability){
             averageComplexity = (
@@ -146,6 +156,7 @@ const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCha
                 gradeToAge(readability.fleschKincaid)+
                 gradeToAge(readability.smog)+
                 gradeToAge(readability.gunningFog))/6;
+            if(averageComplexity>0) speechcomplexityArray.push(averageComplexity);
         }
         const wordsSpoken = getWordCount(allDialogueCombined);
         characterStats.push({
@@ -169,7 +180,12 @@ const createCharacterStatistics = (parsed: parseoutput): dialogueStatisticPerCha
         return 0;
     })
 
-    return characterStats
+    return {
+        characters: characterStats,
+        complexity: median(speechcomplexityArray),
+        characterCount: characterStats.length,
+        monologues: monologueCounter
+    }
 }
 
 const createSceneStatistics = (parsed: parseoutput): singleSceneStatistic[] => {

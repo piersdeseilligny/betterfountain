@@ -69,6 +69,9 @@
         text-decoration: none;
         outline:none !important;
     }
+    .hyperbtn:hover{
+        opacity:0.6;
+    }
     .chartinfo{
         color: var(--vscode-input-placeholderForeground);
         float: left;
@@ -337,6 +340,42 @@
         margin-top: 10px;
         margin-right: 5px;
     }
+    .dataTable tr td{
+        color: var(--vscode-descriptionForeground);
+        transition: all 0.2s;
+    }
+    .dataTable tr:hover td{
+        color: white !important;
+        transition:none;
+    }
+    .dataTables_paginate .paginate_button{
+        cursor: pointer;
+        padding: 2px;
+        font-size:13px;
+    }
+    a.paginate_button:not(.current):hover {
+        opacity: 0.6;
+    }
+    .dataTables_paginate .paginate_button.current{
+        cursor:default;
+        color: var(--vscode-descriptionForeground);
+        opacity:1;
+    }
+    #characterStats-lengthchart [data-line]{
+        transition: fill 0.2s, stroke 0.2s;
+    }
+    #characterStats-lengthchart circle[data-line].hover{
+        fill:var(--vscode-foreground) !important;
+        transition:none;
+    }
+    #characterStats-lengthchart path[data-line].hover{
+        stroke:var(--vscode-foreground) !important;
+        transition:none;
+    }
+    .hidden{
+        display: none;
+    }
+    
     </style>
 </head>
 <body>
@@ -439,15 +478,18 @@
                     <div class="description">Monologues</div>
                     <div id="characterStats-monologues" class="number">2</div>
                 </div>
+                <div class="flexitem" title="The median of each character's readability score, corresponding to the average age from which one could understand their dialogue.">
+                    <div class="description">Complexity</div>
+                    <div id="characterStats-complexity" class="number">0.0</div>
+                </div>
             </div>
             <div style="height:256px;box-sizing: border-box;" class="linechart" id="characterStats-lengthchart"></div>
-            <table id="characterTable" style="width:100%;margin-top:24px;">
-
+            <table id="characterStats-table" style="width:100%;margin-top:24px;">
             </table>
 
         </div>
         <div style="display:none" data-group="scenes">
-            Scenes
+            <h1><span class="codicon codicon-organization"></span>Scenes</h1>
         </div>
         <div style="display:none" data-group="locations">
             Locations

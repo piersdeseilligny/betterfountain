@@ -7,6 +7,7 @@ require("./lib/jquery.ui.position.min.js");
 
 require('datatables.net');
 require('datatables.net-dt');
+require('datatables.net-buttons');
 
 $.contextMenu.defaults.animation = {
     duration: 83,
@@ -15,7 +16,8 @@ $.contextMenu.defaults.animation = {
 }
 $.contextMenu.defaults.autoHide=false;
 $.contextMenu.types.check = function(item, opt, root) {
-    $(`<span><span class="codicon codicon-check ${item.selected ? 'checked':''}"></span>` + item.name + '</span>').appendTo(this);
+    let selected_i = (typeof item.selected === "function" && item.selected.call()) || item.selected === true;
+    $(`<span><span class="codicon codicon-check ${selected_i ? 'checked':''}"></span>` + item.name + '</span>').appendTo(this);
     function toggleState(){
         if(item.settingskey){
             let newstate = !state.uipersistence[item.settingskey];
@@ -39,17 +41,29 @@ $.contextMenu.types.check = function(item, opt, root) {
         if(e.keyCode ? (e.keyCode==13) : true && (typeof item.disabled === "function") ? (item.disabled()==false) : true){ //if e.keyCode is defined, it must be 13. If it isn't defined, that's ok too. if "disabled" is a function, make sure it's false
             toggleState();
             if(item.updateOnClick){
+                if(item.callbackBefore){
+                    item.callbackBefore();
+                }
                 opt.$menu.children().each(function () {
                     var $item = $(this),
                         key = $item.data('contextMenuKey'),
                         item = opt.items[key],
-                        disabled = (typeof item.disabled === "function" && item.disabled.call(key, root)) || item.disabled === true;
+                        disabled = (typeof item.disabled === "function" && item.disabled.call(key, root)) || item.disabled === true,
+                        selected = (typeof item.selected === "function" && item.selected.call(key, root)) || item.selected === true;
 
                     // dis- / enable item
                     $item[disabled ? 'addClass' : 'removeClass'](root.classNames.disabled);
+                    // de- / select item
+                    if(selected){
+                        $(item.$node[0]).find(".codicon-check").addClass('checked');
+                    }
+                    else{
+                        $(item.$node[0]).find(".codicon-check").removeClass('checked');
+                    }
                 });
             }
-            item.callback();
+            if(item.callback)
+                item.callback();
             return item.hideonclick;
         }
     });
@@ -57,6 +71,7 @@ $.contextMenu.types.check = function(item, opt, root) {
 
 var charts = [];
 const LineChart = require("./charts/line");
+const TableChart = require("./charts/table");
 
 var state = {
     stats: {},
@@ -165,12 +180,10 @@ function revealSelection(linestart,lineend){
 }
 
 var durationchart;
+var datatable;
 
 function updateStats(){
-    console.log("make pdfmap");
-    console.log(state);
     let pdfmap = objectToMap(JSON.parse(state.stats.pdfmap));
-    console.log("made pdf map");
     document.getElementById("lengthStats-words").innerText = formatNumber(state.stats.lengthStats.words);
     document.getElementById("lengthStats-characters").innerText = formatNumber(state.stats.lengthStats.characters);
     document.getElementById("lengthStats-characterswithoutwhitespace").innerText = formatNumber(state.stats.lengthStats.characterswithoutwhitespace);
@@ -237,145 +250,97 @@ function updateStats(){
 
 
     document.getElementById("durationStats-summary").innerText = summary;
+
+
     //characters
-    let chartable = document.getElementById("characterTable");
+    document.getElementById("characterStats-count").innerText = state.stats.characterStats.characterCount ? state.stats.characterStats.characterCount : 0;
+    document.getElementById("characterStats-monologues").innerText = state.stats.characterStats.monologues ? state.stats.characterStats.monologues : 0;
+    document.getElementById("characterStats-complexity").innerText = state.stats.characterStats.complexity ? state.stats.characterStats.complexity : 0;
     
-    chartable.innerHTML =
+   /* chartable.innerHTML =
     `<thead>
         <tr>
             <th>Name</th>
-            <th>Lines</th>
-            <th>Words Spoken</th>
             <th>Duration</th>
+            <th>Lines</th>
+            <th>Words</th>
             <th>Complexity</th>
             <th>Monologues</th>
         </tr>
     </thead>
     <tbody>
-    ${state.stats.characterStats.reduce((prev, curr) => {
+    ${=> {
         return `${prev}
         <tr>
             <td style="color:${curr.color}">${curr.name}</td>
+            <td data-sort="${-curr.secondsSpoken}">${secondsToString(curr.secondsSpoken)}</td>
             <td data-sort="${-curr.speakingParts}">${curr.speakingParts}</td>
             <td data-sort="${-curr.wordsSpoken}">${curr.wordsSpoken}</td>
-            <td data-sort="${-curr.secondsSpoken}">${secondsToString(curr.secondsSpoken)}</td>
-            <td data-sort="${-curr.averageComplexity}">${curr.averageComplexity.toFixed(1)}</td>
+            <td data-sort="${-curr.averageComplexity}">${curr.averageComplexity ? curr.averageComplexity.toFixed(1) : 0}</td>
             <td data-sort="${-curr.monologues}">${curr.monologues}</td>
         </tr>
         `
     }, '')}
-    </tbody>`;
+    </tbody>`;*/
 
-    let datatable = $(chartable).DataTable({
-        "language": {
-            "search": "",
-            "searchPlaceholder": "Search",
-            "info":"Showing _START_ to _END_ of _TOTAL_ characters",
-            "lengthMenu":"Show _MENU_ characters",
-            "zeroRecords":"No matching characters found",
-            "paginate": {
-                "next":"&nbsp;Next",
-                "previous":"Previous&nbsp;"
-            }
-          },
-          "lengthChange": false,
-          "pageLength":10,
-          "dom":`<'charttable length'>f<'charttable morebtn'>rtpi`
-    });
-    $("div.charttable.length").html('<div class="chartinfo">Show<a class="hyperbtn" id="visiblecharsdd" href="#">&nbsp;<span>10</span><i class="codicon codicon-chevron-down" style="vertical-align: bottom;"></i></a>&nbsp;characters</div>');
-    $("div.charttable.morebtn").html('<a class="smallbtn" style="text-align: center;float: right;height: 24px;line-height: 24px;" href="#" id="chartableoptsdd"><i class="codicon codicon-ellipsis"></></a>');
-
-    function showItemsGenerator(amount){
-        return {
-            name: amount.toString(),
-            selected: datatable.page.len() == amount,
-            updateOnClick: true,
-            type: "check",
-            hideonclick:true,
-            callback: function () {
-                datatable.page.len(amount).draw();
-                $(visiblecharsdd).find("span").text(amount);
+    let renderDuration = function(data,type,row){
+        console.log(data);
+        switch (type) {
+            case "display": return secondsToString(data);
+            case "sort":    return -data;
+            default:        return data
+        }
+    };
+    let renderComplexity = function(data,type,row){
+        switch (type) {
+            case "display": return data ? data.toFixed(1) : 0;
+            case "sort":    return -data;
+            default:        return data
+        }
+    };
+    let renderInvert = function(data,type,row){
+        switch (type) {
+            case "sort":    return -data;
+            default:        return data
+        }
+    };
+    let characterTable = TableChart.render("#characterStats-table", {
+        data: state.stats.characterStats.characters,
+        columns: [
+            { data:'name', name:"name", title:"Name", alwaysvisible:true },
+            { data:'secondsSpoken', name:"duration", title:"Duration", render:renderDuration },
+            { data:'speakingParts', name:"lines", title:"Lines", render:renderInvert },
+            { data:'wordsSpoken', name:"words", title:"Words", render:renderInvert },
+            { data:'averageComplexity', name:"complexity", title:"Complexity", render:renderComplexity},
+            { data:'monologues', name:"monologues", title:"Monologues", render:renderInvert }
+        ],
+        createdRow:function(row,data,dataIndex){
+            if(data.color){
+                $(row).find("td").first().css("color", data.color);
             }
         }
-    }
-    function showColumnsGenerator(columnname){
-        return {
-            name: columnname,
-            selected: datatable.page.len() == columnname,
-            updateOnClick: true,
-            type: "check",
-            hideonclick:true,
-            callback: function () {
-                //toggle visibility
-            }
-        }
-    }
-    var tableoptionsDropDown = $.contextMenu({
-        selector: "#chartableoptsdd",
-        trigger: "left",
-        hideOnSecondTrigger:true,
-        position: function(opt, x, y){
-            opt.$menu.position({ my: "right top", at: "right bottom", of: "#chartableoptsdd"})
-        },
-        build: function ($trigger, e) {
-            return {
-                items: {
-                    showSelectedOnly: {
-                        name: "Filter by visible/selected in chart",
-                        selected: true,
-                        updateOnClick: true,
-                        type: "check",
-                        hideonclick:true,
-                        callback: function () {
-                            //toggle visibility
-                        }
-                    },
-                    showColumns:{
-                        name:"Visible columns",
-                        items:{
-                            name:showColumnsGenerator("Name"),
-                            monologues:showColumnsGenerator("Lines"),
-                            monologue1:showColumnsGenerator("Words Spoken"),
-                            monologue2:showColumnsGenerator("Duration"),
-                            monologue3:showColumnsGenerator("Complexity"),
-                            monologue4:showColumnsGenerator("Monologues"),
-                            monologue5:showColumnsGenerator("Gender"),
-                            monologue6:showColumnsGenerator("Custom")
-                        }
-                    },
-                    saveAs:{
-                        name:"Save as",
-                        items:{
-                            name:showColumnsGenerator("CSV"),
-                            name:showColumnsGenerator("Excel"),
-                            name:showColumnsGenerator("PDF"),
-                        }
-                    }
-                }
-            }
-        },
     });
+    characterTable.on('mouseenter', 'tbody tr', function () {
+        var rowData = characterTable.row(this).data();
+        $(`#characterStats-lengthchart [data-label="${encodeURIComponent(rowData.name)}"]`).addClass("hover");
+      });
+    characterTable.on('mouseleave', 'tbody tr', function () {
+        var rowData = characterTable.row(this).data();
+        $(`#characterStats-lengthchart [data-label="${encodeURIComponent(rowData.name)}"]`).removeClass("hover");
+      });
 
-    var visibleItemsDropDown = $.contextMenu({
-        selector: "#chartableoptsdd",
-        trigger: "left",
-        hideOnSecondTrigger:true,
-        position: function(opt, x, y){
-            opt.$menu.position({ my: "right top+24", at: "right top", of: opt.$trigger});
-        },
-        build: function ($trigger, e) {
-            return {
-                items: {
-                    show5:showItemsGenerator(5),
-                    show10:showItemsGenerator(10),
-                    show20:showItemsGenerator(20),
-                    show40:showItemsGenerator(40),
-                    show80:showItemsGenerator(80),
-                    show160:showItemsGenerator(160)
-                }
-            }
-        },
+    function syncVisibility(){
+        $(`#characterStats-lengthchart [data-label]`).addClass("hidden");
+        let data = characterTable.rows( { search: 'applied', page:'current' } ).data().each((v,i)=>{
+            $(`#characterStats-lengthchart [data-label="${encodeURIComponent(v.name)}"]`).removeClass("hidden");
+        });
+    }
+    characterTable.on("draw", function(){
+        syncVisibility();
     });
+    syncVisibility();
+
+
 
     charts.push({
         group:'overview',
@@ -408,7 +373,7 @@ function updateStats(){
     document.getElementById("characterStats-monologues").innerText = state.stats.durationStats.monologues;
     let colors = [];
     state.stats.durationStats.characternames.forEach(e=>{
-        let charstat = state.stats.characterStats.find(x => x.name == e);
+        let charstat = state.stats.characterStats.characters.find(x => x.name == e);
         if(charstat) colors.push(charstat.color);
     });
     charts.push({
@@ -471,7 +436,7 @@ function changeStatCategory(e){
         state.selectedCategory = activegroup;
 
     for (let i = 0; i < charts.length; i++) {
-        if(charts[i].group == state.selectedCategory){
+        if(charts[i].group == state.selectedCategory && charts[i].chart.resize){
             charts[i].chart.resize();
         }
     }
