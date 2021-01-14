@@ -73,9 +73,13 @@ type characterStatistics = {
     monologues: number,
 }
 
+type sceneStatistics = {
+    scenes: singleSceneStatistic[],
+}
+
 type screenPlayStatistics = {
     characterStats: characterStatistics,
-    sceneStats: singleSceneStatistic[]
+    sceneStats: sceneStatistics,
     lengthStats: lengthStatistics
     durationStats: durationStatistics
     pdfmap: string
@@ -188,17 +192,19 @@ const createCharacterStatistics = (parsed: parseoutput): characterStatistics => 
     }
 }
 
-const createSceneStatistics = (parsed: parseoutput): singleSceneStatistic[] => {
+const createSceneStatistics = (parsed: parseoutput): sceneStatistics => {
     const sceneStats: singleSceneStatistic[] = []
     parsed.tokens.forEach ((tok) => {
         if (tok.type==="scene_heading")
         {
             sceneStats.push({
                 title: tok.text
-            })
+            });
         }
-    })
-    return sceneStats
+    });
+    return {
+        scenes: sceneStats,
+    }
 }
 
 

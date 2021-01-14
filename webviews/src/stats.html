@@ -36,23 +36,27 @@
     }
 
     td, th {
-    	padding: 5px 10px;
+        padding: 5px 10px;
+        position:relative;
+        overflow:hidden;
+    }
+    td:first-child {
+        font-weight: bold;
     }
     td:not(:first-child), th:not(:first-child){
         border-left: solid 1px;
         border-color:var(--vscode-textSeparator-foreground) !important;
     }
-    th.sorting_asc:after {
+    th.sorting_asc:after, th.sorting_desc:after {
         content: '\eab4';
         font-family: 'codicon';
-        float: right;
-        margin-top: 2px;
+        position: absolute;
+        right: 4px;
+        top:7px;
+        background: var(--vscode-editor-background);
     }
     th.sorting_desc:after {
         content: '\eab7';
-        font-family: 'codicon';
-        float: right;
-        margin-top: 2px;
     }
 
     .dataTables_length{
@@ -175,6 +179,18 @@
         color: var(--vscode-list-activeSelectionForeground);
         background-color:var(--vscode-list-activeSelectionBackground)
     }
+
+    #versionIndicator.loading{
+        color:var(--vscode-gitDecoration-addedResourceForeground);
+    }
+    @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+    #versionIndicator.loading .codicon-sync {
+        animation:spin 1.5s linear infinite;
+    }
+    #versionIndicator.stale{
+        color:var(--vscode-gitDecoration-modifiedResourceForeground);
+    }
+
     .splitview #content{
         margin-left:200px;
         box-sizing:border-box;
@@ -372,6 +388,10 @@
         stroke:var(--vscode-foreground) !important;
         transition:none;
     }
+    .summary{
+        margin: 6px 0 12px 0;
+        opacity:0.75;
+    }
     .hidden{
         display: none;
     }
@@ -391,14 +411,14 @@
             <li data-group="characters">
                 <span class="codicon codicon-organization"></span>Characters
             </li>
-            <li data-group="scenes">
+            <!--<li data-group="scenes">
                 <span class="codicon codicon-output"></span>Scenes
             </li>
             <li data-group="locations">
                 <span class="codicon codicon-location"></span>Locations
-            </li>
+            </li>-->
         </ul>
-        <div class="title"><span class="codicon codicon-book"></span>Reports</div> 
+       <!-- <div class="title"><span class="codicon codicon-book"></span>Reports</div> 
         <ul>
             <li data-group="characters">
                 <span class="codicon codicon-organization"></span>Characters
@@ -409,12 +429,12 @@
             <li data-group="locations">
                 <span class="codicon codicon-location"></span>Locations
             </li>
-        </ul>
+        </ul>-->
         <ul class="footer">
-            <li>
+            <li id="versionIndicator" class="loading">
                 <span class="codicon codicon-sync"></span>
-                <span class="btntitle">Refresh</span>
-                <span class="details">The fountain document has been updated</span>
+                <span class="btntitle">Loading</span>
+                <span class="details">Please wait...</span>
             </li>
         </ul>
     </div>
@@ -463,7 +483,7 @@
                         <div id="durationStats-dialogue" class="number">0</div>
                     </div>
                 </div>
-                <div id="durationStats-summary" style="margin: 6px 0 12px 0;opacity:0.75;"></div>
+                <div id="durationStats-summary" class="summary"></div>
                 <div style="height:200px;box-sizing: border-box;" class="linechart" id="durationStats-lengthchart"></div>
             </div>
         </div>
@@ -488,12 +508,19 @@
             </table>
 
         </div>
-        <div style="display:none" data-group="scenes">
-            <h1><span class="codicon codicon-organization"></span>Scenes</h1>
+        <!--<div style="display:none" data-group="scenes">
+            <h1><span class="codicon codicon-output"></span>Scenes</h1>
+            <div class="flexgroup lengthstats">
+                <div class="flexitem">
+                    <div class="description">Scenes</div>
+                    <div id="sceneStats-count" class="number"></div>
+                </div>
+            </div>
+            <div></div>
         </div>
         <div style="display:none" data-group="locations">
             Locations
-        </div>
+        </div>-->
     </div>
 </div>
 <script src="$STATSJS$"></script>

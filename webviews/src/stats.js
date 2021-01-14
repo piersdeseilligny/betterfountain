@@ -82,31 +82,48 @@ var state = {
         chartSnapToSection3:true,
         chartSnapToScene:true
     },
+    latestversion: undefined,
+    activeversion:undefined,
     docuri: "",
     selectedCategory:"overview"
 }
+
+let loading = false;
 const previousState = vscode.getState();
 if(previousState != undefined){
     state = previousState;
     console.log("old state=");
     console.log(state);
     updateStats();
+    versionIndicator();
 }
 changeStatCategory($("#sidenav [data-group='"+state.selectedCategory+"']"));
 
 
 
 
+
 window.addEventListener('message', event => {
     console.log("Got message!");
+    let updateState = false;
+    if(event.data.command == 'updateversion'){
+        state.latestversion = event.data.version;
+        loading = event.data.loading;
+        versionIndicator();
+        updateState = true;
+    }
     if (event.data.command == 'updateStats') {
         state.stats = event.data.content;
-        vscode.setState(state);
+        state.activeversion = event.data.version;
+        loading = false;
+        updateState = true;
+        versionIndicator();
         updateStats();
     } else if(event.data.command == 'setstate'){
-        if(event.data.uri !== undefined)
+        if(event.data.uri !== undefined){
             state.docuri = event.data.uri;
-        vscode.setState(state);
+            updateState = true;
+        }   
     } else if(event.data.command == 'updatecaret'){
         for (let i = 0; i < charts.length; i++) {
             if(charts[i].chart.updatecaret)
@@ -119,8 +136,10 @@ window.addEventListener('message', event => {
         }
     } else if(event.data.command == 'updateUiPersistence'){
         state.uipersistence[event.data.content.key] = event.data.content.value;
-        vscode.setState(state);
+        updateState = true;
     }
+    if(updateState)
+        vscode.setState(state);
 });
 window.addEventListener('blur', event =>{
     document.getElementById("maincontent").classList.remove('isactive');
@@ -134,6 +153,32 @@ window.addEventListener('resize', event=>{
             charts[i].chart.resize(event);
         }
     }
+});
+
+function versionIndicator(){
+    $("#versionIndicator").removeClass('loading');
+    $("#versionIndicator").removeClass('stale');
+    if(loading){
+        $("#versionIndicator").addClass('loading');
+        $("#versionIndicator .btntitle").text("Loading");
+        $("#versionIndicator .details").text('Please wait...');
+    }
+    else if(state.latestversion == state.activeversion){
+        
+        $("#versionIndicator .btntitle").text("Refresh");
+        $("#versionIndicator .details").text('Up to date');
+    }
+    else{
+        $("#versionIndicator").addClass('stale');
+        $("#versionIndicator .btntitle").text("Refresh");
+        $("#versionIndicator .details").text('The screenplay has been edited');
+    }
+}
+
+$("#versionIndicator").on('click', function(){
+    loading = true;
+    versionIndicator();
+    vscode.postMessage({command: 'refresh', uri:state.docuri });
 });
 
 function getEights(input){
@@ -248,6 +293,8 @@ function updateStats(){
     else if(dialoguePercent>55) summary += "It is fairly balanced between dialogue ("+dialoguePercent+"%) and action ("+actionPercent+"%).";
     else if(dialoguePercent>50) summary += "It is balanced between dialogue ("+dialoguePercent+"%) and action ("+actionPercent+"%).";
 
+    else if(dialoguePercent == 50) summary += "It is precisely balanced between dialogue and action (50% each)."
+
 
     document.getElementById("durationStats-summary").innerText = summary;
 
@@ -255,7 +302,7 @@ function updateStats(){
     //characters
     document.getElementById("characterStats-count").innerText = state.stats.characterStats.characterCount ? state.stats.characterStats.characterCount : 0;
     document.getElementById("characterStats-monologues").innerText = state.stats.characterStats.monologues ? state.stats.characterStats.monologues : 0;
-    document.getElementById("characterStats-complexity").innerText = state.stats.characterStats.complexity ? state.stats.characterStats.complexity : 0;
+    document.getElementById("characterStats-complexity").innerText = state.stats.characterStats.complexity ? state.stats.characterStats.complexity.toFixed(1) : 0;
     
    /* chartable.innerHTML =
     `<thead>

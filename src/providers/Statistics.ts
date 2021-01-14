@@ -23,6 +23,13 @@ export function getStatisticsPanels(docuri:vscode.Uri):statisticsPanel[]{
     }
     return selectedPanels;
 }
+
+export function updateDocumentVersion(docuri:vscode.Uri, version:Number){
+    for(let panel of getStatisticsPanels(docuri)){
+        panel.panel.webview.postMessage({command:'updateversion', version:version});
+    }
+}
+
 export function removeStatisticsPanel(id:Number){
     for (var i = statsPanels.length - 1; i >= 0; i--) {
         if(statsPanels[i].id == id){
@@ -40,14 +47,14 @@ export function createStatisticsPanel(editor:vscode.TextEditor): vscode.WebviewP
     let presentstatsPanels = getStatisticsPanels(editor.document.uri);
     presentstatsPanels.forEach(p => {
         if(p.uri == editor.document.uri.toString()){
-            //The preview already exists
+            //The stats panel already exists
             p.panel.reveal();
             statspanel = p.panel;
         }
     });
 
     if(statspanel == undefined){
-        //The preview didn't already exist
+        //The stats panel didn't already exist
         var panelname = path.basename(editor.document.fileName).replace(".fountain","");
         statspanel = vscode.window.createWebviewPanel(
             'fountain-statistics', // Identifies the type of the webview. Used internally
@@ -113,8 +120,14 @@ async function loadWebView(docuri: vscode.Uri, statspanel:vscode.WebviewPanel) {
                 vscode.window.showTextDocument(editor.document);
             }
         }
-        if(message.command=="saveUiPersistence"){
+        if(message.command== "saveUiPersistence"){
             //save ui persistence
+        }
+        if(message.command== "refresh"){
+            statspanel.webview.postMessage({ command:"updateversion", version:version, loading:true});
+            var parsed = afterparser.parse(editor.document.getText(), config, false);
+            const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config, undefined)
+            statspanel.webview.postMessage({command:"updateStats", content:stats, version:version});
         }
     });
     statspanel.onDidDispose(()=>{
@@ -122,24 +135,27 @@ async function loadWebView(docuri: vscode.Uri, statspanel:vscode.WebviewPanel) {
     })
 
     var config = getFountainConfig(docuri);
-    statspanel.webview.postMessage({ command: 'setstate', uri: docuri.toString() })
-    statspanel.webview.postMessage({ command: 'updateconfig', content: config })
+    statspanel.webview.postMessage({ command: 'setstate', uri: docuri.toString() });
+    statspanel.webview.postMessage({ command: 'updateconfig', content: config });
 
     var editor = getEditor(activeFountainDocument());
     var config = getFountainConfig(activeFountainDocument());
-    var parsed = afterparser.parse(editor.document.getText(), config, false);
+    let version = editor.document.version;
+    statspanel.webview.postMessage({ command:"updateversion", version:version, loading:true});
 
+    var parsed = afterparser.parse(editor.document.getText(), config, false);
     const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config, undefined)
-    statspanel.webview.postMessage({command:"updateStats", content:stats});
+    statspanel.webview.postMessage({command:"updateStats", content:stats, version:version});
 }
 
-
 vscode.workspace.onDidChangeConfiguration(change => {
-    statsPanels.forEach(p => {
-        var config = getFountainConfig(vscode.Uri.parse(p.uri));
-        if (change.affectsConfiguration("fountain"))
-            p.panel.webview.postMessage({ command: 'updateconfig', content: config })
-    });
+    if (change.affectsConfiguration("fountain")){
+        statsPanels.forEach(p => {
+            var config = getFountainConfig(vscode.Uri.parse(p.uri));
+                p.panel.webview.postMessage({ command: 'updateconfig', content: config })
+                p.panel.webview.postMessage({command:'updateversion', version:-1});
+        });
+    }
 })
 
 let previousCaretLine = 0;

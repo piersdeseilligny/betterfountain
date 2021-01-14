@@ -20,6 +20,17 @@ define(function (require) {
               pageLength:10,
               dom:`<'charttable length'>f<'charttable morebtn'>rtpi`,
         }
+        
+
+        if($.fn.dataTable.isDataTable(id)){
+            let table = $(id).DataTable();
+            table.clear();
+            table.rows.add(options.data);
+            table.draw();
+            //The table already existed, stop now and don't initialize it again
+            return table;
+        }
+
         //Merge the defaults with the provided options
         let datatable = $(id).DataTable(Object.assign(defaults, options));
         

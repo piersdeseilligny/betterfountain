@@ -77,7 +77,7 @@ import { FountainSymbolProvider } from "./providers/Symbols";
 import { showDecorations, clearDecorations } from "./providers/Decorations";
 
 import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToUpdate } from "./providers/Preview";
-import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer } from "./providers/Statistics";
+import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer, updateDocumentVersion } from "./providers/Statistics";
 import { FountainOutlineTreeDataProvider } from "./providers/Outline";
 import { performance } from "perf_hooks";
 
@@ -261,7 +261,7 @@ export function activate(context: ExtensionContext) {
 		if (config.number_scenes_on_save === true) {
 			overwriteSceneNumbers();
 		}
-	})
+	});
 
 	registerTyping();
 
@@ -329,8 +329,10 @@ export function activate(context: ExtensionContext) {
 	}
 
 vscode.workspace.onDidChangeTextDocument(change => {
-	if (change.document.languageId=="fountain")
+	if (change.document.languageId=="fountain"){
 		parseDocument(change.document);
+		updateDocumentVersion(change.document.uri, change.document.version);
+	}
 });
 
 vscode.workspace.onDidChangeConfiguration(change => {
