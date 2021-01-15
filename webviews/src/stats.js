@@ -7,7 +7,7 @@ require("./lib/jquery.ui.position.min.js");
 
 require('datatables.net');
 require('datatables.net-dt');
-require('datatables.net-buttons');
+//require('datatables.net-buttons');
 
 $.contextMenu.defaults.animation = {
     duration: 83,
