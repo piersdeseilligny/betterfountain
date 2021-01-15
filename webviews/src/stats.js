@@ -92,8 +92,6 @@ let loading = false;
 const previousState = vscode.getState();
 if(previousState != undefined){
     state = previousState;
-    console.log("old state=");
-    console.log(state);
     updateStats();
     versionIndicator();
 }
@@ -104,7 +102,6 @@ changeStatCategory($("#sidenav [data-group='"+state.selectedCategory+"']"));
 
 
 window.addEventListener('message', event => {
-    console.log("Got message!");
     let updateState = false;
     if(event.data.command == 'updateversion'){
         state.latestversion = event.data.version;
@@ -268,7 +265,9 @@ function updateStats(){
     //3h+:        very long feature film
 
     let summary = "The screenplay is "
-    if(runtime>180) summary += "the length of a very long feature film. ";
+    if(runtime>260) summary += "the length of an extraordinarily long feature film. "
+    else if(runtime>240) summary += "the length of an extremely long feature film. "
+    else if(runtime>180) summary += "the length of a very long feature film. ";
     else if(runtime>140) summary += "the length of a long feature film. ";
     else if(runtime>85) summary += "the length of a feature film. ";
     else if(runtime>50) summary += "the length of a short feature film. ";
@@ -276,7 +275,8 @@ function updateStats(){
     else if(runtime>25) summary += "the length of a featurette. ";
     else if(runtime>15) summary += "the length of a medium-length short film. ";
     else if(runtime>3) summary += "the length of a short film. ";
-    else summary += "the length of a small short film. ";
+    else if (runtime>0.5) summary += "the length of a small short film. "
+    else summary += "the length of an extremely small short film. ";
 
     const actionPercent = Math.round((100*state.stats.durationStats.action)/state.stats.durationStats.total);
     const dialoguePercent = 100-actionPercent;
@@ -331,7 +331,6 @@ function updateStats(){
     </tbody>`;*/
 
     let renderDuration = function(data,type,row){
-        console.log(data);
         switch (type) {
             case "display": return secondsToString(data);
             case "sort":    return -data;

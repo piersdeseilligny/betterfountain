@@ -77,7 +77,7 @@ import { FountainSymbolProvider } from "./providers/Symbols";
 import { showDecorations, clearDecorations } from "./providers/Decorations";
 
 import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToUpdate } from "./providers/Preview";
-import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer, updateDocumentVersion } from "./providers/Statistics";
+import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer, getStatisticsPanels, refreshPanel, updateDocumentVersion } from "./providers/Statistics";
 import { FountainOutlineTreeDataProvider } from "./providers/Outline";
 import { performance } from "perf_hooks";
 
@@ -450,6 +450,17 @@ vscode.window.onDidChangeActiveTextEditor(change => {
 		}*/
 	}
 })
+
+vscode.workspace.onDidSaveTextDocument(e =>{
+	if(e.languageId != "fountain") return;
+	let config = getFountainConfig(e.uri);
+	if(config.refresh_stats_on_save){
+		let statsPanel = getStatisticsPanels(e.uri);
+		for (const sp of statsPanel) {
+			refreshPanel(sp.panel, e, config);
+		}
+	}
+});
 
 
 

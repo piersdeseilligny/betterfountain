@@ -221,11 +221,9 @@ define(function (require) {
         var rightbuttons = mouseG.append("g").attr("class", "rightbuttons");
         var selectionhtml = mouseG.append("g").attr("class", "selectionhtml");
 
-        let magnetbtn = rightbuttons.append("text").attr("class", "button rightbutton snap").html("&#xebae").attr('y', height - footerHeight + 24).attr('x', width - 24).append("title").text("Grid snapping").on("click", function () {
-            console.log("Clicked on snap thing");
-        });
+        rightbuttons.append("text").attr("class", "button rightbutton snap").html("&#xebae").attr('y', height - footerHeight + 24).attr('x', width - 24).append("title").text("Grid snapping");
 
-        var snapMenu = $.contextMenu({
+        $.contextMenu({
             selector: ".button.rightbutton.snap",
             trigger: "left",
             position: function(opt, x, y){
@@ -244,7 +242,6 @@ define(function (require) {
                             settingskey: "chartFreeSelection",
                             type: "check",
                             callback: function () {
-                                console.log("called back!");
                                 calculateStructurePositions();
                                 return false;
                             }
@@ -256,7 +253,6 @@ define(function (require) {
                             type: "check",
                             disabled: () => uipersistence.chartFreeSelection,
                             callback: function () {
-                                console.log("called back!");
                                 calculateStructurePositions();
                                 return false;
                             }
@@ -268,7 +264,6 @@ define(function (require) {
                             type: "check",
                             disabled: () => uipersistence.chartFreeSelection,
                             callback: function () {
-                                console.log("called back!");
                                 calculateStructurePositions();
                                 return false;
                             }
@@ -280,7 +275,6 @@ define(function (require) {
                             type: "check",
                             disabled: () => uipersistence.chartFreeSelection,
                             callback: function () {
-                                console.log("called back!");
                                 calculateStructurePositions();
                                 return false;
                             }
@@ -292,7 +286,6 @@ define(function (require) {
                             type: "check",
                             disabled: () => uipersistence.chartFreeSelection,
                             callback: function () {
-                                console.log("called back!");
                                 calculateStructurePositions();
                             }
                         },
@@ -353,10 +346,8 @@ define(function (require) {
                 if (extent) {
                     if (d3.event.sourceEvent.type !== "brush" && !uipersistence.chartFreeSelection) {
                         const d0 = d3.event.selection.map(x.invert);
-                        console.log("selected [" + extent[0] + ", " + extent[1] + "]")
                         let snappedX0 = structurePositions[d3.bisectLeft(structurePositions, extent[0])];
                         let snappedX1 = structurePositions[d3.bisectLeft(structurePositions, extent[1])];
-                        console.log("snap to [" + snappedX0 + ", " + snappedX1 + "]")
                         d3.select(this).call(brush.move, [snappedX0, snappedX1]);
                         extent[0] = snappedX0;
                         extent[1] = snappedX1;
@@ -545,7 +536,6 @@ define(function (require) {
         }
 
         function resize(e) {
-            console.log("resized");
             width = $(id).width();
             vis.select('rect').attr('width', width);
             vis.select('.mouseG').attr('width', width);
@@ -644,7 +634,6 @@ define(function (require) {
             pointcontainer.selectAll('circle').each(function(d,i){
                 let point = d3.select(this);
                 let xpos = x(point.attr('data-line'));
-                console.log("new xpos="+xpos);
                 let ypos = y(point.attr('data-ypos'));
                 if(animate){
                     point.transition().ease(d3.easeCubic).duration(500).attr('cx', xpos).attr('cy', ypos);

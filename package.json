@@ -85,15 +85,20 @@
 				"title": "Fountain General Settings",
 				"type": "object",
 				"properties": {
+					"fountain.general.refreshStatisticsOnSave": {
+						"type": "boolean",
+						"default": false,
+						"description": "Automatically refresh the statistics panel each time you save the document"
+					},
 					"fountain.general.numberScenesOnSave": {
 						"type": "boolean",
 						"default": false,
-						"description": "Automatically number the scenes each time you save the document."
+						"description": "Automatically number the scenes each time you save the document"
 					},
 					"fountain.general.synchronizedMarkupAndPreview": {
 						"type": "boolean",
 						"default": true,
-						"description": "Automatically synchronize preview and text editor position."
+						"description": "Automatically synchronize preview and text editor position"
 					},
 					"fountain.general.parentheticalNewLineHelper": {
 						"type": "boolean",

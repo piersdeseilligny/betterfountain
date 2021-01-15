@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 
 export class FountainConfig{
+    refresh_stats_on_save: boolean;
     number_scenes_on_save: boolean;
     embolden_scene_headers:boolean;
     show_page_numbers:boolean;
@@ -98,6 +99,7 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
     var generalConfig = vscode.workspace.getConfiguration("fountain.general", docuri);
     return {
         number_scenes_on_save: generalConfig.numberScenesOnSave,
+        refresh_stats_on_save: generalConfig.refreshStatisticsOnSave,
         embolden_scene_headers: pdfConfig.emboldenSceneHeaders,
         show_page_numbers: pdfConfig.showPageNumbers,
         split_dialogue: pdfConfig.splitDialog,
