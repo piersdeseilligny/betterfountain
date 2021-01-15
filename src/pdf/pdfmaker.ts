@@ -6,6 +6,7 @@
     import * as vscode from 'vscode';
 import helpers from "../helpers";
 import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../utils";
+import * as he from 'he';
    // import * as blobUtil from "blob-util";
     export class Options{
         filepath:string;
@@ -254,7 +255,7 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
         return result;
     };
 
-    async function generate(doc:any, opts:any) {
+    async function generate(doc:any, opts:any, lineStructs?:Map<number,lineStruct>) {
         var parsed = opts.parsed,
             cfg = opts.config,
             print = opts.print,
@@ -437,13 +438,23 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
         print_watermark();
         print_header_and_footer();
 
+        let currentScene:string = "";
+        let currentSections:string[] = [];
+        let currentDuration:number=0;
         lines.forEach(function(line:any) {
+        
             if (line.type === "page_break") {
 
                 if (cfg.scene_continuation_bottom && line.scene_split) {
                     var scene_continued_text = '(' + (cfg.text_scene_continued || 'CONTINUED') + ')';
                     var feed = print.action.feed + print.action.max * print.font_width - scene_continued_text.length * print.font_width;
                     doc.simple_text(scene_continued_text, feed * 72, (print.top_margin + print.font_height * (y + 2)) * 72);
+                }
+
+                if(lineStructs){
+                    if(line.token.line && !lineStructs.has(line.token.line)){
+                        lineStructs.set(line.token.line, {page:page, scene:currentScene, cumulativeDuration:currentDuration, sections:currentSections.slice(0)})
+                    }
                 }
 
                 y = 0;
@@ -476,6 +487,11 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
 
             } else if (line.type === "separator") {
                 y++;
+                if(lineStructs){
+                    if(line.token.line && !lineStructs.has(line.token.line)){
+                        lineStructs.set(line.token.line, {page:page, scene:currentScene, cumulativeDuration:currentDuration, sections:currentSections.slice(0)})
+                    }
+                }
             } else {
                 // formatting not supported yet
                 text = line.text;
@@ -516,10 +532,13 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
                         feed = print.action.feed + print.action.max * print.font_width - line.text.length * print.font_width;
                     }
 
-                    var hasInvisibleSection = (line.type === "scene_heading" && cfg.create_bookmarks && cfg.invisible_section_bookmarks && line.token.invisibleSections != undefined)
+                    var hasInvisibleSection = (line.type === "scene_heading" && line.token.invisibleSections != undefined)
                     function processSection(sectiontoken:any){
                         let sectiontext = sectiontoken.text;
                         current_section_level = sectiontoken.level;
+                        currentSections.length = sectiontoken.level-1;
+                        
+                        currentSections.push(he.encode(sectiontext));
                         if(!hasInvisibleSection)
                             feed += current_section_level * print.section.level_indent;
                         if (cfg.number_sections) {
@@ -533,15 +552,16 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
 
                         }
                         if(cfg.create_bookmarks){
+                            if(hasInvisibleSection && !cfg.invisible_section_bookmarks) return;
                             var oc = getOutlineChild(outline, sectiontoken.level-1, 0);
                             if(oc==undefined) 
                                 console.log("BOOM");
                             getOutlineChild(outline, sectiontoken.level-1, 0).addItem(sectiontext);
-                            outlineDepth = sectiontoken.level;
                         }
                         if(!hasInvisibleSection){
                             text = sectiontext;
                         }
+                        outlineDepth = sectiontoken.level;
                     }
                     if (line.type === 'section' || hasInvisibleSection) {
                         if(hasInvisibleSection){
@@ -559,6 +579,7 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
                         if(cfg.create_bookmarks){
                             getOutlineChild(outline, outlineDepth,0).addItem(text);
                         }
+                        currentScene = text;
                         if(cfg.embolden_scene_headers){
                             text = '**' + text + '**';
                         }
@@ -622,10 +643,14 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
                             doc.text(scene_number, feed + shift_scene_number, print.top_margin + print.font_height * y, text_properties);
                         }
                     }
-
                     y++;
                 }
-
+                if(lineStructs){
+                    if(line.token.line && !lineStructs.has(line.token.line)){
+                        if(line.token.time) currentDuration+=line.token.time;
+                        lineStructs.set(line.token.line, {page:page, scene:currentScene, sections:currentSections.slice(0),cumulativeDuration:currentDuration})
+                    }
+                }
             }
 
 
@@ -643,21 +668,33 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
 export var get_pdf = async function(opts:Options, progress:vscode.Progress<{message?:string;increment?:number;}>) {
     progress.report({message:"Processing document", increment:25});
     var doc = await initDoc(opts);
-    generate(doc, opts);
+    generate(doc, opts,);
     progress.report({message:"Writing to disk", increment:25});
     finishDoc(doc, opts.filepath);
 };
 
-export type pdfstats = {
-    pagecount: number
+export type lineStruct ={
+    sections: string[],
+    scene: string,
+    page: number,
+    cumulativeDuration:number
 }
 
-export var get_pdf_stats = async function(opts:Options){
+export type pdfstats = {
+    pagecount: number,
+    pagecountReal:number,
+    linemap: Map<number,lineStruct> //the structure of each line
+}
+
+export var get_pdf_stats = async function(opts:Options):Promise<pdfstats>{
     var doc = await initDoc(opts);
-    let stats:pdfstats = {pagecount:1};
+    let stats:pdfstats = {pagecount:1, pagecountReal:1, linemap:new Map<number,lineStruct>()};
+    stats.pagecount = opts.parsed.lines.length/opts.print.lines_per_page;
     doc.on('pageAdded', ()=>{
-        stats.pagecount++;
+        stats.pagecountReal++;
     });
-    await generate(doc, opts);
+
+    await generate(doc, opts, stats.linemap);
+    console.log(stats.linemap);
     return stats;
 }

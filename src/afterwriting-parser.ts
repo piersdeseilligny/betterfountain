@@ -87,6 +87,7 @@ export class StructToken {
     id: any;
     children: any; //Children of the section
     range: Range; //Range of the scene/section header
+    level: number;
     section: boolean; // true->section, false->scene
     synopses: { synopsis: string; line: number }[];
     notes: { note: string; line: number }[];
@@ -168,6 +169,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         last_character_index,
         dual_right,
         state = "normal",
+        previousCharacter,
         cache_state_for_comment,
         nested_comments = 0,
         title_page_started = false
@@ -317,7 +319,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
         function processActionBlock(token:token){
             let irrelevantActionLength = processInlineNote(token.text);
-            result.lengthAction += (token.text.length - irrelevantActionLength) / 20;
+            token.time = (token.text.length - irrelevantActionLength) / 20;
+            result.lengthAction += token.time;
         }
 
         if (state === "normal") {
@@ -388,6 +391,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 let cobj: StructToken = new StructToken();
                 cobj.text = thistoken.text;
                 current_depth = thistoken.level;
+                cobj.level = thistoken.level;
                 cobj.children = [];
                 cobj.range = new Range(new Position(thistoken.line, 0), new Position(thistoken.line, thistoken.text.length));
                 cobj.section = true;
@@ -454,6 +458,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_begin"));
                 }
                 let character = trimCharacterExtension(thistoken.text).trim();
+                previousCharacter = character;
                 if (result.properties.characters.has(character)) {
                     var values = result.properties.characters.get(character);
                     if (values.indexOf(scene_number) == -1) {
@@ -476,6 +481,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             } else {
                 thistoken.type = "dialogue";
                 thistoken.time = calculateDialogueDuration(thistoken.text);
+                thistoken.character = previousCharacter;
                 result.lengthDialogue += thistoken.time;
             }
             if (dual_right) {

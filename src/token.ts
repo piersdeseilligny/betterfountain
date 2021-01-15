@@ -10,6 +10,7 @@ export function create_token(text?: string, cursor?: number, line?: number, new_
         html:undefined,
         level:undefined,
         time:undefined,
+        character:undefined,
         takeNumber:-1,
         is:function(...args:string[]){
             return args.indexOf(this.type) !== -1;
@@ -74,4 +75,5 @@ export interface token {
     location:Function;
     has_scene_time:Function;
     location_type:Function;
+    character:string;
 }

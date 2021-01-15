@@ -107,6 +107,11 @@ export const calculateDialogueDuration = (dialogue:string): number =>{
 	return duration
 }
 
+export const isMonologue = (seconds:number): boolean => {
+	if(seconds>30) return true;
+	else return false;
+}
+
 function padZero(i: any) {
 	if (i < 10) {
 		i = "0" + i;
@@ -222,6 +227,9 @@ export function revealFile(p:string){
 	exec(cmd); 
 }
 
+export function assetsPath(): string{
+    return __dirname;
+}
 interface IPackageInfo {
 	name: string;
 	version: string;
@@ -271,12 +279,27 @@ function HSVToRGB(h: number, s: number, v: number): Array<number> {
 }
 
 //We are using colors with same value and saturation as highlighters
-export function wordToColor(word: string): Array<number> {
-	const s = 0.5;
-	const v = 1;
-	
+export function wordToColor(word: string, s:number = 0.5, v:number = 1): Array<number> {
 	const n = 5; //so that colors are spread apart
 	const h = nPearsonHash(word, n)/2**(8-n);
 	return HSVToRGB(h, s, v)
 
+}
+
+function componentToHex(c:number) {
+  var hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
+export function rgbToHex(rgb:number[]):string {
+  return "#" + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
+}
+
+export function median (values:number[]):number {
+	if(values.length == 0) return 0;
+    values.sort( function(a,b) {return a - b;} );
+    var half = Math.floor(values.length/2);
+    if(values.length % 2)
+        return values[half];
+    else
+		return (values[half-1] + values[half]) / 2.0;
 }
