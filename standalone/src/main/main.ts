@@ -1,10 +1,14 @@
-import { app, BrowserWindow, ipcMain, Menu, MenuItem } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, MenuItem, shell } from 'electron';
+import { electron } from 'process';
+import * as fs from 'fs';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
 }
+
+let mainWindow:BrowserWindow;
 
 const createWindow = (): void => {
   // Create the browser window.
@@ -56,6 +60,17 @@ ipcMain.on('window', (event, op) => {
   else if(op == 'reload'){
     const win = BrowserWindow.fromWebContents(event.sender);
     win.reload();
+  }
+});
+
+ipcMain.on('file', async (event, op)=>{
+  if(op == "open"){
+    let window = BrowserWindow.fromWebContents(event.sender);
+    let d = await dialog.showOpenDialog(window, {properties:['openFile'], buttonLabel:"Open screenplay", filters:[{name:'Fountain', extensions:['fountain','spmd']}]});
+    if(!d.canceled){
+      let contents = fs.readFileSync(d.filePaths[0]).toString();
+      window.webContents.send('file', 'open', contents);
+    }
   }
 })
 

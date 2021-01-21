@@ -29,9 +29,18 @@ import './style/index.css';
 import { Toolbar } from './lumino/Toolbar';
 import { DockLayout } from './lumino/DockLayout';
 import { Statusbar } from './lumino/StatusBar';
+import { Editor } from './pages/editor';
 
 
 const commands = new CommandRegistry();
+
+commands.addCommand('file.open', {
+  label:"Open file",
+  iconClass: 'codicon codicon-open-file',
+  execute:function(args){
+    ipcRenderer.send('file', 'open');
+  }
+});
 
 
 function createMenu(): Menu {
@@ -79,6 +88,7 @@ class ContentWidget extends Widget {
 
 
 let bar:TitleBar;
+let dockCentral:DockPanelAlt;
 function main(): void {
 
   let menu1 = createMenu();
@@ -93,9 +103,9 @@ function main(): void {
   menu3.title.label = 'View';
   menu3.title.mnemonic = 0;
   let menu4 = createMenu();
-  menu3.addItem({type:"command", command:"view:hideleft"});
-  menu3.addItem({type:"command", command:"view:hideright"});
-  menu3.addItem({type:"command", command:"view:reload"});
+  menu3.addItem({type:"command", command:"view.hideleft"});
+  menu3.addItem({type:"command", command:"view.hideright"});
+  menu3.addItem({type:"command", command:"view.reload"});
 
   bar = new TitleBar();
   bar.addMenu(menu1);
@@ -116,7 +126,7 @@ function main(): void {
   });
 
 
-  let dockCentral:DockPanelAlt;
+  
   let dockLeft:DockPanelAlt;
   let dockRight:DockPanelAlt;
   let main:StackedPanel;
@@ -180,9 +190,8 @@ function main(): void {
     topbar.addWidget(toolbar2);
 
     dockCentral = new DockPanelAlt({mode:'multiple-document', tabsConstrained:true, toptabsContainer:tabContainer });
+    dockCentral.addWidget(new Editor(''));
     dockCentral.addWidget(new ContentWidget('Red'));
-    dockCentral.addWidget(new ContentWidget('Blue'));
-    dockCentral.addWidget(new ContentWidget('Purple'));
     dockCentral.tabsConstrained = true;
     dockCentral.id = "dockcentral";
     (dockCentral.layout as DockLayout).updateTabLayout();
@@ -214,6 +223,7 @@ function main(): void {
     toolbar.addItem("view.hideleft");
     toolbar2.addItem("view.hideright");
     toolbar.addItem("view.reload");
+    toolbar.addItem("file.open");
 
     let split = new SplitPanel({spacing:0});
 
@@ -244,6 +254,8 @@ function main(): void {
   commands.addKeyBinding({keys:['Accel D'], command:"view:hideright", selector:"body"});
   commands.addKeyBinding({keys:['Accel A'], command:"view:hideleft", selector:"body"});
   commands.addKeyBinding({keys:['Accel R'], command:"view:reload", selector:"body"});
+  
+  commands.addKeyBinding({keys:['Accel O'], command:"file:open", selector:"body"});
 
   //main.addWidget(palette);
   let statusbar = new Statusbar.Statusbar({});
@@ -257,7 +269,6 @@ function main(): void {
 }
 
 ipcRenderer.on('window', (evt: Electron.IpcRendererEvent, event:string, data:any)=>{
-  console.log(event);
   if(event == 'maximize'){
     document.body.classList.add('windowstatus-maximized');
     document.body.classList.remove('windowstatus-normal');
@@ -271,6 +282,12 @@ ipcRenderer.on('window', (evt: Electron.IpcRendererEvent, event:string, data:any
   }
   else if(event == 'blur'){
     document.body.classList.add('windowstatus-blurred');
+  }
+});
+
+ipcRenderer.on('file', (evt: Electron.IpcRendererEvent, event:string, data:any)=>{
+  if(event == 'open'){
+    dockCentral.addWidget(new Editor(data));
   }
 });
 
