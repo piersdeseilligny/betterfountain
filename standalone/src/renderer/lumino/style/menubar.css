@@ -10,10 +10,9 @@
 
 .lm-MenuBar {
   padding-left: 5px;
-  background: #FAFAFA;
-  color: rgba(0, 0, 0, 0.87);
+  background: var(--backgroundlow);
+  color: var(--foreground);
   border-bottom: var(--chromeborder);
-  font: 13px Helvetica, Arial, sans-serif;
   min-height: 28px;
 }
 
@@ -40,9 +39,9 @@
 
 .lm-MenuBar.lm-mod-active .lm-MenuBar-item.lm-mod-active {
   z-index: 10001;
-  background: white;
-  border-left: 1px solid #C0C0C0;
-  border-right: 1px solid #C0C0C0;
+  background: var(--background);
+  border-left: var(--menuborder);
+  border-right: var(--menuborder);
   box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
 }
 

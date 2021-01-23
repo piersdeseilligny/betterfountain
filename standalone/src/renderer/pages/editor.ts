@@ -9,6 +9,12 @@ export class Editor extends Widget {
         this.title.closable = true;
         this.editor = monaco.editor.create(this.node, {
             value:contents,
+            smoothScrolling:true,
+            cursorSmoothCaretAnimation:true,
+            cursorBlinking:"smooth",
+            padding:{
+                top:12
+            }
         });
     }
     protected onResize(msg:Widget.ResizeMessage){

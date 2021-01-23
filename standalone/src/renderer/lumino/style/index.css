@@ -7,8 +7,11 @@
 |----------------------------------------------------------------------------*/
 
 body{
-    --foreground:black;
-    --background:white;
+    /*GENERAL*/
+    --foreground:hsl(0, 0%, 20%);
+    --backgroundlow:hsl(0, 0%, 91%);
+    --background:hsl(0, 0%, 98%);
+    --backgroundhigh:hsl(0, 0%, 90%);
     --foreground-hover:black;
     --background-hover:rgb(210,210,210);
     --scrollbar-thumb:rgba(0,0,0,0.25);
@@ -16,6 +19,23 @@ body{
     --scrollbar-thumb-active:rgba(0,0,0,0.75);
     --scrollbar-thumb-hidden:transparent;
     --chromeborder: 1px solid #DDDDDD;
+    --tabborder: var(--chromeborder);
+    --menuborder: var(--chromeborder);
+
+    /*TOOLBAR*/
+    --toolbar-height:36px;
+    --toolbar-fontsize:15px;
+    --toolbar-item-background: white;
+    --toolbar-item-foreground: rgb(119, 119, 119);
+    /* Toggle states */
+    --toolbar-item-toggled-background:rgb(240, 240, 240);
+    --toolbar-item-toggled-foreground:rgb(119, 119, 119);
+    --toolbar-item-toggled-indicator-color:rgb(119, 119, 119);
+    /* Hover states */
+    --toolbar-item-hover-background:var(--background-hover);
+    --toolbar-item-hover-foreground:var(--foreground-hover);
+    --toolbar-item-hover-toggled-background:rgb(230,230,230);
+    --toolbar-item-hover-toggled-foreground:rgb(71, 71, 71);
 }
 
 @import '~@lumino/widgets/style/index.css'; /* This is the functional css, rather than aesthetic/themable css */

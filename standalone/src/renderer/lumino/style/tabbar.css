@@ -19,21 +19,35 @@
   min-width: 0;
   min-height: 0;
   align-items: flex-end;
-  border-bottom: 1px solid #C0C0C0;
   flex-shrink: 0;
 }
 
+
 .lm-TabBar-tab {
   padding: 0px 10px;
-  background: #E5E5E5;
-  border: 1px solid #C0C0C0;
+  background: var(--background);
+  border: var(--tabborder);
   border-bottom: none;
   font-size: 12px;
-  min-height: 24px;
+  min-height: 28px;
   min-width: 35px;
   margin-left: -1px;
-  line-height: 24px;
+  line-height: 26px;
+  position:relative;
 }
+.lm-TabBar-tab:not(.lm-mod-current)::after{
+  position: absolute;
+  left:-16px;
+  right:-16px;
+  bottom:-2px;
+  top:-16px;
+  box-shadow:inset 0px 0px 6px rgba(0,0,0,0.5);
+  content:' ';
+}
+.lm-mod-borderlesstab .lm-TabBar-tab:not(.lm-mod-current)::after{
+  content:none;
+}
+
 .lm-mod-borderlesstab .lm-TabBar-tab{
   border:none;
   background: transparent;
@@ -53,10 +67,15 @@
 
 .lm-TabBar-tab.lm-mod-current {
   background: white;
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.1);
+}
+.lm-mod-borderlesstab .lm-mod-current{
+  background:none;
+  box-shadow:none;
 }
 .lm-mod-borderlesstab .lm-TabBar{
   padding-left: 12px;
-  min-height: 24px;
+  min-height: 28px;
 }
 .lm-mod-borderlesstab .lm-TabBar-tab.lm-mod-current{
   background:transparent;
@@ -111,7 +130,8 @@
   font-family:'codicon';
   content: '\ea76'; /*close*/
   font-size:14px;
-  margin-top:2px;
+  position:relative;
+  top:1px;
   opacity:0;
 }
 
@@ -128,4 +148,9 @@
 
 .lm-TabBar-tab:hover .lm-TabBar-tabCloseIcon:before{
   opacity:1;
+}
+
+.lm-Widget.p-Widget.lm-TabBar.lm-SplitPanel-child.p-SplitPanel-child {
+  bottom: 0 !important;
+  top: auto !important;
 }

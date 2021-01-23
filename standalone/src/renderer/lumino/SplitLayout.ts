@@ -569,6 +569,7 @@ import {
       let left = this._box.paddingLeft;
       let width = offsetWidth - this._box.horizontalSum;
       let height = offsetHeight - this._box.verticalSum;
+      
   
       // Compute the adjusted layout space.
       let space: number;

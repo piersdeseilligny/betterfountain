@@ -69,9 +69,6 @@ import { TabBar } from './TabBar';
     constructor(options: DockPanelAlt.IOptions = {}) {
       super();
       this.addClass('lm-DockPanel');
-      /* <DEPRECATED> */
-      this.addClass('p-DockPanel');
-      /* </DEPRECATED> */
       this._mode = options.mode || 'multiple-document';
       this._renderer = options.renderer || DockPanelAlt.defaultRenderer;
       this._edges = options.edges || Private.DEFAULT_EDGES;

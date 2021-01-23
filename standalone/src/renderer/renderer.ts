@@ -31,26 +31,14 @@ import { DockLayout } from './lumino/DockLayout';
 import { Statusbar } from './lumino/StatusBar';
 import { Editor } from './pages/editor';
 
+import * as commandsFile from './commands/file';
+import * as commandsView from './commands/view';
+
 
 const commands = new CommandRegistry();
 
-commands.addCommand('file.open', {
-  label:"Open file",
-  iconClass: 'codicon codicon-open-file',
-  execute:function(args){
-    ipcRenderer.send('file', 'open');
-  }
-});
 
 
-function createMenu(): Menu {
-  let root = new Menu({ commands });
-  root.addItem({ command: 'example:copy' });
-  root.addItem({ command: 'example:cut' });
-  root.addItem({ command: 'example:paste' });
-
-  return root;
-}
 
 
 class ContentWidget extends Widget {
@@ -89,29 +77,16 @@ class ContentWidget extends Widget {
 
 let bar:TitleBar;
 let dockCentral:DockPanelAlt;
+let dockLeft:DockPanelAlt;
+let dockRight:DockPanelAlt;
+
 function main(): void {
 
-  let menu1 = createMenu();
-  menu1.title.label = 'File';
-  menu1.title.mnemonic = 0;
-
-  let menu2 = createMenu();
-  menu2.title.label = 'Edit';
-  menu2.title.mnemonic = 0;
-
-  let menu3 = createMenu();
-  menu3.title.label = 'View';
-  menu3.title.mnemonic = 0;
-  let menu4 = createMenu();
-  menu3.addItem({type:"command", command:"view.hideleft"});
-  menu3.addItem({type:"command", command:"view.hideright"});
-  menu3.addItem({type:"command", command:"view.reload"});
-
   bar = new TitleBar();
-  bar.addMenu(menu1);
-  bar.addMenu(menu2);
-  bar.addMenu(menu3);
   bar.id = 'menuBar';
+
+  commandsFile.init(commands, bar);
+  
 
   let contextMenu = new ContextMenu({ commands });
 
@@ -125,48 +100,6 @@ function main(): void {
     commands.processKeydownEvent(event);
   });
 
-
-  
-  let dockLeft:DockPanelAlt;
-  let dockRight:DockPanelAlt;
-  let main:StackedPanel;
-
-  commands.addCommand('view.hideleft', {
-    label: 'Show left-side panel',
-    caption: 'Show left-side panel',
-    iconClass: 'codicon codicon-arrow-left',
-    isToggleable:true,
-    isToggled: () =>{
-      return !dockLeft.isVisible;
-    },
-    execute: () => {
-      commands.notifyCommandChanged("view.hideleft");
-      if(dockLeft.isVisible) dockLeft.hide();
-      else dockLeft.show();
-    }
-  });
-  commands.addCommand('view.reload',{
-    label: 'Reload',
-    caption: 'Reload content',
-    iconClass: 'codicon codicon-refresh',
-    execute:()=>{
-      ipcRenderer.send('window', 'reload');
-    }
-  });
-  commands.addCommand('view.hideright', {
-    label: 'Show right-side panel',
-    caption: 'Show right-side panel',
-    iconClass: 'codicon codicon-arrow-right',
-    isToggleable:true,
-    isToggled: () =>{
-      return !dockRight.isVisible;
-    },
-    execute: () => {
-      commands.notifyCommandChanged("view.hideright");
-      if(dockRight.isVisible) dockRight.hide();
-      else dockRight.show();
-    }
-  });
 
     let sidepanelEnabledEdges = {
       right:false,
@@ -184,6 +117,7 @@ function main(): void {
 
     let tabContainer = new SplitPanel();
     tabContainer.id = "topbar-tabs";
+    tabContainer.alignment = "end";
 
     topbar.addWidget(toolbar);
     topbar.addWidget(tabContainer);
@@ -197,24 +131,28 @@ function main(): void {
     (dockCentral.layout as DockLayout).updateTabLayout();
 
     dockLeft = new DockPanelAlt({mode:'multiple-document', tabsConstrained:true, edgesEnabled: sidepanelEnabledEdges});
-    let red = new ContentWidget('Red');
+    let red = new ContentWidget('OUTLINE');
     red.title.closable = false;
-    let blue = new ContentWidget('Blue');
+    let blue = new ContentWidget('CHARACTERS');
     blue.title.closable = false;
     dockLeft.addWidget(red);
     dockLeft.addWidget(blue);
     dockLeft.id = 'dock2'
     dockLeft.addClass('lm-mod-borderlesstab');
+    dockLeft.addClass('lm-mod-sidepanel');
 
     dockRight = new DockPanelAlt({mode:'multiple-document', tabsConstrained:true, edgesEnabled: sidepanelEnabledEdges});
-    let red1 = new ContentWidget('Red');
+    let red1 = new ContentWidget('PDF');
     red1.title.closable = false;
-    let blue1 = new ContentWidget('Blue');
+    let blue1 = new ContentWidget('OPTIONS');
     blue1.title.closable = false;
     dockRight.addWidget(red1);
     dockRight.addWidget(blue1);
     dockRight.id = 'dock3'
-    dockRight.addClass('lm-mod-borderlesstab')
+    dockRight.addClass('lm-mod-borderlesstab');
+    dockRight.addClass('lm-mod-sidepanel');
+
+    commandsView.init(commands, bar, dockLeft, dockRight);
 
     SplitPanel.setStretch(dockLeft, 1);
     SplitPanel.setStretch(dockCentral, 2);
@@ -232,32 +170,6 @@ function main(): void {
     split.addWidget(dockRight);
     split.id = "maincontent";
 
-  let savedLayouts: DockPanel.ILayoutConfig[] = [];
-
-  commands.addCommand('save-dock-layout', {
-    label: 'Save Layout',
-    caption: 'Save the current dock layout',
-    execute: () => {
-      savedLayouts.push(dockCentral.saveLayout());
-    }
-  });
-
-  commands.addCommand('restore-dock-layout', {
-    label: args => {
-      return `Restore Layout ${args.index as number}`;
-    },
-    execute: args => {
-      dockCentral.restoreLayout(savedLayouts[args.index as number]);
-    }
-  });
-
-  commands.addKeyBinding({keys:['Accel D'], command:"view:hideright", selector:"body"});
-  commands.addKeyBinding({keys:['Accel A'], command:"view:hideleft", selector:"body"});
-  commands.addKeyBinding({keys:['Accel R'], command:"view:reload", selector:"body"});
-  
-  commands.addKeyBinding({keys:['Accel O'], command:"file:open", selector:"body"});
-
-  //main.addWidget(palette);
   let statusbar = new Statusbar.Statusbar({});
 
   window.onresize = () => { split.update(); topbar.update(); statusbar.update(); };

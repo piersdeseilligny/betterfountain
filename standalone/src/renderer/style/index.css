@@ -9,6 +9,7 @@
 @import '../lumino/style/index.css';
 @import './content.css';
 @import '~vscode-codicons/dist/codicon.css';
+@import './monaco.css';
 
 
 body {
@@ -38,8 +39,10 @@ body.windowstatus-maximized {
 	flex-wrap: nowrap;
 	justify-content: space-between;
 	align-items: stretch;
-	align-content: stretch;
+  align-content: stretch;
+  z-index:5;
 }
+
 .windowstatus-blurred .lm-MenuBar-buttons-btn{
   color:rgb(136, 136, 136);
   transition: color 0.1s;
@@ -59,7 +62,37 @@ body.windowstatus-blurred .lm-MenuBar-windowtitle{
 }
 #topbar{
   display:flex;
+  z-index: 4;
+  background-color: var(--background);
+  position:relative;
 }
+#topbar::before{
+  position: absolute;
+  left:-16px;
+  right:-16px;
+  bottom:-2px;
+  top:-16px;
+  box-shadow:inset 0px 0px 6px rgba(0,0,0,0.5);
+  content:' ';
+}
+body{
+  transform-style: preserve-3d;
+}
+.lm-mod-sidepanel{
+  z-index:3;
+  overflow:hidden;
+  background: var(--background);
+}
+.lm-mod-sidepanel::after{
+  position:absolute;
+  content:'';
+  left:0;
+  right:0;
+  top:-16px;
+  bottom:-16px;
+  box-shadow: inset 0 0px 6px rgba(0,0,0,0.25);
+}
+
 #maincontent{
   height:100%;
 }

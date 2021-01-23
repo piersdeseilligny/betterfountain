@@ -606,6 +606,7 @@ export
   }
 
   updateTabLayout(){
+    console.log("update tab layout");
     if (this._topTabsContainer) {
       //Remove any tabbars which no longer exist, or are no longer at the top
       for (let i = 0; i < this._topTabsContainer.widgets.length; i++) {
@@ -661,6 +662,7 @@ export
           }
           if (!alreadyExists) {
             let tabbar = new TabBar({ tabsMovable: true, guid: v.guid, orientation: 'horizontal' });
+
             tabbar.tabsMovable = true;
             tabbar.allowDeselect = false;
             tabbar.removeBehavior = 'select-previous-tab';
@@ -697,6 +699,7 @@ export
           if (tabArray[j].guid == (this._topTabsContainer.widgets[i] as TabBar<Widget>).guid) {
             this._topTabsContainer.insertWidget(j, this._topTabsContainer.widgets[i]);
             let offset = tabArray[j].offset + this.parent.node.offsetLeft;
+
             (this._topTabsContainer.layout as SplitLayout).moveHandle(j - 1, offset);
           }
         }

@@ -1,18 +1,3 @@
-body{
-    --toolbar-height:32px;
-    --toolbar-fontsize:16px;
-    --toolbar-item-background: white;
-    --toolbar-item-foreground: rgb(119, 119, 119);
-    /* Toggle states */
-    --toolbar-item-toggled-background:rgb(240, 240, 240);
-    --toolbar-item-toggled-foreground:rgb(119, 119, 119);
-    --toolbar-item-toggled-indicator-color:rgb(119, 119, 119);
-    /* Hover states */
-    --toolbar-item-hover-background:var(--background-hover);
-    --toolbar-item-hover-foreground:var(--foreground-hover);
-    --toolbar-item-hover-toggled-background:rgb(230,230,230);
-    --toolbar-item-hover-toggled-foreground:rgb(71, 71, 71);
-}
 .lm-Toolbar {
 
     list-style: none;
@@ -26,7 +11,6 @@ body{
     display: inline-block;
     margin-right:2px;
     position:relative;
-    background: var(--toolbar-item-background);
     color: var(--toolbar-item-foreground);
     transition: all 0.1s;
     overflow: hidden;

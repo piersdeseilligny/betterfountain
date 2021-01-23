@@ -20,14 +20,17 @@ const createWindow = (): void => {
       nodeIntegration: true
     }
   });
-  mainWindow.webContents.setZoomFactor(1.0); 
+  mainWindow.webContents.setZoomFactor(1.0);
   
   // Upper Limit is working of 500 % 
   mainWindow.webContents 
       .setVisualZoomLevelLimits(1, 5) 
 
   // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY).then(()=>{
+    mainWindow.webContents.send('window', mainWindow.isMaximized() ? 'maximize' : 'unmaximize')
+  });
+  
   mainWindow.on('maximize', ()=>{
     mainWindow.webContents.send('window','maximize');
   })
@@ -60,6 +63,10 @@ ipcMain.on('window', (event, op) => {
   else if(op == 'reload'){
     const win = BrowserWindow.fromWebContents(event.sender);
     win.reload();
+  }
+  else if(op == 'devtools'){
+    const win = BrowserWindow.fromWebContents(event.sender);
+    event.sender.openDevTools();
   }
 });
 

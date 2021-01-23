@@ -57,10 +57,6 @@ import {
     constructor(options: TabBar.IOptions<T> = {}) {
       super({ node: Private.createNode() });
       this.addClass('lm-TabBar');
-      this.addClass('scroller-minimal');
-      /* <DEPRECATED> */
-      this.addClass('p-TabBar');
-      /* </DEPRECATED> */
       this.setFlag(Widget.Flag.DisallowLayout);
       this.tabsMovable = options.tabsMovable || false;
       this.titlesEditable = options.titlesEditable || false;
