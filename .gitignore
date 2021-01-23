@@ -7,3 +7,4 @@ client/server
 *.vsix
 *.ai
 /working
+/standalone/.webpack

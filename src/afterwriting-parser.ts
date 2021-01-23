@@ -560,22 +560,24 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
 
 
-            if (current_token.type == "action") {
-                if (!isaction) {
-                    //first action element
-                    html.push('<p><span class="haseditorline" id="sourceline_' + current_token.line + '">' + current_token.html + "</span>");
+            if (current_token.type == "action" || current_token.type == "centered") {
+                let classes = "haseditorline";
+
+                let elStart = "\n";
+                if(!isaction) elStart = "<p>" //first action element
+                if(current_token.type == "centered"){
+                    if(isaction) elStart = ""; //It's centered anyway, no need to add anything
+                    classes += " centered";
                 }
-                else {
-                    //just add a new line to the current paragraph
-                    html.push('\n<span class="haseditorline" id="sourceline_' + current_token.line + '">' + current_token.html + "</span>");
-                }
+                html.push(`${elStart}<span class="${classes}" id="sourceline_${current_token.line}">${current_token.html}</span>`);
+                
                 isaction = true;
             }
             else if (current_token.type == "separator" && isaction) {
                 if (current_index + 1 < result.tokens.length - 1) {
                     //we're not at the end
                     var next_type = result.tokens[current_index + 1].type
-                    if (next_type == "action" || next_type == "separator") {
+                    if (next_type == "action" || next_type == "separator" || next_type == "centered") {
                         html.push("\n");
                     }
                 }
@@ -636,9 +638,6 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     case 'note': html.push('<p class="haseditorline note" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
                     case 'boneyard_begin': html.push('<!-- '); break;
                     case 'boneyard_end': html.push(' -->'); break;
-
-                    //case 'action': ; break;
-                    case 'centered': html.push('<p class="haseditorline centered" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
 
                     case 'page_break': html.push('<hr />'); break;
                     /* case 'separator':
