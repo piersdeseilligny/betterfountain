@@ -1,5 +1,8 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.8.1** - *2021-01-23*
+    · Fix spacing around centred text displaying incorrectly in the live preview (Bug #108)
+
 ## **1.8.0** - *2021-01-15*
     + Entirely rewritten statistics panel
         + Now split into different sections (for the moment, 'Overview' and 'Characters' - more will come)
