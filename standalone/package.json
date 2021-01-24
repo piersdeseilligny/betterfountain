@@ -16,7 +16,7 @@
     "name": "piersdeseilligny",
     "email": "piers.deseilligny+github@outlook.com"
   },
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "config": {
     "forge": {
       "packagerConfig": {},
