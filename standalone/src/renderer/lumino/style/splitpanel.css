@@ -1,4 +1,11 @@
 .lm-SplitPanel[data-orientation='horizontal'] > .lm-SplitPanel-handle:after{
     min-width:1px !important;
+    width:1px;
     background: var(--splitpanel-seperator);
+}
+.lm-SplitPanel[data-orientation='horizontal'] > .lm-SplitPanel-handle{
+    min-width:8px !important;
+    left:50%;
+    transform:translate(-50%);
+    z-index:2;
 }

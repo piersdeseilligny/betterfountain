@@ -40,6 +40,8 @@ body.windowstatus-blurred .lm-MenuBar-windowtitle{
   display:flex;
   background-color: var(--background);
   position:relative;
+  min-height: var(--toolbar-height);
+  max-height: var(--toolbar-height);
 }
 .lm-mod-sidepanel{
   overflow:hidden;

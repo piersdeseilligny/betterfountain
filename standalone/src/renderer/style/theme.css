@@ -46,8 +46,8 @@ body{
     
 
     /*TOOLBAR*/
-    --toolbar-height:34px;
-    --toolbar-fontsize:15px;
+    --toolbar-height:36px;
+    --toolbar-fontsize:16px;
     --toolbar-item-background: white;
     --toolbar-item-foreground: rgb(119, 119, 119);
     /* Toggle states */
