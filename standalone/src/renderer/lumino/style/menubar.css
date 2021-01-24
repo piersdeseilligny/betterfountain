@@ -56,10 +56,13 @@
   position: relative;
 }
 
+
 .lm-MenuBar-buttons-btn:hover{
   background-color:#d5d5d5;
   transition: background-color 0.1s, color 0.1s;
 }
+
+
 .lm-MenuBar-buttons-btn:hover:active{
   background-color:#bbbbbb;
   transition: background-color 0, color 0;
@@ -87,6 +90,15 @@
 .lm-MenuBar-buttons-btn-close:hover:active{
   background-color:#F1707A;
 }
+
+.lm-MenuBar-buttons-btn.lm-mod-mousedown-include{
+  transition: background-color 0, color 0 !important;
+}
+.lm-MenuBar-buttons-btn.lm-mod-mousedown-exclude{
+  transition: background-color 0, color 0 !important;
+  pointer-events: none;
+}
+
 .lm-MenuBar-windowtitle{
   margin:0;
   flex-grow: 1;

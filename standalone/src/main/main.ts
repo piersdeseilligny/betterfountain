@@ -29,15 +29,17 @@ const createWindow = (): void => {
     }
   });
 
-  mainWindow.webContents.setZoomFactor(1.0);
-  // Upper Limit is working of 500 % 
-  mainWindow.webContents 
-      .setVisualZoomLevelLimits(1, 5) 
+
 
   // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY).then(()=>{
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  mainWindow.on('ready-to-show', ()=>{
     mainWindow.webContents.send('window', mainWindow.isMaximized() ? 'maximize' : 'unmaximize')
   });
+
+  
+  // Upper Limit is working of 500 % 
+
   
   mainWindow.on('maximize', ()=>{
     mainWindow.webContents.send('window','maximize');
@@ -83,8 +85,9 @@ ipcMain.on('file', async (event, op)=>{
     let window = BrowserWindow.fromWebContents(event.sender);
     let d = await dialog.showOpenDialog(window, {properties:['openFile'], buttonLabel:"Open screenplay", filters:[{name:'Fountain', extensions:['fountain','spmd']}]});
     if(!d.canceled){
+      let filename = d.filePaths[0].split('\\').pop().split('/').pop();
       let contents = fs.readFileSync(d.filePaths[0]).toString();
-      window.webContents.send('file', 'open', contents);
+      window.webContents.send('file', 'open', {contents: contents, name: filename});
     }
   }
 })

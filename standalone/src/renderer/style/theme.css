@@ -19,6 +19,9 @@ body{
     --tabborder: var(--chromeborder);
     --menuborder: var(--chromeborder);
 
+    /*SPLIPANEL*/
+    --splitpanel-seperator:#DDDDDD;
+
     /*TABS + DOCKPANEL*/
     --tab-background-default: var(--background);
     --tab-background-hover:var(--background-hover);

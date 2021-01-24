@@ -120,7 +120,7 @@ export namespace Toolbar{
                 classes += " lm-mod-disabled";
             if(this._commandregistry.isToggleable(command)){
                 classes += " lm-mod-toggleable";
-                if(this._commandregistry.isToggled(command))
+                if(!this._commandregistry.isToggled(command))
                     classes+= " lm-mod-toggled";
             }
 

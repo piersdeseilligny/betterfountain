@@ -3,9 +3,9 @@ import * as monaco from 'monaco-editor';
 
 export class Editor extends Widget {
     editor: monaco.editor.IStandaloneCodeEditor;
-    constructor(contents:string){
+    constructor(contents:string, name:string){
         super();
-        this.title.label = "Monaco Editor";
+        this.title.label = name;
         this.title.closable = true;
         this.editor = monaco.editor.create(this.node, {
             value:contents,

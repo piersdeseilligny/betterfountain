@@ -493,6 +493,8 @@ import { ipcRenderer } from 'electron';
         this.activeIndex = result.auto;
       }
     }
+
+    private _windowbuttonClickIndex = -1;
   
     /**
      * Handle the `'mousedown'` event for the menu bar.
@@ -515,10 +517,17 @@ import { ipcRenderer } from 'electron';
         return ElementExt.hitTest(node, event.clientX, event.clientY);
       });
   
-      // If the press was not on an item, close the child menu.
+      // If the press was not on an item, close the child menu and check if it was on the window buttons
       if (index === -1) {
-        this._closeChildMenu();
+        
+        const btnIndex = ArrayExt.findFirstIndex(this.buttonsNode.children, node =>{
+          return ElementExt.hitTest(node, event.clientX, event.clientY);
+        });
+        if(btnIndex!=-1){
+          this._windowbuttonClickIndex = btnIndex;
+        }
 
+        this._closeChildMenu();
         return;
       }
   
@@ -546,12 +555,14 @@ import { ipcRenderer } from 'electron';
         const btnIndex = ArrayExt.findFirstIndex(this.buttonsNode.children, node =>{
           return ElementExt.hitTest(node, event.clientX, event.clientY);
         });
-        console.log("clicked index " + btnIndex);
-        switch(btnIndex){
-          case 0: ipcRenderer.send('window','minimize'); break;
-          case 1: ipcRenderer.send('window','maximize'); break;
-          case 2: ipcRenderer.send('window','close'); break;
+        if(btnIndex == this._windowbuttonClickIndex){
+          switch(btnIndex){
+            case 0: ipcRenderer.send('window','minimize'); break;
+            case 1: ipcRenderer.send('window','maximize'); break;
+            case 2: ipcRenderer.send('window','close'); break;
+          }
         }
+        this._windowbuttonClickIndex = -1; //Reset this, and wait for the next button press
     }
   
     /**
@@ -979,9 +990,6 @@ import { ipcRenderer } from 'electron';
       const node = document.createElement('div');
       const menus = document.createElement('ul');
       menus.className = 'lm-MenuBar-content';
-      /* <DEPRECATED> */
-      menus.classList.add('p-MenuBar-content');
-      /* </DEPRECATED> */
       
       menus.setAttribute('role', 'menubar');
       

@@ -24,8 +24,10 @@ import * as commandsEdit from './commands/edit';
 import * as commandsTools from './commands/tools';
 import * as commandsDeliver from './commands/deliver';
 import * as commandsView from './commands/view';
+import * as commandsHelp from './commands/help';
 
 import { SplitLayout } from './lumino/SplitLayout';
+import { IMessageHandler, IMessageHook, Message, MessageLoop } from '@lumino/messaging';
 
 
 const commands = new CommandRegistry();
@@ -64,7 +66,7 @@ function main(): void {
 
 
     dockCentral = new DockPanelAlt({mode:'multiple-document', tabsConstrained:true, toptabsLeft:48, toptabsRight:24 });
-    dockCentral.addWidget(new Editor(''));
+    dockCentral.addWidget(new Editor('','New file'));
     dockCentral.tabsConstrained = true;
     dockCentral.id = "dockcentral";
 
@@ -97,6 +99,7 @@ function main(): void {
     commandsTools.init(commands,bar);
     commandsDeliver.init(commands, bar);
     commandsView.init(commands, bar, dockLeft, dockRight);
+    commandsHelp.init(commands,bar);
 
 
     SplitPanel.setStretch(dockCentral, 2);
@@ -132,16 +135,45 @@ function main(): void {
     split.id = "maincontent";
 
 
+    //We can't use a messagehook for this, we need to hook straight in to keep it from looking 
     (split.layout as SplitLayout).onMove = function(index, position){
       if(index == 0){
         let leftoffset = 0;
         let dockleftWidth = position;
-        if(108>dockleftWidth){
-          leftoffset = 108 - dockleftWidth;
+        if(toolbarLeft.node.clientWidth > dockleftWidth){
+          leftoffset = toolbarLeft.node.clientWidth - dockleftWidth;
         }
         dockCentral.toptabsLeft = leftoffset;
       }
     }
+
+    class VisiblityHook implements IMessageHook{
+      messageHook(target: IMessageHandler, msg: Message): boolean {
+        if(msg.type == "after-hide"){
+          if(target == dockLeft){
+            dockCentral.toptabsLeft = toolbarLeft.node.clientWidth;
+          }
+          else if(target == dockRight){
+            dockCentral.toptabsRight = toolbarRight.node.clientWidth;
+          }
+        }
+        else if(msg.type == "after-show"){
+          if(target == dockLeft){
+            let leftoffset = 0;
+            const dockleftWidth = dockLeft.node.clientWidth;
+            if(toolbarLeft.node.clientWidth > dockleftWidth){
+              leftoffset = toolbarLeft.node.clientWidth - dockleftWidth;
+            }
+            dockCentral.toptabsLeft = leftoffset;
+          }
+        }
+        return true;
+      }
+    }
+    let dockLeftHook = new VisiblityHook();
+    let dockRightHook = new VisiblityHook();
+    MessageLoop.installMessageHook(dockLeft, dockLeftHook);
+    MessageLoop.installMessageHook(dockRight, dockRightHook);
 
   let statusbar = new Statusbar.Statusbar({});
 
@@ -151,6 +183,9 @@ function main(): void {
   Widget.attach(topbar, document.body);
   Widget.attach(split, document.body);
   Widget.attach(statusbar, document.body);
+
+  dockLeftHook.messageHook(dockLeft, new Message('after-show'));
+  dockRightHook.messageHook(dockLeft, new Message('after-show'));
 }
 
 ipcRenderer.on('window', (evt: Electron.IpcRendererEvent, event:string, data:any)=>{
@@ -172,7 +207,9 @@ ipcRenderer.on('window', (evt: Electron.IpcRendererEvent, event:string, data:any
 
 ipcRenderer.on('file', (evt: Electron.IpcRendererEvent, event:string, data:any)=>{
   if(event == 'open'){
-    dockCentral.addWidget(new Editor(data));
+    let editor = new Editor(data.contents, data.name);
+    dockCentral.addWidget(editor);
+    dockCentral.selectWidget(editor);
   }
 });
 

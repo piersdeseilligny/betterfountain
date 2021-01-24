@@ -48,6 +48,14 @@ export function init(commands: CommandRegistry, bar: TitleBar, dockLeft: DockPan
       else dockLeft.show();
     }
   });
+  commands.addCommand('view.welcome', {
+    label: 'Welcome Screen',
+    iconClass: 'codicon codicon-home',
+    execute: () => {
+      //TODO
+    }
+  });
+
   commands.addCommand('view.zoomout', {
     label: 'Zoom out',
     iconClass: 'codicon codicon-zoom-out',

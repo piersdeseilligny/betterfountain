@@ -1,0 +1,4 @@
+.lm-SplitPanel[data-orientation='horizontal'] > .lm-SplitPanel-handle:after{
+    min-width:1px !important;
+    background: var(--splitpanel-seperator);
+}
