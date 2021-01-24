@@ -87,6 +87,7 @@ export class StructToken {
     id: any;
     children: any; //Children of the section
     range: Range; //Range of the scene/section header
+    level: number;
     section: boolean; // true->section, false->scene
     synopses: { synopsis: string; line: number }[];
     notes: { note: string; line: number }[];
@@ -168,6 +169,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         last_character_index,
         dual_right,
         state = "normal",
+        previousCharacter,
         cache_state_for_comment,
         nested_comments = 0,
         title_page_started = false
@@ -317,7 +319,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
         function processActionBlock(token:token){
             let irrelevantActionLength = processInlineNote(token.text);
-            result.lengthAction += (token.text.length - irrelevantActionLength) / 20;
+            token.time = (token.text.length - irrelevantActionLength) / 20;
+            result.lengthAction += token.time;
         }
 
         if (state === "normal") {
@@ -388,6 +391,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 let cobj: StructToken = new StructToken();
                 cobj.text = thistoken.text;
                 current_depth = thistoken.level;
+                cobj.level = thistoken.level;
                 cobj.children = [];
                 cobj.range = new Range(new Position(thistoken.line, 0), new Position(thistoken.line, thistoken.text.length));
                 cobj.section = true;
@@ -454,6 +458,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_begin"));
                 }
                 let character = trimCharacterExtension(thistoken.text).trim();
+                previousCharacter = character;
                 if (result.properties.characters.has(character)) {
                     var values = result.properties.characters.get(character);
                     if (values.indexOf(scene_number) == -1) {
@@ -476,6 +481,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             } else {
                 thistoken.type = "dialogue";
                 thistoken.time = calculateDialogueDuration(thistoken.text);
+                thistoken.character = previousCharacter;
                 result.lengthDialogue += thistoken.time;
             }
             if (dual_right) {
@@ -554,22 +560,24 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
 
 
-            if (current_token.type == "action") {
-                if (!isaction) {
-                    //first action element
-                    html.push('<p><span class="haseditorline" id="sourceline_' + current_token.line + '">' + current_token.html + "</span>");
+            if (current_token.type == "action" || current_token.type == "centered") {
+                let classes = "haseditorline";
+
+                let elStart = "\n";
+                if(!isaction) elStart = "<p>" //first action element
+                if(current_token.type == "centered"){
+                    if(isaction) elStart = ""; //It's centered anyway, no need to add anything
+                    classes += " centered";
                 }
-                else {
-                    //just add a new line to the current paragraph
-                    html.push('\n<span class="haseditorline" id="sourceline_' + current_token.line + '">' + current_token.html + "</span>");
-                }
+                html.push(`${elStart}<span class="${classes}" id="sourceline_${current_token.line}">${current_token.html}</span>`);
+                
                 isaction = true;
             }
             else if (current_token.type == "separator" && isaction) {
                 if (current_index + 1 < result.tokens.length - 1) {
                     //we're not at the end
                     var next_type = result.tokens[current_index + 1].type
-                    if (next_type == "action" || next_type == "separator") {
+                    if (next_type == "action" || next_type == "separator" || next_type == "centered") {
                         html.push("\n");
                     }
                 }
@@ -630,9 +638,6 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     case 'note': html.push('<p class="haseditorline note" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
                     case 'boneyard_begin': html.push('<!-- '); break;
                     case 'boneyard_end': html.push(' -->'); break;
-
-                    //case 'action': ; break;
-                    case 'centered': html.push('<p class="haseditorline centered" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>'); break;
 
                     case 'page_break': html.push('<hr />'); break;
                     /* case 'separator':

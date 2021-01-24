@@ -1,6 +1,28 @@
-*The statistics page is currently being completely rethought (see the `feature-statsrevamp` branch) so there won't be any updates to it until the revamped version is ready. But when it is, it'll probably be the most advanced screenplay statistic systems available.*
-
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
+
+## **1.8.1** - *2021-01-23*
+    · Fix spacing around centred text displaying incorrectly in the live preview (Bug #108)
+
+## **1.8.0** - *2021-01-15*
+    + Entirely rewritten statistics panel
+        + Now split into different sections (for the moment, 'Overview' and 'Characters' - more will come)
+        + Advanced line charts which interact with the text editor. The editor's caret position and selection
+          update in real-time, and can be changed by dragging a selection and clicking on 'Select in Editor',
+          or by double-clicking in the chart.
+        + New character table with more columns, which are all searchable, sortable, and toggleable.
+        + Runtime summary, which specifies the proportion of action to dialogue.
+        + New metrics:
+            + Pages (of the screenplay, with remainder in eights of a page, and actual printed pages)
+            + Scenes
+            + Words/Lines/Characters
+            + Monologues (any dialogue lines over 30sec long)
+            + Complexity (average of various readability tests)
+        + New charts
+            + Cumulative Action and Dialogue runtime
+            + Cumulative dialogue runtime (by character)
+    · Refactor outline calculation, to fix Bug #96 - Thanks @daryluren for the PR!
+
+
 
 ## **1.7.2** - *2020-12-15*
     + Fix outline always showing scenes as open (Issue #96) and add "minimise all" and "reveal" buttons to the outline view - Thanks @daryluren for the PR!

@@ -5,7 +5,6 @@ import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import { secondsToString, overwriteSceneNumbers, updateSceneNumbers, openFile } from "./utils";
-import { retrieveScreenPlayStatistics, statsAsHtml } from "./statistics";
 import * as telemetry from "./telemetry";
 
 
@@ -78,6 +77,7 @@ import { FountainSymbolProvider } from "./providers/Symbols";
 import { showDecorations, clearDecorations } from "./providers/Decorations";
 
 import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToUpdate } from "./providers/Preview";
+import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer, getStatisticsPanels, refreshPanel, updateDocumentVersion } from "./providers/Statistics";
 import { FountainOutlineTreeDataProvider } from "./providers/Outline";
 import { performance } from "perf_hooks";
 
@@ -216,6 +216,9 @@ export function activate(context: ExtensionContext) {
 		createPreviewPanel(vscode.window.activeTextEditor,false);
 		telemetry.reportTelemetry("command:fountain.livepreviewstatic");
 	}));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
+		createStatisticsPanel(getEditor(activeFountainDocument()));
+	}));
 
 	//Jump to line command
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.jumpto', (args) => {
@@ -240,20 +243,6 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfcustom', async () => exportPdf(true,false,true)));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.overwriteSceneNumbers', overwriteSceneNumbers));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.updateSceneNumbers', updateSceneNumbers));
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
-		const statsPanel = vscode.window.createWebviewPanel('Screenplay statistics', 'Screenplay statistics', -1)
-		statsPanel.webview.html = `Calculating screenplay statistics...`
-		
-		var editor = getEditor(activeFountainDocument());
-		var config = getFountainConfig(activeFountainDocument());
-		var exportconfig : ExportConfig = undefined // ????
-		var parsed = afterparser.parse(editor.document.getText(), config, false);
-
-		const stats = await retrieveScreenPlayStatistics(editor.document.getText(), parsed, config, exportconfig)
-		const statsHTML = statsAsHtml(stats)
-		statsPanel.webview.html = statsHTML
-		telemetry.reportTelemetry("command:fountain.statistics");
-	}));
 
 	initFountainUIPersistence(); //create the ui persistence save file
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.togglesynopses', ()=>{
@@ -292,7 +281,7 @@ export function activate(context: ExtensionContext) {
 		if (config.number_scenes_on_save === true) {
 			overwriteSceneNumbers();
 		}
-	})
+	});
 
 	registerTyping();
 
@@ -312,6 +301,7 @@ export function activate(context: ExtensionContext) {
 		parseDocument(vscode.window.activeTextEditor.document);
 
 	vscode.window.registerWebviewPanelSerializer('fountain-preview', new FountainPreviewSerializer());
+	vscode.window.registerWebviewPanelSerializer('fountain-statistics', new FountainStatsPanelSerializer());
 }
 
 	var disposeTyping:vscode.Disposable;
@@ -359,8 +349,10 @@ export function activate(context: ExtensionContext) {
 	}
 
 vscode.workspace.onDidChangeTextDocument(change => {
-	if (change.document.languageId=="fountain")
+	if (change.document.languageId=="fountain"){
 		parseDocument(change.document);
+		updateDocumentVersion(change.document.uri, change.document.version);
+	}
 });
 
 vscode.workspace.onDidChangeConfiguration(change => {
@@ -478,6 +470,17 @@ vscode.window.onDidChangeActiveTextEditor(change => {
 		}*/
 	}
 })
+
+vscode.workspace.onDidSaveTextDocument(e =>{
+	if(e.languageId != "fountain") return;
+	let config = getFountainConfig(e.uri);
+	if(config.refresh_stats_on_save){
+		let statsPanel = getStatisticsPanels(e.uri);
+		for (const sp of statsPanel) {
+			refreshPanel(sp.panel, e, config);
+		}
+	}
+});
 
 
 

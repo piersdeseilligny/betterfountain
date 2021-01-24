@@ -17,6 +17,7 @@ screenplays/**
 icon_fullres.png
 screenshots/**
 working/**
+.env
 
 #The following are unecessary for the extension, and take up a ton of space
 node_modules/pdfkit/js/pdfkit.standalone.js
@@ -24,5 +25,3 @@ node_modules/png-js/images/*.png
 node_modules/**/*.md
 node_modules/**/test/
 
-#This is not part of the extension
-standalone

@@ -48,11 +48,11 @@ And to get an approximate duration of your screenplay, just look at your status 
 
 Here are some features I would like to add, but don't really have time to right now, in an approximate order of difficulty/priority:
 
-* Improved statistics (WIP in branch `feature-statsrevamp`)
+* Fountain cheat sheet panel
+
+* More statistics (a 'Scenes' section, and per-character reports)
 
 * PDF Export panel, with more advanced features presented in a more user-friendly way
-
-* Fountain cheat sheet panel
 
 * Optionally leaving synopses visible when folding
 
@@ -74,6 +74,8 @@ I will probably add these features when I have time, but if you're up for the ch
 * The fountain parsing and PDF generation feature is based on Piotr Jamróz's [Afterwriting](https://github.com/ifrost/afterwriting-labs), also covered by the [MIT License](https://github.com/ifrost/afterwriting-labs)
 
 * The project includes Kevin Decker's [`jsdiff`](https://github.com/kpdecker/jsdiff) library, covered by the [BSD License](https://raw.githubusercontent.com/kpdecker/jsdiff/master/LICENSE)
+
+* The statistics panel uses [`d3`](https://d3js.org), covered by the [BSD-3-Clause License](https://github.com/d3/d3/blob/master/LICENSE), and [`DataTables`](https://www.datatables.net/), covered by the [MIT License](https://www.datatables.net/license/mit).
 
 * The project was built using Microsoft's [language server example extension](https://github.com/Microsoft/vscode-extension-samples/tree/master/lsp-sample) as a boilerplate.
 

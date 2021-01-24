@@ -4,6 +4,7 @@ import * as fs from "fs";
 import { parsedDocuments, diagnostics, diagnosticCollection, getEditor, parseDocument } from "../extension";
 import { getFountainConfig } from "../configloader";
 import { TopmostLineMonitor, getVisibleLine } from "../utils/topMostLineMonitor";
+import { assetsPath } from "../utils";
 
 interface preview{
     uri:string;
@@ -70,10 +71,7 @@ export function createPreviewPanel(editor:vscode.TextEditor, dynamic:boolean): v
     return preview;
 }
 
-const webviewHtml = fs.readFileSync(assetsPath() + path.sep + "preview.html", 'utf8');
-function assetsPath(): string{
-    return __dirname.substr(0, __dirname.lastIndexOf(path.sep));
-}
+const webviewHtml = fs.readFileSync(assetsPath() + path.sep + "webviews" + path.sep + "preview.html", 'utf8');
 
 
 function loadWebView(docuri: vscode.Uri, preview:vscode.WebviewPanel, dynamic:boolean) {

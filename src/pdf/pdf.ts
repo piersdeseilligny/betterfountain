@@ -34,8 +34,8 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, e
             (!config.print_dialogues && current_token.is_dialogue()) ||
             (config.merge_empty_lines && current_token.is("separator") && previous_type === "separator")) {
             
-                if(current_token.type == "section" && config.create_bookmarks && config.invisible_section_bookmarks){
-                    //on the next scene header, add an invisible bookmark
+                if(current_token.type == "section"){
+                    //on the next scene header, add an invisible section (for keeping track of sections when creating bookmarks and generating pdf-side)
                     invisibleSections.push(current_token);
                 }
                 parsedDocument.tokens.splice(current_index, 1);
