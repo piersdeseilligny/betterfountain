@@ -20,7 +20,7 @@ import {
 } from '@lumino/messaging';
 
 import {
-  Widget, Layout, LayoutItem, BoxEngine, BoxSizer, BoxPanel, BoxLayout, SplitLayout
+  Widget, Layout, LayoutItem, BoxEngine, BoxSizer
 } from '@lumino/widgets';
 import { DockPanelAlt } from './DockPanel';
 import { SplitPanel } from './SplitPanel';
@@ -46,8 +46,8 @@ export
   constructor(options: DockLayout.IOptions) {
     super();
     this.renderer = options.renderer;
-    this._topTabsContainer = options.toptabsContainer;
-    if (options.toptabsContainer) { console.log("has top tabs"); }
+    this._toptabsLeft = options.toptabsLeft;
+    this._toptabsRight = options.toptabsRight;
     if (options.spacing !== undefined) {
       this._spacing = Private.clampSpacing(options.spacing);
     }
@@ -193,9 +193,7 @@ export
   moveHandle(handle: HTMLDivElement, offsetX: number, offsetY: number): void {
     // Bail early if there is no root or if the handle is hidden.
     let hidden = handle.classList.contains('lm-mod-hidden');
-    /* <DEPRECATED> */
-    hidden = hidden || handle.classList.contains('p-mod-hidden');
-    /* </DEPRECATED> */
+
     if (!this._root || hidden) {
       return;
     }
@@ -311,7 +309,7 @@ export
       this._root = Private.realizeAreaConfig(mainConfig, {
         createTabBar: () => this._createTabBar(),
         createHandle: () => this._createHandle()
-      }, this._topTabsContainer, this.parent as DockPanelAlt);
+      }, this.parent as DockPanelAlt);
     } else {
       this._root = null;
     }
@@ -593,7 +591,6 @@ export
     }
   }
 
-  public _toptabs: TabBar<Widget>[];
 
   /**
    * A message handler invoked on an `'update-request'` message.
@@ -601,115 +598,9 @@ export
   public onUpdateRequest(msg: Message): void {
     if (this.parent!.isVisible) {
       this._update(-1, -1, true);
-      this.updateTabLayout();
     }
   }
 
-  updateTabLayout(){
-    console.log("update tab layout");
-    if (this._topTabsContainer) {
-      //Remove any tabbars which no longer exist, or are no longer at the top
-      for (let i = 0; i < this._topTabsContainer.widgets.length; i++) {
-        let tabbar = this._topTabsContainer.widgets[i] as TabBar<Widget>;
-        let tabbarOriginal: TabBar<Widget> = undefined;
-        each(this.tabBars(), (val) => {
-          console.log("node=");
-          if (val.node.offsetTop <= 0 && val.guid == tabbar.guid) {
-            tabbarOriginal = val;
-            return;
-          }
-        });
-        if (tabbarOriginal == undefined) {
-          this._topTabsContainer.widgets[i].dispose();
-          i--;
-        }
-        else {
-          //remove stale tabs
-          for (let x = 0; x < tabbar.titles.length; x++) {
-            let remove = true;
-            for (let y = 0; y < tabbarOriginal.titles.length; y++) {
-              if (tabbar.titles[x] == tabbarOriginal.titles[y]) {
-                remove = false;
-                break;
-              }
-            }
-            if (remove) {
-              tabbar.removeTabAt(x);
-              x--;
-            }
-          }
-          //place tabs in correct order
-          for (let y = 0; y < tabbarOriginal.titles.length; y++) {
-            //insert or move tab
-            tabbar.insertTab(y, tabbarOriginal.titles[y]);
-            continue;
-          }
-          //select correct tab
-          tabbar.currentIndex = tabbarOriginal.currentIndex;
-        }
-      }
-      let tabArray: { guid: string, offset: number }[] = [];
-      each(this.tabBars(), (v, i) => {
-        tabArray.push({ guid: v.guid, offset: v.node.offsetLeft });
-        if (v.node.offsetTop == 0) {
-          let alreadyExists = false;
-          for (let i = 0; i < this._topTabsContainer.widgets.length; i++) {
-            if ((this._topTabsContainer.widgets[i] as TabBar<Widget>).guid == v.guid) {
-              //Do not add it back in, seeing as it already exists. Simply update it
-              alreadyExists = true;
-              break;
-            }
-          }
-          if (!alreadyExists) {
-            let tabbar = new TabBar({ tabsMovable: true, guid: v.guid, orientation: 'horizontal' });
-
-            tabbar.tabsMovable = true;
-            tabbar.allowDeselect = false;
-            tabbar.removeBehavior = 'select-previous-tab';
-            tabbar.insertBehavior = 'select-tab-if-needed';
-            for (let i = 0; i < v.titles.length; i++) {
-              tabbar.addTab(v.titles[i]);
-            }
-            tabbar.currentIndex = v.currentIndex;
-            tabbar.currentChanged.connect(function (sender, args) {
-              v.currentIndex = args.currentIndex;
-            });
-            tabbar.tabCloseRequested.connect(function (sender, args) {
-              v.removeTabAt(args.index);
-            });
-            tabbar.tabMoved.connect((sender, args) => {
-              each(this.tabBars(), (v, i) => {
-                if (v.guid == sender.guid) {
-                  v.insertTab(args.toIndex, v.titles[args.fromIndex]);
-                }
-              });
-            });
-
-            this._topTabsContainer.addWidget(tabbar);
-            v.node.style.opacity = "0";
-          }
-        }
-        else {
-          v.node.style.opacity = "1";
-          v.show();
-        }
-      });
-      for (let i = 0; i < this._topTabsContainer.widgets.length; i++) {
-        for (let j = 0; j < tabArray.length; j++) {
-          if (tabArray[j].guid == (this._topTabsContainer.widgets[i] as TabBar<Widget>).guid) {
-            this._topTabsContainer.insertWidget(j, this._topTabsContainer.widgets[i]);
-            let offset = tabArray[j].offset + this.parent.node.offsetLeft;
-
-            (this._topTabsContainer.layout as SplitLayout).moveHandle(j - 1, offset);
-          }
-        }
-      }
-      //place 
-      this.onUpdateTopTabs(this._topTabsContainer.widgets as TabBar<Widget>[]);
-    }
-  }
-
-  onUpdateTopTabs?: (tabbars: TabBar<Widget>[]) => void;
   onTabDetach?: (TabBar<Widget>)
 
   /**
@@ -872,7 +763,7 @@ export
     // Create the root if it does not exist.
     if (!this._root) {
       console.log(this.parent);
-      let tabNode = new Private.TabLayoutNode(this._createTabBar(), this._topTabsContainer, this.parent as DockPanelAlt);
+      let tabNode = new Private.TabLayoutNode(this._createTabBar(), this.parent as DockPanelAlt);
       tabNode.tabBar.addTab(widget.title);
       this._root = tabNode;
       return;
@@ -918,7 +809,7 @@ export
     this._removeWidget(widget);
 
     // Create the tab layout node to hold the widget.
-    let tabNode = new Private.TabLayoutNode(this._createTabBar(), this._topTabsContainer, this.parent as DockPanelAlt);
+    let tabNode = new Private.TabLayoutNode(this._createTabBar(), this.parent as DockPanelAlt);
     tabNode.tabBar.addTab(widget.title);
 
     // Set the root if it does not exist.
@@ -1106,7 +997,7 @@ export
     }
 
     let toptabChange = 0;
-    if(this._topTabsContainer){
+    if(this._toptabsLeft || this._toptabsRight){
       toptabChange=32;
     }
 
@@ -1175,7 +1066,8 @@ export
   private _root: Private.LayoutNode | null = null;
   private _box: ElementExt.IBoxSizing | null = null;
   private _items: Private.ItemMap = new Map<Widget, LayoutItem>();
-  private _topTabsContainer?: SplitPanel;
+  private _toptabsLeft?: number;
+  private _toptabsRight?: number;
 }
 
 
@@ -1202,9 +1094,14 @@ namespace DockLayout {
     spacing?: number;
 
     /**
-     * If the top tabs should be kept in a seperate widget
+     * The margin to the left of the top tabs
      */
-    toptabsContainer?: SplitPanel;
+    toptabsLeft?: number;
+
+    /**
+     * The margin to the right of the top tabs
+     */
+    toptabsRight?: number;
   }
 
   /**
@@ -1528,12 +1425,12 @@ namespace Private {
    * Convert a normalized area config into a layout tree.
    */
   export
-    function realizeAreaConfig(config: DockLayout.AreaConfig, renderer: DockLayout.IRenderer, toptabsContainer: SplitPanel, regularContainer: DockPanelAlt): LayoutNode {
+    function realizeAreaConfig(config: DockLayout.AreaConfig, renderer: DockLayout.IRenderer, regularContainer: DockPanelAlt): LayoutNode {
     let node: LayoutNode;
     if (config.type === 'tab-area') {
-      node = realizeTabAreaConfig(config, renderer, toptabsContainer, regularContainer);
+      node = realizeTabAreaConfig(config, renderer, regularContainer);
     } else {
-      node = realizeSplitAreaConfig(config, renderer, toptabsContainer, regularContainer);
+      node = realizeSplitAreaConfig(config, renderer, regularContainer);
     }
     return node;
   }
@@ -1548,14 +1445,13 @@ namespace Private {
      *
      * @param tabBar - The tab bar to use for the layout node.
      */
-    constructor(tabBar: TabBar<Widget>, toptabsContainer: SplitPanel, regularContainer: DockPanelAlt) {
+    constructor(tabBar: TabBar<Widget>,  regularContainer: DockPanelAlt) {
       let tabSizer = new BoxSizer();
       let widgetSizer = new BoxSizer();
       tabSizer.stretch = 0;
       widgetSizer.stretch = 1;
       this.tabBar = tabBar;
       this.sizers = [tabSizer, widgetSizer];
-      this.toptabsContainer = toptabsContainer;
       this.regularContainer = regularContainer;
     }
 
@@ -1564,7 +1460,6 @@ namespace Private {
      */
     parent: SplitLayoutNode | null = null;
 
-    toptabsContainer: SplitPanel;
     regularContainer: DockPanelAlt;
 
     /**
@@ -1773,8 +1668,28 @@ namespace Private {
 
       // Update the tab bar item using the computed size.
       if (tabBarItem && !tabBarItem.isHidden) {
+        let newleft = left;
+        let newwidth = width;
+        if(top <= 0){
+          //This tab is at the top, include the left and right margins
+          let leftoffset = this.regularContainer.toptabsLeft;
+          let rightoffset = this.regularContainer.toptabsRight;
+
+          let applyLeftMargin = (left == 0);
+
+          //TODO Improve this - it's a pretty revolting hack to figure out if the tabbar is the furthest right one
+          let applyRightMargin = (Math.abs(left+width - this.regularContainer.node.clientWidth)<2)
+
+          if(leftoffset && left == 0){
+            newleft += leftoffset;
+            newwidth -= leftoffset;
+          }
+          if(rightoffset && applyRightMargin){
+            newwidth -= rightoffset;
+          }
+        }
         let size = this.sizers[0].size;
-        tabBarItem.update(left, top, width, size);
+        tabBarItem.update(newleft, top, newwidth, size);
         top += size;
       }
 
@@ -2198,7 +2113,7 @@ namespace Private {
   /**
    * Convert a normalized tab area config into a layout tree.
    */
-  function realizeTabAreaConfig(config: DockLayout.ITabAreaConfig, renderer: DockLayout.IRenderer, toptabsContainer: SplitPanel, regularContainer: DockPanelAlt): TabLayoutNode {
+  function realizeTabAreaConfig(config: DockLayout.ITabAreaConfig, renderer: DockLayout.IRenderer, regularContainer: DockPanelAlt): TabLayoutNode {
     // Create the tab bar for the layout node.
     let tabBar = renderer.createTabBar();
 
@@ -2212,20 +2127,20 @@ namespace Private {
     tabBar.currentIndex = config.currentIndex;
 
     // Return the new tab layout node.
-    return new TabLayoutNode(tabBar, toptabsContainer, regularContainer);
+    return new TabLayoutNode(tabBar, regularContainer);
   }
 
   /**
    * Convert a normalized split area config into a layout tree.
    */
-  function realizeSplitAreaConfig(config: DockLayout.ISplitAreaConfig, renderer: DockLayout.IRenderer, toptabsContainer: SplitPanel, regularContainer: DockPanelAlt): SplitLayoutNode {
+  function realizeSplitAreaConfig(config: DockLayout.ISplitAreaConfig, renderer: DockLayout.IRenderer, regularContainer: DockPanelAlt): SplitLayoutNode {
     // Create the split layout node.
     let node = new SplitLayoutNode(config.orientation);
 
     // Add each child to the layout node.
     each(config.children, (child, i) => {
       // Create the child data for the layout node.
-      let childNode = realizeAreaConfig(child, renderer, toptabsContainer, regularContainer);
+      let childNode = realizeAreaConfig(child, renderer, regularContainer);
       let sizer = createSizer(config.sizes[i]);
       let handle = renderer.createHandle();
 

@@ -10,8 +10,8 @@
 
 .lm-MenuBar {
   padding-left: 5px;
-  background: var(--backgroundlow);
-  color: var(--foreground);
+  background: var(--menubar-background-default);
+  color: var(--menubar-foreground-default);
   border-bottom: var(--chromeborder);
   min-height: 28px;
 }
@@ -26,23 +26,19 @@
   padding: 0 8px;
   line-height: 28px;
   font-size: 12px;
-  border-left: 1px solid transparent;
-  border-right: 1px solid transparent;
 }
 
 
 .lm-MenuBar-item.lm-mod-active {
-  background: var(--background-hover);
-  color:var(--foreground-hover);
+  background: var(--menubar-background-hover);
+  color:var(--menubar-foreground-hover);
 }
 
 
 .lm-MenuBar.lm-mod-active .lm-MenuBar-item.lm-mod-active {
   z-index: 10001;
-  background: var(--background);
-  border-left: var(--menuborder);
-  border-right: var(--menuborder);
-  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
+  background: var(--menubar-background-active);
+  color:var(--menubar-foreground-active);
 }
 
 .lm-MenuBar-buttons{

@@ -1,0 +1,59 @@
+body{
+    /*GENERAL*/
+    --foreground:hsl(0, 0%, 20%);
+
+    --backgroundlow:hsl(0, 0%, 91%);
+    --background:hsl(0, 0%, 98%);
+    --backgroundhigh:white;
+
+    --backgroundlow-hover:hsl(0, 0%, 88%);
+    --background-hover:hsl(0,0%,91%);
+    --backgroundhigh-hover:hsl(0,0%,98%);
+
+    --foreground-hover:black;
+    --scrollbar-thumb:rgba(0,0,0,0.25);
+    --scrollbar-thumb-hover:rgba(0,0,0,0.5);
+    --scrollbar-thumb-active:rgba(0,0,0,0.75);
+    --scrollbar-thumb-hidden:transparent;
+    --chromeborder: 1px solid #DDDDDD;
+    --tabborder: var(--chromeborder);
+    --menuborder: var(--chromeborder);
+
+    /*TABS + DOCKPANEL*/
+    --tab-background-default: var(--background);
+    --tab-background-hover:var(--background-hover);
+    --tab-background-selected: var(--backgroundhigh);
+    --dockpanel-overlay: rgba(0,0,0,0.1);
+    --dockpanel-seperator: #DDDDDD;
+    
+
+    /*MENUS*/
+    --menu-background-default: var(--background);
+    --menu-background-hover: var(--background-hover);
+
+    --menubar-background-default: var(--backgroundlow);
+    --menubar-background-hover: var(--backgroundlow-hover);
+    --menubar-background-active:var(--background);
+
+    --menubar-foreground-default: var(--foreground);
+    --menubar-foreground-hover: var(--foreground);
+    --menubar-foreground-active:var(--foreground);
+
+    --menu-border: solid 1px hsl(0,0%,88%);
+    
+
+    /*TOOLBAR*/
+    --toolbar-height:34px;
+    --toolbar-fontsize:15px;
+    --toolbar-item-background: white;
+    --toolbar-item-foreground: rgb(119, 119, 119);
+    /* Toggle states */
+    --toolbar-item-toggled-background:rgb(240, 240, 240);
+    --toolbar-item-toggled-foreground:rgb(119, 119, 119);
+    --toolbar-item-toggled-indicator-color:rgb(119, 119, 119);
+    /* Hover states */
+    --toolbar-item-hover-background:var(--background-hover);
+    --toolbar-item-hover-foreground:var(--foreground-hover);
+    --toolbar-item-hover-toggled-background:rgb(230,230,230);
+    --toolbar-item-hover-toggled-foreground:rgb(71, 71, 71);
+}

@@ -51,6 +51,8 @@ import {
         this._spacing = Private.clampSpacing(options.spacing);
       }
     }
+
+    onMove(index:number, position:number):void{}
   
     /**
      * Dispose of the resources held by the layout.
@@ -225,13 +227,12 @@ import {
      * position. The sibling widgets will be adjusted as necessary.
      */
     moveHandle(index: number, position: number): void {
+            
       // Bail if the index is invalid or the handle is hidden.
       let handle = this._handles[index];
       if (!handle || handle.classList.contains('lm-mod-hidden')) {
         return;
       }
-  
-      console.log("moved handle");
   
       // Compute the desired delta movement for the handle.
       let delta: number;
@@ -240,7 +241,6 @@ import {
       } else {
         delta = position - handle.offsetTop;
       }
-      console.log(delta);
   
       // Bail if there is no handle movement.
       if (delta === 0) {
@@ -490,9 +490,12 @@ import {
   
         // Update the stretch factor.
         sizer.stretch = SplitLayout.getStretch(item.widget);
+
+        sizer.sizeHint = SplitLayout.getWidthBasis(item.widget);
   
         // Update the sizer limits and computed min size.
         if (horz) {
+          console.log("minwidth="+item.minWidth);
           sizer.minSize = item.minWidth;
           sizer.maxSize = item.maxWidth;
           minW += item.minWidth;
@@ -503,6 +506,9 @@ import {
           minH += item.minHeight;
           minW = Math.max(minW, item.minWidth);
         }
+        //sizer.maxSize = SplitLayout.getMaximumWidth(item.widget);
+
+        
       }
   
       // Update the box sizing and add it to the computed min size.
@@ -740,6 +746,42 @@ import {
     function getStretch(widget: Widget): number {
       return Private.stretchProperty.get(widget);
     }
+
+    /**
+     * Get the split layout width basis for the given widget.
+     *
+     * @param widget - The widget of interest.
+     *
+     * @returns The split layout width basis for the widget.
+     */
+    export
+    function getWidthBasis(widget: Widget): number{
+      return Private.widthbasisProperty.get(widget);
+    }
+
+    /**
+     * Get the split layout minimum width for the given widget.
+     *
+     * @param widget - The widget of interest.
+     *
+     * @returns The split layout minimum width for the widget.
+     */
+    export
+    function getMinimumWidth(widget: Widget): number{
+      return Private.minimumWidthProperty.get(widget);
+    }
+
+    /**
+     * Get the split layout maximum width for the given widget.
+     *
+     * @param widget - The widget of interest.
+     *
+     * @returns The split layout maximum width for the widget.
+     */
+    export
+    function getMaximumWidth(widget: Widget): number{
+      return Private.maximumWidthProperty.get(widget);
+    }
   
     /**
      * Set the split layout stretch factor for the given widget.
@@ -751,6 +793,21 @@ import {
     export
     function setStretch(widget: Widget, value: number): void {
       Private.stretchProperty.set(widget, value);
+    }
+
+    export
+    function setWidthBasis(widget: Widget, value: number): void{
+      Private.widthbasisProperty.set(widget, value);
+    }
+
+    export
+    function setMinimumWidth(widget: Widget, value: number): void{
+      Private.widthbasisProperty.set(widget, value);
+    }
+
+    export
+    function setMaximumWidth(widget: Widget, value: number): void{
+      Private.widthbasisProperty.set(widget, value);
     }
   }
   
@@ -765,6 +822,39 @@ import {
     export
     const stretchProperty = new AttachedProperty<Widget, number>({
       name: 'stretch',
+      create: () => 0,
+      coerce: (owner, value) => Math.max(0, Math.floor(value)),
+      changed: onChildSizingChanged
+    });
+
+    /**
+     * The property descriptor for a widget width basis factor.
+     */
+    export
+    const widthbasisProperty = new AttachedProperty<Widget, number>({
+      name: 'widthbasis',
+      create: () => 0,
+      coerce: (owner, value) => Math.max(0, Math.floor(value)),
+      changed: onChildSizingChanged
+    });
+
+    /**
+     * The property descriptor for a widget minimum width.
+     */
+    export
+    const minimumWidthProperty = new AttachedProperty<Widget, number>({
+      name: 'minwidth',
+      create: () => 0,
+      coerce: (owner, value) => Math.max(0, Math.floor(value)),
+      changed: onChildSizingChanged
+    });
+
+    /**
+     * The property descriptor for a widget maximum width.
+     */
+    export
+    const maximumWidthProperty = new AttachedProperty<Widget, number>({
+      name: 'maxwidth',
       create: () => 0,
       coerce: (owner, value) => Math.max(0, Math.floor(value)),
       changed: onChildSizingChanged

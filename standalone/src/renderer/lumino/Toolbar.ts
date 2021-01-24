@@ -1,5 +1,7 @@
 import { Widget } from "@lumino/widgets";
 import { CommandRegistry } from "@lumino/commands";
+import { ArrayExt } from '@lumino/algorithm';
+import { JSONExt, ReadonlyPartialJSONObject } from '@lumino/coreutils';
 
 export namespace Toolbar{
 
@@ -23,6 +25,7 @@ export namespace Toolbar{
     export class Toolbar extends Widget {
 
         _commandregistry:CommandRegistry;
+        
         _content:HTMLUListElement;
         _align:Mode;
 
@@ -78,8 +81,6 @@ export namespace Toolbar{
         }
 
         commandChanged = (sender:CommandRegistry, args:CommandRegistry.ICommandChangedArgs) => {
-            console.log("command changed");
-            console.log(args);
             if(args.type == "many-changed"){
                 //Update every toolbar item
                 let items = this._content.querySelectorAll(`li.lm-Toolbar-item`)
@@ -113,9 +114,9 @@ export namespace Toolbar{
             let command = e.dataset.command;
 
             let classes = "lm-Toolbar-item"
-            if(!this._commandregistry.isVisible(command))
+            if(this._commandregistry.isVisible(command))
                 classes += " lm-mod-hidden";
-            if(!this._commandregistry.isEnabled(command))
+            if(this._commandregistry.isEnabled(command))
                 classes += " lm-mod-disabled";
             if(this._commandregistry.isToggleable(command)){
                 classes += " lm-mod-toggleable";
@@ -128,7 +129,12 @@ export namespace Toolbar{
 
             e.querySelector('i').className="lm-Toolbar-icon " + this._commandregistry.iconClass(command);
 
-            e.title = this._commandregistry.label(command);
+            let kb = Private.getKeyBinding(this._commandregistry, command);
+            let titleSuffix = "";
+            if(kb){
+                titleSuffix = ` (${Private.formatShortcut(kb)})`;
+            }
+            e.title = this._commandregistry.label(command) + titleSuffix;
             e.className = classes;
         }
     }
@@ -140,4 +146,14 @@ namespace Private{
         let node = document.createElement('div');
         return node;
     }
+    export
+    function getKeyBinding(_commandregistry:CommandRegistry, command:string, args?:ReadonlyPartialJSONObject): CommandRegistry.IKeyBinding | null {
+        return ArrayExt.findLastValue(_commandregistry.keyBindings, kb => {
+          return kb.command === command && JSONExt.deepEqual(kb.args, args);
+        }) || null;
+      }
+    export
+    function formatShortcut(kb:CommandRegistry.IKeyBinding):string {
+        return kb ? kb.keys.map(CommandRegistry.formatKeystroke).join(', ') : null;
+      }
 }

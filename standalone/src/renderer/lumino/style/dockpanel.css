@@ -9,8 +9,18 @@
 
 
 .lm-DockPanel-overlay {
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--dockpanel-overlay);
   transition-property: top, left, right, bottom;
   transition-duration: 150ms;
   transition-timing-function: ease;
+}
+.lm-DockPanel-handle[data-orientation='vertical']:after{
+  min-height:1px !important;
+  height:1px;
+  background: var(--dockpanel-seperator)
+}
+.lm-DockPanel-handle[data-orientation='horizontal']:after{
+  min-width:1px !important;
+  width:1px;
+  background: var(--dockpanel-seperator)
 }

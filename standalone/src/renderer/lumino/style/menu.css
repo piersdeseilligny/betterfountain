@@ -10,16 +10,17 @@
 
 .lm-Menu {
   padding: 3px 0px;
-  background: white;
-  color: rgba(0, 0, 0, 0.87);
-  border: 1px solid #C0C0C0;
+  background: var(--menu-background-default);
+  color: var(--menu-foreground-default);
+  border: var(--menu-background-border);
   font-size:12px;
   box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.2);
 }
 
 
 .lm-Menu-item.lm-mod-active {
-  background: #E5E5E5;
+  background: var(--menu-background-hover);
+  color: var(--menu-foreground-hover);
 }
 
 
@@ -52,7 +53,8 @@
 
 .lm-Menu-itemSubmenuIcon {
   width: 16px;
-  padding: 4px 0px;
+  font-size:16px;
+  padding-right:4px;
 }
 
 
@@ -74,6 +76,8 @@
 .lm-Menu-itemIcon::before,
 .lm-Menu-itemSubmenuIcon::before {
   font-family: 'codicon';
+  top: 2px;
+  position: relative;
 }
 
 

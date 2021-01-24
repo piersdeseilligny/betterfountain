@@ -25,7 +25,7 @@
 
 .lm-TabBar-tab {
   padding: 0px 10px;
-  background: var(--background);
+  background: var(--tab-background-default);
   border: var(--tabborder);
   border-bottom: none;
   font-size: 12px;
@@ -63,10 +63,14 @@
   border: 0px;
   font-size: 12px;
 }
+.lm-mod-borderlesstab .lm-TabBar-tabLabel{
+  top: 3px;
+  position: relative;
+}
 
 
 .lm-TabBar-tab.lm-mod-current {
-  background: white;
+  background: var(--tab-background-selected);
   box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.1);
 }
 .lm-mod-borderlesstab .lm-mod-current{
@@ -96,9 +100,10 @@
 }
 
 .lm-TabBar-tab:hover:not(.lm-mod-current) {
-  background: #F0F0F0;
+  background: var(--tab-background-hover);
 }
-.lm-mod-borderlesstab .lm-TabBar-tab.lm-mod-current{
+
+.lm-mod-borderlesstab .lm-TabBar-tab, .lm-mod-borderlesstab .lm-TabBar-tab:hover{
   background:transparent;
 }
 
@@ -150,7 +155,7 @@
   opacity:1;
 }
 
-.lm-Widget.p-Widget.lm-TabBar.lm-SplitPanel-child.p-SplitPanel-child {
+.lm-Widget.lm-TabBar.lm-SplitPanel-child {
   bottom: 0 !important;
   top: auto !important;
 }

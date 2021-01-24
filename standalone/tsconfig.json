@@ -2,7 +2,7 @@
   "compilerOptions": {
     "allowJs": true,
     "module": "commonjs",
-    "target": "ES5",
+    "target": "es2015",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "noImplicitAny": true,

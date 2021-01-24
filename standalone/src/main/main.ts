@@ -1,3 +1,13 @@
+/**
+ * The entry-point of the app, it is a node.js process
+ * which doesn't actually render anything directly, it 
+ * just handles all the interactions with the OS (such as file
+ * operations, window mangement, etc...)
+ * 
+ * Communication with the renderer process occurs through 'ipcMain'
+ */
+
+
 import { app, BrowserWindow, dialog, ipcMain, Menu, MenuItem, shell } from 'electron';
 import { electron } from 'process';
 import * as fs from 'fs';
@@ -7,8 +17,6 @@ declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
 }
-
-let mainWindow:BrowserWindow;
 
 const createWindow = (): void => {
   // Create the browser window.
@@ -20,8 +28,8 @@ const createWindow = (): void => {
       nodeIntegration: true
     }
   });
+
   mainWindow.webContents.setZoomFactor(1.0);
-  
   // Upper Limit is working of 500 % 
   mainWindow.webContents 
       .setVisualZoomLevelLimits(1, 5) 
@@ -86,25 +94,8 @@ ipcMain.on('file', async (event, op)=>{
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow);
 
-const template:Electron.MenuItemConstructorOptions[] = [
-  {
-      label: 'Help',   // Help menu item
-      submenu: [{ // adds submenu items
-              label: 'About US',
-          },{
-              label: 'Zoom In',
-              role: 'zoomIn', // gives this menu the role to close app when clicked  
-              accelerator: 'CommandOrControl+='  // creates a shortcut to this action
-          },{
-            label: 'Reload',
-            role:'reload',
-            accelerator: 'CommandOrControl+R'
-          }]
-  }
-]
 // sets the menu
-const menu = Menu.buildFromTemplate(template)
-Menu.setApplicationMenu (menu)
+Menu.setApplicationMenu(null);
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -122,6 +113,3 @@ app.on('activate', () => {
     createWindow();
   }
 });
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.

@@ -79,6 +79,13 @@ import { TabBar } from './TabBar';
       if(options.tabsConstrained !== undefined){
         this._tabsConstrained = options.tabsConstrained;
       }
+
+      if(options.toptabsLeft !== undefined){
+        this._toptabsLeft = options.toptabsLeft;
+      }
+      if(options.toptabsRight !== undefined){
+        this._toptabsRight = options.toptabsRight;
+      }
   
       // Toggle the CSS mode attribute.
       this.dataset['mode'] = this._mode;
@@ -90,13 +97,8 @@ import { TabBar } from './TabBar';
       };
   
       // Set up the dock layout for the panel.
-      this.layout = new DockLayout({ renderer, spacing: options.spacing, toptabsContainer: options.toptabsContainer });
+      this.layout = new DockLayout({ renderer, spacing: options.spacing, toptabsLeft: options.toptabsLeft, toptabsRight: options.toptabsRight });
 
-      (this.layout as DockLayout).onUpdateTopTabs = (toptabs) => {
-        for (let i = 0; i < toptabs.length; i++) {
-          toptabs[i].tabDetachRequested.connect(this._onTabDetachRequested, this);
-        }
-      }
       
   
       // Set up the overlay drop indicator.
@@ -210,6 +212,35 @@ import { TabBar } from './TabBar';
       // Schedule an emit of the layout modified signal.
       MessageLoop.postMessage(this, Private.LayoutModified);
     }
+
+    /**
+     * The offset to the right of the top set of tabs
+     */
+    get toptabsRight(): number {
+      return this._toptabsRight;
+    }
+
+    /**
+     * The offset to the right of the top set of tabs
+     */
+    get toptabsLeft(): number {
+      return this._toptabsLeft;
+    }
+
+    /**
+     * The offset to the right of the top set of tabs
+     */
+    set toptabsRight(value:number) {
+      this._toptabsRight = value;
+    }
+
+    /**
+     * The offset to the right of the top set of tabs
+     */
+    set toptabsLeft(value:number) {
+      this._toptabsLeft = value;
+    }
+
   
     /**
      * Whether the tabs can be dragged / moved at runtime.
@@ -1031,7 +1062,8 @@ import { TabBar } from './TabBar';
     private _mode: DockPanelAlt.Mode;
     private _drag: Drag | null = null;
     private _renderer: DockPanelAlt.IRenderer;
-    private _toptabsContainer: Widget;
+    private _toptabsLeft: number;
+    private _toptabsRight: number;
     private _tabsMovable = true;
     private _tabsConstrained = false;
     private _pressData: Private.IPressData | null = null;
@@ -1105,9 +1137,14 @@ import { TabBar } from './TabBar';
       tabsConstrained?: boolean;
 
       /**
-       * If the top tabs should be kept seperately from the rest, keep them here
+       * The left margin on the top tabs
        */
-      toptabsContainer?:SplitPanel;
+      toptabsLeft?:number;
+
+      /**
+       * The right margin on the top tabs
+       */
+      toptabsRight?:number;
     }
   
     /**

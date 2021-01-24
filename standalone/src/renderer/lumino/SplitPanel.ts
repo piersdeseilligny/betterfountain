@@ -291,6 +291,7 @@ import {
       // Stop the event when dragging a split handle.
       event.preventDefault();
       event.stopPropagation();
+      
   
       // Compute the desired offset position for the handle.
       let pos: number;
@@ -302,6 +303,7 @@ import {
         pos = event.clientY - rect.top - this._pressData!.delta;
       }
   
+      layout.onMove(this._pressData!.index, pos);
       // Move the handle as close to the desired position as possible.
       layout.moveHandle(this._pressData!.index, pos);
     }
@@ -461,6 +463,42 @@ import {
     export
     function setStretch(widget: Widget, value: number): void {
       SplitLayout.setStretch(widget, value);
+    }
+
+    /**
+     * Set the split panel width basis for the given widget.
+     *
+     * @param widget - The widget of interest.
+     *
+     * @param value - The value for the width basis.
+     */
+    export
+    function setWidthBasis(widget: Widget, value: number): void {
+      SplitLayout.setWidthBasis(widget, value);
+    }
+
+    /**
+     * Set the split panel minimum width for the given widget.
+     *
+     * @param widget - The widget of interest.
+     *
+     * @param value - The value for the minimum.
+     */
+    export
+    function setMinimumWidth(widget: Widget, value: number): void {
+      SplitLayout.setMinimumWidth(widget, value);
+    }
+
+        /**
+     * Set the split panel maximum width for the given widget.
+     *
+     * @param widget - The widget of interest.
+     *
+     * @param value - The value for the maximum.
+     */
+    export
+    function setMaximumWidth(widget: Widget, value: number): void {
+      SplitLayout.setMaximumWidth(widget, value);
     }
   }
   

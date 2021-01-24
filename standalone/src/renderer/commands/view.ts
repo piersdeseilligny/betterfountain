@@ -26,7 +26,7 @@ export function init(commands: CommandRegistry, bar: TitleBar, dockLeft: DockPan
     iconClass: 'codicon codicon-arrow-right',
     isToggleable: true,
     isToggled: () => {
-      return !dockRight.isVisible;
+      return dockRight.isVisible;
     },
     execute: () => {
       commands.notifyCommandChanged("view.hideright");
@@ -40,7 +40,7 @@ export function init(commands: CommandRegistry, bar: TitleBar, dockLeft: DockPan
     iconClass: 'codicon codicon-arrow-left',
     isToggleable: true,
     isToggled: () => {
-      return !dockLeft.isVisible;
+      return dockLeft.isVisible;
     },
     execute: () => {
       commands.notifyCommandChanged("view.hideleft");
@@ -88,8 +88,8 @@ export function init(commands: CommandRegistry, bar: TitleBar, dockLeft: DockPan
   menu.title.mnemonic = 0;
   menu.addItem({ type: "command", command: "view.hideleft" });
   menu.addItem({ type: "command", command: "view.hideright" });
-  menu.addItem({ type: "command", command: "view.reload" });
   menu.addItem({ type: 'separator' });
+  menu.addItem({ type: "command", command: "view.reload" });
   menu.addItem({ type: 'command', command: 'view.devtools' });
   menu.addItem({ type: 'command', command: 'view.zoomin' });
   menu.addItem({ type: 'command', command: 'view.zoomout' });
