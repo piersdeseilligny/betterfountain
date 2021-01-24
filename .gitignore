@@ -8,3 +8,4 @@ client/server
 *.ai
 /working
 /standalone/.webpack
+.env
