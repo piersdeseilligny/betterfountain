@@ -8,7 +8,7 @@ class fileManager {
     /**
      * Open a file picker for the given file manager
      */
-    public pickFile() {
+    public openFile() {
         
     }
 }

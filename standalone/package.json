@@ -70,6 +70,7 @@
     "@electron-forge/maker-zip": "^6.0.0-beta.54",
     "@electron-forge/plugin-webpack": "6.0.0-beta.54",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
+    "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
     "css-loader": "^4.2.1",
@@ -94,6 +95,8 @@
     "@lumino/widgets": "^1.16.0",
     "electron-squirrel-startup": "^1.0.0",
     "monaco-editor": "^0.21.3",
+    "node-stream-zip": "^1.12.0",
+    "uuid": "^8.3.2",
     "vscode-codicons": "0.0.12"
   }
 }

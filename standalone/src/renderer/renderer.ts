@@ -28,6 +28,7 @@ import * as commandsHelp from './commands/help';
 
 import { SplitLayout } from './lumino/SplitLayout';
 import { IMessageHandler, IMessageHook, Message, MessageLoop } from '@lumino/messaging';
+import { ScreenplayContent } from '../main/file/file';
 
 
 const commands = new CommandRegistry();
@@ -207,7 +208,8 @@ ipcRenderer.on('window', (evt: Electron.IpcRendererEvent, event:string, data:any
 
 ipcRenderer.on('file', (evt: Electron.IpcRendererEvent, event:string, data:any)=>{
   if(event == 'open'){
-    let editor = new Editor(data.contents, data.name);
+    let content = data as ScreenplayContent;
+    let editor = new Editor(content.fountain, content.filename);
     dockCentral.addWidget(editor);
     dockCentral.selectWidget(editor);
   }

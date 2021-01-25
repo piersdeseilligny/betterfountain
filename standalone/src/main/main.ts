@@ -9,8 +9,11 @@
 
 
 import { app, BrowserWindow, dialog, ipcMain, Menu, MenuItem, shell } from 'electron';
-import { electron } from 'process';
+import * as path from 'path';
 import * as fs from 'fs';
+import { HighlandFile } from './file/highland';
+import { ScreenplayFile } from './file/file';
+import { FountainFile } from './file/fountain';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -23,8 +26,8 @@ const createWindow = (): void => {
   const mainWindow = new BrowserWindow({
     height: 600,
     width: 800,
-    frame:false,
-    webPreferences:{
+    frame: false,
+    webPreferences: {
       nodeIntegration: true
     }
   });
@@ -33,25 +36,25 @@ const createWindow = (): void => {
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  mainWindow.on('ready-to-show', ()=>{
+  mainWindow.on('ready-to-show', () => {
     mainWindow.webContents.send('window', mainWindow.isMaximized() ? 'maximize' : 'unmaximize')
   });
 
-  
+
   // Upper Limit is working of 500 % 
 
-  
-  mainWindow.on('maximize', ()=>{
-    mainWindow.webContents.send('window','maximize');
+
+  mainWindow.on('maximize', () => {
+    mainWindow.webContents.send('window', 'maximize');
   })
-  mainWindow.on('unmaximize', ()=>{
+  mainWindow.on('unmaximize', () => {
     mainWindow.webContents.send('window', 'unmaximize');
   })
-  mainWindow.on('blur', ()=>{
-    mainWindow.webContents.send('window','blur');
+  mainWindow.on('blur', () => {
+    mainWindow.webContents.send('window', 'blur');
   })
-  mainWindow.on('focus', ()=>{
-    mainWindow.webContents.send('window','focus');
+  mainWindow.on('focus', () => {
+    mainWindow.webContents.send('window', 'focus');
   })
 
   // Open the DevTools.
@@ -59,35 +62,62 @@ const createWindow = (): void => {
 };
 
 ipcMain.on('window', (event, op) => {
-  if(op == 'close'){
+  if (op == 'close') {
     BrowserWindow.fromWebContents(event.sender).close();
   }
-  else if(op == 'minimize'){
+  else if (op == 'minimize') {
     BrowserWindow.fromWebContents(event.sender).minimize();
   }
-  else if(op == 'maximize'){
+  else if (op == 'maximize') {
     const win = BrowserWindow.fromWebContents(event.sender);
-    if(win.isMaximized()) win.unmaximize();
+    if (win.isMaximized()) win.unmaximize();
     else win.maximize();
   }
-  else if(op == 'reload'){
+  else if (op == 'reload') {
     const win = BrowserWindow.fromWebContents(event.sender);
     win.reload();
   }
-  else if(op == 'devtools'){
+  else if (op == 'devtools') {
     const win = BrowserWindow.fromWebContents(event.sender);
     event.sender.openDevTools();
   }
 });
 
-ipcMain.on('file', async (event, op)=>{
-  if(op == "open"){
+
+let files: Map<string, ScreenplayFile> = new Map<string, ScreenplayFile>();
+
+ipcMain.on('file', async (event, op) => {
+  if (op == "open") {
     let window = BrowserWindow.fromWebContents(event.sender);
-    let d = await dialog.showOpenDialog(window, {properties:['openFile'], buttonLabel:"Open screenplay", filters:[{name:'Fountain', extensions:['fountain','spmd']}]});
-    if(!d.canceled){
-      let filename = d.filePaths[0].split('\\').pop().split('/').pop();
-      let contents = fs.readFileSync(d.filePaths[0]).toString();
-      window.webContents.send('file', 'open', {contents: contents, name: filename});
+    let filters = [
+      { name: 'Screenplay', extensions: ['fountain', 'spmd', 'highland'] }, 
+      { name: 'Fountain', extensions: ['fountain', 'spmd'] }, 
+      { name: 'Highland', extensions: ['highland'] }
+    ];
+    let d = await dialog.showOpenDialog(window, { properties: ['openFile'], buttonLabel: "Open screenplay", filters:filters  });
+    if (!d.canceled) {
+      for (let i = 0; i < d.filePaths.length; i++) {
+        let filepath = path.parse(d.filePaths[i]);
+        let screenplayFile: ScreenplayFile;
+
+        if (filepath.ext == ".fountain" || filepath.ext == ".spmd")
+          screenplayFile = new FountainFile(filepath);
+
+        else if (filepath.ext == ".highland")
+          screenplayFile = new HighlandFile(filepath);
+        
+        if(screenplayFile){
+          screenplayFile.openFile().then((content) => {
+            window.webContents.send('file', 'open', content);
+          });
+        }
+        else{
+          window.webContents.send('file', 'cancel', 'Unable to decode screenplay file');
+        }
+      }
+    }
+    else{
+      window.webContents.send('file', 'cancel', 'No file selected');
     }
   }
 })
