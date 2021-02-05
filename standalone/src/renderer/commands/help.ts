@@ -3,6 +3,8 @@ import { Menu } from "@lumino/widgets";
 import { ipcRenderer } from "electron";
 import { DockPanelAlt } from "../lumino/DockPanel";
 import { TitleBar } from "../lumino/TitleBar";
+import { AboutPage } from "../pages/about";
+import * as renderer from "../renderer";
 
 export function init(commands: CommandRegistry, bar: TitleBar) {
     commands.addCommand('help.cheatsheet', {
@@ -23,7 +25,12 @@ export function init(commands: CommandRegistry, bar: TitleBar) {
         label: "About",
         iconClass: 'codicon codicon-info',
         execute: function (args) {
-            //TODO
+           if(renderer.hasTab("about")){
+               renderer.selectTab("about");
+           }
+           else{
+               renderer.newTab(new AboutPage());
+           }
         }
     });
 

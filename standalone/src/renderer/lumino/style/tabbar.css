@@ -105,6 +105,8 @@
 
 .lm-mod-borderlesstab .lm-TabBar-tab, .lm-mod-borderlesstab .lm-TabBar-tab:hover{
   background:transparent;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .lm-TabBar-tab:first-child {

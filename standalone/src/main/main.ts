@@ -9,11 +9,9 @@
 
 
 import { app, BrowserWindow, dialog, ipcMain, Menu, MenuItem, shell } from 'electron';
-import * as path from 'path';
-import * as fs from 'fs';
-import { HighlandFile } from './file/highland';
 import { ScreenplayFile } from './file/file';
-import { FountainFile } from './file/fountain';
+import { FileOperations} from './file/fileops';
+
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -89,36 +87,7 @@ let files: Map<string, ScreenplayFile> = new Map<string, ScreenplayFile>();
 ipcMain.on('file', async (event, op) => {
   if (op == "open") {
     let window = BrowserWindow.fromWebContents(event.sender);
-    let filters = [
-      { name: 'Screenplay', extensions: ['fountain', 'spmd', 'highland'] }, 
-      { name: 'Fountain', extensions: ['fountain', 'spmd'] }, 
-      { name: 'Highland', extensions: ['highland'] }
-    ];
-    let d = await dialog.showOpenDialog(window, { properties: ['openFile'], buttonLabel: "Open screenplay", filters:filters  });
-    if (!d.canceled) {
-      for (let i = 0; i < d.filePaths.length; i++) {
-        let filepath = path.parse(d.filePaths[i]);
-        let screenplayFile: ScreenplayFile;
-
-        if (filepath.ext == ".fountain" || filepath.ext == ".spmd")
-          screenplayFile = new FountainFile(filepath);
-
-        else if (filepath.ext == ".highland")
-          screenplayFile = new HighlandFile(filepath);
-        
-        if(screenplayFile){
-          screenplayFile.openFile().then((content) => {
-            window.webContents.send('file', 'open', content);
-          });
-        }
-        else{
-          window.webContents.send('file', 'cancel', 'Unable to decode screenplay file');
-        }
-      }
-    }
-    else{
-      window.webContents.send('file', 'cancel', 'No file selected');
-    }
+    FileOperations.filePicker(window);
   }
 })
 

@@ -55,5 +55,14 @@
 }
 
 .lm-Toolbar-item:active .lm-Toolbar-icon{
-    transform:scale(1.1);
+    transform:scale(1.05);
+}
+
+.lm-Toolbar-separator {
+    margin-right: 2px;
+    top: 0;
+    display: inline-block;
+    background-color: var(--toolbar-separator);
+    height: calc(var(--toolbar-height));
+    width: 1px;
 }

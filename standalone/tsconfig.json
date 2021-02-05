@@ -13,7 +13,13 @@
     "resolveJsonModule": true,
     "paths": {
       "*": ["node_modules/*"]
-    }
+    },
+    "types": ["typings.d.ts"],
+    "lib":[
+      "DOM",
+      "WebWorker",
+      "ES2015"
+    ]
   },
   "include": [
     "src/**/*"

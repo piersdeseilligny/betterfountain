@@ -4,7 +4,7 @@ import { ipcRenderer, webFrame } from "electron";
 import { DockPanelAlt } from "../lumino/DockPanel";
 import { TitleBar } from "../lumino/TitleBar";
 
-export function init(commands: CommandRegistry, bar: TitleBar, dockLeft: DockPanelAlt, dockRight: DockPanelAlt) {
+export function init(commands: CommandRegistry, bar: TitleBar) {
   commands.addCommand('view.devtools', {
     label: 'Open developer tools',
     iconClass: 'codicon codicon-tools',
@@ -18,34 +18,6 @@ export function init(commands: CommandRegistry, bar: TitleBar, dockLeft: DockPan
     iconClass: 'codicon codicon-refresh',
     execute: () => {
       ipcRenderer.send('window', 'reload');
-    }
-  });
-  commands.addCommand('view.hideright', {
-    label: 'Show right-side panel',
-    caption: 'Show right-side panel',
-    iconClass: 'codicon codicon-arrow-right',
-    isToggleable: true,
-    isToggled: () => {
-      return dockRight.isVisible;
-    },
-    execute: () => {
-      commands.notifyCommandChanged("view.hideright");
-      if (dockRight.isVisible) dockRight.hide();
-      else dockRight.show();
-    }
-  });
-  commands.addCommand('view.hideleft', {
-    label: 'Show left-side panel',
-    caption: 'Show left-side panel',
-    iconClass: 'codicon codicon-arrow-left',
-    isToggleable: true,
-    isToggled: () => {
-      return dockLeft.isVisible;
-    },
-    execute: () => {
-      commands.notifyCommandChanged("view.hideleft");
-      if (dockLeft.isVisible) dockLeft.hide();
-      else dockLeft.show();
     }
   });
   commands.addCommand('view.welcome', {

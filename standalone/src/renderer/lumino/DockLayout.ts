@@ -997,7 +997,7 @@ export
     }
 
     let toptabChange = 0;
-    if(this._toptabsLeft || this._toptabsRight){
+    if(this._toptabsLeft !== undefined || this._toptabsRight !== undefined){
       toptabChange=32;
     }
 

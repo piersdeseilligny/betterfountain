@@ -1,6 +1,7 @@
 body{
     /*GENERAL*/
     --foreground:hsl(0, 0%, 20%);
+    --foreground-hover:black;
 
     --backgroundlow:hsl(0, 0%, 91%);
     --background:hsl(0, 0%, 98%);
@@ -10,7 +11,9 @@ body{
     --background-hover:hsl(0,0%,91%);
     --backgroundhigh-hover:hsl(0,0%,98%);
 
-    --foreground-hover:black;
+    --accent:#007ACC;
+
+   
     --scrollbar-thumb:rgba(0,0,0,0.25);
     --scrollbar-thumb-hover:rgba(0,0,0,0.5);
     --scrollbar-thumb-active:rgba(0,0,0,0.75);
@@ -50,13 +53,15 @@ body{
     --toolbar-fontsize:16px;
     --toolbar-item-background: white;
     --toolbar-item-foreground: rgb(119, 119, 119);
+    --toolbar-separator: #DDDDDD;
+
     /* Toggle states */
     --toolbar-item-toggled-background:rgb(240, 240, 240);
-    --toolbar-item-toggled-foreground:rgb(119, 119, 119);
-    --toolbar-item-toggled-indicator-color:rgb(119, 119, 119);
+    --toolbar-item-toggled-foreground:var(--accent);
+    --toolbar-item-toggled-indicator-color:var(--accent);
     /* Hover states */
     --toolbar-item-hover-background:var(--background-hover);
     --toolbar-item-hover-foreground:var(--foreground-hover);
     --toolbar-item-hover-toggled-background:rgb(230,230,230);
-    --toolbar-item-hover-toggled-foreground:rgb(71, 71, 71);
+    --toolbar-item-hover-toggled-foreground:var(--accent);
 }

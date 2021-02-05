@@ -45,7 +45,7 @@ export namespace Toolbar{
         }
 
         /**
-         * Add the given command to the toolbar
+         * Add the given command or separator to the toolbar
          */
         addItem(command:string){
             let item = document.createElement('li');
@@ -60,6 +60,15 @@ export namespace Toolbar{
             }
             this._content.append(item);
             this._commands.add(command);
+        }
+
+        /**
+         * Add a separator to the toolbar
+         */
+        addSeparator(){
+            let separator = document.createElement('span');
+            separator.className= 'lm-Toolbar-separator';
+            this._content.append(separator);
         }
 
         /**
@@ -120,7 +129,7 @@ export namespace Toolbar{
                 classes += " lm-mod-disabled";
             if(this._commandregistry.isToggleable(command)){
                 classes += " lm-mod-toggleable";
-                if(!this._commandregistry.isToggled(command))
+                if(this._commandregistry.isToggled(command))
                     classes+= " lm-mod-toggled";
             }
 

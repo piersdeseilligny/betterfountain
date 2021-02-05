@@ -8,7 +8,9 @@
 
 import { CommandRegistry } from '@lumino/commands';
 
-import { ContextMenu, Panel, Widget } from '@lumino/widgets';
+
+import { toArray } from "@lumino/algorithm";
+import { Panel, Widget } from '@lumino/widgets';
 import { ipcRenderer } from 'electron';
 import { DockPanelAlt } from './lumino/DockPanel';
 import { SplitPanel } from './lumino/SplitPanel';
@@ -29,14 +31,20 @@ import * as commandsHelp from './commands/help';
 import { SplitLayout } from './lumino/SplitLayout';
 import { IMessageHandler, IMessageHook, Message, MessageLoop } from '@lumino/messaging';
 import { ScreenplayContent } from '../main/file/file';
+import { Pane, PaneCollection } from './panes/pane';
+import { InspectPane } from './panes/inspect';
+import { OutlinePane } from './panes/outline';
+import { PdfPane } from './panes/pdf';
 
 
-const commands = new CommandRegistry();
+
+
+export const commands = new CommandRegistry();
 
 /**
  * A basic content widget, useful for testing
  */
-class ContentWidget extends Widget {
+export class ContentWidget extends Widget {
   constructor(name: string) {
     super({ node: ContentWidget.createNode() });
     this.setFlag(Widget.Flag.DisallowLayout);
@@ -55,8 +63,6 @@ class ContentWidget extends Widget {
 
 let bar:TitleBar;
 let dockCentral:DockPanelAlt;
-let dockLeft:DockPanelAlt;
-let dockRight:DockPanelAlt;
 
 function main(): void {
 
@@ -66,8 +72,7 @@ function main(): void {
   });
 
 
-    dockCentral = new DockPanelAlt({mode:'multiple-document', tabsConstrained:true, toptabsLeft:48, toptabsRight:24 });
-    dockCentral.addWidget(new Editor('','New file'));
+    dockCentral = new DockPanelAlt({mode:'multiple-document', tabsConstrained:true, toptabsLeft:0, toptabsRight:0 });
     dockCentral.tabsConstrained = true;
     dockCentral.id = "dockcentral";
 
@@ -77,20 +82,20 @@ function main(): void {
       top:true,
       bottom:true
     };
-    dockLeft = new DockPanelAlt({mode:'multiple-document', tabsConstrained:true, edgesEnabled: sidepanelEnabledEdges});
-    dockLeft.addWidget(new ContentWidget('OUTLINE'));
-    dockLeft.addWidget(new ContentWidget('CHARACTERS'));
-    dockLeft.id = 'dock2'
-    dockLeft.addClass('lm-mod-borderlesstab');
-    dockLeft.addClass('lm-mod-sidepanel');
 
-    dockRight = new DockPanelAlt({mode:'multiple-document', tabsConstrained:true, edgesEnabled: sidepanelEnabledEdges});
-    dockRight.addWidget(new ContentWidget('PDF'));
-    dockRight.addWidget(new ContentWidget('PRESETS'));
-    dockRight.id = 'dock3'
-    dockRight.addClass('lm-mod-borderlesstab');
-    dockRight.addClass('lm-mod-sidepanel');
 
+    const leftSide = new Panel();
+    leftSide.addClass('lm-mod-sidepanel');
+    const leftSideCollection = new PaneCollection(leftSide, commands);
+    leftSideCollection.selectedPane = "view.inspect";
+    leftSideCollection.addPane(new InspectPane());
+    leftSideCollection.addPane(new OutlinePane());
+
+    const rightSide = new Panel();
+    rightSide.addClass('lm-mod-sidepanel');
+    rightSide.hide();
+    const rightSideCollection = new PaneCollection(rightSide, commands);
+    rightSideCollection.addPane(new PdfPane());
 
     //Initiate the title bar and menu
     bar = new TitleBar();
@@ -99,13 +104,8 @@ function main(): void {
     commandsEdit.init(commands, bar);
     commandsTools.init(commands,bar);
     commandsDeliver.init(commands, bar);
-    commandsView.init(commands, bar, dockLeft, dockRight);
+    commandsView.init(commands, bar);
     commandsHelp.init(commands,bar);
-
-
-    SplitPanel.setStretch(dockCentral, 2);
-    SplitPanel.setWidthBasis(dockLeft, 300);
-    SplitPanel.setWidthBasis(dockRight, 300);
 
 
 
@@ -119,20 +119,25 @@ function main(): void {
     topbar.addWidget(toolbarLeft);
     topbar.addWidget(toolbarRight);
 
-    toolbarLeft.addItem("view.hideleft");
+    toolbarLeft.addItem("view.inspect")
+    toolbarLeft.addItem("view.outline")
+    toolbarLeft.addSeparator();
     toolbarLeft.addItem("view.reload");
-    toolbarLeft.addItem("file.open");
 
+    
     toolbarRight.addItem("view.zoomin");
     toolbarRight.addItem("view.devtools");
-    toolbarRight.addItem("view.hideright");
-
+    toolbarRight.addSeparator();
+    toolbarRight.addItem("view.pdf");
 
 
     let split = new SplitPanel({spacing:0});
-    split.addWidget(dockLeft);
+    SplitPanel.setStretch(dockCentral, 2);
+    SplitPanel.setWidthBasis(leftSide, 300);
+    SplitPanel.setWidthBasis(rightSide, 300);
+    split.addWidget(leftSide);
     split.addWidget(dockCentral);
-    split.addWidget(dockRight);
+    split.addWidget(rightSide);
     split.id = "maincontent";
 
 
@@ -147,21 +152,22 @@ function main(): void {
         dockCentral.toptabsLeft = leftoffset;
       }
     }
+    
 
     class VisiblityHook implements IMessageHook{
       messageHook(target: IMessageHandler, msg: Message): boolean {
         if(msg.type == "after-hide"){
-          if(target == dockLeft){
+          if(target == leftSide){
             dockCentral.toptabsLeft = toolbarLeft.node.clientWidth;
           }
-          else if(target == dockRight){
+          else if(target == rightSide){
             dockCentral.toptabsRight = toolbarRight.node.clientWidth;
           }
         }
         else if(msg.type == "after-show"){
-          if(target == dockLeft){
+          if(target == leftSide){
             let leftoffset = 0;
-            const dockleftWidth = dockLeft.node.clientWidth;
+            const dockleftWidth = leftSide.node.clientWidth;
             if(toolbarLeft.node.clientWidth > dockleftWidth){
               leftoffset = toolbarLeft.node.clientWidth - dockleftWidth;
             }
@@ -173,8 +179,8 @@ function main(): void {
     }
     let dockLeftHook = new VisiblityHook();
     let dockRightHook = new VisiblityHook();
-    MessageLoop.installMessageHook(dockLeft, dockLeftHook);
-    MessageLoop.installMessageHook(dockRight, dockRightHook);
+    MessageLoop.installMessageHook(leftSide, dockLeftHook);
+    MessageLoop.installMessageHook(rightSide, dockRightHook);
 
   let statusbar = new Statusbar.Statusbar({});
 
@@ -185,8 +191,31 @@ function main(): void {
   Widget.attach(split, document.body);
   Widget.attach(statusbar, document.body);
 
-  dockLeftHook.messageHook(dockLeft, new Message('after-show'));
-  dockRightHook.messageHook(dockLeft, new Message('after-show'));
+  dockLeftHook.messageHook(leftSide, new Message('after-show'));
+  dockRightHook.messageHook(rightSide, new Message('after-show'));
+}
+
+export function newTab(widget:Widget){
+  dockCentral.addWidget(widget);
+  dockCentral.selectWidget(widget);
+}
+export function hasTab(id:string):boolean{
+  let widgets = toArray(dockCentral.widgets());
+  for (let i = 0; i < widgets.length; i++) {
+    if(widgets[i].id == id){
+      return true;
+    }
+  }
+  return false;
+}
+export function selectTab(id:string){
+  let widgets = toArray(dockCentral.widgets());
+  for (let i = 0; i < widgets.length; i++) {
+    if(widgets[i].id == id){
+       dockCentral.selectWidget(widgets[i]);
+       break;
+    }
+  }
 }
 
 ipcRenderer.on('window', (evt: Electron.IpcRendererEvent, event:string, data:any)=>{
@@ -208,12 +237,9 @@ ipcRenderer.on('window', (evt: Electron.IpcRendererEvent, event:string, data:any
 
 ipcRenderer.on('file', (evt: Electron.IpcRendererEvent, event:string, data:any)=>{
   if(event == 'open'){
-    let content = data as ScreenplayContent;
-    let editor = new Editor(content.fountain, content.filename);
-    dockCentral.addWidget(editor);
-    dockCentral.selectWidget(editor);
+    let editor = new Editor(data as ScreenplayContent);
+    newTab(editor);
   }
 });
-
 
 window.onload = main;

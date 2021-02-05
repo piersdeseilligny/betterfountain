@@ -4,6 +4,7 @@ import * as path from "path";
 export type ScreenplayContent = {
     fountain: string;
     id: string;
+    uri: string;
     filename:string;
 }
 
@@ -25,11 +26,16 @@ export class ScreenplayFile{
         this.filename = p.base;
     }
 
+    /**
+     * Create a ScreenplayContent object from the given fountain text
+     * @param fountain the fountain-formatted content
+     */
     createContent(fountain:string):ScreenplayContent {
         return{
             id:this.id,
             fountain:fountain,
-            filename:this.filename
+            filename:this.filename,
+            uri: "file://"+this.filepath
         }
     }
 
@@ -43,3 +49,4 @@ export class ScreenplayFile{
      */
     public saveFile:(content: ScreenplayContent) => Promise<boolean>;
 }
+
