@@ -26,7 +26,7 @@ export class InspectPane extends Pane{
             }
         });
 
-        let fileExplorer = new TreeView();
+        let fileExplorer = new TreeView.TreeView();
         fileExplorer.title.label = "FILES";
         this.widget.addWidget(fileExplorer);
         this.widget.addWidget(new ContentWidget('Red'));

@@ -3,6 +3,8 @@ import { Menu } from "@lumino/widgets";
 import { ipcRenderer, webFrame } from "electron";
 import { DockPanelAlt } from "../lumino/DockPanel";
 import { TitleBar } from "../lumino/TitleBar";
+import * as renderer from "../renderer";
+import { WelcomePage } from "../pages/welcome";
 
 export function init(commands: CommandRegistry, bar: TitleBar) {
   commands.addCommand('view.devtools', {
@@ -24,7 +26,12 @@ export function init(commands: CommandRegistry, bar: TitleBar) {
     label: 'Welcome Screen',
     iconClass: 'codicon codicon-home',
     execute: () => {
-      //TODO
+      if(renderer.hasTab("about")){
+        renderer.selectTab("about");
+      }
+      else{
+          renderer.newTab(new WelcomePage());
+      }
     }
   });
 
@@ -69,6 +76,7 @@ export function init(commands: CommandRegistry, bar: TitleBar) {
   menu.addItem({ type: "command", command: "view.hideleft" });
   menu.addItem({ type: "command", command: "view.hideright" });
   menu.addItem({ type: 'separator' });
+  menu.addItem({ type: "command", command: "view.welcome" });
   menu.addItem({ type: "command", command: "view.reload" });
   menu.addItem({ type: 'command', command: 'view.devtools' });
   menu.addItem({ type: 'command', command: 'view.zoomin' });

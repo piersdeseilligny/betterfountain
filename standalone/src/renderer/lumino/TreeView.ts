@@ -1,6 +1,6 @@
 import { Widget } from "@lumino/widgets";
 
-namespace TreeView {
+export namespace TreeView {
 
     export
         class TreeView extends Widget {

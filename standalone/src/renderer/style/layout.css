@@ -95,6 +95,34 @@ body.windowstatus-blurred .lm-MenuBar-windowtitle{
 }
 
 
+/* HEADERS */
+h1{
+  font-weight: 600;
+}
+
+h2{
+  margin-bottom: 12px;
+  margin-top: 24px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+
+/* BUTTONS */
+
+.textbutton{
+  font-size: 12px;
+  font-weight: 600;
+  margin: 4px 0;
+}
+.textbutton .codicon{
+  vertical-align: bottom;
+  font-size: 14px;
+}
+.accent{
+  color:var(--accent);
+}
+
 .content {
   min-width: 50px;
   min-height: 50px;

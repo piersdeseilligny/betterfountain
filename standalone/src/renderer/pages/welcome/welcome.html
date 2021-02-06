@@ -1,0 +1,169 @@
+<style>
+    .welcome{
+        padding: 24px 48px;
+        user-select: none;
+        max-width: 800px;
+    }
+    .welcome-header {
+        display: flex;
+    }
+    .welcome-logo-image{
+        max-width:140px;
+    }
+    .welcome-logo-text h1{
+        margin:0;
+    }
+    .welcome-logo-text{
+        font-weight: 500;
+        margin: 0;
+        margin-left: 24px;
+        align-self: center;
+
+    }
+    .welcome-version-number{
+        opacity:0.6;
+        font-size: 20px;
+        margin-left: 6px;
+    }
+    .welcome-version-name{
+        font-weight: 400;
+        opacity:0.4;
+        font-size: 12px;
+    }
+
+    .flex-big-container{
+        display:flex;
+    }
+    .flex-big-item{
+        width:100%;
+    }
+    .grid-small-container{   
+        display: grid;
+        grid-template-columns: 50% 50%;
+        grid-gap: 6px;
+    }
+    .grid-small-row-container{
+        display:grid;
+        grid-gap:6px;
+        max-width:200px;
+        margin-right:6px;
+    }
+    .grid-small-item{
+        background-color: var(--background);
+        display:flex;
+        font-size:12px;
+        overflow:hidden;
+    }
+    .grid-small-item:hover{
+        background-color: var(--background-hover);
+    }
+    .grid-small-item .codicon{
+        font-size:16px;
+        margin:14px;
+    }
+    .grid-small-item > div{
+        align-self: center;
+        overflow: hidden;
+        margin-right: 6px;
+    }
+    .grid-small-item span{
+        display:block;
+        font-size:10px;
+        opacity:0.5;
+        margin-top: -4px;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    .recent-file{
+        background-color: var(--background);
+        display:flex;
+        font-size:12px;
+        overflow:hidden;
+    }
+    .recent-file:hover{
+        background-color: var(--background-hover);
+    }
+    .recent-file .codicon{
+        font-size:16px;
+        margin:14px;
+    }
+    .recent-file > div{
+        align-self: center;
+        overflow: hidden;
+        margin-right: 6px;
+    }
+    .recent-file span{
+        display:block;
+        font-size:10px;
+        opacity:0.5;
+        margin-top: -4px;
+        font-weight: 600;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+</style>
+<div class="welcome">
+    <div class="welcome-header">
+        <img class="welcome-logo-image" src="/static/icon.png">
+        <div class="welcome-logo-text">
+            <h1>BetterFountain <span class="welcome-version-number">0.0.1</span></h1>
+        </div>
+    </div>
+    <div class="flex-big-container">
+        <div class="flex-big-item">
+            <h2>New</h2>
+            <div class="grid-small-row-container">
+                <div class="grid-small-item">
+                    <i class="codicon codicon-add"></i>
+                    <div>New Screenplay</div>
+                </div>
+            </div>
+        </div>
+        <div class="flex-big-item">
+            <h2>Open</h2>
+            <div class="grid-small-container">
+                <div class="grid-small-item">
+                    <i class="codicon codicon-vm"></i>
+                    <div>
+                        This PC
+                    </div>
+                </div>
+                <div class="grid-small-item">
+                    <i class="codicon codicon-cloud"></i>
+                    <div>
+                        OneDrive
+                        <span>piers.deseilligny@outlook.com</span>
+                    </div>
+                </div>
+                <div class="grid-small-item">
+                    <i class="codicon codicon-server-environment"></i>
+                    <div>
+                        FTP Server
+                        <span>192.168.1.1</span>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="textbutton accent" style="float:right">
+                <i class="codicon codicon-add"></i>
+                Add Location
+            </div>
+        </div>
+    </div>
+    <div>
+        <h2>Recent</h2>
+        <div class="welcome-recent-container">
+            <div class="recent-file">
+                <i class="codicon codicon-file"></i>
+                <div>Pulp Fiction
+                    <span>pulpfiction.fountain</span>
+                </div>
+            </div>
+        </div>
+        <div class="textbutton accent" style="float:right">
+            Show More
+        </div>
+    </div>
+</div>
