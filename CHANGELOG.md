@@ -1,5 +1,9 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.8.2** - *2021-02-07*
+    · (Maybe?) Fix Issue #114
+    · Prevent characters from starting with '#' or '!' - Thanks @daryluren for the PR!
+
 ## **1.8.1** - *2021-01-23*
     · Fix spacing around centred text displaying incorrectly in the live preview (Bug #108)
 
