@@ -28,6 +28,9 @@ body.windowstatus-normal .lm-MenuBar-buttons-btn-maximize:before{
 body.windowstatus-maximized .lm-MenuBar-buttons-btn-maximize:before{
   content: '\eabb';
 }
+body.windowstatus-maximized .lm-MenuBar {
+  padding-left: 0px;
+}
 body.windowstatus-blurred .lm-MenuBar-windowtitle{
   opacity:0.5;
 }
@@ -121,6 +124,12 @@ h2{
 }
 .accent{
   color:var(--accent);
+}
+.accent.clickable:hover{
+  color:var(--accent-hover);
+}
+.accent.clickable:active{
+  color:var(--accent-active);
 }
 
 .content {

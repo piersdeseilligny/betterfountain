@@ -9,7 +9,6 @@ export function init(commands: CommandRegistry, bar: TitleBar) {
         label: "New screenplay",
         iconClass: 'codicon codicon-add',
         execute: function (args) {
-            //TODO
             ipcRenderer.send('file', 'new');
         }
     });

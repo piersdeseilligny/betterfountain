@@ -11,7 +11,9 @@ body{
     --background-hover:hsl(0,0%,91%);
     --backgroundhigh-hover:hsl(0,0%,98%);
 
-    --accent:#007ACC;
+    --accent:rgba(0, 122, 204, 1);
+    --accent-hover:rgba(0, 122, 204, 0.8);
+    --accent-active:rgba(0, 122, 204, 0.4);
 
    
     --scrollbar-thumb:rgba(0,0,0,0.25);

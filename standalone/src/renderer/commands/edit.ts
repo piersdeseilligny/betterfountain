@@ -3,6 +3,8 @@ import { Menu } from "@lumino/widgets";
 import { ipcRenderer } from "electron";
 import { DockPanelAlt } from "../lumino/DockPanel";
 import { TitleBar } from "../lumino/TitleBar";
+import { SettingsPage } from "../pages/settings";
+import * as renderer from "../renderer";
 
 export function init(commands: CommandRegistry, bar: TitleBar) {
     commands.addCommand('edit.undo', {
@@ -43,7 +45,12 @@ export function init(commands: CommandRegistry, bar: TitleBar) {
         label: "Settings",
         iconClass: "codicon codicon-settings-gear",
         execute: function (args) {
-            //TODO
+            if(renderer.hasTab("settings")){
+                renderer.selectTab("settings");
+              }
+              else{
+                  renderer.newTab(new SettingsPage());
+              }
         }
     });
 

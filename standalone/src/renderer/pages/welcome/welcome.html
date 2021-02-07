@@ -66,6 +66,11 @@
         overflow: hidden;
         margin-right: 6px;
     }
+    .grid-small-item > div{
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
     .grid-small-item span{
         display:block;
         font-size:10px;
@@ -146,7 +151,7 @@
                     
                 </div>
             </div>
-            <div class="textbutton accent" style="float:right">
+            <div class="textbutton accent clickable" style="float:right">
                 <i class="codicon codicon-add"></i>
                 Add Location
             </div>
@@ -162,7 +167,7 @@
                 </div>
             </div>
         </div>
-        <div class="textbutton accent" style="float:right">
+        <div class="textbutton accent clickable" style="float:right">
             Show More
         </div>
     </div>

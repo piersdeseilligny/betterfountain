@@ -50,4 +50,9 @@ export namespace FileOperations{
     export async function fileSaver(window:BrowserWindow){
         let filesaver = await dialog.showSaveDialog(window, { filters:filters, buttonLabel:"Save Screenplay" });
     }
+    export async function createFile(window:BrowserWindow){
+      new ScreenplayFile().openFile().then((content) => {
+        window.webContents.send('file', 'open', content);
+      });
+    }
 }

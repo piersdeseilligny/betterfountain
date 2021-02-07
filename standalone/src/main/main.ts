@@ -85,9 +85,12 @@ ipcMain.on('window', (event, op) => {
 let files: Map<string, ScreenplayFile> = new Map<string, ScreenplayFile>();
 
 ipcMain.on('file', async (event, op) => {
+  let window = BrowserWindow.fromWebContents(event.sender);
   if (op == "open") {
-    let window = BrowserWindow.fromWebContents(event.sender);
     FileOperations.filePicker(window);
+  }
+  if(op == "new"){
+    FileOperations.createFile(window);
   }
 })
 

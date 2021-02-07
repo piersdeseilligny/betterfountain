@@ -9,7 +9,6 @@
     width: var(--toolbar-height);
     height:var(--toolbar-height);
     display: inline-block;
-    margin-right:2px;
     position:relative;
     color: var(--toolbar-item-foreground);
     transition: all 0.1s;
@@ -59,7 +58,6 @@
 }
 
 .lm-Toolbar-separator {
-    margin-right: 2px;
     top: 0;
     display: inline-block;
     background-color: var(--toolbar-separator);

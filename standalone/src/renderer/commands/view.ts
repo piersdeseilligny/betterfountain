@@ -26,8 +26,8 @@ export function init(commands: CommandRegistry, bar: TitleBar) {
     label: 'Welcome Screen',
     iconClass: 'codicon codicon-home',
     execute: () => {
-      if(renderer.hasTab("about")){
-        renderer.selectTab("about");
+      if(renderer.hasTab("welcome")){
+        renderer.selectTab("welcome");
       }
       else{
           renderer.newTab(new WelcomePage());

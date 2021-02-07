@@ -20,10 +20,13 @@ export class ScreenplayFile{
     filepath:string;
     filename:string;
 
-    constructor(p:path.ParsedPath){
+    constructor(p?:path.ParsedPath){
         this.id=uuid.v4();
-        this.filepath = p.dir+path.sep+p.base;
-        this.filename = p.base;
+        if(p != undefined){
+            this.filepath = p.dir+path.sep+p.base;
+            this.filename = p.base;
+        }
+
     }
 
     /**
@@ -31,18 +34,26 @@ export class ScreenplayFile{
      * @param fountain the fountain-formatted content
      */
     createContent(fountain:string):ScreenplayContent {
+        let uri;
+        if(this.filepath){
+            uri="file://"+this.filepath;
+        }
         return{
             id:this.id,
             fountain:fountain,
             filename:this.filename,
-            uri: "file://"+this.filepath
+            uri: uri
         }
     }
 
     /**
      * Open the file and return it's content
      */
-    public openFile:() => Promise<ScreenplayContent>;
+    openFile = ():Promise<ScreenplayContent> => {
+        return new Promise((resolve, reject)=>{
+            resolve(this.createContent(""));
+        });
+    }
 
     /**
      * Save the file
