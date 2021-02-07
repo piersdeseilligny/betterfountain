@@ -168,7 +168,7 @@
          <key>contentName</key>
          <string>string</string>
          <key>begin</key>
-         <string>^[ \t]*(((?!@)[^\p{Ll}\r\n]*?\p{Lu}[^\p{Ll}\r\n]*?)|((@)[^\r\n]*?))(\(.*\))?(\s*\^)?$</string>
+         <string>^[ \t]*(?![#!])(((?!@)[^\p{Ll}\r\n]*?\p{Lu}[^\p{Ll}\r\n]*?)|((@)[^\r\n]*?))(\(.*\))?(\s*\^)?$</string>
          <key>end</key>
          <string>^$</string>
          <key>beginCaptures</key>
