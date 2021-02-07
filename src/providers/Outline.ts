@@ -18,7 +18,9 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 	getChildren(element?: OutlineTreeItem): vscode.ProviderResult<any[]> {
 		if (element)
 			return element.children;
-		return this.treeRoot.children;
+		if(this.treeRoot && this.treeRoot.children)
+			return this.treeRoot.children;
+		else return [];
 	}
 	getParent(element: OutlineTreeItem): any {
 		// necessary for reveal() to work
