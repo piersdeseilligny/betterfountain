@@ -4,6 +4,7 @@ import { Uri } from "vscode";
 import { AvenueWorker } from "../../../avenue/AvenueWorker";
 import { ScreenplayContent } from "../../../main/file/file";
 import * as modes from 'monaco-editor/esm/vs/editor/common/modes';
+import { appSignals } from "../../renderer";
 
 
 monaco.languages.register({
@@ -162,18 +163,21 @@ export class Editor extends Widget {
         }
 
         let model = monaco.editor.createModel(this.content.fountain, "fountain", monaco.Uri.parse(this.content.uri));
-
-        
-
         this.editor = monaco.editor.create(this.node, {
             model:model, 
             'semanticHighlighting.enabled': true,
             'wordWrapColumn': 57,
             'wordWrap':'wordWrapColumn'
         });
+        appSignals.changeDocument(this.content);
+        this.editor.onDidFocusEditorWidget(()=>{
+            appSignals.changeDocument(this.content);
+        });
+    }
 
-        
-        console.log(avenue);
+    dispose(): void {
+        this.editor.dispose();
+        super.dispose();
     }
 
     protected onResize(msg:Widget.ResizeMessage){

@@ -58,13 +58,13 @@
 
 
 .lm-MenuBar-buttons-btn:hover{
-  background-color:#d5d5d5;
+  background-color:var(--window-button-background-hover);
   transition: background-color 0.1s, color 0.1s;
 }
 
 
 .lm-MenuBar-buttons-btn:hover:active{
-  background-color:#bbbbbb;
+  background-color:var(--window-button-background-active);
   transition: background-color 0, color 0;
 }
 

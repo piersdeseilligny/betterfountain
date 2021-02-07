@@ -69,4 +69,8 @@ export abstract class Pane{
 
     constructor(){
     }
+
+    dispose(){
+        this.widget.dispose();
+    }
 }

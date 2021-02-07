@@ -14,7 +14,7 @@
   color: var(--menu-foreground-default);
   border: var(--menu-background-border);
   font-size:12px;
-  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--menu-shadow);
 }
 
 

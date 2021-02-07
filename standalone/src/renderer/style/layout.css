@@ -11,9 +11,11 @@ body {
   overflow: hidden;
   box-sizing: border-box;
   font-family: '-apple-system','BlinkMacSystemFont','Segoe UI','Helvetica','Arial','sans-serif','Apple Color Emoji','Segoe UI Emoji';
+  color: var(--foreground);
+  background: var(--backgroundhigh);
 }
 body.windowstatus-normal {
-  border: solid rgba(0,0,0,0.2) 1px;
+  border: var(--windowborder);
 }
 body.windowstatus-maximized {
   border: solid rgba(0,0,0,0.2) 0px;
@@ -61,7 +63,7 @@ body.windowstatus-blurred .lm-MenuBar-windowtitle{
   right:-16px;
   top:0px;
   bottom:-16px;
-  box-shadow: inset 0 0px 6px rgba(0,0,0,0.25);
+  box-shadow: var(--sidepanel-shadow);
   pointer-events: none;
 }
 
@@ -71,7 +73,8 @@ body.windowstatus-blurred .lm-MenuBar-windowtitle{
 }
 #dockcentral{
   overflow:visible;
-  box-shadow: 0 0 6px rgba(0,0,0,0.2);
+  box-shadow: var(--centralpanel-shadow);
+  outline: var(--centralpanel-outline);
   z-index:1;
 }
 .toolbar-right{

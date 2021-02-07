@@ -24,8 +24,16 @@ body{
     --tabborder: var(--chromeborder);
     --menuborder: var(--chromeborder);
 
+    /*WINDOW*/
+    --windowborder:var(--chromeborder);
+    --window-button-background-hover:hsl(0, 0%, 84%);
+    --window-button-background-active:hsl(0, 0%, 84%);
+
     /*SPLIPANEL*/
     --splitpanel-seperator:#DDDDDD;
+    --sidepanel-shadow:inset 0 0px 6px rgba(0,0,0,0.3);
+    --centralpanel-shadow:0 0 6px rgba(0,0,0,0.2);
+    --centralpanel-outline:solid 1px var(--backgroundhigh);
 
     /*TABS + DOCKPANEL*/
     --tab-background-default: var(--background);
@@ -38,6 +46,7 @@ body{
     /*MENUS*/
     --menu-background-default: var(--background);
     --menu-background-hover: var(--background-hover);
+    --menu-shadow:0px 1px 6px rgba(0, 0, 0, 0.2);
 
     --menubar-background-default: var(--backgroundlow);
     --menubar-background-hover: var(--backgroundlow-hover);
@@ -65,5 +74,83 @@ body{
     --toolbar-item-hover-background:var(--background-hover);
     --toolbar-item-hover-foreground:var(--foreground-hover);
     --toolbar-item-hover-toggled-background:rgb(230,230,230);
+    --toolbar-item-hover-toggled-foreground:var(--accent);
+}
+
+
+body{
+    /*GENERAL*/
+    --foreground:hsl(0, 0%, 80%);
+    --foreground-hover:hsl(0, 0%, 60%);
+
+    --backgroundlow:hsl(240, 5%, 24%);
+    --background:hsl(240, 5%, 18%);
+    --backgroundhigh:hsl(240, 5%, 12%);
+
+    --backgroundlow-hover:hsl(240, 5%, 30%);
+    --background-hover:hsl(240, 5%, 24%);
+    --backgroundhigh-hover:hsl(240, 5%, 18%);
+
+    --scrollbar-thumb:rgba(0,0,0,0.25);
+    --scrollbar-thumb-hover:rgba(0,0,0,0.5);
+    --scrollbar-thumb-active:rgba(0,0,0,0.75);
+    --scrollbar-thumb-hidden:transparent;
+    --chromeborder: 1px solid #383838;
+    --tabborder: var(--chromeborder);
+    --menuborder: var(--chromeborder);
+    --windowborder:solid 1px var(--backgroundlow);
+
+    /*WINDOW*/
+    --windowborder:var(--chromeborder);
+    --window-button-background-hover:hsl(240, 5%, 30%);
+    --window-button-background-active:hsl(240, 5%, 34%);
+
+    /*SPLIPANEL*/
+    --splitpanel-seperator:var(--chromeborder);
+    --sidepanel-shadow:inset 0 0px 6px rgba(0,0,0,0.5);
+    --centralpanel-shadow:0 0 6px rgba(0,0,0,0.4);
+    --centralpanel-outline:var(--chromeborder);
+
+    /*TABS + DOCKPANEL*/
+    --tab-background-default: var(--background);
+    --tab-background-hover:var(--background-hover);
+    --tab-background-selected: var(--backgroundhigh);
+    --dockpanel-overlay: rgba(255, 255, 255, 0.08);
+    --dockpanel-seperator: #DDDDDD;
+    
+
+    /*MENUS*/
+    --menu-background-default: var(--background);
+    --menu-background-hover: var(--background-hover);
+    --menu-foreground-default: var(--foreground);
+    --menu-foreground-hover: var(--foreground);
+    --menu-foreground-active:var(--foreground);
+
+    --menubar-background-default: var(--backgroundlow);
+    --menubar-background-hover: var(--backgroundlow-hover);
+    --menubar-background-active:var(--background);
+
+    --menubar-foreground-default: var(--foreground);
+    --menubar-foreground-hover: var(--foreground);
+    --menubar-foreground-active:var(--foreground);
+
+    --menu-border: solid 1px hsl(0,0%,88%);
+    --menu-shadow:0px 1px 6px rgba(0, 0, 0, 0.5);
+    
+
+    /*TOOLBAR*/
+    --toolbar-height:36px;
+    --toolbar-fontsize:16px;
+    --toolbar-item-foreground: rgb(170, 168, 168);
+    --toolbar-separator: var(--chromeborder);
+
+    /* Toggle states */
+    --toolbar-item-toggled-background:hsl(240, 5%, 12%);
+    --toolbar-item-toggled-foreground:var(--accent);
+    --toolbar-item-toggled-indicator-color:var(--accent);
+    /* Hover states */
+    --toolbar-item-hover-background:var(--background-hover);
+    --toolbar-item-hover-foreground:var(--foreground-hover);
+    --toolbar-item-hover-toggled-background:hsl(240, 5%, 16%);
     --toolbar-item-hover-toggled-foreground:var(--accent);
 }

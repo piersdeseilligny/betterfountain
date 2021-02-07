@@ -35,11 +35,14 @@ import { Pane, PaneCollection } from './panes/pane';
 import { InspectPane } from './panes/inspect';
 import { OutlinePane } from './panes/outline';
 import { PdfPane } from './panes/pdf';
+import { AppSignals } from './signals';
 
 
 
 
 export const commands = new CommandRegistry();
+
+export const appSignals = new AppSignals();
 
 /**
  * A basic content widget, useful for testing
@@ -59,7 +62,6 @@ export class ContentWidget extends Widget {
     return node;
   }
 }
-
 
 let bar:TitleBar;
 let dockCentral:DockPanelAlt;
@@ -152,7 +154,6 @@ function main(): void {
         dockCentral.toptabsLeft = leftoffset;
       }
     }
-    
 
     class VisiblityHook implements IMessageHook{
       messageHook(target: IMessageHandler, msg: Message): boolean {

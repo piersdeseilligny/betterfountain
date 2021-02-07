@@ -11,6 +11,7 @@
 .lm-TabBar {
   min-height: 32px;
   max-height: 24px;
+  margin-left:-1px;
   overflow-x: overlay;
 }
 
@@ -83,7 +84,7 @@
 }
 .lm-mod-borderlesstab .lm-TabBar-tab.lm-mod-current{
   background:transparent;
-  color:black;
+  color:var(--foreground);
 }
 .lm-mod-borderlesstab .lm-TabBar-tab.lm-mod-current::after{
   position:absolute;
@@ -91,7 +92,7 @@
   right:4px;
   left:4px;
   height:2px;
-  background-color:black;
+  background-color:var(--foreground);
   bottom:0;
 }
 .lm-mod-borderlesstab .lm-TabBar-tab:only-child::after{

@@ -2,7 +2,9 @@ import { Title, Widget } from "@lumino/widgets";
 import { TreeView } from "../../lumino/TreeView";
 import { DockPanelAlt } from "../../lumino/DockPanel";
 import { Pane, IPaneOptions } from "../pane";
-import { ContentWidget } from "../../renderer";
+import { appSignals, ContentWidget } from "../../renderer";
+import { ScreenplayContent } from "../../../main/file/file";
+
 
 export class InspectPane extends Pane{
     id = "view.inspect";
@@ -31,13 +33,17 @@ export class InspectPane extends Pane{
         this.widget.addWidget(fileExplorer);
         this.widget.addWidget(new ContentWidget('Red'));
 
-        let inspector = new Widget();
-        inspector.title.label = "INSPECT";
-        this.widget.addWidget(inspector);
-        
-
-
         this.widget.addClass('lm-mod-borderlesstab');
-        this
+        appSignals.documentChanged.connect(this.documentChange);
+    }
+
+    dispose(){
+        super.dispose();
+        appSignals.documentChanged.disconnect(this.documentChange);
+    }
+
+    documentChange(sender:any, content:ScreenplayContent){
+        console.log("Document changed: ");
+        console.log(content);
     }
 }
