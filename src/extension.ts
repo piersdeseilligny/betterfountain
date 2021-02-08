@@ -134,6 +134,8 @@ export function activeFountainDocument(): vscode.Uri{
 
 export function getEditor(uri:vscode.Uri): vscode.TextEditor{
 	//search visible text editors
+	console.log("Attempting to get editor ");
+	console.log(uri);
 	for (let i = 0; i < vscode.window.visibleTextEditors.length; i++) {
 		if(vscode.window.visibleTextEditors[i].document.uri.toString() == uri.toString())
 			return vscode.window.visibleTextEditors[i];
@@ -399,10 +401,16 @@ vscode.workspace.onDidChangeConfiguration(change => {
 
 //var lastFountainDocument:TextDocument;
 export var parsedDocuments = new Map<string, afterparser.parseoutput>();
+let lastParsedUri = "";
 
 export function activeParsedDocument(): afterparser.parseoutput {
 	var texteditor = getEditor(activeFountainDocument());
-	return parsedDocuments.get(texteditor.document.uri.toString());
+	if(texteditor){
+		return parsedDocuments.get(texteditor.document.uri.toString()); 
+	}
+	else{
+		return parsedDocuments.get(lastParsedUri);
+	}
 }
 
 export class FountainStructureProperties {
@@ -446,7 +454,8 @@ export function parseDocument(document: TextDocument) {
 			}
 		}
 	}
-	parsedDocuments.set(document.uri.toString(), output);
+	lastParsedUri = document.uri.toString();
+	parsedDocuments.set(lastParsedUri, output);
 	var tokenlength = 0;
 	const decorsDialogue: vscode.DecorationOptions[] = [];
 	tokenlength = 0;
