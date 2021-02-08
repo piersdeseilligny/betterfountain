@@ -14,7 +14,6 @@
     "paths": {
       "*": ["node_modules/*"]
     },
-    "types": ["typings.d.ts"],
     "lib":[
       "DOM",
       "WebWorker",

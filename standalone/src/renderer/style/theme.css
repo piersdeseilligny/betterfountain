@@ -47,6 +47,8 @@ body{
     --menu-background-default: var(--background);
     --menu-background-hover: var(--background-hover);
     --menu-shadow:0px 1px 6px rgba(0, 0, 0, 0.2);
+    --menu-background-disabled: inherit;
+    --menu-foreground-disabled: rgba(0,0,0,0.4);
 
     --menubar-background-default: var(--backgroundlow);
     --menubar-background-hover: var(--backgroundlow-hover);
@@ -78,7 +80,7 @@ body{
 }
 
 
-body{
+body.dark{
     /*GENERAL*/
     --foreground:hsl(0, 0%, 80%);
     --foreground-hover:hsl(0, 0%, 60%);
@@ -125,6 +127,7 @@ body{
     --menu-foreground-default: var(--foreground);
     --menu-foreground-hover: var(--foreground);
     --menu-foreground-active:var(--foreground);
+    --menu-foreground-disabled: rgba(255,255,255,0.2);
 
     --menubar-background-default: var(--backgroundlow);
     --menubar-background-hover: var(--backgroundlow-hover);

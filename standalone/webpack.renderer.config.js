@@ -21,9 +21,9 @@ rules.push({
 });
 
 module.exports = {
-  entry: {
+  /*entry: {
     'avenue.worker': path.resolve(__dirname, './src/avenue/avenue.worker.ts')
-  },
+  },*/
   output: {
     globalObject: 'self',
     filename: '[name].bundle.js'

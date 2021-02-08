@@ -5,7 +5,7 @@ module.exports = {
    */
   entry: {
     app:'./src/main/main.ts',
-    'avenue.worker':'./src/avenue/avenue.worker.ts'
+    //'avenue.worker':'./src/avenue/avenue.worker.ts'
   },
   // Put your normal webpack config below here
   module: {

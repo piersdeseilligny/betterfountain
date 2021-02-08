@@ -174,6 +174,14 @@ function main(): void {
             }
             dockCentral.toptabsLeft = leftoffset;
           }
+          else if(target == rightSide){
+            let rightoffset = 0;
+            const dockrightWidth = rightSide.node.clientWidth;
+            if(toolbarRight.node.clientWidth>dockrightWidth){
+              rightoffset = toolbarRight.node.clientWidth - dockrightWidth;
+            }
+            dockCentral.toptabsRight = rightoffset;
+          }
         }
         return true;
       }

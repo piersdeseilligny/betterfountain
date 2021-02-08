@@ -154,13 +154,13 @@ export class Editor extends Widget {
     }
 
     async makeEditor(){
-        if(!avenue){
+        /*if(!avenue){
             //Avenue isn't loaded yet
             avenue = await monaco.editor.createWebWorker<AvenueWorker>({
                 moduleId:"./avenue.worker.bundle.js",
                 label:"avenue"
             });
-        }
+        }*/
 
         let model = monaco.editor.createModel(this.content.fountain, "fountain", monaco.Uri.parse(this.content.uri));
         this.editor = monaco.editor.create(this.node, {
