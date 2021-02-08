@@ -4,7 +4,7 @@ import { ExtensionContext, languages, TextDocument } from 'vscode';
 import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
-import { secondsToString, overwriteSceneNumbers, updateSceneNumbers, openFile } from "./utils";
+import { secondsToString, overwriteSceneNumbers, updateSceneNumbers, openFile, shiftScenes } from "./utils";
 import * as telemetry from "./telemetry";
 
 
@@ -107,6 +107,7 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
+var isShifting = false;
 
 export let diagnosticCollection = languages.createDiagnosticCollection("fountain");
 export let diagnostics: vscode.Diagnostic[] = [];
@@ -275,7 +276,37 @@ export function activate(context: ExtensionContext) {
                 });
         });
 	}));
-	
+
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.shiftScenesUp', () => {
+		if (isShifting) 
+			return;
+		try {
+			isShifting = true;
+			var editor = getEditor(activeFountainDocument());
+			var config = getFountainConfig(activeFountainDocument());
+			var parsed = afterparser.parse(editor.document.getText(), config, false);
+			shiftScenes(editor, parsed, -1);
+			telemetry.reportTelemetry("command:fountain.shiftScenes");
+		}
+		finally {
+			isShifting = false;
+		}
+	}));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.shiftScenesDown', () => {
+		if (isShifting) 
+			return;
+		try {
+			isShifting = true; var editor = getEditor(activeFountainDocument());
+			var config = getFountainConfig(activeFountainDocument());
+			var parsed = afterparser.parse(editor.document.getText(), config, false);
+			shiftScenes(editor, parsed, 1);
+			telemetry.reportTelemetry("command:fountain.shiftScenes");
+		}
+		finally {
+			isShifting = false;
+		}
+	}));
+
 	vscode.workspace.onWillSaveTextDocument(e => {
 		const config = getFountainConfig(e.document.uri);
 		if (config.number_scenes_on_save === true) {

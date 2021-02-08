@@ -342,6 +342,16 @@
 				"command": "fountain.debugtokens",
 				"title": "Debug parsed output",
 				"category": "Fountain"
+			},
+			{
+				"command": "fountain.shiftScenesUp",
+				"title": "Shift Scenes Up",
+				"category": "Fountain"
+			},
+			{
+				"command": "fountain.shiftScenesDown",
+				"title": "Shift Scenes Down",
+				"category": "Fountain"
 			}
 		],
 		"keybindings": [
@@ -361,6 +371,18 @@
 				"command": "fountain.exportpdfdebug",
 				"key": "f5",
 				"mac": "f5",
+				"when": "editorLangId == fountain"
+			},
+			{
+				"command": "fountain.shiftScenesUp",
+				"key": "alt+up",
+				"mac": "alt+up",
+				"when": "editorLangId == fountain"
+			},
+			{
+				"command": "fountain.shiftScenesDown",
+				"key": "alt+down",
+				"mac": "alt+down",
 				"when": "editorLangId == fountain"
 			}
 		],
