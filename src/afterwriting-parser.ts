@@ -209,11 +209,11 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
     const latestSectionOrScene = (depth: number, condition: (token: StructToken) => boolean): StructToken => {
         try {
-            if (depth == 0) {
+            if (depth <= 0) {
                 return null;
             }
             else if (depth == 1) {
-                return last(result.properties.structure)
+                return last(result.properties.structure.filter(condition))
             }
             else {
                 var prevSection = latestSectionOrScene(depth - 1, condition)
@@ -227,7 +227,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         }
         catch {
             var section: StructToken = null;
-            while (!section) section = latestSectionOrScene(--depth, condition);
+            while (!section && depth > 0) section = latestSectionOrScene(--depth, condition);
             return section;
         }
     }
@@ -396,12 +396,12 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 cobj.range = new Range(new Position(thistoken.line, 0), new Position(thistoken.line, thistoken.text.length));
                 cobj.section = true;
 
-                if (current_depth == 1) {
+                const level = current_depth > 1 && latestSection(current_depth - 1);
+                if (current_depth == 1 || !level) {
                     cobj.id = '/' + thistoken.line;
                     result.properties.structure.push(cobj)
                 }
                 else {
-                    var level = latestSection(current_depth - 1);
                     cobj.id = level.id + '/' + thistoken.line;
                     level.children.push(cobj);
                 }
