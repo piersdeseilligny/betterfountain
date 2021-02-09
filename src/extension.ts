@@ -107,7 +107,7 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
-var isShifting = false;
+var lastShiftedParseId = "";
 
 export let diagnosticCollection = languages.createDiagnosticCollection("fountain");
 export let diagnostics: vscode.Diagnostic[] = [];
@@ -279,35 +279,21 @@ export function activate(context: ExtensionContext) {
         });
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.shiftScenesUp', () => {
-		if (isShifting) 
+	const shiftScenesUpDn = (direction: number) => {
+		var editor = getEditor(activeFountainDocument());
+		var parsed = parsedDocuments.get(editor.document.uri.toString());
+
+		/* prevent the shiftScenes() being processed again before the document is reparsed from the previous 
+			shiftScenes() (like when holding down the command key) so the selection doesn't slip */
+		if (lastShiftedParseId == parsed.parseTime + "_" + direction)
 			return;
-		try {
-			isShifting = true;
-			var editor = getEditor(activeFountainDocument());
-			var config = getFountainConfig(activeFountainDocument());
-			var parsed = afterparser.parse(editor.document.getText(), config, false);
-			shiftScenes(editor, parsed, -1);
-			telemetry.reportTelemetry("command:fountain.shiftScenes");
-		}
-		finally {
-			isShifting = false;
-		}
-	}));
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.shiftScenesDown', () => {
-		if (isShifting) 
-			return;
-		try {
-			isShifting = true; var editor = getEditor(activeFountainDocument());
-			var config = getFountainConfig(activeFountainDocument());
-			var parsed = afterparser.parse(editor.document.getText(), config, false);
-			shiftScenes(editor, parsed, 1);
-			telemetry.reportTelemetry("command:fountain.shiftScenes");
-		}
-		finally {
-			isShifting = false;
-		}
-	}));
+
+		shiftScenes(editor, parsed, direction);
+		telemetry.reportTelemetry("command:fountain.shiftScenes");
+		lastShiftedParseId = parsed.parseTime + "_" + direction;
+	};
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.shiftScenesUp', () => shiftScenesUpDn(-1)));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.shiftScenesDown', () => shiftScenesUpDn(1)));
 
 	vscode.workspace.onWillSaveTextDocument(e => {
 		const config = getFountainConfig(e.document.uri);

@@ -112,6 +112,7 @@ export interface parseoutput {
     tokenLines: { [line: number]: number }
     lengthAction: number,
     lengthDialogue: number,
+    parseTime: number,
     properties: screenplayProperties
 }
 export var parse = function (original_script: string, cfg: any, generate_html: boolean): parseoutput {
@@ -126,6 +127,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             lengthAction: 0,
             lengthDialogue: 0,
             tokenLines: {},
+            parseTime: +new Date(),
             properties:
             {
                 sceneLines: [],
