@@ -75,6 +75,7 @@ body.windowstatus-blurred .lm-MenuBar-windowtitle{
   overflow:visible;
   box-shadow: var(--centralpanel-shadow);
   outline: var(--centralpanel-outline);
+  outline-offset: -1px;
   z-index:1;
 }
 .toolbar-right{
