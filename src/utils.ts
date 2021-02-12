@@ -223,7 +223,7 @@ export const shiftScenes = (editor: vscode.TextEditor, parsed: parser.parseoutpu
 		}
 		else {
 			// +2 is where the next scene would start if there was one. done to make it look consistent.
-			const selEnd = last(parsed.tokens).line + 2;
+			const selEnd = last(parsed.tokens.filter(token => token.line)).line + 2;
 			if (selEnd >= editor.document.lineCount) numNewlinesAtEndRequired = selEnd - editor.document.lineCount + 1;
 			return new vscode.Selection(selStart, 0, selEnd, 0);
 		}
