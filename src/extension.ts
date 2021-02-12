@@ -4,7 +4,7 @@ import { ExtensionContext, languages, TextDocument } from 'vscode';
 import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
-import { secondsToString, overwriteSceneNumbers, updateSceneNumbers, openFile } from "./utils";
+import { secondsToString, overwriteSceneNumbers, updateSceneNumbers, openFile, shiftScenes } from "./utils";
 import * as telemetry from "./telemetry";
 
 
@@ -107,6 +107,7 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
+var lastShiftedParseId = "";
 
 export let diagnosticCollection = languages.createDiagnosticCollection("fountain");
 export let diagnostics: vscode.Diagnostic[] = [];
@@ -277,7 +278,23 @@ export function activate(context: ExtensionContext) {
                 });
         });
 	}));
-	
+
+	const shiftScenesUpDn = (direction: number) => {
+		var editor = getEditor(activeFountainDocument());
+		var parsed = parsedDocuments.get(editor.document.uri.toString());
+
+		/* prevent the shiftScenes() being processed again before the document is reparsed from the previous 
+			shiftScenes() (like when holding down the command key) so the selection doesn't slip */
+		if (lastShiftedParseId == parsed.parseTime + "_" + direction)
+			return;
+
+		shiftScenes(editor, parsed, direction);
+		telemetry.reportTelemetry("command:fountain.shiftScenes");
+		lastShiftedParseId = parsed.parseTime + "_" + direction;
+	};
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.shiftScenesUp', () => shiftScenesUpDn(-1)));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.shiftScenesDown', () => shiftScenesUpDn(1)));
+
 	vscode.workspace.onWillSaveTextDocument(e => {
 		const config = getFountainConfig(e.document.uri);
 		if (config.number_scenes_on_save === true) {
