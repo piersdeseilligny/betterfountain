@@ -9,6 +9,7 @@
 
 
 import { app, BrowserWindow, dialog, ipcMain, Menu, MenuItem, shell } from 'electron';
+import path from 'path';
 import { ScreenplayFile } from './file/file';
 import { FileOperations} from './file/fileops';
 
@@ -27,7 +28,8 @@ const createWindow = (): void => {
     frame: false,
     webPreferences: {
       nodeIntegration: true
-    }
+    },
+    icon:path.join(__dirname, '../../logo/Logo5.png')
   });
 
 

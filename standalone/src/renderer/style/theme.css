@@ -118,7 +118,7 @@ body.dark{
     --tab-background-hover:var(--background-hover);
     --tab-background-selected: var(--backgroundhigh);
     --dockpanel-overlay: rgba(255, 255, 255, 0.08);
-    --dockpanel-seperator: #DDDDDD;
+    --dockpanel-seperator: hsl(240, 5%, 30%);;
     
 
     /*MENUS*/
