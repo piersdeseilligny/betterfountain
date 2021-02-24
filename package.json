@@ -264,6 +264,21 @@
 						"type": "string",
 						"default": "(CONT'D)",
 						"description": "Text to print by a character's name when continuing dialogue after a page break - \"(CONT'D)\" in English."
+					},
+					"fountain.pdf.textSceneContinued": {
+						"type": "string",
+						"default": "",
+						"description": "Text to print when scene is cut before a page break - \"(CONINUED)\" in English."
+					},
+					"fountain.pdf.sceneContinuationTop": {
+						"type": "boolean",
+						"default": true,
+						"description": "Display CONTINUED on top of pages when scene is cut before a page break"
+					},
+					"fountain.pdf.sceneContinuationBottom": {
+						"type": "boolean",
+						"default": true,
+						"description": "Display CONTINUED on bottom of pages when scene is cut before a page break"
 					}
 				}
 			}
