@@ -128,7 +128,7 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         invisible_section_bookmarks: pdfConfig.invisibleSectionBookmarks,
         text_more: pdfConfig.textMORE,
         text_contd: pdfConfig.textCONTD,
-        text_scene_continuation: pdfConfig.textSceneContinuation,
+        text_scene_continuation: pdfConfig.textSceneContinued,
         scene_continuation_top: pdfConfig.sceneContinuationTop,
         scene_continuation_bottom: pdfConfig.sceneContinuationBottom,
         synchronized_markup_and_preview: generalConfig.synchronizedMarkupAndPreview,

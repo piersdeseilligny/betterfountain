@@ -267,19 +267,20 @@
 					},
 					"fountain.pdf.textSceneContinued": {
 						"type": "string",
-						"default": "",
-						"description": "Text to print when scene is cut before a page break - \"(CONINUED)\" in English."
+						"default": "CONTINUED",
+						"markdownDescription": "Text to print if `#fountain.pdf.sceneContinuationTop#` or `#fountain.pdf.sceneContinuationBottom#` are enabled - `CONTINUED` in English."
 					},
 					"fountain.pdf.sceneContinuationTop": {
 						"type": "boolean",
-						"default": true,
-						"description": "Display CONTINUED on top of pages when scene is cut before a page break"
+						"default": false,
+						"markdownDescription": "Display `CONTINUED:` at the top of pages where a scene is split by a page break. If `#fountain.pdf.sceneNumbers#` is enabled, the scene number will be included (eg `12A CONTINUED:)`"
 					},
 					"fountain.pdf.sceneContinuationBottom": {
 						"type": "boolean",
-						"default": true,
-						"description": "Display CONTINUED on bottom of pages when scene is cut before a page break"
+						"default": false,
+						"markdownDescription": "Display `(CONTINUED)` at the bottom of pages where a scene is cut by a page break."
 					}
+
 				}
 			}
 		],
