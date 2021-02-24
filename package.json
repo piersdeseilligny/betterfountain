@@ -264,7 +264,23 @@
 						"type": "string",
 						"default": "(CONT'D)",
 						"description": "Text to print by a character's name when continuing dialogue after a page break - \"(CONT'D)\" in English."
+					},
+					"fountain.pdf.textSceneContinued": {
+						"type": "string",
+						"default": "CONTINUED",
+						"markdownDescription": "Text to print if `#fountain.pdf.sceneContinuationTop#` or `#fountain.pdf.sceneContinuationBottom#` are enabled - `CONTINUED` in English."
+					},
+					"fountain.pdf.sceneContinuationTop": {
+						"type": "boolean",
+						"default": false,
+						"markdownDescription": "Display `CONTINUED:` at the top of pages where a scene is split by a page break. If `#fountain.pdf.sceneNumbers#` is enabled, the scene number will be included (eg `12A CONTINUED:)`"
+					},
+					"fountain.pdf.sceneContinuationBottom": {
+						"type": "boolean",
+						"default": false,
+						"markdownDescription": "Display `(CONTINUED)` at the bottom of pages where a scene is cut by a page break."
 					}
+
 				}
 			}
 		],

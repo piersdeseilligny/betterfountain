@@ -33,6 +33,9 @@ export class FountainConfig{
     preview_texture:boolean;
     text_more:string;
     text_contd:string;
+    text_scene_continuation:string;
+    scene_continuation_top:boolean;
+    scene_continuation_bottom:boolean;
     parenthetical_newline_helper:boolean;
 }
 
@@ -125,6 +128,9 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         invisible_section_bookmarks: pdfConfig.invisibleSectionBookmarks,
         text_more: pdfConfig.textMORE,
         text_contd: pdfConfig.textCONTD,
+        text_scene_continuation: pdfConfig.textSceneContinued,
+        scene_continuation_top: pdfConfig.sceneContinuationTop,
+        scene_continuation_bottom: pdfConfig.sceneContinuationBottom,
         synchronized_markup_and_preview: generalConfig.synchronizedMarkupAndPreview,
         preview_theme: generalConfig.previewTheme,
         preview_texture: generalConfig.previewTexture,
