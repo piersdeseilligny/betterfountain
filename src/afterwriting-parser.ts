@@ -454,6 +454,9 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         dual_right = true;
                         thistoken.dual = "right";
                     }
+                    else{
+                        pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_begin"));
+                    }
                     thistoken.text = thistoken.text.replace(/\^$/, "");
                 }
                 else {
