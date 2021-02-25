@@ -1,5 +1,10 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.8.3** - *2021-02-25*
+    · Fix Issue #100 (Dual dialogue is no longer broken if it is disabled in the settings)
+    + Support "CONTINUED" on scenes split by a page break (disabled setting by default) - Thanks @wallforfry for the PR!
+    + Shift scenes up or down with Ctrl+↑ or Ctrl+↓ - Thanks @daryluren for the PR!
+
 ## **1.8.2** - *2021-02-07*
     · (Maybe?) Fix Issue #114
     · Prevent characters from starting with '#' or '!' - Thanks @daryluren for the PR!
