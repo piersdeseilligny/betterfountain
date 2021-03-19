@@ -6,10 +6,6 @@
 	"license": "MIT",
 	"aiKey": "0c2689ab-4ce9-416d-a585-c9765b7f4c88",
 	"icon": "icon.png",
-	"extensionKind": [
-		"ui",
-		"workspace"
-	],
 	"version": "1.8.3",
 	"repository": {
 		"type": "git",
@@ -41,6 +37,7 @@
 		"onWebviewPanel:fountainPreview"
 	],
 	"main": "./out/extension",
+	"browser":"./out/extension",
 	"contributes": {
 		"configurationDefaults": {
 			"[fountain]": {
