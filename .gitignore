@@ -4,7 +4,6 @@ client/server
 .vscode-test
 /tests
 /screenplays
-*.vsix
 *.ai
 /working
 /standalone/.webpack
