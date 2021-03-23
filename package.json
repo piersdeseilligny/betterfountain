@@ -37,7 +37,7 @@
 		"onWebviewPanel:fountainPreview"
 	],
 	"main": "./out/extension",
-	"browser":"./out/extension",
+	"browser":"./out/extension-browser",
 	"contributes": {
 		"configurationDefaults": {
 			"[fountain]": {
