@@ -78,6 +78,8 @@ export class FountainCompletionProvider implements vscode.CompletionItemProvider
 					completes.push(TitlePageKey("Date", "G", "The date of the screenplay", true));
 				if (parsedDocument.properties.titleKeys.indexOf("contact") == -1)
 					completes.push(TitlePageKey("Contact", "H", "Contact details of the author or production company"));
+				if (parsedDocument.properties.titleKeys.indexOf("contact info") == -1)
+					completes.push(TitlePageKey("Contact Info", "H", "Contact details of the author or production company"));
 				if (parsedDocument.properties.titleKeys.indexOf("copyright") == -1)
 					completes.push(TitlePageKey("Copyright", "I", "Copyright information", true));
 				if (parsedDocument.properties.titleKeys.indexOf("watermark") == -1)
