@@ -76,7 +76,7 @@ export class FountainCompletionProvider implements vscode.CompletionItemProvider
 					completes.push(TitlePageKey("Draft date", "F", "The date of the current draft", true));
 				if (parsedDocument.properties.titleKeys.indexOf("date") == -1)
 					completes.push(TitlePageKey("Date", "G", "The date of the screenplay", true));
-				if (parsedDocument.properties.titleKeys.indexOf("contact") == -1 || parsedDocument.properties.titleKeys.indexOf("contact info") == -1)
+				if (parsedDocument.properties.titleKeys.indexOf("contact") == -1 || parsedDocument.properties.titleKeys.indexOf("contact_info") == -1)
 					completes.push(TitlePageKey("Contact", "H", "Contact details of the author or production company"));
 				if (parsedDocument.properties.titleKeys.indexOf("copyright") == -1)
 					completes.push(TitlePageKey("Copyright", "I", "Copyright information", true));
@@ -84,6 +84,8 @@ export class FountainCompletionProvider implements vscode.CompletionItemProvider
 					completes.push(TitlePageKey("Watermark", "J", "A watermark to be displayed across every page of the PDF"));
 				if (parsedDocument.properties.titleKeys.indexOf("font") == -1)
 					completes.push(TitlePageKey("Font", "K", "The font to be used in the preview and in the PDF", true));
+				if (parsedDocument.properties.titleKeys.indexOf("revision") == -1)
+					completes.push(TitlePageKey("Revision", "L", "The name of the revision (ex: 'Second Draft')", true));
 			}
 			else {
 				var currentkey = currentline.trimRight().toLowerCase();
