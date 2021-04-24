@@ -280,7 +280,6 @@
 						"default": false,
 						"markdownDescription": "Display `(CONTINUED)` at the bottom of pages where a scene is cut by a page break."
 					}
-
 				}
 			}
 		],

@@ -579,9 +579,9 @@
       <key>title_page</key>
       <dict>
          <key>begin</key>
-         <string>^(?i)(title|credit|authors?|source|draft date|date|watermark|contact|copyright|notes|font):</string>
+         <string>^(?i)(title|credit|authors?|source|draft date|date|watermark|contact|contact info|copyright|notes|font|revision):</string>
          <key>end</key>
-         <string>^(?=(?i)(title|credit|authors?|source|draft date|date|watermark|contact|copyright|notes|font)|$)</string>
+         <string>^(?=(?i)(title|credit|authors?|source|draft date|date|watermark|contact|contact info|copyright|notes|font|revision)|$)</string>
          <key>beginCaptures</key>
          <dict>
             <key>1</key>
