@@ -1,5 +1,13 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.8.4** - *2021-05-02*
+    + Significant UX improvement to toggling the visibility of items in the outline
+    + Scenes and sections can now be shown/hidden from the outline
+    · Improved the printing of lines with only a note in them. An empty line above or below
+      the note (or both) will be reduced to a single empty line, rather than three empty lines.
+    · Fix the positionining in the outline of notes and synopses between a section and a scene
+    · Support 'Contact info' and 'Revision' title page keys - Thanks @kortina for the PR!
+
 ## **1.8.3** - *2021-02-25*
     · Fix Issue #100 (Dual dialogue is no longer broken if it is disabled in the settings)
     + Support "CONTINUED" on scenes split by a page break (disabled setting by default) - Thanks @wallforfry for the PR!
