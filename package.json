@@ -69,18 +69,13 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "fountain.outline.togglesynopses",
-					"group": "navigation@2",
-					"when": "view == fountain-outline"
-				},
-				{
-					"command": "fountain.outline.togglenotes",
+					"command": "fountain.outline.visibleitems",
 					"group": "navigation@1",
 					"when": "view == fountain-outline"
 				},
 				{
 					"command": "fountain.outline.reveal",
-					"group": "navigation@3",
+					"group": "navigation@2",
 					"when": "view == fountain-outline"
 				}
 			]
@@ -280,28 +275,15 @@
 						"default": false,
 						"markdownDescription": "Display `(CONTINUED)` at the bottom of pages where a scene is cut by a page break."
 					}
-
 				}
 			}
 		],
 		"commands": [
 			{
-				"command": "fountain.outline.togglesynopses",
-				"title": "Toggle outline synopses visibility",
-				"category": "Fountain",
-				"icon": {
-					"light": "/assets/synopse.svg",
-					"dark": "/assets/synopse.svg"
-				}
-			},
-			{
-				"command": "fountain.outline.togglenotes",
-				"title": "Toggle outline note visibility",
-				"category": "Fountain",
-				"icon": {
-					"light": "/assets/note_light.svg",
-					"dark": "/assets/note_dark.svg"
-				}
+				"command": "fountain.outline.visibleitems",
+				"title": "Change items visible in the outline",
+				"icon":"$(eye)",
+				"category": "Fountain"
 			},
 			{
 				"command": "fountain.outline.reveal",

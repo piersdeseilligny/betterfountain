@@ -5,6 +5,7 @@ export function create_token(text?: string, cursor?: number, line?: number, new_
         start:cursor,
         end:cursor,
         line:line,
+        ignore:false,
         number:undefined,
         dual:undefined,
         html:undefined,
@@ -76,4 +77,5 @@ export interface token {
     has_scene_time:Function;
     location_type:Function;
     character:string;
+    ignore:boolean;
 }

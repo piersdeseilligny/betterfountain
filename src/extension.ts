@@ -248,16 +248,53 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.updateSceneNumbers', updateSceneNumbers));
 
 	initFountainUIPersistence(); //create the ui persistence save file
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.togglesynopses', ()=>{
-		changeFountainUIPersistence("outline_visibleSynopses", !uiPersistence.outline_visibleSynopses);
-		outlineViewProvider.update();
-		telemetry.reportTelemetry("command:fountain.outline.togglesynopses");
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.visibleitems', ()=>{
+
+		let quickpick = vscode.window.createQuickPick();
+		quickpick.canSelectMany = true;
+
+		quickpick.items = [{
+			alwaysShow:true,
+			label: "Notes",
+			detail: "[[Text enclosed between two brackets]]",
+			picked: uiPersistence.outline_visibleNotes
+		},{
+			alwaysShow:true,
+			label:"Synopses",
+			detail: "= Any line which starts like this",
+			picked: uiPersistence.outline_visibleSynopses
+		},{
+			alwaysShow:true,
+			label:"Sections",
+			detail: "# Sections begin with one or more '#'",
+			picked: uiPersistence.outline_visibleSections
+		},{
+			alwaysShow:true,
+			label:"Scenes",
+			detail: "Any line starting with INT. or EXT. is a scene. Can also be forced by starting a line with '.'",
+			picked: uiPersistence.outline_visibleScenes
+		}];
+		quickpick.selectedItems = quickpick.items.filter(item => item.picked);
+		quickpick.onDidChangeSelection((e)=>{
+			let visibleScenes = false;
+			let visibleSections = false;
+			let visibleSynopses = false;
+			let visibleNotes = false;
+			for (let i = 0; i < e.length; i++) {
+				if(e[i].label == "Notes") visibleNotes = true;
+				if(e[i].label == "Scenes") visibleScenes = true;
+				if(e[i].label == "Sections") visibleSections = true;
+				if(e[i].label == "Synopses") visibleSynopses = true;
+			}
+			changeFountainUIPersistence("outline_visibleNotes", visibleNotes);
+			changeFountainUIPersistence("outline_visibleScenes", visibleScenes);
+			changeFountainUIPersistence("outline_visibleSections", visibleSections);
+			changeFountainUIPersistence("outline_visibleSynopses", visibleSynopses);
+			outlineViewProvider.update();
+		});
+		quickpick.show();
 	}));
-	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.togglenotes', ()=>{
-		changeFountainUIPersistence("outline_visibleNotes", !uiPersistence.outline_visibleNotes);
-		outlineViewProvider.update();
-		telemetry.reportTelemetry("command:fountain.outline.togglenotes");
-	}));
+
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.reveal', ()=>{
 		outlineViewProvider.reveal();
 		telemetry.reportTelemetry("command:fountain.outline.reveal");

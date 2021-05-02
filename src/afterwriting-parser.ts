@@ -148,9 +148,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
     var new_line_length = script.match(/\r\n/) ? 2 : 1;
 
-    if (!cfg.print_notes) {
-        script = script.replace(/ {0,1}\[\[/g, " /*").replace(/\]\] {0,1}/g, "*/");
-    }
+
 
     var lines = script.split(/\r\n|\r|\n/);
     var pushToken = function (token: token) {
@@ -249,9 +247,17 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         }
         return irrelevantTextLength;
     }
+    const processActionBlock = (token:token) => {
+        let irrelevantActionLength = processInlineNote(token.text);
+        token.time = (token.text.length - irrelevantActionLength) / 20;
+        if (!cfg.print_notes) {
+            token.text = token.text.replace(/ {0,1}\[\[.*\]\]/g, "");
+            if(token.text.trim().length == 0) token.ignore = true;
+        }
+        result.lengthAction += token.time;
+    }
 
-
-
+    let ignoredLastToken = false;
     for (var i = 0; i < lines_length; i++) {
         text = lines[i];
 
@@ -273,9 +279,11 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         thistoken = create_token(text, current, i, new_line_length);
         current = thistoken.end + 1;
 
-
+        
         if (text.trim().length === 0 && text !== "  ") {
-            var skip_separator = cfg.merge_multiple_empty_lines && last_was_separator;
+            var skip_separator = (cfg.merge_multiple_empty_lines && last_was_separator) || (ignoredLastToken && result.tokens.length>1 && result.tokens[result.tokens.length-1].type == "separator");
+
+            if(ignoredLastToken) ignoredLastToken=false;
 
             if (state == "dialogue")
                 pushToken(create_token(undefined, undefined, undefined, undefined, "dialogue_end"));
@@ -319,12 +327,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
         const latestSection = (depth: number): StructToken => latestSectionOrScene(depth, token => token.section)
 
-        function processActionBlock(token:token){
-            let irrelevantActionLength = processInlineNote(token.text);
-            token.time = (token.text.length - irrelevantActionLength) / 20;
-            result.lengthAction += token.time;
-        }
 
+        
         if (state === "normal") {
             if (thistoken.text.match(regex.line_break)) {
                 token_category = "none";
@@ -510,7 +514,14 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             }
             if (thistoken.type != "action" && thistoken.type != "dialogue")
                 thistoken.text = thistoken.text.trim();
-            pushToken(thistoken);
+
+            if(thistoken.ignore){
+                ignoredLastToken = true;
+            }
+            else{
+                ignoredLastToken = false;
+                pushToken(thistoken);
+            }   
         }
 
     }
@@ -535,6 +546,10 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             var current_token: token = result.title_page[current_index];
             if (current_token.text != "") {
                 current_token.html = inline.lexer(current_token.text);
+            }
+            if(current_token.ignore){
+                current_index++;
+                continue;
             }
 
             switch (current_token.type) {
@@ -563,9 +578,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 current_token.html = "";
             }
 
-
-
-            if (current_token.type == "action" || current_token.type == "centered") {
+            if ((current_token.type == "action" || current_token.type == "centered") && !current_token.ignore) {
                 let classes = "haseditorline";
 
                 let elStart = "\n";

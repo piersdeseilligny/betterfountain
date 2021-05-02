@@ -5,7 +5,6 @@ import * as afterparser from "../afterwriting-parser";
 
 export class FountainSymbolProvider implements vscode.DocumentSymbolProvider{
 	provideDocumentSymbols(document: vscode.TextDocument): vscode.DocumentSymbol[] {
-		console.time("symbols");
 
 		var symbols:vscode.DocumentSymbol[] = []
 		var scenecounter = 0;
@@ -51,7 +50,6 @@ export class FountainSymbolProvider implements vscode.DocumentSymbolProvider{
 		for (let index = 0; index < parsedDocuments.get(document.uri.toString()).properties.structure.length; index++) {
 			symbols.push(symbolFromStruct(parsedDocuments.get(document.uri.toString()).properties.structure[index], parsedDocuments.get(document.uri.toString()).properties.structure[index+1], document.lineCount).symbol);
 		}
-		console.timeEnd("symbols");
 		return symbols;
 		
 	}

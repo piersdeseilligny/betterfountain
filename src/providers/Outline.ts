@@ -60,25 +60,51 @@ function makeTreeItem(token: afterparser.StructToken, parent: OutlineTreeItem): 
 	else
 		item = new SceneTreeItem(token, parent);
 
+	let passthrough = (token.section && !config.uiPersistence.outline_visibleSections) || (!token.section && !config.uiPersistence.outline_visibleScenes);
+
 	item.children = [];
 
-	if (token.children)
-		item.children.push(...token.children.map((tok: afterparser.StructToken) => makeTreeItem(tok, item)));
+	if (token.children){
+		if(passthrough)
+			parent.children.push(...token.children.map((tok: afterparser.StructToken) => makeTreeItem(tok, parent)));
+		else
+			item.children.push(...token.children.map((tok: afterparser.StructToken) => makeTreeItem(tok, item)));
+	}
+	
 
-	/* notes and synopses get pushed to this item's parent */
+	/* notes and synopses get pushed to this item, or to it's parent if it's a scene */
 	{
-		if (token.notes && config.uiPersistence.outline_visibleNotes)
-			parent.children.push(...token.notes.map(note => new NoteTreeItem(note, parent)));
-
-		if (token.synopses && config.uiPersistence.outline_visibleSynopses)
-			parent.children.push(...token.synopses.map(syn => new SynopsisTreeItem(syn, parent)));
+		if (token.notes && config.uiPersistence.outline_visibleNotes){
+			if(token.section && config.uiPersistence.outline_visibleSections){
+				item.children.push(...token.notes.map(note => new NoteTreeItem(note, item)));
+			}
+			else{
+				parent.children.push(...token.notes.map(note => new NoteTreeItem(note, parent)));
+			}
+		}
+		if (token.synopses && config.uiPersistence.outline_visibleSynopses){
+			if(token.section && config.uiPersistence.outline_visibleSections){
+				item.children.push(...token.synopses.map(syn => new SynopsisTreeItem(syn, item)));
+			}
+			else{
+				parent.children.push(...token.synopses.map(syn => new SynopsisTreeItem(syn, parent)));
+			}
+		}
+			
 	}
 
 	if (item.children.length > 0)
 		item.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
 
-	item.children = item.children.sort((a, b) => a.lineNumber - b.lineNumber);
-	return item;
+
+	if(passthrough){
+		parent.children = parent.children.sort((a,b) => a.lineNumber - b.lineNumber);
+		return undefined;
+	}
+	else{
+		item.children = item.children.sort((a, b) => a.lineNumber - b.lineNumber);
+		return item;
+	}
 }
 
 class OutlineTreeItem extends vscode.TreeItem {

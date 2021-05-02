@@ -263,23 +263,25 @@ export class Liner {
         this._state = "normal";
 
         tokens.forEach((token:any) => {
-            var max = (cfg.print[token.type] || {}).max || cfg.print.action.max;
+            if(!token.hide){
+                var max = (cfg.print[token.type] || {}).max || cfg.print.action.max;
 
-            if (token.dual) {
-                max *= cfg.print.dual_max_factor;
+                if (token.dual) {
+                    max *= cfg.print.dual_max_factor;
+                }
+    
+                this.split_token(token, max);
+    
+                if (token.is("scene_heading") && lines.length) {
+                    token.lines[0].number = token.number;
+                }
+    
+                token.lines.forEach((line:any, index:any)=>{
+                    line.local_index = index;
+                    line.global_index = global_index++;
+                    lines.push(line);
+                });
             }
-
-            this.split_token(token, max);
-
-            if (token.is("scene_heading") && lines.length) {
-                token.lines[0].number = token.number;
-            }
-
-            token.lines.forEach((line:any, index:any)=>{
-                line.local_index = index;
-                line.global_index = global_index++;
-                lines.push(line);
-            });
         });
 
         this.fold_dual_dialogue(lines);

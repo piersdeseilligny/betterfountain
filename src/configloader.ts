@@ -47,10 +47,14 @@ export type FountainUIPersistence = {
     [key: string]: any,
     outline_visibleSynopses:boolean,
     outline_visibleNotes:boolean
+    outline_visibleSections:boolean;
+    outline_visibleScenes:boolean;
 }
 export let uiPersistence:FountainUIPersistence = {
     outline_visibleSynopses: true,
-    outline_visibleNotes: true
+    outline_visibleNotes: true,
+    outline_visibleScenes: true,
+    outline_visibleSections: true
 }
 
 function checkFileExistsSync(filepath:string){
@@ -76,6 +80,7 @@ export var initFountainUIPersistence = function(){
             if(Object.keys(savedUiPersistence).includes(v)){
                 uiPersistence[v] = savedUiPersistence[v];
             }
+            vscode.commands.executeCommand('setContext', 'fountain.uipersistence.'+v, uiPersistence[v]);
         });
         console.log("Loaded FountainUIPersistence from " + uiPersistenceFile);
     }
@@ -85,9 +90,10 @@ export var initFountainUIPersistence = function(){
 
 }
 
-export var changeFountainUIPersistence = function(key:"outline_visibleSynopses"|"outline_visibleNotes", value:any){
+export var changeFountainUIPersistence = function(key:"outline_visibleSynopses"|"outline_visibleNotes"|"outline_visibleSections"|"outline_visibleScenes", value:any){
     if(Object.keys(uiPersistence).indexOf(key)>=0){
         uiPersistence[key] = value;
+        vscode.commands.executeCommand('setContext', 'fountain.uipersistence.'+key, value);
         fs.writeFileSync(uiPersistenceFile, JSON.stringify(uiPersistence));
     }
     else{
