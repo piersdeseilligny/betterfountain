@@ -8,5 +8,6 @@
 	"typescript.tsdk": "./node_modules/typescript/lib",
 	"typescript.tsc.autoDetect": "off",
 	"npm.exclude": ["**/client", "**/server"],
-	"npm.enableScriptExplorer": true
+	"npm.enableScriptExplorer": true,
+	"editor.formatOnSave": false,
 }
