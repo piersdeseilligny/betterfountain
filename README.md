@@ -1,6 +1,6 @@
 
 
-<img align="left" src="https://raw.githubusercontent.com/piersdeseilligny/betterfountain/master/icon.png">
+<img align="left" width="200" src="https://piersdeseilligny.com/assets/small_Logo5_c9ca125c1a.png">
 
 This is an extension for Visual Studio Code which allows you to write screenplays using the [fountain](https://fountain.io/) syntax quickly and efficiently. [(If you're already confused click here)](https://github.com/piersdeseilligny/betterfountain/blob/master/FAQ.md).
 
