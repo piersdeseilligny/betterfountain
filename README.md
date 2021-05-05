@@ -16,21 +16,28 @@ And because it's an extension for vscode, you get access to some incredibly adva
 [Discuss on Discord](https://discord.gg/QBm7tKQ)
 
 ![Screenshot of BetterFountain in dark mode](https://raw.githubusercontent.com/piersdeseilligny/betterfountain/master/screenshots/Dark_plus.PNG)
+https://piersdeseilligny.com/work/software/betterfountain/
 
 ## Features
 
 * Full syntax highlighting (even for stuff like lyrics!)
 * Smart autocomplete for recurring characters and scenes, as well as title page keys.
-* Full screenplay outline, broken down by sections and scenes
-* "Folding" scenes
+* Industry-standard PDF generation
+    * Includes scenes and sections as PDF bookmarks, for easy navigation in your reader of choice
+    * Possible to highlight any specified characters in the PDF
+* Full screenplay outline
+    * Includes sections, scenes, notes, and synopses (the visiblity of each type of item being easily and quickly toggleable)
+* "Folding" scenes and sections
 * Live preview of the formatted screenplay
-* Exporting the screenplay to a PDF File (including bookmarks for scene sections and headers)
+* Advanced interactive statistics about your screenplay
 * Custom font support (Add "Font:" at the top of your .fountain screenplay, with the other title page keys, followed by the name of a font installed on your system)
 * Approximation of a screenplay's duration (in the status bar)
 * Other cool stuff
     * Go straight to writing dialog after a parenthetical by pressing enter, while the cursor is still inside it
     * Jump to scenes/sections in the .fountain and live preview when clicking on the outline
     * Scroll-sync preview, with active line indication/selection 
+
+![Screenshot of Statistics pages](https://piersdeseilligny.com/assets/Dark_plusstats_ns_2d4ab6dc54.PNG)
 
 ## Why?
 
