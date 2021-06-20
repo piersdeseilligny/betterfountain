@@ -3,7 +3,6 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { Uri } from "vscode";
 import { AvenueWorker } from "../../../avenue/AvenueWorker";
 import { ScreenplayContent } from "../../../main/file/file";
-import * as modes from 'monaco-editor/esm/vs/editor/common/modes';
 import { appSignals } from "../../renderer";
 
 
@@ -69,16 +68,16 @@ class AvenueState implements monaco.languages.IState{
     clone(): monaco.languages.IState {
         return new AvenueState(this);
     }
-    equals(other: monaco.languages.IState): boolean {
-        return other === this;
+    equals(other: AvenueState): boolean {
+        return other.counter == this.counter;
     }
 
 }
 
-/*monaco.languages.setTokensProvider('fountain', {
+monaco.languages.setTokensProvider('fountain', {
     getInitialState: () => new AvenueState(),
     tokenize: (line:string, state:AvenueState):monaco.languages.ILineTokens => {
-        console.log("tokenizing");
+        console.log(state.counter);
         if(line.length>0)
             state.counter++;
         if(state.counter>11) state.counter = 0;
@@ -91,26 +90,6 @@ class AvenueState implements monaco.languages.IState{
         }
     }
 });
-console.log("modes");
-/*modes.TokenizationRegistry.register('fountain', {
-    tokenize2:function(line:any, somethingOne:any, state:any, somethingTwo:any):any{
-        console.log({
-            line:line,
-            smth1:somethingOne,
-            state:state,
-            smth2:somethingTwo
-        });
-        return{
-            endState:state,
-            tokens:[]
-        }
-    },
-    getInitialState: function():any{
-        return new AvenueState();
-    }
-})*/
-modes.TokenizationRegistry.onDidChange((e:any)=>{ console.log("tokenization registry changed"); console.log(e); });
-console.log(modes);
 
 monaco.editor.defineTheme('fountainTheme', {
     base: 'vs',
@@ -164,7 +143,8 @@ export class Editor extends Widget {
 
         let model = monaco.editor.createModel(this.content.fountain, "fountain", monaco.Uri.parse(this.content.uri));
         this.editor = monaco.editor.create(this.node, {
-            model:model, 
+            model:model,
+            theme: 'fountainTheme',
             'semanticHighlighting.enabled': true,
             'wordWrapColumn': 57,
             'wordWrap':'wordWrapColumn'

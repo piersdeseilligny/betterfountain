@@ -19,9 +19,8 @@
   "license": "GPL-3.0-only",
   "config": {
     "forge": {
-      
       "packagerConfig": {
-        "icon":"./logo/iconB.png"
+        "icon": "./logo/iconB.png"
       },
       "makers": [
         {
