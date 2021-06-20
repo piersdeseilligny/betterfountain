@@ -22,7 +22,7 @@ export const regex: { [index: string]: RegExp } = {
 
     dialogue: /^[ \t]*([*_]+[^\p{Ll}\p{Lo}\p{So}\r\n]*)(\^?)?(?:\n(?!\n+))([\s\S]+)/u,
 
-    character: /^[ \t]*(?![#!])(((?!@)[^\p{Ll}\r\n]*?\p{Lu}[^\p{Ll}\r\n]*?)|((@)[^\r\n]*?))(\(.*\))?(\s*\^)?$/u,
+    character: /^[ \t]*(?![#!]|(\[\[))(((?!@)[^\p{Ll}\r\n]*?\p{Lu}[^\p{Ll}\r\n]*?)|((@)[^\r\n]*?))(\(.*\))?(\s*\^)?$/u,
     parenthetical: /^[ \t]*(\(.+\))$/,
 
     action: /^(.+)/g,
@@ -246,6 +246,16 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             }
         }
         return irrelevantTextLength;
+    }
+    const processDialogueBlock = (token:token) => {
+        let textWithoutNotes = token.text.replace(/ {0,1}\[\[.*\]\]/g, "");
+        processInlineNote(token.text);
+        token.time = calculateDialogueDuration(textWithoutNotes);
+        if (!cfg.print_notes) {
+            token.text = textWithoutNotes;
+            if(token.text.trim().length == 0) token.ignore = true;
+        }
+        result.lengthDialogue += token.time;
     }
     const processActionBlock = (token:token) => {
         let irrelevantActionLength = processInlineNote(token.text);
@@ -489,9 +499,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 thistoken.type = "parenthetical";
             } else {
                 thistoken.type = "dialogue";
-                thistoken.time = calculateDialogueDuration(thistoken.text);
+                processDialogueBlock(thistoken);
                 thistoken.character = previousCharacter;
-                result.lengthDialogue += thistoken.time;
             }
             if (dual_right) {
                 thistoken.dual = "right";

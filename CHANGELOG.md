@@ -1,5 +1,8 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.8.5** - *2021-06-20*
+    · Support untrusted workspaces
+
 ## **1.8.4** - *2021-05-02*
     + Significant UX improvement to toggling the visibility of items in the outline
     + Scenes and sections can now be shown/hidden from the outline

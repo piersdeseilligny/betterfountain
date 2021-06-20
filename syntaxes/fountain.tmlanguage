@@ -168,31 +168,31 @@
          <key>contentName</key>
          <string>string</string>
          <key>begin</key>
-         <string>^[ \t]*(?![#!])(((?!@)[^\p{Ll}\r\n]*?\p{Lu}[^\p{Ll}\r\n]*?)|((@)[^\r\n]*?))(\(.*\))?(\s*\^)?$</string>
+         <string>^[ \t]*(?![#!]|(\[\[))(((?!@)[^\p{Ll}\r\n]*?\p{Lu}[^\p{Ll}\r\n]*?)|((@)[^\r\n]*?))(\(.*\))?(\s*\^)?$</string>
          <key>end</key>
          <string>^$</string>
          <key>beginCaptures</key>
          <dict>
             <!--The character's name-->
-            <key>1</key>
+            <key>2</key>
             <dict>
                <key>name</key>
                <string>entity.name.type</string>
             </dict>
             <!-- @ sign of forced character -->
-            <key>4,6</key>
+            <key>5</key>
             <dict>
                <key>name</key>
                <string>constant.character.escape</string>
             </dict>
             <!--Parenthesis after character name (CONT'D, O.S., MORE)-->
-            <key>5</key>
+            <key>6</key>
             <dict>
                <key>name</key>
                <string>variable.other</string>
             </dict>
             <!--Dual dialogue ^ -->
-            <key>6</key>
+            <key>7</key>
             <dict>
                <key>name</key>
                <string>constant.character.escape</string>
