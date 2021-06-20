@@ -2,6 +2,7 @@
 
 ## **1.8.5** - *2021-06-20*
     · Support untrusted workspaces
+    · Fixed all-cap notes (such as [[TEST]]) being interpreted as character names
 
 ## **1.8.4** - *2021-05-02*
     + Significant UX improvement to toggling the visibility of items in the outline
