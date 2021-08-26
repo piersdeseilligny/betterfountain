@@ -18,6 +18,8 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		const treeExportPdf = new vscode.TreeItem("Export PDF");
 		//const treeExportPdfDebug = new vscode.TreeItem("Export PDF with default name");
 		const treeExportPdfCustom= new vscode.TreeItem("Export PDF with highlighted characters");
+		const treeExportHtml = new vscode.TreeItem("Export HTML");
+		treeExportPdf.tooltip = "Export live preview as .html document"
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
 		const numberScenesOverwrite = new vscode.TreeItem("Number scenes - overwrite");
 		numberScenesOverwrite.tooltip = 'Replaces existing scene numbers.';
@@ -34,6 +36,10 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		};*/
 		treeExportPdfCustom.command = {
 			command: 'fountain.exportpdfcustom',
+			title: ''
+		};
+		treeExportHtml.command = {
+			command: 'fountain.exporthtml',
 			title: ''
 		};
 		treeLivePreview.command = {
@@ -59,6 +65,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		elements.push(treeExportPdf);
 	//	elements.push(treeExportPdfDebug);
 		elements.push(treeExportPdfCustom);
+		elements.push(treeExportHtml);
 		elements.push(treeLivePreview);
 		elements.push(numberScenesOverwrite);
 		elements.push(numberScenesUpdate);
@@ -80,6 +87,7 @@ import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToU
 import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer, getStatisticsPanels, refreshPanel, updateDocumentVersion } from "./providers/Statistics";
 import { FountainOutlineTreeDataProvider } from "./providers/Outline";
 import { performance } from "perf_hooks";
+import { exportHtml } from "./providers/StaticHtml";
 
 
 /**
@@ -244,6 +252,7 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', async () => exportPdf()));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfdebug', async () => exportPdf(false,true)));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfcustom', async () => exportPdf(true,false,true)));
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.exporthtml', async () => exportHtml()));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.overwriteSceneNumbers', overwriteSceneNumbers));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.updateSceneNumbers', updateSceneNumbers));
 

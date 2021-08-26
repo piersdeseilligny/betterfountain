@@ -37,6 +37,7 @@
 		"onLanguage:fountain",
 		"onCommand:fountain.livepreview",
 		"onCommand:fountain.exportpdf",
+		"onCommand:fountain:exporthtml",
 		"onCommand:fountain.exportpdfdebug",
 		"onCommand:fountain.exportpdfcustom",
 		"onWebviewPanel:fountainPreview"
@@ -309,6 +310,11 @@
 			{
 				"command": "fountain.exportpdf",
 				"title": "Export screenplay PDF",
+				"category": "Fountain"
+			},
+			{
+				"command": "fountain.exporthtml",
+				"title": "Export screenplay HTML",
 				"category": "Fountain"
 			},
 			{
