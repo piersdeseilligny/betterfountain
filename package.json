@@ -6,7 +6,7 @@
 	"license": "MIT",
 	"aiKey": "0c2689ab-4ce9-416d-a585-c9765b7f4c88",
 	"icon": "icon.png",
-	"version": "1.8.5",
+	"version": "1.8.6",
 	"capabilities": {
 		"untrustedWorkspaces": {
 			"supported": true
@@ -425,41 +425,41 @@
 		"test": "node node_modules/jest/bin/jest.js"
 	},
 	"devDependencies": {
+		"@types/d3": "^5.16.4",
 		"@types/diff": "^4.0.2",
+		"@types/he": "^1.1.2",
 		"@types/jest": "^24.9.1",
+		"@types/jquery": "^3.5.6",
 		"@types/mocha": "^5.2.7",
-		"@types/node": "^8.10.61",
-		"@types/vscode": "^1.26.0",
-		"@types/d3": "^5.7.2",
-		"@types/he": "^1.1.1",
-		"@types/jquery": "^3.5.0",
+		"@types/node": "^8.10.66",
 		"@types/username": "^3.0.0",
-		"copyfiles": "^2.3.0",
+		"@types/vscode": "^1.26.0",
+		"copyfiles": "^2.4.1",
 		"css-loader": "^4.3.0",
-		"datatables.net": "^1.10.22",
-		"datatables.net-dt": "^1.10.22",
 		"d3": "^5.16.0",
+		"datatables.net": "^1.10.25",
+		"datatables.net-dt": "^1.10.25",
+		"imports-loader": "^1.2.0",
 		"jest": "^24.9.0",
-		"jquery": "^3.5.1",
+		"jquery": "^3.6.0",
 		"style-loader": "^1.3.0",
 		"ts-jest": "^24.3.0",
-		"typescript": "^3.9.5",
-		"vscode-test": "^1.4.0",
-		"webpack": "^4.45.0",
-		"webpack-cli": "^3.3.12",
-		"imports-loader": "^1.2.0"
+		"typescript": "^3.9.10",
+		"vscode-test": "^1.6.1",
+		"webpack": "^4.46.0",
+		"webpack-cli": "^3.3.12"
 	},
 	"dependencies": {
 		"blob": "0.1.0",
-		"diff": "^4.0.2",
+		"diff": "^5.0.0",
 		"flesch-kincaid": "github:daveross/flesch-kincaid",
-		"font-finder": "^1.0.4",
+		"font-finder": "^1.1.0",
 		"he": "^1.2.0",
 		"os-fonts": "^0.5.0",
-		"pdfkit": "^0.11.0",
+		"pdfkit": "^0.12.3",
 		"readability-scores": "^1.0.8",
 		"username": "^5.1.0",
-		"vscode-codicons": "0.0.10",
-		"vscode-extension-telemetry": "^0.1.6"
+		"vscode-codicons": "0.0.17",
+		"vscode-extension-telemetry": "^0.3.2"
 	}
 }
