@@ -1,0 +1,434 @@
+<html>
+<head>
+    <style>
+        #workspace,
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            white-space: pre-wrap;
+        }
+
+        body {
+            background-color: rgb(235, 234, 232);
+            color: #333;
+            font-size: 14px;
+            margin: 0
+        }
+
+        .container {
+            margin: 0 auto;
+            position: relative;
+            width: 850px
+        }
+
+        #workspace {
+            color: #333;
+            display: none;
+            float: left;
+            position: relative;
+            width: 100%;
+        }
+
+        #workspace #script {
+            margin: 0px auto 0;
+            width: 850px;
+        }
+
+        @font-face{
+            font-family: betterfountain-screenplayfont;
+            src: url(data:font/ttf;base64,$COURIERPRIME$) format('truetype');
+            font-weight: normal;
+        }
+        @font-face{
+            font-family: betterfountain-screenplayfont;
+            src: url(data:font/ttf;base64,$COURIERPRIME-BOLD$) format('truetype');
+            font-weight: bold;
+        }
+        @font-face{
+            font-family: betterfountain-screenplayfont;
+            src: url(data:font/ttf;base64,$COURIERPRIME-ITALIC$) format('truetype');
+            font-weight: normal;
+            font-style: italic;
+        }
+        @font-face{
+            font-family: betterfountain-screenplayfont;
+            src: url(data:font/ttf;base64,$COURIERPRIME-BOLD-ITALIC$) format('truetype');
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        #workspace #script .page {
+            border: 1px solid;
+            border-color: transparent;
+            border-radius: 2px;
+            cursor: text;
+            letter-spacing: 0 !important;
+            font-family: betterfountain-screenplayfont;
+            line-height: 107.5%;
+            margin-bottom: 25px;
+            position: relative;
+            text-align: left;
+            width: 100%;
+            z-index: 200;
+            box-shadow: 0px 0px 28px 0px rgba(0,0,0,0.25);
+            box-sizing: border-box;
+            background-color: white;
+            color: black;
+        }
+
+        #workspace #script.dpi72 .page {
+            font-size: 12px;
+            padding: 72px 72px 72px 108px
+        }
+
+        #workspace #script.dpi100 .page {
+            font-size: 16px;
+            
+            /*
+            padding: 100px 100px 100px 150px;
+            page-break-after: 100px 12px;*/
+        }
+        #workspace #script.dpi100 .innerpage{
+            max-width:577px;
+            margin-top: 100px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 42px;
+            padding-right: 42px;
+        }
+
+        #workspace #script.dpi150 .page {
+            font-size: 33px;
+            padding: 150px 150px 150px 225px
+        }
+
+        #workspace #script.dpi72 .page h1,
+        #workspace #script.dpi72 .page h2,
+        #workspace #script.dpi72 .page h3,
+        #workspace #script.dpi72 .page h4,
+        #workspace #script.dpi72 .page p {
+            font-size: 12px;
+            font-weight: 400
+        }
+
+        #workspace #script.dpi100 .page h1,
+        #workspace #script.dpi100 .page h2,
+        #workspace #script.dpi100 .page h3,
+        #workspace #script.dpi100 .page h4,
+        #workspace #script.dpi100 .page p {
+            font-size: 17px;
+            font-weight: 400
+        }
+
+        #workspace #script.dpi150 .page h1,
+        #workspace #script.dpi150 .page h2,
+        #workspace #script.dpi150 .page h3,
+        #workspace #script.dpi150 .page h4,
+        #workspace #script.dpi150 .page p {
+            font-size: 33px;
+            font-weight: 400
+        }
+
+        #workspace #script.us-letter.dpi72 {
+            width: 612px
+        }
+
+        /*#workspace #script.us-letter.dpi100 {
+           /* width: 850px
+        }*/
+
+        #workspace #script.us-letter.dpi150 {
+            width: 1275px
+        }
+
+        #workspace #script.us-letter.dpi72 .page {
+            min-height: 792px
+        }
+
+        #workspace #script.us-letter.dpi100 .page {
+            min-height: 1100px
+        }
+        
+        #workspace #script.us-letter.dpi150 .page {
+            min-height: 1650px
+        }
+
+        #workspace #script.us-letter.dpi72 .page.title-page {
+            height: 792px
+        }
+
+        #workspace #script.us-letter.dpi100 .page.title-page {
+            height: 1100px
+        }
+
+        #workspace #script.us-letter.dpi150 .page.title-page {
+            height: 1650px
+        }
+
+        #workspace #script.a4.dpi72 {
+            width: 595px
+        }
+
+        #workspace #script.a4.dpi100 {
+            width:auto;
+            max-width: 827px;
+        }
+
+        #workspace #script.a4.dpi150 {
+            width: 1250px
+        }
+
+        #workspace #script.a4.dpi72 .page {
+            height: 842px
+        }
+
+        #workspace #script.a4.dpi100 .page {
+            min-height: 1169px
+        }
+
+        #workspace #script.a4.dpi150 .page {
+            height: 1754px
+        }
+
+        #workspace #script .title-page h1 {
+            margin-top: 50%;
+            margin-bottom: 34px;
+            text-align: center;
+            width: 90.5%
+        }
+
+        #workspace #script .title-page p.credit {
+            text-align: center;
+            width: 90.5%
+        }
+
+        #workspace #script .title-page p.author,
+        #workspace #script .title-page p.authors {
+            margin-bottom: 32px;
+            margin-top: 0;
+            text-align: center;
+            width: 90.5%
+        }
+
+        #workspace #script .title-page p.source {
+            margin-bottom: 32px;
+            text-align: center;
+            width: 90.5%
+        }
+
+        #workspace #script .title-page p.notes {
+            bottom: 350px;
+            position: absolute;
+            right: 0;
+            text-align: right
+        }
+
+        #workspace #script.dpi72 .title-page p.notes {
+            bottom: 252px;
+            right: 72px
+        }
+
+        #workspace #script.dpi100 .title-page p.notes {
+            bottom: 350px;
+            right: 100px
+        }
+
+        #workspace #script.dpi150 .title-page p.notes {
+            bottom: 525px;
+            right: 150px
+        }
+
+        #workspace #script .title-page p.date,
+        #workspace #script .title-page p.draft-date {
+            bottom: 250px;
+            position: absolute;
+            right: 0;
+            text-align: right
+        }
+
+        #workspace #script.dpi72 .title-page p.date,
+        #workspace #script.dpi72 .title-page p.draft-date {
+            bottom: 180px;
+            right: 72px
+        }
+
+        #workspace #script.dpi100 .title-page p.date,
+        #workspace #script.dpi100 .title-page p.draft-date {
+            bottom: 250px;
+            right: 100px
+        }
+
+        #workspace #script.dpi150 .title-page p.date,
+        #workspace #script.dpi150 .title-page p.draft-date {
+            bottom: 375px;
+            right: 150px
+        }
+
+        #workspace #script .title-page p.contact {
+            bottom: 100px;
+            position: absolute;
+            right: 0;
+            text-align: right
+        }
+
+        #workspace #script.dpi72 .title-page p.contact {
+            bottom: 72px;
+            right: 72px
+        }
+
+        #workspace #script.dpi100 .title-page p.contact {
+            bottom: 100px;
+            right: 100px
+        }
+
+        #workspace #script.dpi150 .title-page p.contact {
+            bottom: 150px;
+            right: 150px
+        }
+
+        #workspace #script .title-page p.copyright {
+            bottom: 100px;
+            position: absolute;
+            text-align: left
+        }
+
+        #workspace #script.dpi72 .title-page p.copyright {
+            bottom: 72px
+        }
+
+        #workspace #script.dpi100 .title-page p.copyright {
+            bottom: 100px
+        }
+
+        #workspace #script.dpi150 .title-page p.copyright {
+            bottom: 150px
+        }
+
+        #workspace #script .page h2 {
+            text-align: right
+        }
+
+        #workspace #script .page h2.left-aligned {
+            text-align: left
+        }
+
+        #workspace #script .page h3 {
+            position: relative;
+        }
+
+        
+        
+
+        .numberonleft h3:before {
+            opacity:0.4;
+            content: attr(data-scenenumber);
+            font-weight: 700;
+            left: -45px;
+            position: absolute
+        }
+
+        .numberonright h3:after {
+            opacity:0.4;
+            content: attr(data-scenenumber);
+            font-weight: 700;
+            right: -45px;
+            position: absolute
+        }
+
+        #workspace #script .page div.dialogue {
+            margin-left: auto;
+            margin-right: auto;
+            width: 68%
+        }
+
+        #workspace #script .page div.dialogue h4 {
+            margin-bottom: 0;
+            margin-left: 23%
+        }
+
+        #workspace #script .page div.dialogue p.parenthetical {
+            margin-bottom: 0;
+            margin-top: 0;
+            margin-left: 11%
+        }
+
+        #workspace #script .page div.dialogue p {
+            margin-bottom: 0;
+            margin-top: 0
+        }
+
+        #workspace #script .page div.dual-dialogue {
+            margin: 2em 0 .9em 2%;
+            width: 95%
+        }
+
+        #workspace #script .page div.dual-dialogue div.dialogue {
+            display: inline-block;
+            margin: 0;
+            width: 45%
+        }
+
+        #workspace #script .page div.dual-dialogue div.dialogue h4 {
+            margin-top: 0
+        }
+
+        #workspace #script .page div.dual-dialogue div.dialogue.right {
+            float: right
+        }
+
+        #workspace #script .page span.centered {
+            text-align: center;
+            width: 92.5%;
+            display:block;
+        }
+
+        #workspace #script .page p.section {
+            opacity:0.2;
+            margin-left: -30px
+        }
+
+        #workspace #script .page p.synopsis {
+            opacity:0.4;
+            margin-left: -20px
+        }
+
+        #workspace #script .page span.italic {
+            font-style: italic
+        }
+
+        #workspace #script .page span.bold {
+            font-weight: 700
+        }
+
+        .page h3 {
+            font-weight: bold;
+        }
+
+        .note {
+            opacity: 0.5;
+            font-style: italic;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        #titlepage_container{
+            display:block;
+        }
+        #titlepage_container.hidden{
+            display:none;
+        }
+
+    </style>
+</head>
+<body id='fountain-js'>
+    <section id='workspace' style='display:block;'>
+        <div id='script' class='a4 dpi100'>
+            <div class="page $TITLEDISPLAY$" id="titlepage_container"><div id='titlepage' class='innerpage title-page'>$TITLEPAGE$</div></div>
+            <div id="screenplay_page" class="page">
+                <div id='mainpage' class='$SCRIPTCLASS$'>$SCREENPLAY$</div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
