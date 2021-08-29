@@ -4,6 +4,7 @@ import * as parser from "./afterwriting-parser";
 import * as path from "path";
 import * as telemetry from "./telemetry";
 import * as sceneNumbering from './scenenumbering';
+import * as fs from "fs";
 
 //var syllable = require('syllable');
 
@@ -281,6 +282,11 @@ export const shiftScenes = (editor: vscode.TextEditor, parsed: parser.parseoutpu
 
 export const last = function (array: any[]): any {
 	return array[array.length - 1];
+}
+
+export function fileToBase64(fspath:string){
+    let data = fs.readFileSync(fspath);
+	return data.toString('base64');
 }
 
 export function openFile(p:string){

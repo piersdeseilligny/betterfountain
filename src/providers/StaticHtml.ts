@@ -1,7 +1,7 @@
 import { getFountainConfig } from "../configloader";
 import { activeFountainDocument, getEditor } from "../extension";
 import * as afterparser from "../afterwriting-parser";
-import { openFile, revealFile } from "../utils";
+import { fileToBase64, openFile, revealFile } from "../utils";
 import * as vscode from "vscode";
 import * as fs from "fs";
 
@@ -19,10 +19,6 @@ export async function exportHtml(){
     let htmlpath = __filename + '/../../../assets/staticexport.html'
 	var rawhtml =  fs.readFileSync(htmlpath, 'utf8');
 
-    var themeClass = fountainconfig.preview_theme + "_theme";
-    if (fountainconfig.preview_texture) {
-        themeClass += " textured";
-    }
     var pageClasses = "innerpage";
     if (fountainconfig.scenes_numbers == "left")
         pageClasses = "innerpage numberonleft";
@@ -32,7 +28,16 @@ export async function exportHtml(){
         pageClasses = "innerpage numberonleft numberonright";
 
     rawhtml = rawhtml.replace("$SCRIPTCLASS$", pageClasses);
-    rawhtml = rawhtml.replace("$PAGETHEME$", themeClass);
+
+    let courierprimeB64 = fileToBase64(__dirname + '/../courierprime/courier-prime.ttf');
+    let courierprimeB64_bold = fileToBase64(__dirname + '/../courierprime/courier-prime-bold.ttf');
+    let courierprimeB64_italic = fileToBase64(__dirname + '/../courierprime/courier-prime-italic.ttf');;
+    let courierprimeB64_bolditalic = fileToBase64(__dirname + '/../courierprime/courier-prime-bold-italic.ttf');;
+
+    rawhtml = rawhtml.replace("$COURIERPRIME$", courierprimeB64)
+                     .replace("$COURIERPRIME-BOLD$", courierprimeB64_bold)
+                     .replace("$COURIERPRIME-ITALIC$", courierprimeB64_italic)
+                     .replace("$COURIERPRIME-BOLDITALIC$", courierprimeB64_bolditalic);
     
     if(output.titleHtml){
         rawhtml = rawhtml.replace("$TITLEPAGE$", output.titleHtml);

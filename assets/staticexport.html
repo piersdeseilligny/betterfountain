@@ -8,6 +8,7 @@
         }
 
         body {
+            background-color: rgb(235, 234, 232);
             color: #333;
             font-size: 14px;
             margin: 0
@@ -34,23 +35,23 @@
 
         @font-face{
             font-family: betterfountain-screenplayfont;
-            src:url($ROOTDIR$/courierprime/courier-prime.ttf);
+            src: url(data:font/ttf;base64,$COURIERPRIME$) format('truetype');
             font-weight: normal;
         }
         @font-face{
             font-family: betterfountain-screenplayfont;
-            src:url($ROOTDIR$/courierprime/courier-prime-bold.ttf);
+            src: url(data:font/ttf;base64,$COURIERPRIME-BOLD$) format('truetype');
             font-weight: bold;
         }
         @font-face{
             font-family: betterfountain-screenplayfont;
-            src:url($ROOTDIR$/courierprime/courier-prime-italic.ttf);
+            src: url(data:font/ttf;base64,$COURIERPRIME-ITALIC$) format('truetype');
             font-weight: normal;
             font-style: italic;
         }
         @font-face{
             font-family: betterfountain-screenplayfont;
-            src:url($ROOTDIR$/courierprime/courier-prime-bold-italic.ttf);
+            src: url(data:font/ttf;base64,$COURIERPRIME-BOLD-ITALIC$) format('truetype');
             font-weight: bold;
             font-style: italic;
         }
@@ -69,18 +70,8 @@
             width: 100%;
             z-index: 200;
             box-shadow: 0px 0px 28px 0px rgba(0,0,0,0.25);
-            box-sizing: border-box
-        }
-        .textured .page{
-            background-image:url($ROOTDIR$/noisetexture.png);
-        }
-        .vscode_theme .page{
-            background-color: var(--vscode-editor-background);
-            color: var(--vscode-editor-foreground);; 
-        }
-
-        .paper_theme .page{
-            background-color: rgb(235, 234, 232);
+            box-sizing: border-box;
+            background-color: white;
             color: black;
         }
 
@@ -101,8 +92,8 @@
             margin-top: 100px;
             margin-left: auto;
             margin-right: auto;
-            padding-left:42px;
-            padding-right:42px;
+            padding-left: 42px;
+            padding-right: 42px;
         }
 
         #workspace #script.dpi150 .page {
@@ -421,40 +412,6 @@
             text-decoration: underline;
         }
 
-        #linehighlight_active{
-            width:100%;
-            position:absolute;
-            background-color:blue;
-            border: 2px solid;
-            border-left: 0;
-            border-right: 0;
-            z-index:-1;
-            margin-top:-3px;
-        }
-        #linehighlight_click{
-            width:100%;
-            position:absolute;
-            background-color:red;
-            border: 2px solid;
-            border-left: 0;
-            border-right: 0;
-            z-index:-1;
-            margin-top:-3px;
-            opacity:0;
-        }
-
-        .vscode_theme #linehighlight_active, .vscode_theme #linehighlight_click{
-            background-color: var(--vscode-editor-lineHighlightBackground) !important;
-            border-color: var(--vscode-editor-lineHighlightBorder);
-        }
-        .vscode_theme *::selection{
-            background-color: var(--vscode-editor-selectionBackground);
-            color: var(--vscode-editor-selectionForeground);
-        }
-        .paper_theme #linehighlight_active, .paper_theme #linehighlight_click{
-            background-color: rgba(0, 0, 0, 0.05) !important;
-            border-color: rgba(0, 0, 0, 0.05) !important;
-        }
         #titlepage_container{
             display:block;
         }
@@ -464,12 +421,12 @@
 
     </style>
 </head>
-<body id='fountain-js' class="$PAGETHEME$">
+<body id='fountain-js'>
     <section id='workspace' style='display:block;'>
         <div id='script' class='a4 dpi100'>
-            <div class="page" id="titlepage_container" class="$TITLEDISPLAY$"><div id='titlepage' class='innerpage title-page'>$TITLEPAGE$</div></div>
+            <div class="page $TITLEDISPLAY$" id="titlepage_container"><div id='titlepage' class='innerpage title-page'>$TITLEPAGE$</div></div>
             <div id="screenplay_page" class="page">
-                <div id='mainpage' class='$SCRIPTCLASS$'><div id="screenplay_content" class="innerpage">$SCREENPLAY$</div>
+                <div id='mainpage' class='$SCRIPTCLASS$'>$SCREENPLAY$</div>
             </div>
         </div>
     </section>
