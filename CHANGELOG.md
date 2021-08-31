@@ -1,6 +1,6 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
-## **1.8.6** - *2021-08-29*
+## **1.8.6/7** - *2021-08-29*
     + Add "Export to HTML" feature
 
 ## **1.8.5** - *2021-06-20*
