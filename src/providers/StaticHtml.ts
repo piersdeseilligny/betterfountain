@@ -4,6 +4,7 @@ import * as afterparser from "../afterwriting-parser";
 import { fileToBase64, openFile, revealFile } from "../utils";
 import * as vscode from "vscode";
 import * as fs from "fs";
+import * as path from "path";
 
 export async function exportHtml(){
 	var editor = getEditor(activeFountainDocument());
@@ -16,7 +17,9 @@ export async function exportHtml(){
 			});
     var fountainconfig = getFountainConfig(editor.document.uri);
 	var output = afterparser.parse(editor.document.getText(), fountainconfig , true);
-    let htmlpath = __filename + '/../../../assets/staticexport.html'
+
+    let extensionpath = vscode.extensions.getExtension("piersdeseilligny.betterfountain").extensionPath;
+    let htmlpath = path.join(extensionpath, 'assets', 'staticexport.html');
 	var rawhtml =  fs.readFileSync(htmlpath, 'utf8');
 
     var pageClasses = "innerpage";
@@ -29,10 +32,10 @@ export async function exportHtml(){
 
     rawhtml = rawhtml.replace("$SCRIPTCLASS$", pageClasses);
 
-    let courierprimeB64 = fileToBase64(__dirname + '/../courierprime/courier-prime.ttf');
-    let courierprimeB64_bold = fileToBase64(__dirname + '/../courierprime/courier-prime-bold.ttf');
-    let courierprimeB64_italic = fileToBase64(__dirname + '/../courierprime/courier-prime-italic.ttf');;
-    let courierprimeB64_bolditalic = fileToBase64(__dirname + '/../courierprime/courier-prime-bold-italic.ttf');;
+    let courierprimeB64 = fileToBase64(path.join(extensionpath, 'out', 'courierprime', 'courier-prime.ttf'));
+    let courierprimeB64_bold = fileToBase64(path.join(extensionpath, 'out', 'courierprime', 'courier-prime-bold.ttf'));
+    let courierprimeB64_italic = fileToBase64(path.join(extensionpath, 'out', 'courierprime', 'courier-prime-italic.ttf'));
+    let courierprimeB64_bolditalic = fileToBase64(path.join(extensionpath, 'out', 'courierprime', 'courier-prime-bold-italic.ttf'));
 
     rawhtml = rawhtml.replace("$COURIERPRIME$", courierprimeB64)
                      .replace("$COURIERPRIME-BOLD$", courierprimeB64_bold)
