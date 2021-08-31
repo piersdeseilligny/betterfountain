@@ -22,6 +22,10 @@ export async function exportHtml(){
     let htmlpath = path.join(extensionpath, 'assets', 'staticexport.html');
 	var rawhtml =  fs.readFileSync(htmlpath, 'utf8');
 
+    if(process.platform != "win32"){
+        rawhtml = rawhtml.replace(/\r\n/g, "\n");
+    }
+
     var pageClasses = "innerpage";
     if (fountainconfig.scenes_numbers == "left")
         pageClasses = "innerpage numberonleft";
@@ -41,7 +45,7 @@ export async function exportHtml(){
                      .replace("$COURIERPRIME-BOLD$", courierprimeB64_bold)
                      .replace("$COURIERPRIME-ITALIC$", courierprimeB64_italic)
                      .replace("$COURIERPRIME-BOLDITALIC$", courierprimeB64_bolditalic);
-    
+
     if(output.titleHtml){
         rawhtml = rawhtml.replace("$TITLEPAGE$", output.titleHtml);
     }
