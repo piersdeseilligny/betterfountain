@@ -352,13 +352,13 @@ export function activate(context: ExtensionContext) {
 
 
 	//Setup custom folding mechanism
-	languages.registerFoldingRangeProvider({ scheme: 'file', language: 'fountain' }, new FountainFoldingRangeProvider());
+	languages.registerFoldingRangeProvider({ language: 'fountain' }, new FountainFoldingRangeProvider());
 
 	//Setup autocomplete
-	languages.registerCompletionItemProvider({ scheme: 'file', language: 'fountain' }, new FountainCompletionProvider(), '\n', '-', ' ');
+	languages.registerCompletionItemProvider({ language: 'fountain' }, new FountainCompletionProvider(), '\n', '\r', '-', ' ');
 
 	//Setup symbols (outline)
-	languages.registerDocumentSymbolProvider({ scheme: 'file', language: 'fountain' }, new FountainSymbolProvider());
+	languages.registerDocumentSymbolProvider({ language: 'fountain' }, new FountainSymbolProvider());
 
 
 	//parse the document
