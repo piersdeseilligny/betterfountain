@@ -1,5 +1,8 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.8.9** - *2021-09-22*
+    · Register completion/folding/symbol providers on any file scheme (including virtual file systems)
+
 ## **1.8.7/8** - *2021-08-30*
     + Minor compatibility fixes for "Export to HTML" feature
 
