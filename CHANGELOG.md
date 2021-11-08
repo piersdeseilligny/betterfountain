@@ -1,5 +1,9 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.8.10** - *2021-11-08*
+    · Improve syntax highlighting and live preview of scene headers (now supports more special characters and underlined/bold text within headers)
+    · Update extension icon
+
 ## **1.8.6** - *2021-08-29*
     + Add "Export to HTML" feature
 
