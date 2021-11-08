@@ -43,6 +43,7 @@
 		"onWebviewPanel:fountainPreview"
 	],
 	"main": "./out/extension",
+	"browser": "./out/extension",
 	"contributes": {
 		"configurationDefaults": {
 			"[fountain]": {
@@ -454,7 +455,6 @@
 	"dependencies": {
 		"blob": "0.1.0",
 		"diff": "^5.0.0",
-		"flesch-kincaid": "github:daveross/flesch-kincaid",
 		"font-finder": "^1.1.0",
 		"he": "^1.2.0",
 		"os-fonts": "^0.5.0",
