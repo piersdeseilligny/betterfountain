@@ -6,11 +6,7 @@
 	"license": "MIT",
 	"aiKey": "0c2689ab-4ce9-416d-a585-c9765b7f4c88",
 	"icon": "icon.png",
-<<<<<<< HEAD
-	"version": "1.8.9",
-=======
 	"version": "1.8.10",
->>>>>>> 308555087a9a6d947391d0d1926be89f7521222a
 	"capabilities": {
 		"untrustedWorkspaces": {
 			"supported": true
