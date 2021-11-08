@@ -6,7 +6,7 @@
 	"license": "MIT",
 	"aiKey": "0c2689ab-4ce9-416d-a585-c9765b7f4c88",
 	"icon": "icon.png",
-	"version": "1.8.6",
+	"version": "1.8.10",
 	"capabilities": {
 		"untrustedWorkspaces": {
 			"supported": true
@@ -422,7 +422,8 @@
 		"compilewebviews": "copyfiles -u 2 webviews/src/*.html webviews/out && webpack --config './webviews/stats.webpack.config.js'",
 		"compile": "tsc -p ./ && npm run compilewebviews && copyfiles -u 2 webviews/out/* out/webviews && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out",
 		"watch": "npm run compile",
-		"test": "node node_modules/jest/bin/jest.js"
+		"test": "node node_modules/jest/bin/jest.js",
+		"open-in-browser": "vscode-test-web --extensionDevelopmentPath=. ."
 	},
 	"devDependencies": {
 		"@types/d3": "^5.16.4",
@@ -447,7 +448,8 @@
 		"typescript": "^3.9.10",
 		"vscode-test": "^1.6.1",
 		"webpack": "^4.46.0",
-		"webpack-cli": "^3.3.12"
+		"webpack-cli": "^3.3.12",
+		"@vscode/test-web": "*"
 	},
 	"dependencies": {
 		"blob": "0.1.0",
