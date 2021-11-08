@@ -623,7 +623,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 }
                 switch (current_token.type) {
                     case 'scene_heading':
-                        var content = current_token.text;
+                        var content = current_token.html;
                         if (cfg.embolden_scene_headers) {
                             content = '<span class=\"bold haseditorline\" id="sourceline_' + current_token.line + '">' + content + '</span>';
                         }
