@@ -1,6 +1,4 @@
-var fs = require('fs');
 import * as vscode from 'vscode';
-import * as path from 'path';
 
 export class FountainConfig{
     refresh_stats_on_save: boolean;
@@ -57,47 +55,25 @@ export let uiPersistence:FountainUIPersistence = {
     outline_visibleSections: true
 }
 
-function checkFileExistsSync(filepath:string){
-    let flag = true;
-    try{
-      fs.accessSync(filepath, fs.constants.F_OK);
-    }catch(e){
-      flag = false;
-    }
-    return flag;
-  }
-
-let uiPersistenceFile = path.join(__dirname, "uipersistence.json");
-
-export var initFountainUIPersistence = function(){
-    if(checkFileExistsSync(uiPersistenceFile)){
-        let savedUiPersistenceStr = fs.readFileSync(uiPersistenceFile);
-        if(savedUiPersistenceStr == undefined){
-            return;
+let extensionContext:vscode.ExtensionContext = undefined;
+export var initFountainUIPersistence = function(context:vscode.ExtensionContext){
+    extensionContext = context;
+    context.globalState.keys().forEach((k)=>{
+        var v = context.globalState.get(k);
+        if(v != undefined){
+            uiPersistence[k] = v;
         }
-        let savedUiPersistence = JSON.parse(savedUiPersistenceStr);
-        Object.keys(uiPersistence).forEach((v)=>{
-            if(Object.keys(savedUiPersistence).includes(v)){
-                uiPersistence[v] = savedUiPersistence[v];
-            }
-            vscode.commands.executeCommand('setContext', 'fountain.uipersistence.'+v, uiPersistence[v]);
-        });
-        console.log("Loaded FountainUIPersistence from " + uiPersistenceFile);
+    });
+    for(const k in uiPersistence){
+        vscode.commands.executeCommand('setContext', 'fountain.uipersistence.'+k, uiPersistence[k]);
     }
-    else{
-        console.log("Failed to load FountainUIPersistence from " + uiPersistenceFile);
-    }
-
 }
 
 export var changeFountainUIPersistence = function(key:"outline_visibleSynopses"|"outline_visibleNotes"|"outline_visibleSections"|"outline_visibleScenes", value:any){
-    if(Object.keys(uiPersistence).indexOf(key)>=0){
+    if(extensionContext){
+        extensionContext.globalState.update(key, value);
         uiPersistence[key] = value;
         vscode.commands.executeCommand('setContext', 'fountain.uipersistence.'+key, value);
-        fs.writeFileSync(uiPersistenceFile, JSON.stringify(uiPersistence));
-    }
-    else{
-        throw new Error("The requested fountainUIPersistence key does not exist!");
     }
 }
 

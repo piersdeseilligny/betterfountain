@@ -256,7 +256,7 @@ export function activate(context: ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.overwriteSceneNumbers', overwriteSceneNumbers));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.updateSceneNumbers', updateSceneNumbers));
 
-	initFountainUIPersistence(); //create the ui persistence save file
+	initFountainUIPersistence(context); //create the ui persistence save file
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.outline.visibleitems', ()=>{
 
 		let quickpick = vscode.window.createQuickPick();
