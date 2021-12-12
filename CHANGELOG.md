@@ -1,5 +1,10 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.8.11** - *2021-12-12*
+    · Fix Failed PDF Exports when the first section is deeper than subsequent ones (eg if the first section is ###abc and subsequent ones are ##xyz)
+        NOTE: In the above case, chapter navigation will still be inaccurate. Please make sure to nest sections correctly (# > ## > ### > etc).
+    · Improvements to outline structure when sections are incorrectly nested.
+
 ## **1.8.10** - *2021-11-08*
     · Improve syntax highlighting and live preview of scene headers (now supports more special characters and underlined/bold text within headers)
     · Update extension icon
