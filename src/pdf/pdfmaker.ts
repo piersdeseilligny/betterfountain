@@ -429,6 +429,9 @@ import * as he from 'he';
                 currentDepth++;
                 return getOutlineChild(obj.children[obj.children.length-1], targetDepth, currentDepth);
             }
+            else{
+                return obj;
+            }
         }
 
         let outline = doc.outline;
@@ -554,9 +557,8 @@ import * as he from 'he';
                         if(cfg.create_bookmarks){
                             if(hasInvisibleSection && !cfg.invisible_section_bookmarks) return;
                             var oc = getOutlineChild(outline, sectiontoken.level-1, 0);
-                            if(oc==undefined) 
-                                console.log("BOOM");
-                            getOutlineChild(outline, sectiontoken.level-1, 0).addItem(sectiontext);
+                            if(oc!=undefined) 
+                                oc.addItem(sectiontext);
                         }
                         if(!hasInvisibleSection){
                             text = sectiontext;
