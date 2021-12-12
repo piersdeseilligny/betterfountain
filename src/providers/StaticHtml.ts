@@ -53,26 +53,23 @@ export async function exportHtml(){
         rawhtml = rawhtml.replace("$TITLEDISPLAY$", "hidden")
     }
     rawhtml = rawhtml.replace("$SCREENPLAY$", output.scriptHtml);
-	fs.writeFile(filepath.fsPath, rawhtml, (err)=>{
-        if(err){
-            vscode.window.showErrorMessage("Failed to export HTML: " + err.message);
-        }
-        else{      
-            let open = "Open";
-            let reveal = "Reveal in File Explorer";
-            if(process.platform == "darwin") reveal = "Reveal in Finder"
-            vscode.window.showInformationMessage("Exported HTML Succesfully!", open, reveal).then(val=>{
-                switch(val){
-                    case open:{
-                        openFile(filepath.fsPath);
-                        break;
-                    }
-                    case reveal:{
-                        revealFile(filepath.fsPath);
-                        break;
-                    }
+	vscode.workspace.fs.writeFile(filepath, Buffer.from(rawhtml)).then(()=>{
+        let open = "Open";
+        let reveal = "Reveal in File Explorer";
+        if(process.platform == "darwin") reveal = "Reveal in Finder"
+        vscode.window.showInformationMessage("Exported HTML Succesfully!", open, reveal).then(val=>{
+            switch(val){
+                case open:{
+                    openFile(filepath.fsPath);
+                    break;
                 }
-            })
-        }
+                case reveal:{
+                    revealFile(filepath.fsPath);
+                    break;
+                }
+            }
+        })
+    }, (err)=>{
+        vscode.window.showErrorMessage("Failed to export HTML: " + err.message);
     });
 }

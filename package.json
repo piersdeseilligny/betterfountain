@@ -31,7 +31,7 @@
 		"pdf"
 	],
 	"engines": {
-		"vscode": "^1.26.0"
+		"vscode": "^1.37.0"
 	},
 	"activationEvents": [
 		"onLanguage:fountain",
@@ -435,7 +435,7 @@
 		"@types/mocha": "^5.2.7",
 		"@types/node": "^8.10.66",
 		"@types/username": "^3.0.0",
-		"@types/vscode": "^1.26.0",
+		"@types/vscode": "^1.37.0",
 		"copyfiles": "^2.4.1",
 		"css-loader": "^4.3.0",
 		"d3": "^5.16.0",

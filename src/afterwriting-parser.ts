@@ -213,7 +213,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 return null;
             }
             else if (depth == 1) {
-                return last(result.properties.structure.filter(condition))
+                var lastItem:StructToken = last(result.properties.structure.filter(condition));
+                return lastItem;
             }
             else {
                 var prevSection = latestSectionOrScene(depth - 1, condition)
@@ -365,14 +366,22 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 cobj.children = null;
                 cobj.range = new Range(new Position(thistoken.line, 0), new Position(thistoken.line, thistoken.text.length));
 
+
+
                 if (current_depth == 0) {
                     cobj.id = '/' + thistoken.line;
                     result.properties.structure.push(cobj);
                 }
                 else {
                     var level = latestSection(current_depth);
-                    cobj.id = level.id + '/' + thistoken.line;
-                    level.children.push(cobj);
+                    if(level){
+                        cobj.id = level.id + '/' + thistoken.line;
+                        level.children.push(cobj);
+                    }
+                    else{
+                        cobj.id = '/' + thistoken.line;
+                        result.properties.structure.push(cobj);
+                    }
                 }
 
                 updatePreviousSceneLength();
@@ -412,7 +421,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 cobj.range = new Range(new Position(thistoken.line, 0), new Position(thistoken.line, thistoken.text.length));
                 cobj.section = true;
 
-                const level = current_depth > 1 && latestSection(current_depth - 1);
+                const level = current_depth > 1 && latestSectionOrScene(current_depth, token => token.section && token.level < current_depth)
                 if (current_depth == 1 || !level) {
                     cobj.id = '/' + thistoken.line;
                     result.properties.structure.push(cobj)
