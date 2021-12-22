@@ -12,6 +12,7 @@ export function create_token(text?: string, cursor?: number, line?: number, new_
         level:undefined,
         time:undefined,
         character:undefined,
+        index:-1,
         takeNumber:-1,
         is:function(...args:string[]){
             return args.indexOf(this.type) !== -1;
@@ -78,4 +79,5 @@ export interface token {
     location_type:Function;
     character:string;
     ignore:boolean;
+    index:number;
 }
