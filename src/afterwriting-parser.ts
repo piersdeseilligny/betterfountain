@@ -4,6 +4,7 @@ import { Range, Position } from "vscode";
 import { getFountainConfig } from "./configloader";
 import * as vscode from 'vscode';
 import { AddDialogueNumberDecoration } from "./providers/Decorations";
+import helpers from "./helpers";
 
 declare global {
     interface Array<T> {
@@ -630,10 +631,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         var titlehtml = [];
         //Generate html for title page
         for (const section of Object.keys(result.title_page)) {
-            result.title_page[section].sort((a,b) => {
-                if(a.index == -1) return 0;
-                else return a.index - b.index;
-            });
+            result.title_page[section].sort(helpers.sort_index);
             titlehtml.push(`<div class="titlepagesection" data-position="${section}">`);
             let current_index = 0/*, previous_type = null*/;
             while (current_index < result.title_page[section].length) {

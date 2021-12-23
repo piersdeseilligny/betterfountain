@@ -7,6 +7,7 @@
 import helpers from "../helpers";
 import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../utils";
 import * as he from 'he';
+import * as addTextbox from 'textbox-for-pdfkit';
    // import * as blobUtil from "blob-util";
     export class Options{
         filepath:string;
@@ -153,18 +154,18 @@ import * as he from 'he';
             };
         };
         doc.reset_format();
-        var inner_text = doc.text;
+        //var inner_text = doc.text;
         doc.simple_text = function() {
             doc.font('ScriptNormal');
-            inner_text.apply(doc, arguments);
+            doc.text.apply(doc, arguments);
         };
         doc.format_text = function(text:string, x:number, y:number, options:any) {
             var cache_current_state = doc.format_state;
             doc.reset_format();
-            doc.text(text, x, y, options);
+            doc.text2(text, x, y, options);
             doc.format_state = cache_current_state;
         };
-        doc.text = function(text:string, x:number, y:number, options:any) {
+        doc.text2 = function(text:string, x:number, y:number, options:any) {
             options = options || {};
             var color = options.color || 'black';
             color = doc.format_state.override_color ? doc.format_state.override_color : color;
@@ -183,7 +184,8 @@ import * as he from 'he';
                 return a;
             });
 
-            var font_width = print.font_width;
+           // var font_width = print.font_width;
+            var textobjects = [];
             for (var i = 0; i < split_for_fromatting.length; i++) {
                 var elem = split_for_fromatting[i];
                 if (elem === '***') {
@@ -197,31 +199,39 @@ import * as he from 'he';
                     doc.format_state.underline = !doc.format_state.underline;
                 } else if (elem === '[[') {
                     doc.format_state.override_color = (print.note && print.note.color) || '#000000';
-                    doc.fill(doc.format_state.override_color);
                 } else if (elem === ']]') {
                     doc.format_state.override_color = null;
-                    doc.fill('black');
                 } else {
+                    let font = 'ScriptNormal';
                     if (doc.format_state.bold && doc.format_state.italic) {
-                        doc.font('ScriptBoldOblique');
+                        font = 'ScriptBoldOblique';
                     } else if (doc.format_state.bold) {
-                        doc.font('ScriptBold');
+                        font = 'ScriptBold';
                     } else if (doc.format_state.italic) {
-                        doc.font('ScriptOblique');
-                    } else {
-                        doc.font('ScriptNormal');
+                        font = 'ScriptOblique';
                     }
                     if (elem === '\\_' || elem === '\\*') {
                         elem = elem.substr(1, 1);
                     }
-                    inner_text.call(doc, elem, x * 72, y * 72, {
+                    textobjects.push({
+                        text: elem,
+                        font: font,
                         underline: doc.format_state.underline,
-                        lineBreak: options.line_break
+                        color: doc.format_state.override_color ? doc.format_state.override_color : 'black'
                     });
-                    x += font_width * elem.length;
                 }
+                /*inner_text.call(doc, elem, x * 72, y * 72, {
+                    underline: doc.format_state.underline,
+                    lineBreak: options.line_break,
+                    width: options.width * 72,
+                    align: options.align
+                });*/
             }
-
+            var width = options.width !== undefined ? options.width : print.page_width;
+            addTextbox(textobjects, doc, x*72, y*72, width*72, {
+                lineBreak: options.line_break,
+                align: options.align
+            });
 
         };
         return doc;
@@ -246,11 +256,14 @@ import * as he from 'he';
     var get_title_page_token = function(parsed:any, type:string):any {
         var result = null;
         if (parsed && parsed.title_page) {
-            parsed.title_page.forEach(function(token:any) {
-                if (token.is(type)) {
-                    result = token;
-                }
-            });
+            for (const section of Object.keys(parsed.title_page)) {
+                parsed.title_page[section].forEach(function(token:any) {
+                    if (token.is(type)) {
+                        result = token;
+                    }
+                });
+            }
+
         }
         return result;
     };
@@ -276,16 +289,16 @@ import * as he from 'he';
         var center = function(txt:string, y:number) {
             var txt_length = txt.replace(/\*/g, '').replace(/_/g, '').length;
             var feed = (print.page_width - txt_length * print.font_width) / 2;
-            doc.text(txt, feed, y);
+            doc.text2(txt, feed, y);
         };
 
-        var title_y = print.title_page.top_start;
+        //var title_y = print.title_page.top_start;
 
-        var title_page_next_line = function() {
+        /*var title_page_next_line = function() {
             title_y += print.line_spacing * print.font_height;
         };
 
-        var title_page_main = function(parsed?:any, type?:string, options?:any) {
+        /*var title_page_main = function(parsed?:any, type?:string, options?:any) {
             options = options || {};
             if (arguments.length === 0) {
                 title_page_next_line();
@@ -301,10 +314,66 @@ import * as he from 'he';
                     title_page_next_line();
                 });
             }
-        };
+        };*/
 
         if (cfg.print_title_page) {
+            const innerwidth = print.page_width - print.left_margin - print.right_margin;
+            const innerheight = print.page_height - print.top_margin;
+            const innerwidth_third = innerwidth/3;
+            const innerwidth_half = innerwidth/2;
+            //top left
+            var tltext = parsed.title_page['tl'].sort(helpers.sort_index).map((x:any)=>x.text).join('\n');
+            var tltext_height = doc.heightOfString(tltext, {width:innerwidth_third*72, align:'left'});
+            doc.text2(tltext, print.left_margin, print.top_margin, {
+                width: innerwidth_third,
+                align: 'left'
+              });
 
+            //top center
+            var tctext = parsed.title_page['tc'].sort(helpers.sort_index).map((x:any)=>x.text).join('\n');
+            var tctext_height = doc.heightOfString(tctext, {width:innerwidth_third*72, align:'center'});
+            doc.text2(tctext, print.left_margin+innerwidth_third, print.top_margin, {
+                width: innerwidth_third,
+                align: 'center'
+              });
+
+            //top right
+            var trtext = parsed.title_page['tr'].sort(helpers.sort_index).map((x:any)=>x.text).join('\n');
+            var trtext_height = doc.heightOfString(trtext, {width:innerwidth_third*72, align:'right'});
+            doc.text2(trtext, print.left_margin+innerwidth_third+innerwidth_third, print.top_margin, {
+                width: innerwidth_third,
+                align: 'right'
+              });
+
+            //bottom left
+            var bltext = parsed.title_page['bl'].sort(helpers.sort_index).map((x:any)=>x.text).join('\n');
+            var bltext_height = doc.heightOfString(bltext, {width:innerwidth_half*72, align:'left'});
+            doc.text2(bltext, print.left_margin, innerheight-(bltext_height/72), {
+                width: innerwidth_half,
+                align: 'left'
+              });
+
+            //bottom right
+            var brtext = parsed.title_page['br'].sort(helpers.sort_index).map((x:any)=>x.text).join('\n');
+            var brtext_height = doc.heightOfString(brtext, {width:innerwidth_half*72, align:'right'});
+            doc.text2(brtext, print.left_margin+innerwidth_half, innerheight-(brtext_height/72), {
+                width: innerwidth_half,
+                align: 'right'
+              });
+
+            //center center
+            var topheight = Math.max(tltext_height, tctext_height, trtext_height, 0);
+            var bottomheight = Math.max(bltext_height, brtext_height, 0);
+
+            var cctext = parsed.title_page['cc'].sort(helpers.sort_index).map((x:any)=>x.text).join('\n\n');
+            var cctext_height = doc.heightOfString(cctext, {width:innerwidth*72, align:'center'});
+            var centerStart = (((innerheight*72)-topheight-bottomheight)/2)-(cctext_height/2);
+            doc.text2(cctext, print.left_margin, centerStart/72, {
+                width: innerwidth,
+                align: 'center'
+              });
+
+            /*
             // title page
             title_page_main(parsed, 'title', {
                 capitalize: true
@@ -327,7 +396,6 @@ import * as he from 'he';
                 }
                 return prev;
             };
-
             var left_side = print.title_page.left_side.reduce(concat_types.bind(null, parsed), []),
                 right_side = print.title_page.right_side.reduce(concat_types.bind(null, parsed), []),
                 title_page_extra = function(x:number) {
@@ -342,7 +410,7 @@ import * as he from 'he';
 
             title_y = 8.5;
             right_side.forEach(title_page_extra(5));
-
+*/
             // script
             doc.addPage();
         }
@@ -612,13 +680,13 @@ import * as he from 'he';
                                 feed_right -= (feed_right - print.left_margin) / 2;
                                 feed_right += (print.page_width - print.right_margin - print.left_margin) / 2;
                                 var right_text_properties = get_text_properties(right_line);
-                                doc.text(right_line.text, feed_right, print.top_margin + print.font_height * y_right++, right_text_properties);
+                                doc.text2(right_line.text, feed_right, print.top_margin + print.font_height * y_right++, right_text_properties);
                             });
                         }
                         feed -= (feed - print.left_margin) / 2;
                     }
 
-                    doc.text(text, feed, print.top_margin + print.font_height * y, text_properties);
+                    doc.text2(text, feed, print.top_margin + print.font_height * y, text_properties);
                     if(line.linediff){
                         y +=  line.linediff;
                     } 
@@ -637,12 +705,12 @@ import * as he from 'he';
 
                         if (cfg.scenes_numbers === 'both' || cfg.scenes_numbers === 'left') {
                             shift_scene_number = (scene_text_length + 4) * print.font_width;
-                            doc.text(scene_number, feed - shift_scene_number, print.top_margin + print.font_height * y, text_properties);
+                            doc.text2(scene_number, feed - shift_scene_number, print.top_margin + print.font_height * y, text_properties);
                         }
 
                         if (cfg.scenes_numbers === 'both' || cfg.scenes_numbers === 'right') {
                             shift_scene_number = (print.scene_heading.max + 1) * print.font_width;
-                            doc.text(scene_number, feed + shift_scene_number, print.top_margin + print.font_height * y, text_properties);
+                            doc.text2(scene_number, feed + shift_scene_number, print.top_margin + print.font_height * y, text_properties);
                         }
                     }
                     y++;

@@ -74,6 +74,10 @@ class helperClass{
     blank_text = function(text:string) {
         return (text || '').replace(/./g, ' ');
     };
+    sort_index = function(a:any,b:any) {
+        if(a.index == -1) return 0;
+        else return a.index - b.index;
+    }
     operators:operatorClass;
 }
 
