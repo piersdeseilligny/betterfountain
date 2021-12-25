@@ -69,7 +69,7 @@ export const regex: { [index: string]: RegExp } = {
     underline: /(_{1}(?=.+_{1}))(.+?)(_{1})/g,
 };
 export interface titleKeywordFormat{
-    position:'cc'|'br'|'bl'|'tr'|'tc'|'tl'|'cl'|'cr'|'cc'|'hidden',
+    position:'cc'|'br'|'bl'|'tr'|'tc'|'tl'|'cc'|'hidden',
     index:number
 }
 
