@@ -128,7 +128,7 @@ export class FountainCompletionProvider implements vscode.CompletionItemProvider
 				if (parsedDocument.properties.titleKeys.indexOf("draft_date") == -1)
 				completes.push(TitlePageKey({name:"Draft Date", detail:"The date of the current draft", triggerIntellisense:true, documentation:'Useful if you have several drafts and need to keep track of when they were written' , sort:"F", position:titlePageDisplay['draft_date'].position}));
 				if (parsedDocument.properties.titleKeys.indexOf("date") == -1)
-				completes.push(TitlePageKey({name:"Author", detail:"The date of the screenplay", triggerIntellisense:true, documentation:'Only include the date it if necessary for production purposes. Someone reading your screenplay does not generally need to know when it was written.', sort:"G", position:titlePageDisplay['date'].position}));
+				completes.push(TitlePageKey({name:"Date", detail:"The date of the screenplay", triggerIntellisense:true, documentation:'Only include the date it if necessary for production purposes. Someone reading your screenplay does not generally need to know when it was written.', sort:"G", position:titlePageDisplay['date'].position}));
 				if (parsedDocument.properties.titleKeys.indexOf("contact") == -1 || parsedDocument.properties.titleKeys.indexOf("contact_info") == -1)
 				completes.push(TitlePageKey({name:"Contact", detail:"Contact details", sort:"H", documentation:'Your contact details (Address, email, etc...)', position:titlePageDisplay['contact'].position}));
 				if (parsedDocument.properties.titleKeys.indexOf("copyright") == -1)
