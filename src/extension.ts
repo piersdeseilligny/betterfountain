@@ -142,8 +142,6 @@ export function activeFountainDocument(): vscode.Uri{
 
 export function getEditor(uri:vscode.Uri): vscode.TextEditor{
 	//search visible text editors
-	console.log("Attempting to get editor ");
-	console.log(uri);
 	for (let i = 0; i < vscode.window.visibleTextEditors.length; i++) {
 		if(vscode.window.visibleTextEditors[i].document.uri.toString() == uri.toString())
 			return vscode.window.visibleTextEditors[i];
