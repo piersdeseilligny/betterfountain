@@ -625,31 +625,36 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     
     // tidy up separators
 
+    if(!title_page_started){
+        result.title_page = undefined;
+    }
 
     if (generate_html) {
         var html = [];
         var titlehtml = [];
         //Generate html for title page
-        for (const section of Object.keys(result.title_page)) {
-            result.title_page[section].sort(helpers.sort_index);
-            titlehtml.push(`<div class="titlepagesection" data-position="${section}">`);
-            let current_index = 0/*, previous_type = null*/;
-            while (current_index < result.title_page[section].length) {
-                var current_token: token = result.title_page[section][current_index];
-                if(current_token.ignore){
+        if(result.title_page){
+            for (const section of Object.keys(result.title_page)) {
+                result.title_page[section].sort(helpers.sort_index);
+                titlehtml.push(`<div class="titlepagesection" data-position="${section}">`);
+                let current_index = 0/*, previous_type = null*/;
+                while (current_index < result.title_page[section].length) {
+                    var current_token: token = result.title_page[section][current_index];
+                    if(current_token.ignore){
+                        current_index++;
+                        continue;
+                    }
+                    if (current_token.text != "") {
+                        current_token.html = inline.lexer(current_token.text);
+                    }
+                    switch (current_token.type) {
+                        case 'title': titlehtml.push(`<h1 class="haseditorline titlepagetoken" id="sourceline_${current_token.line}">${current_token.html}</h1>`); break;
+                        default: titlehtml.push(`<p class="${current_token.type} haseditorline titlepagetoken" id="sourceline_${current_token.line}">${current_token.html}</p>`); break;
+                    }
                     current_index++;
-                    continue;
                 }
-                if (current_token.text != "") {
-                    current_token.html = inline.lexer(current_token.text);
-                }
-                switch (current_token.type) {
-                    case 'title': titlehtml.push(`<h1 class="haseditorline titlepagetoken" id="sourceline_${current_token.line}">${current_token.html}</h1>`); break;
-                    default: titlehtml.push(`<p class="${current_token.type} haseditorline titlepagetoken" id="sourceline_${current_token.line}">${current_token.html}</p>`); break;
-                }
-                current_index++;
+                titlehtml.push(`</div>`);
             }
-            titlehtml.push(`</div>`);
         }
 
 
@@ -770,7 +775,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             current_index++;
         }
         result.scriptHtml = html.join('');
-        if (titlehtml.length > 0)
+        if (titlehtml && titlehtml.length > 0)
             result.titleHtml = titlehtml.join('');
         else
             result.titleHtml = undefined;

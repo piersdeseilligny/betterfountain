@@ -94,7 +94,6 @@ function loadWebView(docuri: vscode.Uri, preview:vscode.WebviewPanel, dynamic:bo
         else if(message.command == "revealLine"){
             if(!getFountainConfig(vscode.Uri.parse(message.uri)).synchronized_markup_and_preview) return;
             isScrolling = true;
-            console.log("jump to line:"+message.content);
             const sourceLine = Math.floor(message.content);
             const fraction = message.content - sourceLine;
             let editor = getEditor(vscode.Uri.parse(message.uri));
@@ -103,7 +102,7 @@ function loadWebView(docuri: vscode.Uri, preview:vscode.WebviewPanel, dynamic:bo
                 const text = editor.document.lineAt(sourceLine).text;
                 const start = Math.floor(fraction * text.length);
                 editor.revealRange(
-                    new vscode.Range(sourceLine, start, sourceLine + 1, 0),
+                    new vscode.Range(sourceLine, start, sourceLine, 1),
                     vscode.TextEditorRevealType.AtTop);
             }
         }

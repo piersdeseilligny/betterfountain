@@ -317,7 +317,7 @@ import * as addTextbox from 'textbox-for-pdfkit';
             }
         };*/
 
-        if (cfg.print_title_page) {
+        if (cfg.print_title_page && parsed.title_page) {
             const innerwidth = print.page_width - print.left_margin - print.right_margin;
             const innerheight = print.page_height - print.top_margin;
             const innerwidth_third = innerwidth/3;

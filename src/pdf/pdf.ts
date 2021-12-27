@@ -12,11 +12,13 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, e
     var liner: any = new fliner.Liner(helpers.default, config.print_dialogue_numbers);
     var watermark = undefined;
     var font = "Courier Prime";
-    for (let index = 0; index < parsedDocument.title_page['hidden'].length; index++) {
-        if (parsedDocument.title_page['hidden'][index].type == "watermark")
-            watermark = parsedDocument.title_page['hidden'][index].text;
-        if (parsedDocument.title_page['hidden'][index].type == "font")
-            font = parsedDocument.title_page['hidden'][index].text;
+    if(parsedDocument.title_page){
+        for (let index = 0; index < parsedDocument.title_page['hidden'].length; index++) {
+            if (parsedDocument.title_page['hidden'][index].type == "watermark")
+                watermark = parsedDocument.title_page['hidden'][index].text;
+            if (parsedDocument.title_page['hidden'][index].type == "font")
+                font = parsedDocument.title_page['hidden'][index].text;
+        }
     }
     var current_index = 0, previous_type: string = null;
 

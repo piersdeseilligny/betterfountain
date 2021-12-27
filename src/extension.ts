@@ -493,17 +493,19 @@ export function parseDocument(document: TextDocument) {
 	tokenlength = 0;
 	parsedDocuments.get(document.uri.toString()).properties.titleKeys = [];
 	var fontTokenExists = false;
-	while (tokenlength < output.title_page['hidden'].length) {
-		if (output.title_page['hidden'][tokenlength].type == "font" && output.title_page['hidden'][tokenlength].text.trim() != "") {
-			parsedDocuments.get(document.uri.toString()).properties.fontLine = output.title_page['hidden'][tokenlength].line;
-			var fontname = output.title_page['hidden'][tokenlength].text;
-			previewsToUpdate.forEach(p => {
-				p.panel.webview.postMessage({ command: 'updateFont', content: fontname });
-			});
-			fontTokenExists = true;
-			fontTokenExisted = true;
+	if(output.title_page){
+		while (tokenlength < output.title_page['hidden'].length) {
+			if (output.title_page['hidden'][tokenlength].type == "font" && output.title_page['hidden'][tokenlength].text.trim() != "") {
+				parsedDocuments.get(document.uri.toString()).properties.fontLine = output.title_page['hidden'][tokenlength].line;
+				var fontname = output.title_page['hidden'][tokenlength].text;
+				previewsToUpdate.forEach(p => {
+					p.panel.webview.postMessage({ command: 'updateFont', content: fontname });
+				});
+				fontTokenExists = true;
+				fontTokenExisted = true;
+			}
+			tokenlength++;
 		}
-		tokenlength++;
 	}
 	if (!fontTokenExists && fontTokenExisted) {
 		previewsToUpdate.forEach(p => {
