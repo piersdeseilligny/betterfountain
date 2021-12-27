@@ -237,9 +237,21 @@ export class Liner {
             lines[left_index].right_column = right_lines;
 
             if(dialogue_tokens > left_tokens){
-                //there's more dialogue lines on the left than on the right
+                //There's more dialogue lines on the right than on the left:
+                //Insert dummy lines onto the left so it's the same length as the right.
                 let insertLength = dialogue_tokens-left_tokens;
-                lines[left_index+left_tokens-1].linediff = insertLength;
+                let insertArray:any[] = [];
+                while(insertLength>0){
+                    insertArray.push(this.h.create_line({
+                        type:  lines[left_index+left_tokens].type,
+                        token: lines[left_index+left_tokens].token,
+                        text: '',
+                        start: lines[left_index+left_tokens].start,
+                        end: lines[left_index+left_tokens].end
+                    }));
+                    insertLength--;
+                }
+                lines.splice(left_index+left_tokens, 0, ...insertArray);
             }
         };
 
