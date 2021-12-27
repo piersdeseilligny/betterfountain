@@ -278,6 +278,9 @@ export class Liner {
             if(!token.hide){
                 var max = (cfg.print[token.type] || {}).max || cfg.print.action.max;
 
+                //Replace tabs with 4 spaces
+                token.text = token.text.replace('\t','    ');
+
                 if (token.dual) {
                     max *= cfg.print.dual_max_factor;
                 }
