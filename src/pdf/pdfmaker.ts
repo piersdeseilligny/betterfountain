@@ -173,7 +173,7 @@ import * as addTextbox from 'textbox-for-pdfkit';
             doc.fill(color);
 
             if (options.highlight) {
-                doc.highlight(x * 72,y * 72, doc.widthOfString(text), doc.currentLineHeight(), {color: options.highlightcolor});
+                doc.highlight(x * 72,(y * 72)+doc.currentLineHeight()/2, doc.widthOfString(text), doc.currentLineHeight(), {color: options.highlightcolor});
             }
             
             if (print.note.italic) {
