@@ -1,0 +1,288 @@
+{
+  "fileTypes": [
+    "fountain"
+  ],
+  "name": "Fountain",
+  "scopeName": "text.source.fountain",
+  "uuid": "BA0B1FEB-1E9C-4283-8F3B-E80E7879EA91",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#title_page"
+    },
+    {
+      "include": "#scene_headings"
+    },
+    {
+      "include": "#sections"
+    },
+    {
+      "include": "#synopses"
+    },
+    {
+      "include": "#transitions"
+    },
+    {
+      "include": "#center"
+    },
+    {
+      "include": "#dialogue"
+    },
+    {
+      "include": "#characters"
+    },
+    {
+      "include": "#markup"
+    },
+    {
+      "include": "#notes"
+    },
+    {
+      "include": "#pagebreaks"
+    },
+    {
+      "include": "#action"
+    },
+    {
+      "include": "#lyrics"
+    }
+  ],
+  "repository": {
+    "action": {
+      "begin": "^([ \\t]*)(?=\\S)",
+      "contentName": "meta.paragraph.text",
+      "end": "^(?!\\1(?=\\S))",
+      "patterns": [
+        {
+          "match": "(?x)\r\n                  ( (https?|s?ftp|ftps|file|smb|afp|nfs|(x-)?man|gopher|txmt)://|mailto:)\r\n                  [-:@a-zA-Z0-9_.,~%+/?=&#]+(?<![.,?:])\r\n               ",
+          "name": "markup.underline.link.text"
+        },
+        {
+          "include": "#markup"
+        },
+        {
+          "include": "#lyrics"
+        }
+      ]
+    },
+    "comments": {
+      "name": "comment.block.fountain",
+      "begin": "/\\*",
+      "end": "\\*/"
+    },
+    "lyrics": {
+      "name": "markup.italic string",
+      "begin": "^\\s*~.*",
+      "end": "$"
+    },
+    "dialogue": {
+      "contentName": "string",
+      "begin": "^[ \\t]*(?![#!]|(\\[\\[)|(SUPERIMPOSE:))(((?!@)[^\\p{Ll}\\r\\n]*?\\p{Lu}[^\\p{Ll}\\r\\n]*?)|((@)[^\\r\\n]*?))(\\(.*\\))?(\\s*\\^)?$",
+      "end": "^$",
+      "beginCaptures": {
+        "3": {
+          "name": "entity.name.type"
+        },
+        "6": {
+          "name": "constant.character.escape"
+        },
+        "7": {
+          "name": "variable.other"
+        },
+        "8": {
+          "name": "constant.character.escape"
+        }
+      },
+      "applyEndPatternLast": 1,
+      "patterns": [
+        {
+          "name": "comment.block.fountain",
+          "begin": "/\\*",
+          "end": "\\*/"
+        },
+        {
+          "name": "constant.character.escape",
+          "match": "^[ \\t]*\\(.*\\)$",
+          "patterns": [
+            {
+              "include": "#nested_parens"
+            }
+          ]
+        },
+        {
+          "include": "#markup"
+        },
+        {
+          "include": "#lyrics"
+        }
+      ]
+    },
+    "nested_parens": {
+      "begin": "(",
+      "end": ")",
+      "patterns": [
+        {
+          "include": "#nested_parens"
+        }
+      ]
+    },
+    "notes": {
+      "name": "comment.block",
+      "begin": "\\[\\[",
+      "end": "\\]\\]"
+    },
+    "pagebreaks": {
+      "name": "entity.other.pagebreak.fountain",
+      "match": "===(=+)?"
+    },
+    "scene_headings": {
+      "match": "(?i)^[ \\t]*([.](?![.])|(?:[*]{0,3}_?)(?:int|ext|est|int[.]?\\/ext|i[.]?\\/e)[. ])(.+?)(#[-.0-9a-z]+#)?$",
+      "captures": {
+        "1": {
+          "name": "keyword.other.class"
+        },
+        "2": {
+          "name": "keyword.other.class"
+        },
+        "3": {
+          "name": "constant.numeric.scene.fountain"
+        }
+      }
+    },
+    "sections": {
+      "begin": "\\G(#{1,6})(?!#)\\s*(?=\\S)",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.section.fountain"
+        }
+      },
+      "contentName": "entity.name.section.fountain",
+      "end": "\\s*(#*)$\\n?",
+      "name": "markup.section.fountain",
+      "patterns": [
+        {
+          "include": "#inline"
+        }
+      ]
+    },
+    "synopses": {
+      "name": "comment.block.fountain.synopses",
+      "match": "^={1}([^<>=][^<>]+?)$"
+    },
+    "center": {
+      "name": "markup.bold",
+      "match": "^>[^<>\\n]+<$"
+    },
+    "transitions": {
+      "name": "constant.numeric",
+      "match": "^\\s*(>[^<\\n\\r]*|[A-Z ]+ TO:)$"
+    },
+    "markup": {
+      "patterns": [
+        {
+          "name": "markup.code",
+          "begin": "^\\s*>(?=.*<)",
+          "end": "<$",
+          "patterns": [
+            {
+              "include": "#markup"
+            }
+          ]
+        },
+        {
+          "name": "markup.bold.fountain",
+          "begin": "^\\s*>(?=.*<)",
+          "end": "<$",
+          "patterns": [
+            {
+              "include": "#markup"
+            }
+          ]
+        },
+        {
+          "name": "markup.underline.fountain",
+          "begin": "_(?=.*_)",
+          "end": "_",
+          "patterns": [
+            {
+              "include": "#markup"
+            }
+          ]
+        },
+        {
+          "name": "markup.heading",
+          "match": "^(#+)(.*)$",
+          "patterns": [
+            {
+              "include": "#markup"
+            }
+          ]
+        },
+        {
+          "name": "markup.bold.fountain",
+          "begin": "(?x)\r\n                  (\\*\\*|__)(?=\\S)                        # Open\r\n                  (?=\r\n                     (\r\n                         <[^>]*+>                     # HTML tags\r\n                       | (?<raw>`+)([^`]|(?!(?<!`)\\k<raw>(?!`))`)*+\\k<raw>\r\n                                                   # Raw\r\n                       | \\\\[\\\\`*_{}\\[\\]()#.!+\\->]?+         # Escapes\r\n                       | \\[\r\n                        (\r\n                                (?<square>               # Named group\r\n                                 [^\\[\\]\\\\]            # Match most chars\r\n                                  | \\\\.                  # Escaped chars\r\n                                  | \\[ \\g<square>*+ \\]      # Nested brackets\r\n                                )*+\r\n                           \\]\r\n                           (\r\n                              (                    # Reference Link\r\n                                 [ ]?              # Optional space\r\n                                 \\[[^\\]]*+\\]          # Ref name\r\n                              )\r\n                             | (                   # Inline Link\r\n                                 \\(                # Opening paren\r\n                                    [ \\t]*+           # Optional whtiespace\r\n                                    <?(.*?)>?         # URL\r\n                                    [ \\t]*+           # Optional whtiespace\r\n                                    (              # Optional Title\r\n                                       (?<title>['\"])\r\n                                       (.*?)\r\n                                       \\k<title>\r\n                                    )?\r\n                                 \\)\r\n                              )\r\n                           )\r\n                        )\r\n                       | (?!(?<=\\S)\\1).                  # Everything besides\r\n                                                   # style closer\r\n                     )++\r\n                     (?<=\\S)\\1                        # Close\r\n                  )",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.markup.bold.fountain"
+            }
+          },
+          "end": "(?<=\\S)(\\1)",
+          "patterns": [
+            {
+              "applyEndPatternLast": 1,
+              "begin": "(?=<[^>]*?>)",
+              "end": "(?<=>)",
+              "patterns": [
+                {
+                  "include": "text.html.basic"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "markup.italic.fountain",
+          "begin": "(?x)\r\n                  (\\*|_)(?=\\S)                        # Open\r\n                  (?=\r\n                     (\r\n                         <[^>]*+>                     # HTML tags\r\n                       | (?<raw>`+)([^`]|(?!(?<!`)\\k<raw>(?!`))`)*+\\k<raw>\r\n                                                   # Raw\r\n                       | \\\\[\\\\`*_{}\\[\\]()#.!+\\->]?+         # Escapes\r\n                       | \\[\r\n                        (\r\n                                (?<square>               # Named group\r\n                                 [^\\[\\]\\\\]            # Match most chars\r\n                                  | \\\\.                  # Escaped chars\r\n                                  | \\[ \\g<square>*+ \\]      # Nested brackets\r\n                                )*+\r\n                           \\]\r\n                           (\r\n                              (                    # Reference Link\r\n                                 [ ]?              # Optional space\r\n                                 \\[[^\\]]*+\\]          # Ref name\r\n                              )\r\n                             | (                   # Inline Link\r\n                                 \\(                # Opening paren\r\n                                    [ \\t]*+           # Optional whtiespace\r\n                                    <?(.*?)>?         # URL\r\n                                    [ \\t]*+           # Optional whtiespace\r\n                                    (              # Optional Title\r\n                                       (?<title>['\"])\r\n                                       (.*?)\r\n                                       \\k<title>\r\n                                    )?\r\n                                 \\)\r\n                              )\r\n                           )\r\n                        )\r\n                       | \\1\\1                      # Must be bold closer\r\n                       | (?!(?<=\\S)\\1).                  # Everything besides\r\n                                                   # style closer\r\n                     )++\r\n                     (?<=\\S)\\1                        # Close\r\n                  )\r\n               ",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.markup.italic.fountain"
+            }
+          },
+          "end": "(?<=\\S)(\\1)((?!\\1)|(?=\\1\\1))",
+          "patterns": [
+            {
+              "include": "#markup"
+            }
+          ]
+        },
+        {
+          "patterns": [
+            {
+              "include": "#notes"
+            },
+            {
+              "include": "#comments"
+            }
+          ]
+        }
+      ]
+    },
+    "title_page": {
+      "begin": "^(?i)(title|credit|authors?|source|draft date|date|watermark|contact|contact info|copyright|notes|font|revision|tl|tc|tr|cc|br|bl):",
+      "end": "^(?=(?i)(title|credit|authors?|source|draft date|date|watermark|contact|contact info|copyright|notes|font|revision|tl|tc|tr|cc|br|bl)|$)",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.other.title-page.fountain"
+        }
+      },
+      "patterns": [
+        {
+          "name": "string.other.title-page.fountain",
+          "match": "((?<=:)|\\s+).*$"
+        }
+      ]
+    }
+  }
+}
