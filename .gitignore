@@ -10,3 +10,4 @@ client/server
 /working
 /standalone/.webpack
 .env
+/syntaxes/markdown.tmlanguage.json

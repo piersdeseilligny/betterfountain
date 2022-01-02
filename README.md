@@ -35,9 +35,23 @@ https://piersdeseilligny.com/work/software/betterfountain/
 * Other cool stuff
     * Go straight to writing dialog after a parenthetical by pressing enter, while the cursor is still inside it
     * Jump to scenes/sections in the .fountain and live preview when clicking on the outline
-    * Scroll-sync preview, with active line indication/selection 
+    * Scroll-sync preview, with active line indication/selection
 
 ![Screenshot of Statistics pages](https://piersdeseilligny.com/assets/Dark_plusstats_ns_2d4ab6dc54.PNG)
+
+## Formatting
+
+In fountain, text is formatted by enclosing it within control characters (just like in Markdown!):
+
+| Markup                                        | Result                                                                                  |
+|-----------------------------------------------|-----------------------------------------------------------------------------------------|
+| `**Bold text**`                               | **Bold text**                                                                           |
+| `*Italic text*`                               | *Italic Text*                                                                           |
+| `_Underlined text_`                           | _Underlined text_                                                                       |
+| `_***All of the above***_`                    | _***All of the above***_                                                                |
+| `[A link to google](https://google.com/)`     | [A link to google](https://google.com/)                                                 |
+| `[A link to a section](#section 1)`           | [A link to a section](##Usage)                                                          |
+| `![An image description](A link to an image)` | ![An image description](https://piersdeseilligny.com/assets/small_Logo5_c9ca125c1a.png) |
 
 ## Why?
 
