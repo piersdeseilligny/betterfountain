@@ -65,7 +65,8 @@ export const regex: { [index: string]: RegExp } = {
     bold_italic: /(\*{3}(?=.+\*{3}))(.+?)(\*{3})/g,
     bold: /(\*{2}(?=.+\*{2}))(.+?)(\*{2})/g,
     italic: /(\*{1}(?=.+\*{1}))(.+?)(\*{1})/g,
-    link: /(!)?(\[?(\[)([^\]\[]*\[?[^\]\[]*\]?[^\]\[]*)(\])(\()(.+?)(?:\s+(["'])(.*?)\4)?(\)))/g,
+    link: /(\[?(\[)([^\]\[]*\[?[^\]\[]*\]?[^\]\[]*)(\])(\()(.+?)(?:\s+(["'])(.*?)\4)?(\)))/g,
+    image: /(!\[?(\[)([^\]\[]*\[?[^\]\[]*[^\]\[]*)(\])(\()(.+?)(?:\s+(["'])(.*?)\4)?(\)))/g,
     lyric: /^(\~.+)/g,
     underline: /(_{1}(?=.+_{1}))(.+?)(_{1})/g,
 };
@@ -104,6 +105,8 @@ export const titlePageDisplay: {[index:string]:titleKeywordFormat} = {
 
 
 var inline: { [index: string]: any } = {
+    image: '<img alt="$3" title="$3" src="$6">',
+    link: '<a href=\"$6\">$3</a>',
     note: '<span class=\"note\">$1</span>',
 
     line_break: '<br />',
@@ -123,7 +126,7 @@ var inline: { [index: string]: any } = {
         var styles = ['underline', 'italic', 'bold', 'bold_italic', 'italic_underline', 'bold_underline', 'bold_italic_underline']
             , i = styles.length, style, match;
 
-        s = s.replace(regex.note_inline, inline.note).replace(/\\\*/g, '[star]').replace(/\\_/g, '[underline]').replace(/\n/g, inline.line_break);
+        s = s.replace(regex.image, inline.image).replace(regex.link, inline.link).replace(regex.note_inline, inline.note).replace(/\\\*/g, '[star]').replace(/\\_/g, '[underline]').replace(/\n/g, inline.line_break);
 
         // if (regex.emphasis.test(s)) {                         // this was causing only every other occurence of an emphasis syntax to be parsed
         while (i--) {
