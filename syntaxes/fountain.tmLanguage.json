@@ -280,60 +280,30 @@
         "1": {
 					"name": "punctuation.definition.tag"
 				},
-				"2": {
-					"name": "constant.character.escape"
+        "3": {
+					"name": "punctuation.definition.tag"
 				},
-				"3": {
+        "5": {
+					"name": "punctuation.definition.tag"
+				},
+        "6": {
+					"name": "punctuation.definition.tag"
+				},
+        "10": {
+					"name": "punctuation.definition.tag"
+				},
+				"4": {
 					"name": "markup.underline.link.fountain",
-          "include":"#markup"
-				},
-				"5": {
-					"name": "punctuation.definition.tag"
-				},
-				"6": {
-					"name": "punctuation.definition.tag"
+          "patterns":[
+            {"include":"#markup"},
+            {"include":"#link-inline"}
+          ]
 				},
 				"7": {
-					"name": "punctuation.definition.link.fountain"
-				},
-				"8": {
 					"name": "keyword"
-				},
-				"10": {
-					"name": "punctuation.definition.link.fountain"
-				},
-				"11": {
-					"name": "string.other.link.description.title.fountain"
-				},
-				"12": {
-					"name": "punctuation.definition.string.begin.fountain"
-				},
-				"13": {
-					"name": "punctuation.definition.string.end.fountain"
-				},
-				"14": {
-					"name": "string.other.link.description.title.fountain"
-				},
-				"15": {
-					"name": "punctuation.definition.string.begin.fountain"
-				},
-				"16": {
-					"name": "punctuation.definition.string.end.fountain"
-				},
-				"17": {
-					"name": "string.other.link.description.title.fountain"
-				},
-				"18": {
-					"name": "punctuation.definition.string.begin.fountain"
-				},
-				"19": {
-					"name": "punctuation.definition.string.end.fountain"
-				},
-				"20": {
-					"name": "punctuation.definition.tag"
 				}
 			},
-			"match": "(?x)\n  ((\\!?)\\[)((?<square>[^\\[\\]\\\\]|\\\\.|\\[\\g<square>*+\\])*+)(\\])\n                # Match the link text.\n  (\\()            # Opening paren for url\n    (<?)((?<url>(?>[^\\s()]+)|\\(\\g<url>*\\))*)(>?)      # The url\n    [ \\t]*          # Optional whitespace\n    (?:\n        ((\\().+?(\\)))    # Match title in parens…\n      | ((\").+?(\"))    # or in double quotes…\n      | ((').+?('))    # or in single quotes.\n    )?            # Title is optional\n    \\s*            # Optional whitespace\n  (\\))\n",
+      "match": "(!)?(\\[?(\\[)([^\\]\\[]*\\[?[^\\]\\[]*\\]?[^\\]\\[]*)(\\])(\\()(.+?)(?:\\s+([\"'])(.*?)\\4)?(\\)))",
 			"name": "meta.link.inline.fountain"
 		},
     "title_page": {
