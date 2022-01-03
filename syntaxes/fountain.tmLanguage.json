@@ -37,9 +37,6 @@
       "include": "#markup"
     },
     {
-      "include": "#link-inline"
-    },
-    {
       "include": "#notes"
     },
     {
@@ -64,9 +61,6 @@
         },
         {
           "include": "#markup"
-        },
-        {
-          "include": "#link-inline"
         },
         {
           "include": "#lyrics"

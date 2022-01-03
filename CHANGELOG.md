@@ -1,5 +1,19 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.9.0** - *2022-01-02*
+*Unfortunately, this should have been an even bigger update, but the PDF Rendering system needs to be completely redesigned: In it's current state, it is repeatedly a roadblock for new features. This is a lot of work, and may take some time...*
+
+    + Title page revamp:
+        + Add new title page keys: TL (Top-Left), TC (Top-Center), TR (Top-Right), CC (Center), BL (Bottom-Left) and BR (Bottom-Right)
+        + Support markdown-style links on the title page [Formatted as such](https://github.com/)
+        · Title page elements can no longer overlap on the PDF, and they are now consistent with the live preview.
+        · Improve autocomplete for title pages keys (more detailed, and inclusion of where an element will be positioned on the page)
+        
+    · "SUPERIMPOSE:" is no longer parsed as a character
+    · Fix tabs being a different width than 4 spaces
+    · Prevent long dual-dialogue from breaking the PDF Layout.
+
+
 ## **1.8.11** - *2021-12-12*
     · Fix Failed PDF Exports when the first section is deeper than subsequent ones (eg if the first section is ###abc and subsequent ones are ##xyz)
         NOTE: In the above case, chapter navigation will still be inaccurate. Please make sure to nest sections correctly (# > ## > ### > etc).

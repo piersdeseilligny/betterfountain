@@ -39,20 +39,6 @@ https://piersdeseilligny.com/work/software/betterfountain/
 
 ![Screenshot of Statistics pages](https://piersdeseilligny.com/assets/Dark_plusstats_ns_2d4ab6dc54.PNG)
 
-## Formatting
-
-In fountain, text is formatted by enclosing it within control characters (just like in Markdown!):
-
-| Markup                                        | Result                                                                                  |
-|-----------------------------------------------|-----------------------------------------------------------------------------------------|
-| `**Bold text**`                               | **Bold text**                                                                           |
-| `*Italic text*`                               | *Italic Text*                                                                           |
-| `_Underlined text_`                           | _Underlined text_                                                                       |
-| `_***All of the above***_`                    | _***All of the above***_                                                                |
-| `[A link to google](https://google.com/)`     | [A link to google](https://google.com/)                                                 |
-| `[A link to a section](#section 1)`           | [A link to a section](##Usage)                                                          |
-| `![An image description](A link to an image)` | ![An image description](https://piersdeseilligny.com/assets/small_Logo5_c9ca125c1a.png) |
-
 ## Why?
 
 Writing with fountain lets you focus on the essential. With the addition of autocomplete and syntax highlighting, you have the ultimate clutter-free ultra-fast solution for writing screenplays. And because it's an extension for vscode, it's free and cross-platform, and you get lots of other cool features such as integrated source control and near-infinite extensibility.
