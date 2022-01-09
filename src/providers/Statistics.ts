@@ -67,7 +67,7 @@ export function createStatisticsPanel(editor:vscode.TextEditor): vscode.WebviewP
             'fountain-statistics', // Identifies the type of the webview. Used internally
             panelname, // Title of the panel displayed to the user
             vscode.ViewColumn.Three, // Editor column to show the new webview panel in.
-            { enableScripts: true });
+            { enableScripts: true,  });
     }
     loadWebView(editor.document.uri, statspanel);
     return statspanel;

@@ -16,16 +16,24 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 	getChildren(/*element?: vscode.TreeItem*/): vscode.ProviderResult<any[]> {
 		const elements: vscode.TreeItem[] = [];
 		const treeExportPdf = new vscode.TreeItem("Export PDF");
+		treeExportPdf.iconPath = new vscode.ThemeIcon("export");
 		//const treeExportPdfDebug = new vscode.TreeItem("Export PDF with default name");
 		const treeExportPdfCustom= new vscode.TreeItem("Export PDF with highlighted characters");
+		treeExportPdfCustom.iconPath = new vscode.ThemeIcon("export");
 		const treeExportHtml = new vscode.TreeItem("Export HTML");
-		treeExportPdf.tooltip = "Export live preview as .html document"
+		treeExportHtml.iconPath = new vscode.ThemeIcon("export");
+		treeExportHtml.tooltip = "Export live preview as .html document"
+		treeExportHtml.iconPath = new vscode.ThemeIcon("export");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
+		treeLivePreview.iconPath = new vscode.ThemeIcon("open-preview");
 		const numberScenesOverwrite = new vscode.TreeItem("Number scenes - overwrite");
 		numberScenesOverwrite.tooltip = 'Replaces existing scene numbers.';
+		numberScenesOverwrite.iconPath = new vscode.ThemeIcon("list-ordered");
 		const numberScenesUpdate = new vscode.TreeItem("Number scenes - update");
+		numberScenesUpdate.iconPath = new vscode.ThemeIcon("list-ordered");
 		numberScenesUpdate.tooltip = 'Retains existing numbers as much as possible. Fills gaps and re-numbers moved scenes.';
 		const statistics = new vscode.TreeItem("Calculate screenplay statistics");
+		statistics.iconPath = new vscode.ThemeIcon("pulse");
 		treeExportPdf.command = {
 			command: 'fountain.exportpdf',
 			title: ''
@@ -67,9 +75,10 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		elements.push(treeExportPdfCustom);
 		elements.push(treeExportHtml);
 		elements.push(treeLivePreview);
+		elements.push(statistics);
 		elements.push(numberScenesOverwrite);
 		elements.push(numberScenesUpdate);
-		elements.push(statistics);
+
 		return elements;
 	}
 }

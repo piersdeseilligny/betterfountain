@@ -1,5 +1,11 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.9.1** - *2022-01-09*
+    + Add icons to commands in the Fountain panel
+    · Reduce left margin on exported title page from 1.5" to 1" (equal to the right margin)
+    · Fix page cropping on live preview
+    · Fix title page on exported HTML
+
 ## **1.9.0** - *2022-01-02*
 *Unfortunately, this should have been an even bigger update, but the PDF Rendering system needs to be completely redesigned: In it's current state, it is repeatedly a roadblock for new features. This is a lot of work, and may take some time...*
 
