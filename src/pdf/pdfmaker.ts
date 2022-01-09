@@ -401,7 +401,7 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
     };*/
 
     if (cfg.print_title_page && parsed.title_page) {
-        const innerwidth = print.page_width - print.left_margin - print.right_margin;
+        const innerwidth = print.page_width - print.right_margin - print.right_margin;
         const innerheight = print.page_height - print.top_margin;
         const innerwidth_third = innerwidth / 3;
         const innerwidth_half = innerwidth / 2;
@@ -410,7 +410,7 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
         var tltext = parsed.title_page['tl'].sort(helpers.sort_index).map((x: any) => x.text).join(joinChar);
         var tltext_height = doc.heightOfString(tltext, { width: innerwidth_third * 72, align: 'left' });
 
-        doc.text2(tltext, print.left_margin, print.top_margin, {
+        doc.text2(tltext, print.right_margin, print.top_margin, {
             width: innerwidth_third,
             align: 'left',
             links: true
@@ -419,7 +419,7 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
         //top center
         var tctext = parsed.title_page['tc'].sort(helpers.sort_index).map((x: any) => x.text).join(joinChar);
         var tctext_height = doc.heightOfString(tctext, { width: innerwidth_third * 72, align: 'center' });
-        doc.text2(tctext, print.left_margin + innerwidth_third, print.top_margin, {
+        doc.text2(tctext, print.right_margin + innerwidth_third, print.top_margin, {
             width: innerwidth_third,
             align: 'center',
             links: true
@@ -428,7 +428,7 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
         //top right
         var trtext = parsed.title_page['tr'].sort(helpers.sort_index).map((x: any) => x.text).join(joinChar);
         var trtext_height = doc.heightOfString(trtext, { width: innerwidth_third * 72, align: 'right' });
-        doc.text2(trtext, print.left_margin + innerwidth_third + innerwidth_third, print.top_margin, {
+        doc.text2(trtext, print.right_margin + innerwidth_third + innerwidth_third, print.top_margin, {
             width: innerwidth_third,
             align: 'right',
             links: true
@@ -437,7 +437,7 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
         //bottom left
         var bltext = parsed.title_page['bl'].sort(helpers.sort_index).map((x: any) => x.text).join(joinChar);
         var bltext_height = doc.heightOfString(bltext, { width: innerwidth_half * 72, align: 'left' });
-        doc.text2(bltext, print.left_margin, innerheight - (bltext_height / 72), {
+        doc.text2(bltext, print.right_margin, innerheight - (bltext_height / 72), {
             width: innerwidth_half,
             align: 'left',
             links: true
@@ -446,7 +446,7 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
         //bottom right
         var brtext = parsed.title_page['br'].sort(helpers.sort_index).map((x: any) => x.text).join(joinChar);
         var brtext_height = doc.heightOfString(brtext, { width: innerwidth_half * 72, align: 'right' });
-        doc.text2(brtext, print.left_margin + innerwidth_half, innerheight - (brtext_height / 72), {
+        doc.text2(brtext, print.right_margin + innerwidth_half, innerheight - (brtext_height / 72), {
             width: innerwidth_half,
             align: 'right',
             links: true
@@ -459,7 +459,7 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
         var cctext = parsed.title_page['cc'].sort(helpers.sort_index).map((x: any) => x.text).join(joinChar);
         var cctext_height = doc.heightOfString(cctext, { width: innerwidth * 72, align: 'center' });
         var centerStart = (((innerheight * 72) - topheight - bottomheight) / 2) - (cctext_height / 2);
-        doc.text2(cctext, print.left_margin, centerStart / 72, {
+        doc.text2(cctext, print.right_margin, centerStart / 72, {
             width: innerwidth,
             align: 'center',
             links: true
