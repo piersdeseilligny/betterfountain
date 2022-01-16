@@ -71,6 +71,7 @@ $.contextMenu.types.check = function(item, opt, root) {
 
 var charts = [];
 const LineChart = require("./charts/line");
+const BarcodeChart = require("./charts/barcode");
 const TableChart = require("./charts/table");
 
 var state = {
@@ -252,7 +253,6 @@ function updateStats(){
     document.getElementById("durationStats-dialogue").innerText = secondsToString(state.stats.durationStats.dialogue);
 
     let runtime = state.stats.durationStats.total/60;
-    let runtimeDescription = "";
 
     //0-3min:     very short film
     //3-15min:    short film
@@ -303,32 +303,6 @@ function updateStats(){
     document.getElementById("characterStats-count").innerText = state.stats.characterStats.characterCount ? state.stats.characterStats.characterCount : 0;
     document.getElementById("characterStats-monologues").innerText = state.stats.characterStats.monologues ? state.stats.characterStats.monologues : 0;
     document.getElementById("characterStats-complexity").innerText = state.stats.characterStats.complexity ? state.stats.characterStats.complexity.toFixed(1) : 0;
-    
-   /* chartable.innerHTML =
-    `<thead>
-        <tr>
-            <th>Name</th>
-            <th>Duration</th>
-            <th>Lines</th>
-            <th>Words</th>
-            <th>Complexity</th>
-            <th>Monologues</th>
-        </tr>
-    </thead>
-    <tbody>
-    ${=> {
-        return `${prev}
-        <tr>
-            <td style="color:${curr.color}">${curr.name}</td>
-            <td data-sort="${-curr.secondsSpoken}">${secondsToString(curr.secondsSpoken)}</td>
-            <td data-sort="${-curr.speakingParts}">${curr.speakingParts}</td>
-            <td data-sort="${-curr.wordsSpoken}">${curr.wordsSpoken}</td>
-            <td data-sort="${-curr.averageComplexity}">${curr.averageComplexity ? curr.averageComplexity.toFixed(1) : 0}</td>
-            <td data-sort="${-curr.monologues}">${curr.monologues}</td>
-        </tr>
-        `
-    }, '')}
-    </tbody>`;*/
 
     let renderDuration = function(data,type,row){
         switch (type) {
@@ -393,6 +367,8 @@ function updateStats(){
         chart: LineChart.render('#durationStats-lengthchart', [state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue], state.uipersistence, {
             yvalue: 'length',
             xvalue: 'line',
+            rulerheight:6,
+            display:'line',
             small: getWidth(),
             map:pdfmap,
             structure: state.stats.structure,
@@ -427,10 +403,50 @@ function updateStats(){
         chart:LineChart.render('#characterStats-lengthchart', state.stats.durationStats.characters, state.uipersistence, {
             yvalue: 'lengthTimeGlobal',
             xvalue: 'line',
+            rulerheight:6,
+            display:'line',
             pointvalue: 'monologue',
             small: getWidth(),
             labels: state.stats.durationStats.characternames,
             colors:colors,
+            map:pdfmap,
+            structure: state.stats.structure,
+            revealLine:revealLine,
+            revealSelection:revealSelection
+        })
+    });
+
+
+    //scenes
+    document.getElementById("sceneStats-count").innerText = state.stats.lengthStats.scenes;
+    charts.push({
+        group:'scenes',
+        chart:LineChart.render('#sceneStats-timechart', state.stats.durationStats.scenes, state.uipersistence, {
+            yvalue: 'time',
+            xvalue: 'line',
+            xvalueend: 'endline',
+            display: 'barcode',
+            rulerheight:0,
+            longestData: state.stats.lengthStats.lines,
+            small: getWidth(),
+            labels: state.stats.durationStats.characternames,
+            map:pdfmap,
+            structure: state.stats.structure,
+            revealLine:revealLine,
+            revealSelection:revealSelection
+        })
+    });
+    charts.push({
+        group:'scenes',
+        chart:LineChart.render('#sceneStats-intextchart', state.stats.durationStats.scenes, state.uipersistence, {
+            yvalue: 'type',
+            xvalue: 'line',
+            xvalueend: 'endline',
+            display: 'barcode',
+            rulerheight:0,
+            longestData: state.stats.lengthStats.lines,
+            small: getWidth(),
+            labels: state.stats.durationStats.characternames,
             map:pdfmap,
             structure: state.stats.structure,
             revealLine:revealLine,

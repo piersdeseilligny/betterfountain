@@ -388,6 +388,32 @@
         stroke:var(--vscode-foreground) !important;
         transition:none;
     }
+
+    .chart-data-barcode[data-y='int']{
+        fill: rgb(99 58 58)
+    }
+    .chart-data-barcode[data-y='ext']{
+        fill:rgb(116 218 251);
+    }
+    .chart-data-barcode[data-y='mixed']{
+        fill:rgb(109 74 74);
+    }
+    .chart-data-barcode[data-y='other']{
+        fill:black;
+    }
+    .chart-data-barcode[data-y='morning'], .chart-data-barcode[data-y='dawn']{
+        fill:rgba(255, 210, 160, 0.2)
+    }
+    .chart-data-barcode[data-y='day']{
+        fill:rgba(255, 210, 160, 0.5)
+    }
+    .chart-data-barcode[data-y='evening'], .chart-data-barcode[data-y='dusk']{
+        fill: rgba(92, 51, 167, 0.5)
+    }
+    .chart-data-barcode[data-y='night']{
+        fill: rgb(92 51 167)
+    }
+
     .summary{
         margin: 6px 0 12px 0;
         opacity:0.75;
@@ -411,10 +437,10 @@
             <li data-group="characters">
                 <span class="codicon codicon-organization"></span>Characters
             </li>
-            <!--<li data-group="scenes">
+            <li data-group="scenes">
                 <span class="codicon codicon-output"></span>Scenes
             </li>
-            <li data-group="locations">
+            <!--<li data-group="locations">
                 <span class="codicon codicon-location"></span>Locations
             </li>-->
         </ul>
@@ -508,17 +534,48 @@
             </table>
 
         </div>
-        <!--<div style="display:none" data-group="scenes">
+        <div style="display:none" data-group="scenes">
             <h1><span class="codicon codicon-output"></span>Scenes</h1>
             <div class="flexgroup lengthstats">
                 <div class="flexitem">
                     <div class="description">Scenes</div>
                     <div id="sceneStats-count" class="number"></div>
+                   
                 </div>
             </div>
-            <div></div>
+            <div class="flexgroup lengthstats">
+                <div class="flexitem">
+                    <div class="description">DAY</div>
+                    <div id="sceneStats-count" class="number">12</div>
+                    <div class="description"><span id="lengthStats-pagesReal">23%</span></div>
+                </div>
+                <div class="flexitem">
+                    <div class="description">NIGHT</div>
+                    <div id="sceneStats-count" class="number">26</div>
+                    <div class="description"><span id="lengthStats-pagesReal">51%</span></div>
+                </div>
+            </div>
+            <div style="height:124px;box-sizing: border-box;" class="barcodechart" id="sceneStats-timechart"></div>
+            <div class="flexgroup lengthstats">
+                <div class="flexitem">
+                    <div class="description">Interior</div>
+                    <div id="sceneStats-count" class="number">15</div>
+                    <div class="description"><span id="lengthStats-pagesReal">29%</span></div>
+                </div>
+                <div class="flexitem">
+                    <div class="description">Exterior</div>
+                    <div id="sceneStats-count" class="number">20</div>
+                    <div class="description"><span id="lengthStats-pagesReal">45%</span></div>
+                </div>
+                <div class="flexitem">
+                    <div class="description">Other</div>
+                    <div id="sceneStats-count" class="number">20</div>
+                    <div class="description"><span id="lengthStats-pagesReal">15%</span></div>
+                </div>
+            </div>
+            <div style="height:124px;box-sizing: border-box;" class="barcodechart" id="sceneStats-intextchart"></div>
         </div>
-        <div style="display:none" data-group="locations">
+        <!--<div style="display:none" data-group="locations">
             Locations
         </div>-->
     </div>

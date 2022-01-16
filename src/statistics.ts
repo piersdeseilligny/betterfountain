@@ -1,4 +1,4 @@
-import { parseoutput, StructToken } from "./afterwriting-parser"
+import { parseoutput, regex, StructToken } from "./afterwriting-parser"
 import { GeneratePdf } from "./pdf/pdf"
 import { ExportConfig, FountainConfig } from "./configloader"
 import { pdfstats } from "./pdf/pdfmaker"
@@ -54,6 +54,13 @@ type dialoguechartitem = {
     lengthTime:number,
     lengthWords:number
 }
+type sceneitem = {
+    line:number,
+    endline:number,
+    scene:string,
+    type:'int'|'ext'|'mixed'|'other',
+    time:string
+}
 
 type durationStatistics = {
     dialogue: number
@@ -62,6 +69,7 @@ type durationStatistics = {
     lengthchart_action: lengthchartitem[],
     lengthchart_dialogue: lengthchartitem[],
     characters:dialoguechartitem[][],
+    scenes:sceneitem[],
     characternames:string[],
     monologues:number
 }
@@ -207,12 +215,38 @@ const createSceneStatistics = (parsed: parseoutput): sceneStatistics => {
     }
 }
 
+function locationtype(val:RegExpExecArray):'int'|'ext'|'mixed'|'other'{
+    if(val && val[1]){
+        if(/i(nt)?\.?\/e(xt)?\.?/i.test(val[1])){
+            return "mixed"
+        }
+        else if(/i(nt)?\.?/i.test(val[1])){
+            return "int"
+        }
+        else if(/e(xt)?\.?/i.test(val[1])){
+            return "ext"
+        }
+    }
+    return "other";
+}
+function locationtime(val:RegExpExecArray):string{
+    if(val && val[2]){
+        var dash = val[2].lastIndexOf(" - ");
+        if(dash === -1) dash = val[2].lastIndexOf(" – ");
+        if(dash === -1) dash = val[2].lastIndexOf(" — ");
+        if(dash === -1) dash = val[2].lastIndexOf(" − ");
+        if (dash !== -1) {
+            return val[2].substring(dash+3).toLowerCase();
+        }
+    }
+    return "unspecified";
+}
 
-
-const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:lengthchartitem[], characters:dialoguechartitem[][], characternames:string[], monologues:number} => {
+const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:lengthchartitem[], characters:dialoguechartitem[][], scenes:sceneitem[], characternames:string[], monologues:number} => {
     let action:lengthchartitem[] = [{line:0, length: 0, scene:undefined }]
     let dialogue:lengthchartitem[] = [{line:0, length: 0, scene:undefined }]
     let characters = new Map<string, dialoguechartitem[]>();
+    let scenes:sceneitem[] = [];
     let previousLengthAction = 0;
     let previousLengthDialogue = 0;
     let currentScene = "";
@@ -220,6 +254,17 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
     parsed.tokens.forEach(element => {
         if(element.type=="scene_heading"){
             currentScene = element.text;
+            if(scenes.length>0){
+                scenes[scenes.length-1].endline = element.line-1;
+            }
+            var deconstructedSlug = regex.scene_heading.exec(element.text);
+            scenes.push({
+                type: locationtype(deconstructedSlug),
+                line:element.line,
+                endline:65500,
+                time: locationtime(deconstructedSlug),
+                scene:element.text
+            });
         }
         else if(element.type == "action" || element.type == "dialogue"){
             let time = Number(element.time);
@@ -272,7 +317,7 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
         characterNames.push(key);
         characterDuration.push(value);
     });
-    return {action:action, dialogue:dialogue, characters: characterDuration, characternames:characterNames, monologues:monologues};
+    return {action:action, dialogue:dialogue, scenes:scenes, characters: characterDuration, characternames:characterNames, monologues:monologues};
 };
 
 const getWordCount = (script: string): number => {
@@ -314,6 +359,7 @@ const createDurationStatistics = (parsed: parseoutput): durationStatistics => {
         lengthchart_action: lengthcharts.action,
         lengthchart_dialogue: lengthcharts.dialogue,
         characters: lengthcharts.characters,
+        scenes: lengthcharts.scenes,
         characternames: lengthcharts.characternames,
         monologues:lengthcharts.monologues
     }
