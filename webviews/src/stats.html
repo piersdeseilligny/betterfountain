@@ -5,6 +5,14 @@
     body {
         animation: fadein 0s;
         padding:0;
+        --scenecolor-dawn: rgb(202 173 142 / 50%);
+        --scenecolor-day: rgb(202 173 142);
+        --scenecolor-dusk: rgba(92, 51, 167, 0.5);
+        --scenecolor-night: rgb(116 85 173);
+        --scenecolor-int: rgb(177 104 82);
+        --scenecolor-ext: rgb(82 173 160);
+        --scenecolor-mixed: rgb(138 61 61);
+        --scenecolor-other: black;
     }
 
     @keyframes fadein {
@@ -390,28 +398,28 @@
     }
 
     .chart-data-barcode[data-y='int']{
-        fill: rgb(99 58 58)
+        fill: var(--scenecolor-int)
     }
     .chart-data-barcode[data-y='ext']{
-        fill:rgb(116 218 251);
+        fill:var(--scenecolor-ext)
     }
     .chart-data-barcode[data-y='mixed']{
-        fill:rgb(109 74 74);
+        fill:var(--scenecolor-mixed)
     }
     .chart-data-barcode[data-y='other']{
-        fill:black;
+        fill:var(--scenecolor-other)
     }
     .chart-data-barcode[data-y='morning'], .chart-data-barcode[data-y='dawn']{
-        fill:rgba(255, 210, 160, 0.2)
+        fill:var(--scenecolor-dawn)
     }
     .chart-data-barcode[data-y='day']{
-        fill:rgba(255, 210, 160, 0.5)
+        fill:var(--scenecolor-day)
     }
     .chart-data-barcode[data-y='evening'], .chart-data-barcode[data-y='dusk']{
-        fill: rgba(92, 51, 167, 0.5)
+        fill: var(--scenecolor-dusk)
     }
     .chart-data-barcode[data-y='night']{
-        fill: rgb(92 51 167)
+        fill: var(--scenecolor-night)
     }
 
     .summary{
@@ -537,43 +545,52 @@
         <div style="display:none" data-group="scenes">
             <h1><span class="codicon codicon-output"></span>Scenes</h1>
             <div class="flexgroup lengthstats">
-                <div class="flexitem">
+                <div class="flexitem minor">
                     <div class="description">Scenes</div>
                     <div id="sceneStats-count" class="number"></div>
                    
                 </div>
             </div>
-            <div class="flexgroup lengthstats">
-                <div class="flexitem">
-                    <div class="description">DAY</div>
-                    <div id="sceneStats-count" class="number">12</div>
-                    <div class="description"><span id="lengthStats-pagesReal">23%</span></div>
-                </div>
-                <div class="flexitem">
-                    <div class="description">NIGHT</div>
-                    <div id="sceneStats-count" class="number">26</div>
-                    <div class="description"><span id="lengthStats-pagesReal">51%</span></div>
-                </div>
-            </div>
-            <div style="height:124px;box-sizing: border-box;" class="barcodechart" id="sceneStats-timechart"></div>
-            <div class="flexgroup lengthstats">
-                <div class="flexitem">
+            <div class="flexgroup durationstats" style="margin-top:0;">
+                <div class="flexitem minor hidden">
                     <div class="description">Interior</div>
-                    <div id="sceneStats-count" class="number">15</div>
-                    <div class="description"><span id="lengthStats-pagesReal">29%</span></div>
+                    <div data-sceneprop="type_int" class="number" style="font-weight: 600;color:var(--scenecolor-int)">0</div>
                 </div>
-                <div class="flexitem">
+                <div class="flexitem minor hidden">
                     <div class="description">Exterior</div>
-                    <div id="sceneStats-count" class="number">20</div>
-                    <div class="description"><span id="lengthStats-pagesReal">45%</span></div>
+                    <div data-sceneprop="type_ext" class="number" style="font-weight: 600;color:var(--scenecolor-ext)">0</div>
                 </div>
-                <div class="flexitem">
-                    <div class="description">Other</div>
-                    <div id="sceneStats-count" class="number">20</div>
-                    <div class="description"><span id="lengthStats-pagesReal">15%</span></div>
+                <div class="flexitem minor hidden">
+                    <div class="description">Mixed</div>
+                    <div data-sceneprop="type_mixed" class="number" style="font-weight: 600;color:var(--scenecolor-mixed)">0</div>
+                </div>
+                <div class="flexitem minor hidden">
+                    <div class="description">Dawn</div>
+                    <div data-sceneprop="time_dawn" class="number" style="font-weight: 600;color:var(--scenecolor-dawn)">0</div>
+                </div>
+                <div class="flexitem minor hidden">
+                    <div class="description">Morning</div>
+                    <div data-sceneprop="time_morning" class="number" style="font-weight: 600;color:var(--scenecolor-morning)">0</div>
+                </div>
+                <div class="flexitem minor hidden">
+                    <div class="description">Day</div>
+                    <div data-sceneprop="time_day" class="number" style="font-weight: 600;color:var(--scenecolor-day)">0</div>
+                </div>
+                <div class="flexitem minor hidden">
+                    <div class="description">Evening</div>
+                    <div data-sceneprop="time_evening" class="number" style="font-weight: 600;color:var(--scenecolor-evening)">0</div>
+                </div>
+                <div class="flexitem minor hidden">
+                    <div class="description">Dusk</div>
+                    <div data-sceneprop="time_dusk" class="number" style="font-weight: 600;color:var(--scenecolor-dusk)">0</div>
+                </div>
+                <div class="flexitem minor hidden">
+                    <div class="description">Night</div>
+                    <div data-sceneprop="time_night" class="number" style="font-weight: 600;color:var(--scenecolor-night)">0</div>
                 </div>
             </div>
-            <div style="height:124px;box-sizing: border-box;" class="barcodechart" id="sceneStats-intextchart"></div>
+            <div id="durationStats-scenesummary" class="summary"></div>
+            <div style="height:180px;box-sizing: border-box;" class="barcodechart" id="sceneStats-timechart"></div>
         </div>
         <!--<div style="display:none" data-group="locations">
             Locations

@@ -170,7 +170,7 @@ export class StructToken {
     notes: { note: string; line: number }[];
 }
 export class screenplayProperties {
-    scenes: { scene: string; line: number, actionLength: number, dialogueLength: number }[];
+    scenes: { scene: string; text:string, line: number, actionLength: number, dialogueLength: number }[];
     sceneLines: number[];
     sceneNames: string[];
     titleKeys: string[];
@@ -474,7 +474,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 }
 
                 updatePreviousSceneLength();
-                result.properties.scenes.push({ scene: thistoken.number, line: thistoken.line, actionLength: 0, dialogueLength: 0 })
+                result.properties.scenes.push({ scene: thistoken.number, text:thistoken.text, line: thistoken.line, actionLength: 0, dialogueLength: 0 })
                 result.properties.sceneLines.push(thistoken.line);
                 result.properties.sceneNames.push(thistoken.text);
                 scene_number++;

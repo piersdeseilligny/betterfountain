@@ -157,13 +157,18 @@ define(function (require) {
         let pointcontainer = vis.append('g').attr('class', 'chart-pointcontainer');
         if(config.display == "barcode"){
             for(let i = 0; i<datas.length; i++){
-                barcodecontainer.append('rect')
-                .attr('class', 'chart-data-barcode')
-                .attr('x', x(datas[i][config.xvalue]))
-                .attr('width', x(datas[i][config.xvalueend] - datas[i][config.xvalue]))
-                .attr('data-y', datas[i][config.yvalue])
-                .attr('y', headerHeight).attr('height', innerHeight)
-                .attr('data-line', i);
+                let subcontainer = barcodecontainer.append('g').attr('class', 'barcode-subcontainer');
+                let subheight = innerHeight/datas.length;
+                for(let j = 0; j<datas[i].length; j++){
+                    subcontainer.append('rect')
+                    .attr('class', 'chart-data-barcode')
+                    .attr('x', x(datas[i][j][config.xvalue]))
+                    .attr('width', x(datas[i][j][config.xvalueend] - datas[i][j][config.xvalue]))
+                    .attr('height', subheight)
+                    .attr('data-y', datas[i][j][config.yvalue[i]])
+                    .attr('y', headerHeight+(subheight*i))
+                    .attr('data-line', i);
+                }
             }
         }
         else{
@@ -561,11 +566,13 @@ define(function (require) {
             vis.selectAll('.chart-data').each(function (d, i) {
                 d3.select(this).attr('d', line(datas[i]));
             });
-            vis.selectAll('.chart-data-barcode').each(function (d, i) {
-                d3.select(this).attr('x', x(datas[i][config.xvalue]))
-                .attr('width', x(datas[i][config.xvalueend] - datas[i][config.xvalue]));
+            vis.selectAll('.barcode-subcontainer').each(function(d,i){
+                d3.select(this).selectAll('.chart-data-barcode').each(function (d2, j) {
+                    d3.select(this).attr('x', x(datas[i][j][config.xvalue]))
+                    .attr('width', x(datas[i][j][config.xvalueend] - datas[i][j][config.xvalue]));
+                });
             });
-            
+
             repositionStructure();
             brush.extent([
                 [0, headerHeight],
