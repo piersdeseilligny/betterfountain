@@ -1,5 +1,9 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.9.2** - *2022-01-25*
+    · Fix enabled "Each scene on new page" breaking PDF Export
+    · Fix multiple inline notes parsing incorrectly
+
 ## **1.9.1** - *2022-01-09*
     + Add icons to commands in the Fountain panel
     · Reduce left margin on exported title page from 1.5" to 1" (equal to the right margin)

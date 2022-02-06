@@ -334,7 +334,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         return irrelevantTextLength;
     }
     const processDialogueBlock = (token:token) => {
-        let textWithoutNotes = token.text.replace(/ {0,1}\[\[.*\]\]/g, "");
+        let textWithoutNotes = token.text.replace(regex.note_inline, "");
         processInlineNote(token.text);
         token.time = calculateDialogueDuration(textWithoutNotes);
         if (!cfg.print_notes) {
@@ -347,7 +347,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         let irrelevantActionLength = processInlineNote(token.text);
         token.time = (token.text.length - irrelevantActionLength) / 20;
         if (!cfg.print_notes) {
-            token.text = token.text.replace(/ {0,1}\[\[.*\]\]/g, "");
+            token.text = token.text.replace(regex.note_inline, "");
             if(token.text.trim().length == 0) token.ignore = true;
         }
         result.lengthAction += token.time;
