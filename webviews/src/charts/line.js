@@ -326,6 +326,10 @@ define(function (require) {
             vis.selectAll('.chart-data').each(function (d, i) {
                 d3.select(this).transition().ease(d3.easeCubic).duration(500).attr('d', line(datas[i]));
             });
+            vis.selectAll('.chart-data-barcode').each(function (d, i) {
+                var scenebar = d3.select(this);
+                scenebar.transition().ease(d3.easeCubic).duration(500).attr('x', x(scenebar.attr('data-x'))).attr('width', x(scenebar.attr('data-xend')) - x(scenebar.attr('data-x')));
+            });
             rightbuttons.select(".unzoom").attr("visibility", "collapse");
             rightbuttons.select(".buttonseperator").attr('x', width - (48)).attr("visibility", "collapse");
             repositionStructure(true);

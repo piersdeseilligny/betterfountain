@@ -441,6 +441,22 @@ function updateStats(){
     function humanizeSceneType(t){
         switch (t) {
             case 'type_int':
+                return 'inside'
+                break;
+            case 'type_ext':
+                return 'outside'
+                break;
+            case 'type_mixed':
+                return 'both inside and outside'
+                break;
+            default:
+                return 'neither inside or outside'
+                break;
+        }
+    }
+    function humanizeSceneType2(t){
+        switch (t) {
+            case 'type_int':
                 return 'interior'
                 break;
             case 'type_ext':
@@ -455,6 +471,7 @@ function updateStats(){
         }
     }
     function humanizeSceneTime(t){
+        console.log("Humanizing " + t);
         switch(t){
             case 'time_dawn':
                 return 'during dawn';
@@ -475,7 +492,7 @@ function updateStats(){
                 return 'at night';
                 break;
             default:
-                return `during ${t.substring(4).trim()}`;
+                return `at an unspecified time`;
         }
     }
     for(var prop of Object.keys(state.stats.durationStats.durationBySceneProp)){
@@ -504,25 +521,26 @@ function updateStats(){
         else if(arrayLocations.length >= 2){
             let firstTwoDiff = arrayLocations[0].percent - arrayLocations[1].percent;
             if(firstTwoDiff>50){
-                sceneSummary = `The vast majority of the screenplay takes place in ${humanizeSceneType(arrayLocations[0].type)} (${arrayLocations[0].percent}% of the runtime). Only ${arrayLocations[1].percent}% of the runtime is spent in ${humanizeSceneType(arrayLocations[1].type)}.`
+                sceneSummary = `The vast majority of the screenplay takes place ${humanizeSceneType(arrayLocations[0].type)} (${arrayLocations[0].percent}% of the runtime). Only ${arrayLocations[1].percent}% of the runtime is spent ${humanizeSceneType(arrayLocations[1].type)}.`
             }
             else if(firstTwoDiff>25){
-                sceneSummary = `The majority of the screenplay takes place in ${humanizeSceneType(arrayLocations[0].type)} (${arrayLocations[0].percent}% of the runtime). The rest of the runtime (${arrayLocations[1].percent}%) is spent in ${humanizeSceneType(arrayLocations[1].type)}.`
+                sceneSummary = `The majority of the screenplay takes place ${humanizeSceneType(arrayLocations[0].type)} (${arrayLocations[0].percent}% of the runtime). The rest of the runtime (${arrayLocations[1].percent}%) is spent ${humanizeSceneType(arrayLocations[1].type)}.`
             }
             else if(firstTwoDiff>25){
-                sceneSummary = `Slightly more time in the screenplay is spent in ${humanizeSceneType(arrayLocations[0].type)} (${arrayLocations[0].percent}% of the runtime). The rest of the runtime (${arrayLocations[1].percent}%) is spent in ${humanizeSceneType(arrayLocations[1].type)}.`
+                sceneSummary = `Slightly more time in the screenplay is spent ${humanizeSceneType(arrayLocations[0].type)} (${arrayLocations[0].percent}% of the runtime). The rest of the runtime (${arrayLocations[1].percent}%) is spent ${humanizeSceneType(arrayLocations[1].type)}.`
             
             }
             else{
-                sceneSummary = `The screenplay is fairly balanced between ${humanizeSceneType(arrayLocations[0].type)} scenes (${arrayLocations[0].percent}% of the runtime) and ${humanizeSceneType(arrayLocations[1].type)} ones (${arrayLocations[1].percent}%).`
+                sceneSummary = `The screenplay is fairly balanced between ${humanizeSceneType2(arrayLocations[0].type)} scenes (${arrayLocations[0].percent}% of the runtime) and ${humanizeSceneType2(arrayLocations[1].type)} ones (${arrayLocations[1].percent}%).`
             }
             if(arrayLocations.length>=3){
                 if(arrayLocations[2].percent>10){
-                    sceneSummary += ` The rest (${arrayLocations[2].percent}%) takes place in ${humanizeSceneType(arrayLocations[2].type)}.`
+                    sceneSummary += ` The rest (${arrayLocations[2].percent}%) takes place ${humanizeSceneType(arrayLocations[2].type)}.`
                 }
             }
         }
     }
+    /*
     if(arrayTimes.length>0){
         arrayTimes.sort((a,b,)=> b.length - a.length);
         if(arrayTimes.length == 1){
@@ -534,13 +552,13 @@ function updateStats(){
                 sceneSummary+= ` Almost all of them take place ${humanizeSceneTime(arrayTimes[0].time)} (${arrayTimes[0].percent}% of the runtime).`
             }
             else if(firstTwoDiff>60){
-                sceneSummary+=` A majority take place ${humanizeSceneTime(arrayTimes[0].time)} (${arrayTimes[0].percent}% of the runtime), followed by ${humanizeSceneTime(arrayTimes[1].time)} (${arrayTimes[1].percent}%).`
+                sceneSummary+=` A majority take place ${humanizeSceneTime(arrayTimes[0].time)} (${arrayTimes[0].percent}% of the runtime), followed by ${arrayTimes[1].percent}% ${humanizeSceneTime(arrayTimes[1].time)}.`
             }
             else{
-                sceneSummary+=` About half take place ${humanizeSceneTime(arrayTimes[0].time)} (${arrayTimes[0].percent}% of the runtime), followed by ${humanizeSceneTime(arrayTimes[1].time)} (${arrayTimes[1].percent}%).`
+                sceneSummary+=` About half take place ${humanizeSceneTime(arrayTimes[0].time)} (${arrayTimes[0].percent}% of the runtime), followed by ${arrayTimes[1].percent}% ${humanizeSceneTime(arrayTimes[1].time)}.`
             }
         }
-    }
+    }*/
     document.getElementById('durationStats-scenesummary').innerText = sceneSummary;
 }
 
