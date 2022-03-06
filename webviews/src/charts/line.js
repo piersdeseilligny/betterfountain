@@ -165,6 +165,8 @@ define(function (require) {
                     .attr('x', x(datas[i][j][config.xvalue]))
                     .attr('width', x(datas[i][j][config.xvalueend] - datas[i][j][config.xvalue]))
                     .attr('height', subheight)
+                    .attr('data-x', datas[i][j][config.xvalue])
+                    .attr('data-xend', datas[i][j][config.xvalueend] )
                     .attr('data-y', datas[i][j][config.yvalue[i]])
                     .attr('y', headerHeight+(subheight*i))
                     .attr('data-line', i);
@@ -638,6 +640,11 @@ define(function (require) {
             y.domain([ymin, ymax]);
             vis.selectAll('.chart-data').each(function (d, i) {
                 d3.select(this).transition().ease(d3.easeCubic).duration(500).attr('d', line(datas[i]));
+            });
+
+            vis.selectAll('.chart-data-barcode').each(function (d, i) {
+                var scenebar = d3.select(this);
+                scenebar.transition().ease(d3.easeCubic).duration(500).attr('x', x(scenebar.attr('data-x'))).attr('width', x(scenebar.attr('data-xend')) - x(scenebar.attr('data-x')));
             });
            
             

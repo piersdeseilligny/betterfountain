@@ -6,7 +6,7 @@
 	"license": "MIT",
 	"aiKey": "0c2689ab-4ce9-416d-a585-c9765b7f4c88",
 	"icon": "icon.png",
-	"version": "1.9.1",
+	"version": "1.9.2",
 	"capabilities": {
 		"untrustedWorkspaces": {
 			"supported": true
@@ -436,6 +436,7 @@
 		"@types/node": "^8.10.66",
 		"@types/username": "^3.0.0",
 		"@types/vscode": "^1.62.0",
+		"@vscode/test-web": "*",
 		"copyfiles": "^2.4.1",
 		"css-loader": "^4.3.0",
 		"d3": "^5.16.0",
@@ -449,8 +450,7 @@
 		"typescript": "^3.9.10",
 		"vscode-test": "^1.6.1",
 		"webpack": "^4.46.0",
-		"webpack-cli": "^3.3.12",
-		"@vscode/test-web": "*"
+		"webpack-cli": "^3.3.12"
 	},
 	"dependencies": {
 		"blob": "0.1.0",
