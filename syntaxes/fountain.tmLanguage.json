@@ -130,8 +130,7 @@
     },
     "notes": {
       "name": "comment.block",
-      "begin": "\\[\\[",
-      "end": "\\]\\]"
+      "match": "(?:\\[{2}(?!\\[+))([\\s\\S]+?)(?:\\]{2}(?!\\[+))"
     },
     "pagebreaks": {
       "name": "entity.other.pagebreak.fountain",
