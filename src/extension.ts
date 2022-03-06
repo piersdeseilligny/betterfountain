@@ -531,7 +531,6 @@ export function parseDocument(document: TextDocument) {
 
 	let t1 = performance.now()
 	let parseTime = t1-t0;
-	console.info("parsed in " + parseTime);
 	if(parseTelemetryLimiter == parseTelemetryFrequency){
 		telemetry.reportTelemetry("afterparser.parsing", undefined, { linecount: document.lineCount, parseduration: parseTime });
 	}

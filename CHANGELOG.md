@@ -1,5 +1,11 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.10.0** - *2022-03-06*
+    + Add statistics for scenes (currently, barcode chart for int/ext and time of day - more to come!)
+    + Add "Header:" and "Footer:" title page keys, which will apply to all pages (except the title page) (Issue #156)
+    · Fix #158: notes in the document root (outside of sections or scenes) being included in overall duration stats
+    · Fix notes with page breaks being syntax-highlighted even though they aren't parsed
+
 ## **1.9.2** - *2022-01-25*
     · Fix enabled "Each scene on new page" breaking PDF Export
     · Fix multiple inline notes parsing incorrectly
