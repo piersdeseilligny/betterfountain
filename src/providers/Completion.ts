@@ -37,7 +37,7 @@ interface TitlePageKeyComplete{
 	documentation?:string,
 	triggerIntellisense?:boolean,
 	deprecated?:boolean,
-	position:'tl'|'tc'|'tr'|'cc'|'bl'|'br'|'hidden'|'watermark'
+	position:'tl'|'tc'|'tr'|'cc'|'bl'|'br'|'hidden'|'watermark'|'header'|'footer'
 }
 const pagedrawings = {
 	tl:`Top Left:
@@ -82,6 +82,16 @@ watermark: `
 ║  ⋰   ║
 ║⋰     ║
 ╚══════╝`,
+header: `
+╚══════╝
+╔══════╗
+║▀▀▀▀▀▀║
+║      ║`,
+footer: `
+║      ║
+║▄▄▄▄▄▄║
+╚══════╝
+╔══════╗`,
 	hidden: `
 	(Not printed on title page)`};
 function TitlePageKey(info:TitlePageKeyComplete): vscode.CompletionItem {
@@ -162,6 +172,8 @@ export class FountainCompletionProvider implements vscode.CompletionItemProvider
 				completes.push(TitlePageKey({name:"CC", detail:"Center Center", documentation:"Additional content in the center of the title page", sort:"P", position:titlePageDisplay['cc'].position}));
 				completes.push(TitlePageKey({name:"BL", detail:"Bottom Left", documentation:"Additional content in the bottom left of the title page", sort:"Q", position:titlePageDisplay['bl'].position}));
 				completes.push(TitlePageKey({name:"BR", detail:"Bottom Right", documentation:"Additional content in the bottom right of the title page", sort:"R", position:titlePageDisplay['br'].position}));
+				completes.push(TitlePageKey({name:'Header', detail:"Header used throughout the document", documentation:"This will be printed in the top left of every single page, excluding the title page. Can also be set globally by the 'Page Header' setting", sort:"S", position:'header'}))
+				completes.push(TitlePageKey({name:'Footer', detail:"Header used throughout the document", documentation:"This will be printed in the bottom left of every single page, excluding the title page. Can also be set globally by the 'Page Footer' setting", sort:"T", position:'footer'}))
 			}
 			else {
 				var currentkey = currentline.trimRight().toLowerCase();

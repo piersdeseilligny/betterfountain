@@ -71,6 +71,7 @@ $.contextMenu.types.check = function(item, opt, root) {
 
 var charts = [];
 const LineChart = require("./charts/line");
+const BarcodeChart = require("./charts/barcode");
 const TableChart = require("./charts/table");
 
 var state = {
@@ -252,7 +253,6 @@ function updateStats(){
     document.getElementById("durationStats-dialogue").innerText = secondsToString(state.stats.durationStats.dialogue);
 
     let runtime = state.stats.durationStats.total/60;
-    let runtimeDescription = "";
 
     //0-3min:     very short film
     //3-15min:    short film
@@ -303,32 +303,6 @@ function updateStats(){
     document.getElementById("characterStats-count").innerText = state.stats.characterStats.characterCount ? state.stats.characterStats.characterCount : 0;
     document.getElementById("characterStats-monologues").innerText = state.stats.characterStats.monologues ? state.stats.characterStats.monologues : 0;
     document.getElementById("characterStats-complexity").innerText = state.stats.characterStats.complexity ? state.stats.characterStats.complexity.toFixed(1) : 0;
-    
-   /* chartable.innerHTML =
-    `<thead>
-        <tr>
-            <th>Name</th>
-            <th>Duration</th>
-            <th>Lines</th>
-            <th>Words</th>
-            <th>Complexity</th>
-            <th>Monologues</th>
-        </tr>
-    </thead>
-    <tbody>
-    ${=> {
-        return `${prev}
-        <tr>
-            <td style="color:${curr.color}">${curr.name}</td>
-            <td data-sort="${-curr.secondsSpoken}">${secondsToString(curr.secondsSpoken)}</td>
-            <td data-sort="${-curr.speakingParts}">${curr.speakingParts}</td>
-            <td data-sort="${-curr.wordsSpoken}">${curr.wordsSpoken}</td>
-            <td data-sort="${-curr.averageComplexity}">${curr.averageComplexity ? curr.averageComplexity.toFixed(1) : 0}</td>
-            <td data-sort="${-curr.monologues}">${curr.monologues}</td>
-        </tr>
-        `
-    }, '')}
-    </tbody>`;*/
 
     let renderDuration = function(data,type,row){
         switch (type) {
@@ -393,6 +367,8 @@ function updateStats(){
         chart: LineChart.render('#durationStats-lengthchart', [state.stats.durationStats.lengthchart_action, state.stats.durationStats.lengthchart_dialogue], state.uipersistence, {
             yvalue: 'length',
             xvalue: 'line',
+            rulerheight:6,
+            display:'line',
             small: getWidth(),
             map:pdfmap,
             structure: state.stats.structure,
@@ -427,6 +403,8 @@ function updateStats(){
         chart:LineChart.render('#characterStats-lengthchart', state.stats.durationStats.characters, state.uipersistence, {
             yvalue: 'lengthTimeGlobal',
             xvalue: 'line',
+            rulerheight:6,
+            display:'line',
             pointvalue: 'monologue',
             small: getWidth(),
             labels: state.stats.durationStats.characternames,
@@ -437,6 +415,151 @@ function updateStats(){
             revealSelection:revealSelection
         })
     });
+
+
+    //scenes
+    document.getElementById("sceneStats-count").innerText = state.stats.lengthStats.scenes;
+    charts.push({
+        group:'scenes',
+        chart:LineChart.render('#sceneStats-timechart', [state.stats.durationStats.scenes, state.stats.durationStats.scenes], state.uipersistence, {
+            yvalue: ['time','type'],
+            xvalue: 'line',
+            xvalueend: 'endline',
+            display: 'barcode',
+            rulerheight:0,
+            longestData: state.stats.lengthStats.lines,
+            small: getWidth(),
+            labels: state.stats.durationStats.characternames,
+            map:pdfmap,
+            structure: state.stats.structure,
+            revealLine:revealLine,
+            revealSelection:revealSelection
+        })
+    });
+    let arrayLocations = [];
+    let arrayTimes = [];
+    function humanizeSceneType(t){
+        switch (t) {
+            case 'type_int':
+                return 'inside'
+                break;
+            case 'type_ext':
+                return 'outside'
+                break;
+            case 'type_mixed':
+                return 'both inside and outside'
+                break;
+            default:
+                return 'neither inside or outside'
+                break;
+        }
+    }
+    function humanizeSceneType2(t){
+        switch (t) {
+            case 'type_int':
+                return 'interior'
+                break;
+            case 'type_ext':
+                return 'exterior'
+                break;
+            case 'type_mixed':
+                return 'both interior and exterior'
+                break;
+            default:
+                return 'neither interior or exterior'
+                break;
+        }
+    }
+    function humanizeSceneTime(t){
+        console.log("Humanizing " + t);
+        switch(t){
+            case 'time_dawn':
+                return 'during dawn';
+                break;
+            case 'time_morning':
+                return 'in the morning';
+                break;
+            case 'time_day':
+                return 'during the day';
+                break;
+            case 'time_dusk':
+                return 'at dusk';
+                break;
+            case 'time_evening':
+                return 'in the evening';
+                break;
+            case 'time_night':
+                return 'at night';
+                break;
+            default:
+                return `at an unspecified time`;
+        }
+    }
+    for(var prop of Object.keys(state.stats.durationStats.durationBySceneProp)){
+        console.log("Property is " + prop);
+        var val = state.stats.durationStats.durationBySceneProp[prop]
+        if(val>0){
+            var sceneprop = document.querySelector(`[data-sceneprop="${prop}"]`);
+            if(sceneprop){
+                sceneprop.innerText = secondsToString(val);
+                sceneprop.parentElement.classList.remove('hidden');
+            }
+            if(prop.startsWith('type_')){
+                arrayLocations.push({type:prop, length:val, percent:Math.round((val*100)/state.stats.durationStats.total)});
+            }
+            else if(prop.startsWith('time_')){
+                arrayTimes.push({time:prop, length:val, percent:Math.round((val*100)/state.stats.durationStats.total)})
+            }
+        }
+    }
+    let sceneSummary = "The screenplay has no scenes.";
+    if(arrayLocations.length>0){
+        arrayLocations.sort((a, b) => b.length - a.length);
+        if(arrayLocations.length == 1){
+            sceneSummary = `The entire screenplay takes place ${humanizeSceneType(arrayLocations[0].type)}.`
+        }
+        else if(arrayLocations.length >= 2){
+            let firstTwoDiff = arrayLocations[0].percent - arrayLocations[1].percent;
+            if(firstTwoDiff>50){
+                sceneSummary = `The vast majority of the screenplay takes place ${humanizeSceneType(arrayLocations[0].type)} (${arrayLocations[0].percent}% of the runtime). Only ${arrayLocations[1].percent}% of the runtime is spent ${humanizeSceneType(arrayLocations[1].type)}.`
+            }
+            else if(firstTwoDiff>25){
+                sceneSummary = `The majority of the screenplay takes place ${humanizeSceneType(arrayLocations[0].type)} (${arrayLocations[0].percent}% of the runtime). The rest of the runtime (${arrayLocations[1].percent}%) is spent ${humanizeSceneType(arrayLocations[1].type)}.`
+            }
+            else if(firstTwoDiff>25){
+                sceneSummary = `Slightly more time in the screenplay is spent ${humanizeSceneType(arrayLocations[0].type)} (${arrayLocations[0].percent}% of the runtime). The rest of the runtime (${arrayLocations[1].percent}%) is spent ${humanizeSceneType(arrayLocations[1].type)}.`
+            
+            }
+            else{
+                sceneSummary = `The screenplay is fairly balanced between ${humanizeSceneType2(arrayLocations[0].type)} scenes (${arrayLocations[0].percent}% of the runtime) and ${humanizeSceneType2(arrayLocations[1].type)} ones (${arrayLocations[1].percent}%).`
+            }
+            if(arrayLocations.length>=3){
+                if(arrayLocations[2].percent>10){
+                    sceneSummary += ` The rest (${arrayLocations[2].percent}%) takes place ${humanizeSceneType(arrayLocations[2].type)}.`
+                }
+            }
+        }
+    }
+    /*
+    if(arrayTimes.length>0){
+        arrayTimes.sort((a,b,)=> b.length - a.length);
+        if(arrayTimes.length == 1){
+            sceneSummary += ` They all take place ${humanizeSceneTime(arrayTimes[0].time)}`
+        }
+        else if(arrayTimes.length >= 2){
+            let firstTwoDiff = arrayTimes[0].percent - arrayTimes[1].percent;
+            if(firstTwoDiff > 80){
+                sceneSummary+= ` Almost all of them take place ${humanizeSceneTime(arrayTimes[0].time)} (${arrayTimes[0].percent}% of the runtime).`
+            }
+            else if(firstTwoDiff>60){
+                sceneSummary+=` A majority take place ${humanizeSceneTime(arrayTimes[0].time)} (${arrayTimes[0].percent}% of the runtime), followed by ${arrayTimes[1].percent}% ${humanizeSceneTime(arrayTimes[1].time)}.`
+            }
+            else{
+                sceneSummary+=` About half take place ${humanizeSceneTime(arrayTimes[0].time)} (${arrayTimes[0].percent}% of the runtime), followed by ${arrayTimes[1].percent}% ${humanizeSceneTime(arrayTimes[1].time)}.`
+            }
+        }
+    }*/
+    document.getElementById('durationStats-scenesummary').innerText = sceneSummary;
 }
 
 function secondsToString(seconds){

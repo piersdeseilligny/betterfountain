@@ -6,23 +6,7 @@ define(function (require) {
 
     /** @type {import('@types/d3')} */
     var d3 = require('d3');
-
     var plugin = {};
-
-
-    function padZero(i) {
-        if (i < 10) {
-            i = "0" + i;
-        }
-        return i;
-    }
-    function secondsToString(seconds) {
-        var time = new Date(null);
-        time.setHours(0);
-        time.setMinutes(0);
-        time.setSeconds(seconds);
-        return padZero(time.getHours()) + ":" + padZero(time.getMinutes()) + ":" + padZero(time.getSeconds());
-    }
 
     plugin.render = function (id, datas, uipersistence, config) {
         let vis = {};
@@ -32,24 +16,6 @@ define(function (require) {
 
         var longestData = 0;
         var screenplaylineInfo = [];
-        
-        if(config.display == "barcode"){
-            longestData = config.longestData;
-        }
-        else if(config.display == "line"){
-            datas.forEach(data => {
-                data.forEach(function (item) {
-                    var value = item[config.yvalue];
-                    if (value < min) {
-                        min = value;
-                    }
-                    if (value > max) {
-                        max = value;
-                    }
-                    if (item[config.xvalue] > longestData) longestData = item[config.xvalue];
-                });
-            });
-        }
 
         var width = $(id).width();
         var height = $(id).height();
@@ -57,7 +23,6 @@ define(function (require) {
         let headerHeight = 36;
         let footerHeight = 64;
         let innerHeight = height - headerHeight - footerHeight;
-        let rulerheight = (config.rulerheight !== undefined) ? config.rulerheight : innerHeight;
 
         var x, y;
 
@@ -65,7 +30,6 @@ define(function (require) {
             y = d3.scaleLinear().domain([min, max]).range([h - padding + headerHeight, padding + headerHeight]);
             x = d3.scaleLinear().domain([0, longestData - 1]).range([0, w]);
         }
-        console.log("Longest data is " + longestData);
 
         calculateScales(width, innerHeight);
         var line = d3.line()
@@ -105,6 +69,7 @@ define(function (require) {
                 function appendStructLine(token) {
                     let tokenline = token.range[0].line;
                     let opacity = 0.1;
+                    let rulerheight = innerHeight;
                     let xpos = x(tokenline);
                     let tokentype = "";
                     if (token.section) {
@@ -113,16 +78,19 @@ define(function (require) {
                                 if (uipersistence.chartSnapToSection1) structurePositions.push(xpos);
                                 tokentype = "section1";
                                 opacity = 1;
+                                rulerheight = innerHeight;
                                 break;
                             case 2:
                                 if (uipersistence.chartSnapToSection2) structurePositions.push(xpos);
                                 tokentype = "section2";
                                 opacity = 0.5;
+                                rulerheight = innerHeight;
                                 break;
                             default:
                                 if (uipersistence.chartSnapToSection3) structurePositions.push(xpos);
                                 tokentype = "section3";
                                 opacity = 0.25;
+                                rulerheight = innerHeight;
                                 break;
                         }
                     } else {
@@ -152,65 +120,29 @@ define(function (require) {
         }
         calculateStructurePositions();
 
-        let linecontainer = vis.append('g').attr('class', 'chart-linecontainer');
-        let barcodecontainer = vis.append('g').attr('class', 'chart-barcodecontainer');
-        let pointcontainer = vis.append('g').attr('class', 'chart-pointcontainer');
-        if(config.display == "barcode"){
-            for(let i = 0; i<datas.length; i++){
-                let subcontainer = barcodecontainer.append('g').attr('class', 'barcode-subcontainer');
-                let subheight = innerHeight/datas.length;
-                for(let j = 0; j<datas[i].length; j++){
-                    subcontainer.append('rect')
-                    .attr('class', 'chart-data-barcode')
-                    .attr('x', x(datas[i][j][config.xvalue]))
-                    .attr('width', x(datas[i][j][config.xvalueend] - datas[i][j][config.xvalue]))
-                    .attr('height', subheight)
-                    .attr('data-x', datas[i][j][config.xvalue])
-                    .attr('data-xend', datas[i][j][config.xvalueend] )
-                    .attr('data-y', datas[i][j][config.yvalue[i]])
-                    .attr('y', headerHeight+(subheight*i))
-                    .attr('data-line', i);
-                }
+        let rectcontainer = vis.append('g').attr('class', 'chart-rectcontainer');
+        for (let i = 0; i < datas.length; i++) {
+            let path = rectcontainer.append('path').attr('d', line(datas[i])).attr('fill', 'none').attr('class', 'chart-data').attr('data-line', i).attr('y', headerHeight);
+            if(config.labels){
+                path.attr('data-label', encodeURIComponent(config.labels[i]));
             }
-        }
-        else{
-            for (let i = 0; i < datas.length; i++) {
-                let path = linecontainer.append('path').attr('d', line(datas[i])).attr('fill', 'none').attr('class', 'chart-data').attr('data-line', i).attr('y', headerHeight);
-                if(config.labels){
-                    path.attr('data-label', encodeURIComponent(config.labels[i]));
-                }
-                if(config.colors){
-                    path.attr('stroke', config.colors[i]);
-                }
-                for (let j = 0; j < datas[i].length; j++) {
-                    if(config.pointvalue && datas[i][j][config.pointvalue]){
-                        let xpos = datas[i][j][config.xvalue];
-                        let ypos = datas[i][j][config.yvalue];
-                        let circle = pointcontainer.append('circle').attr('r',3).attr('cx', x(xpos)).attr('cy', y(ypos)).attr('data-line', xpos).attr('data-ypos', ypos).attr('title', 'Monologue');
-                        if(config.labels){
-                            circle.attr('data-label', encodeURIComponent(config.labels[i]));
-                        }
-                        if(config.colors){
-                            circle.style('fill', config.colors[i]);
-                        }
+            if(config.colors){
+                path.attr('stroke', config.colors[i]);
+            }
+            /*for (let j = 0; j < datas[i].length; j++) {
+                if(config.pointvalue && datas[i][j][config.pointvalue]){
+                    let xpos = datas[i][j][config.xvalue];
+                    let ypos = datas[i][j][config.yvalue];
+                    let circle = pointcontainer.append('circle').attr('r',3).attr('cx', x(xpos)).attr('cy', y(ypos)).attr('data-line', xpos).attr('data-ypos', ypos).attr('title', 'Monologue');
+                    if(config.labels){
+                        circle.attr('data-label', encodeURIComponent(config.labels[i]));
+                    }
+                    if(config.colors){
+                        circle.style('fill', config.colors[i]);
                     }
                 }
-            }
+            }*/
         }
-
-
-
-
-        /* let mouserect = mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
-               .attr('width', width) // can't catch mouse events on a g element
-               .attr('height', innerHeight)
-               .attr('y', headerHeight)
-               .attr('class', "mouseG")
-               .attr('fill', 'none')
-               .attr('pointer-events', 'all')
-               .on('mouseout', mouseout)
-               .on('mouseover', mouseover)
-               .on('mousemove', mousemove);*/
 
         ///
         /// HOVERING FEATURES
@@ -325,10 +257,6 @@ define(function (require) {
             vis.select(".brush").call(brush.move, null) // This remove the grey brush area as soon as the selection has been done
             vis.selectAll('.chart-data').each(function (d, i) {
                 d3.select(this).transition().ease(d3.easeCubic).duration(500).attr('d', line(datas[i]));
-            });
-            vis.selectAll('.chart-data-barcode').each(function (d, i) {
-                var scenebar = d3.select(this);
-                scenebar.transition().ease(d3.easeCubic).duration(500).attr('x', x(scenebar.attr('data-x'))).attr('width', x(scenebar.attr('data-xend')) - x(scenebar.attr('data-x')));
             });
             rightbuttons.select(".unzoom").attr("visibility", "collapse");
             rightbuttons.select(".buttonseperator").attr('x', width - (48)).attr("visibility", "collapse");
@@ -572,13 +500,7 @@ define(function (require) {
             vis.selectAll('.chart-data').each(function (d, i) {
                 d3.select(this).attr('d', line(datas[i]));
             });
-            vis.selectAll('.barcode-subcontainer').each(function(d,i){
-                d3.select(this).selectAll('.chart-data-barcode').each(function (d2, j) {
-                    d3.select(this).attr('x', x(datas[i][j][config.xvalue]))
-                    .attr('width', x(datas[i][j][config.xvalueend] - datas[i][j][config.xvalue]));
-                });
-            });
-
+            
             repositionStructure();
             brush.extent([
                 [0, headerHeight],
@@ -645,11 +567,6 @@ define(function (require) {
             vis.selectAll('.chart-data').each(function (d, i) {
                 d3.select(this).transition().ease(d3.easeCubic).duration(500).attr('d', line(datas[i]));
             });
-
-            vis.selectAll('.chart-data-barcode').each(function (d, i) {
-                var scenebar = d3.select(this);
-                scenebar.transition().ease(d3.easeCubic).duration(500).attr('x', x(scenebar.attr('data-x'))).attr('width', x(scenebar.attr('data-xend')) - x(scenebar.attr('data-x')));
-            });
            
             
             repositionStructure(true);
@@ -671,7 +588,7 @@ define(function (require) {
                 vis.select(".selection-box").attr('x', linestartX).attr('width', lineendX-linestartX);
         }
         function positionPoints(animate){
-            pointcontainer.selectAll('circle').each(function(d,i){
+            /*pointcontainer.selectAll('circle').each(function(d,i){
                 let point = d3.select(this);
                 let xpos = x(point.attr('data-line'));
                 let ypos = y(point.attr('data-ypos'));
@@ -682,8 +599,7 @@ define(function (require) {
                     point.attr('cx', xpos);
                     point.attr('cy', ypos);
                 }
-
-            })
+            })*/
         }
         function positionCaret(animate){
             if(animate){

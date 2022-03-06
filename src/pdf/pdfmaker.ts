@@ -535,7 +535,7 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
                 offset += ' ';
             }
 
-            doc.format_text(offset + cfg.print_header, 1.5, print.page_number_top_margin, {
+            doc.format_text(offset + cfg.print_header, 1.5, print.page_number_top_margin-0.1, {
                 color: '#777777'
             });
         }

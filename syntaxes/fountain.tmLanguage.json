@@ -130,8 +130,7 @@
     },
     "notes": {
       "name": "comment.block",
-      "begin": "\\[\\[",
-      "end": "\\]\\]"
+      "match": "(?:\\[{2}(?!\\[+))([\\s\\S]+?)(?:\\]{2}(?!\\[+))"
     },
     "pagebreaks": {
       "name": "entity.other.pagebreak.fountain",
@@ -301,8 +300,8 @@
 			"name": "meta.link.inline.fountain"
 		},
     "title_page": {
-      "begin": "^(?i)(title|credit|authors?|source|draft date|date|watermark|contact|contact info|copyright|notes|font|revision|tl|tc|tr|cc|br|bl)(:)(.*(?:\\n   .*|\\n[^:\\n]+$)*)",
-      "end": "^(?=(?i)(title|credit|authors?|source|draft date|date|watermark|contact|contact info|copyright|notes|font|revision|tl|tc|tr|cc|br|bl)|$)",
+      "begin": "^(?i)(title|credit|authors?|source|draft date|date|watermark|header|footer|contact|contact info|copyright|notes|font|revision|tl|tc|tr|cc|br|bl)(:)(.*(?:\\n   .*|\\n[^:\\n]+$)*)",
+      "end": "^(?=(?i)(title|credit|authors?|source|draft date|date|watermark|header|footer|contact|contact info|copyright|notes|font|revision|tl|tc|tr|cc|br|bl)|$)",
       "name":"string.other.title-page.fountain",
       "captures": {
         "1": {

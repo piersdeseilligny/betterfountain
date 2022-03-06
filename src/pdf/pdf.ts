@@ -11,11 +11,17 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, e
     if(progress) progress.report({message: "Converting to individual lines", increment: 25});
     var liner: any = new fliner.Liner(helpers.default, config.print_dialogue_numbers);
     var watermark = undefined;
+    var header = undefined;
+    var footer = undefined;
     var font = "Courier Prime";
     if(parsedDocument.title_page){
         for (let index = 0; index < parsedDocument.title_page['hidden'].length; index++) {
             if (parsedDocument.title_page['hidden'][index].type == "watermark")
                 watermark = parsedDocument.title_page['hidden'][index].text;
+            if (parsedDocument.title_page['hidden'][index].type == "header")
+                header = parsedDocument.title_page['hidden'][index].text;
+            if (parsedDocument.title_page['hidden'][index].type == "footer")
+            footer = parsedDocument.title_page['hidden'][index].text;
             if (parsedDocument.title_page['hidden'][index].type == "font")
                 font = parsedDocument.title_page['hidden'][index].text;
         }
@@ -64,8 +70,13 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, e
         parsedDocument.tokens.pop();
     }
 
-    if (config.print_watermark == "" && watermark != undefined)
+    if (!config.print_watermark && watermark != undefined)
         config.print_watermark = watermark;
+    if (!config.print_header && header != undefined)
+        config.print_header = header;
+    if(!config.print_footer && footer != undefined)
+        config.print_footer = footer;
+
     parsedDocument.lines = liner.line(parsedDocument.tokens, {
         print: print.print_profiles[config.print_profile],
         text_more: config.text_more,

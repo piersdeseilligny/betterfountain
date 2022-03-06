@@ -33,7 +33,7 @@ Array.prototype.pushSorted = function(el, compareFn) {
 
 //Unicode uppercase letters:
 export const regex: { [index: string]: RegExp } = {
-    title_page: /(title|credit|author[s]?|source|notes|draft date|date|watermark|contact( info)?|revision|copyright|font|tl|tc|tr|cc|br|bl)\:.*/i,
+    title_page: /(title|credit|author[s]?|source|notes|draft date|date|watermark|contact( info)?|revision|copyright|font|tl|tc|tr|cc|br|bl|header|footer)\:.*/i,
 
     section: /^[ \t]*(#+)(?: *)(.*)/,
     synopsis: /^[ \t]*(?:\=(?!\=+) *)(.*)/,
@@ -82,6 +82,8 @@ export const titlePageDisplay: {[index:string]:titleKeywordFormat} = {
 
     watermark:{position:'hidden', index:-1},
     font:{position:'hidden', index:-1},
+    header:{position:'hidden', index:-1},
+    footer:{position:'hidden', index:-1},
 
     notes:{position:'bl', index:0},
     copyright:{position:'bl', index:1},
@@ -161,6 +163,7 @@ export function lexer(s: string, type: string, replacer:LexerReplacements, title
 }
 export class StructToken {
     text: string;
+    isnote: boolean;
     id: any;
     children: any; //Children of the section
     range: Range; //Range of the scene/section header
@@ -170,7 +173,7 @@ export class StructToken {
     notes: { note: string; line: number }[];
 }
 export class screenplayProperties {
-    scenes: { scene: string; line: number, actionLength: number, dialogueLength: number }[];
+    scenes: { scene: string; text:string, line: number, actionLength: number, dialogueLength: number }[];
     sceneLines: number[];
     sceneNames: string[];
     titleKeys: string[];
@@ -318,7 +321,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         }
     }
 
-    const processInlineNote = (text: string): number => {
+    const processInlineNote = (text: string, linenumber:number): number => {
         let irrelevantTextLength = 0;
         if (match = text.match(new RegExp(regex.note_inline))) {
             var level = latestSectionOrScene(current_depth + 1, () => true);
@@ -327,7 +330,14 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 for (let i = 0; i < match.length; i++) {
                     match[i] = match[i].slice(2, match[i].length - 2);
                     level.notes.push({ note: match[i], line: thistoken.line });
-                    irrelevantTextLength += match[i].length;
+                    irrelevantTextLength += match[i].length+4;
+                }
+            }
+            else{
+                for(let i = 0; i < match.length; i++){
+                    match[i] = match[i].slice(2, match[i].length - 2);
+                    result.properties.structure.push({text: match[i], id:'/' + linenumber, isnote:true, children:[],level:0,notes:[],range:new Range(new Position(linenumber, 0), new Position(linenumber, match[i].length+4)), section:false,synopses:[] })
+                    irrelevantTextLength += match[i].length+4;
                 }
             }
         }
@@ -335,7 +345,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     }
     const processDialogueBlock = (token:token) => {
         let textWithoutNotes = token.text.replace(regex.note_inline, "");
-        processInlineNote(token.text);
+        processInlineNote(token.text, token.line);
         token.time = calculateDialogueDuration(textWithoutNotes);
         if (!cfg.print_notes) {
             token.text = textWithoutNotes;
@@ -344,7 +354,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         result.lengthDialogue += token.time;
     }
     const processActionBlock = (token:token) => {
-        let irrelevantActionLength = processInlineNote(token.text);
+        let irrelevantActionLength = processInlineNote(token.text, token.line);
         token.time = (token.text.length - irrelevantActionLength) / 20;
         if (!cfg.print_notes) {
             token.text = token.text.replace(regex.note_inline, "");
@@ -474,7 +484,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 }
 
                 updatePreviousSceneLength();
-                result.properties.scenes.push({ scene: thistoken.number, line: thistoken.line, actionLength: 0, dialogueLength: 0 })
+                result.properties.scenes.push({ scene: thistoken.number, text:thistoken.text, line: thistoken.line, actionLength: 0, dialogueLength: 0 })
                 result.properties.sceneLines.push(thistoken.line);
                 result.properties.sceneNames.push(thistoken.text);
                 scene_number++;
@@ -651,6 +661,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     if (generate_html) {
         var html = [];
         var titlehtml = [];
+        var header = undefined;
+        var footer = undefined;
         //Generate html for title page
         if(result.title_page){
             for (const section of Object.keys(result.title_page)) {
@@ -668,6 +680,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     }
                     switch (current_token.type) {
                         case 'title': titlehtml.push(`<h1 class="haseditorline titlepagetoken" id="sourceline_${current_token.line}">${current_token.html}</h1>`); break;
+                        case 'header': header = current_token; break;
+                        case 'footer': footer = current_token; break;
                         default: titlehtml.push(`<p class="${current_token.type} haseditorline titlepagetoken" id="sourceline_${current_token.line}">${current_token.html}</p>`); break;
                     }
                     current_index++;
@@ -675,6 +689,16 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 titlehtml.push(`</div>`);
             }
         }
+        if(header)
+            html.push(`<div class="header" id="sourceline_${header.line}">${header.html}</div>`);
+        else if(config.print_header)
+            html.push(`<div class="header">${lexer(config.print_header, undefined, htmlreplacements, true)}</div>`);
+
+        if(footer)
+            html.push(`<div class="footer" id="sourceline_${footer.line}">${footer.html}</div>`);
+        else if(config.print_footer)
+            html.push(`<div class="footer">${lexer(config.print_footer, undefined, htmlreplacements, true)}</div>`);
+
 
 
         //Generate html for script
