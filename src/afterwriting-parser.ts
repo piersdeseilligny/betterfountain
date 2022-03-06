@@ -161,6 +161,7 @@ export function lexer(s: string, type: string, replacer:LexerReplacements, title
 }
 export class StructToken {
     text: string;
+    isnote: boolean;
     id: any;
     children: any; //Children of the section
     range: Range; //Range of the scene/section header
@@ -318,7 +319,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         }
     }
 
-    const processInlineNote = (text: string): number => {
+    const processInlineNote = (text: string, linenumber:number): number => {
         let irrelevantTextLength = 0;
         if (match = text.match(new RegExp(regex.note_inline))) {
             var level = latestSectionOrScene(current_depth + 1, () => true);
@@ -327,7 +328,14 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 for (let i = 0; i < match.length; i++) {
                     match[i] = match[i].slice(2, match[i].length - 2);
                     level.notes.push({ note: match[i], line: thistoken.line });
-                    irrelevantTextLength += match[i].length;
+                    irrelevantTextLength += match[i].length+4;
+                }
+            }
+            else{
+                for(let i = 0; i < match.length; i++){
+                    match[i] = match[i].slice(2, match[i].length - 2);
+                    result.properties.structure.push({text: match[i], id:'/' + linenumber, isnote:true, children:[],level:0,notes:[],range:new Range(new Position(linenumber, 0), new Position(linenumber, match[i].length+4)), section:false,synopses:[] })
+                    irrelevantTextLength += match[i].length+4;
                 }
             }
         }
@@ -335,7 +343,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     }
     const processDialogueBlock = (token:token) => {
         let textWithoutNotes = token.text.replace(regex.note_inline, "");
-        processInlineNote(token.text);
+        processInlineNote(token.text, token.line);
         token.time = calculateDialogueDuration(textWithoutNotes);
         if (!cfg.print_notes) {
             token.text = textWithoutNotes;
@@ -344,7 +352,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         result.lengthDialogue += token.time;
     }
     const processActionBlock = (token:token) => {
-        let irrelevantActionLength = processInlineNote(token.text);
+        let irrelevantActionLength = processInlineNote(token.text, token.line);
         token.time = (token.text.length - irrelevantActionLength) / 20;
         if (!cfg.print_notes) {
             token.text = token.text.replace(regex.note_inline, "");

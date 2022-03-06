@@ -47,8 +47,11 @@ export class FountainSymbolProvider implements vscode.DocumentSymbolProvider{
 			return returnvalue;
 		}
 
-		for (let index = 0; index < parsedDocuments.get(document.uri.toString()).properties.structure.length; index++) {
-			symbols.push(symbolFromStruct(parsedDocuments.get(document.uri.toString()).properties.structure[index], parsedDocuments.get(document.uri.toString()).properties.structure[index+1], document.lineCount).symbol);
+		let doc = parsedDocuments.get(document.uri.toString());
+		for (let index = 0; index < doc.properties.structure.length; index++) {
+			if(!doc.properties.structure[index].isnote){
+				symbols.push(symbolFromStruct(doc.properties.structure[index], doc.properties.structure[index+1], document.lineCount).symbol);
+			}
 		}
 		return symbols;
 		

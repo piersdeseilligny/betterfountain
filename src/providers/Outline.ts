@@ -57,6 +57,11 @@ function makeTreeItem(token: afterparser.StructToken, parent: OutlineTreeItem): 
 	var item: OutlineTreeItem;
 	if (token.section)
 		item = new SectionTreeItem(token, parent);
+	else if(token.isnote)
+		if(config.uiPersistence.outline_visibleNotes)
+			item = new NoteTreeItem({note:token.text, line: token.id.substring(1) },parent);
+		else
+			return undefined;
 	else
 		item = new SceneTreeItem(token, parent);
 
