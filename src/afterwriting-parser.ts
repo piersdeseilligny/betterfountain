@@ -33,7 +33,7 @@ Array.prototype.pushSorted = function(el, compareFn) {
 
 //Unicode uppercase letters:
 export const regex: { [index: string]: RegExp } = {
-    title_page: /(title|credit|author[s]?|source|notes|draft date|date|watermark|contact( info)?|revision|copyright|font|tl|tc|tr|cc|br|bl)\:.*/i,
+    title_page: /(title|credit|author[s]?|source|notes|draft date|date|watermark|contact( info)?|revision|copyright|font|tl|tc|tr|cc|br|bl|header|footer)\:.*/i,
 
     section: /^[ \t]*(#+)(?: *)(.*)/,
     synopsis: /^[ \t]*(?:\=(?!\=+) *)(.*)/,
@@ -82,6 +82,8 @@ export const titlePageDisplay: {[index:string]:titleKeywordFormat} = {
 
     watermark:{position:'hidden', index:-1},
     font:{position:'hidden', index:-1},
+    header:{position:'hidden', index:-1},
+    footer:{position:'hidden', index:-1},
 
     notes:{position:'bl', index:0},
     copyright:{position:'bl', index:1},
@@ -659,6 +661,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     if (generate_html) {
         var html = [];
         var titlehtml = [];
+        var header = undefined;
+        var footer = undefined;
         //Generate html for title page
         if(result.title_page){
             for (const section of Object.keys(result.title_page)) {
@@ -676,6 +680,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                     }
                     switch (current_token.type) {
                         case 'title': titlehtml.push(`<h1 class="haseditorline titlepagetoken" id="sourceline_${current_token.line}">${current_token.html}</h1>`); break;
+                        case 'header': header = current_token; break;
+                        case 'footer': footer = current_token; break;
                         default: titlehtml.push(`<p class="${current_token.type} haseditorline titlepagetoken" id="sourceline_${current_token.line}">${current_token.html}</p>`); break;
                     }
                     current_index++;
@@ -683,6 +689,16 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 titlehtml.push(`</div>`);
             }
         }
+        if(header)
+            html.push(`<div class="header" id="sourceline_${header.line}">${header.html}</div>`);
+        else if(config.print_header)
+            html.push(`<div class="header">${lexer(config.print_header, undefined, htmlreplacements, true)}</div>`);
+
+        if(footer)
+            html.push(`<div class="footer" id="sourceline_${footer.line}">${footer.html}</div>`);
+        else if(config.print_footer)
+            html.push(`<div class="footer">${lexer(config.print_footer, undefined, htmlreplacements, true)}</div>`);
+
 
 
         //Generate html for script
