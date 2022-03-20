@@ -70,6 +70,10 @@
 				{
 					"id": "fountain-commands",
 					"name": "Commands"
+				},
+				{
+					"id": "fountain-cheatsheet",
+					"name": "Cheat Sheet"
 				}
 			]
 		},
