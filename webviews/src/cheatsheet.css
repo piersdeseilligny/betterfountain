@@ -1,7 +1,17 @@
+body {
+    padding: 0 10px;
+}
+
 details > summary {
     cursor: pointer;
 }
 
+details.category > div {
+    margin-left: 0.3em;
+    border-left-style: inset;
+    border-left-color: lightgrey;
+    border-left-width: thin;
+}
 details.category {
     margin-bottom: 0.25em;
     padding: 0.25em;

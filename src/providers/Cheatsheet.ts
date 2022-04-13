@@ -46,14 +46,14 @@ class CheatsheetItem  {
 function getCheatSheetAsHtml(){
     let result:string = "";
     getCheatSheet().forEach((cheatsheetItems,categoryName)=>{
-        result += `<details class="category"><summary><span class="">${categoryName}</span></summary>`
+        result += `<details class="category"><summary><span class="">${categoryName}</span></summary><div>`
         cheatsheetItems.forEach(item=>{
-            result+= `<details class="cheat-item"><summary><i class="keyword">${item.keyword}</i> ${item.description}</summary> 
+            result+= `<details class="cheat-item"><summary><span class="keyword">${item.keyword}</span> ${item.description}</summary> 
             <p>E.g.:</p>
             <p>${item.example}</p>
             </details>`
         })
-        result += "</details>"
+        result += "</div></details>"
         
     })
     return result;
