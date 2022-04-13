@@ -97,7 +97,7 @@ import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPan
 import { FountainOutlineTreeDataProvider } from "./providers/Outline";
 import { performance } from "perf_hooks";
 import { exportHtml } from "./providers/StaticHtml";
-import { FountainCheatSheetTreeDataProvider } from "./providers/Cheatsheet";
+import { FountainCheatSheetWebviewViewProvider } from "./providers/Cheatsheet";
 
 
 /**
@@ -125,7 +125,7 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
-const cheatsheetViewProvider: FountainCheatSheetTreeDataProvider = new FountainCheatSheetTreeDataProvider();
+const cheatsheetViewProvider: FountainCheatSheetWebviewViewProvider = new FountainCheatSheetWebviewViewProvider();
 var lastShiftedParseId = "";
 
 export let diagnosticCollection = languages.createDiagnosticCollection("fountain");
@@ -220,9 +220,8 @@ export function activate(context: ExtensionContext) {
 	vscode.window.registerTreeDataProvider("fountain-commands", outlineViewProvider)
 	vscode.window.createTreeView("fountain-commands", { treeDataProvider: commandViewProvider });
 
-	//Register cheatsheet tree view
-	vscode.window.registerTreeDataProvider("fountain-cheatsheet",cheatsheetViewProvider);
-	vscode.window.createTreeView("fountain-cheatsheet",{ treeDataProvider: cheatsheetViewProvider });
+	//Register cheatsheet web view
+	vscode.window.registerWebviewViewProvider("fountain-cheatsheet",cheatsheetViewProvider);
 
 	//Register for line duration length
 	durationStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);

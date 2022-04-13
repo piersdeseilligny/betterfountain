@@ -1,0 +1,30 @@
+details > summary {
+    cursor: pointer;
+}
+
+details.category {
+    margin-bottom: 0.25em;
+    padding: 0.25em;
+}
+
+details.cheat-item {
+    padding: 0.5em;
+    border-radius: 0.5em;
+    border-style: outset;
+    margin-left: 0.5em;
+    border-color: #2b2b2b;
+    margin-bottom: 0.25em;
+    border-width: thin;
+}
+
+details.cheat-item > p {
+    font-size: small;
+    white-space: pre-wrap;
+}
+details.cheat-item .keyword{
+    color: lightcoral;
+}
+
+.category > summary {
+    font-size: 1.1em;
+}
