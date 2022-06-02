@@ -4,6 +4,7 @@ export class FountainConfig{
     refresh_stats_on_save: boolean;
     number_scenes_on_save: boolean;
     embolden_scene_headers:boolean;
+    embolden_character_names:boolean;
     show_page_numbers:boolean;
     split_dialogue:boolean;
     print_title_page:boolean;
@@ -86,6 +87,7 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         number_scenes_on_save: generalConfig.numberScenesOnSave,
         refresh_stats_on_save: generalConfig.refreshStatisticsOnSave,
         embolden_scene_headers: pdfConfig.emboldenSceneHeaders,
+        embolden_character_names: pdfConfig.emboldenCharacterNames,
         show_page_numbers: pdfConfig.showPageNumbers,
         split_dialogue: pdfConfig.splitDialog,
         print_title_page: pdfConfig.printTitlePage,

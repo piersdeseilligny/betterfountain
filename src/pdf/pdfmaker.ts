@@ -242,7 +242,7 @@ async function initDoc(opts: Options) {
                 let font = 'ScriptNormal';
                 if (doc.format_state.bold && doc.format_state.italic) {
                     font = 'ScriptBoldOblique';
-                } else if (doc.format_state.bold) {
+                } else if (doc.format_state.bold || options.bold) {
                     font = 'ScriptBold';
                 } else if (doc.format_state.italic) {
                     font = 'ScriptOblique';
@@ -664,6 +664,7 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
             var general_text_properties = {
                 color: color,
                 highlight: false,
+                bold:false,
                 highlightcolor: [0, 0, 0]
             }
 
@@ -677,6 +678,9 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
                         new_text_properties.highlight = true;
                         new_text_properties.highlightcolor = wordToColor(character);
                     };
+                    if(cfg.embolden_character_names){
+                        new_text_properties.bold = true;
+                    }
                 };
                 return new_text_properties
             }

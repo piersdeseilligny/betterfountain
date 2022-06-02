@@ -135,7 +135,12 @@
 					"fountain.pdf.emboldenSceneHeaders": {
 						"type": "boolean",
 						"default": true,
-						"description": "Make the scene headers bold"
+						"description": "Make scene headers bold"
+					},
+					"fountain.pdf.emboldenCharacterNames": {
+						"type": "boolean",
+						"default": false,
+						"description": "Make character names bold"
 					},
 					"fountain.pdf.showPageNumbers": {
 						"type": "boolean",
