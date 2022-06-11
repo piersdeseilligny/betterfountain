@@ -12,6 +12,9 @@
 			"supported": true
 		}
 	},
+	"sponsor": {
+		"url": "https://github.com/sponsors/piersdeseilligny"
+	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/piersdeseilligny/betterfountain"
