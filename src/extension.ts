@@ -125,7 +125,6 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
-const cheatsheetViewProvider: FountainCheatSheetWebviewViewProvider = new FountainCheatSheetWebviewViewProvider();
 var lastShiftedParseId = "";
 
 export let diagnosticCollection = languages.createDiagnosticCollection("fountain");
@@ -221,6 +220,7 @@ export function activate(context: ExtensionContext) {
 	vscode.window.createTreeView("fountain-commands", { treeDataProvider: commandViewProvider });
 
 	//Register cheatsheet web view
+	const cheatsheetViewProvider: FountainCheatSheetWebviewViewProvider = new FountainCheatSheetWebviewViewProvider(context.extensionUri);
 	vscode.window.registerWebviewViewProvider("fountain-cheatsheet",cheatsheetViewProvider);
 
 	//Register for line duration length

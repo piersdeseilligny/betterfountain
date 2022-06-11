@@ -1,18 +1,20 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 
 export class FountainCheatSheetWebviewViewProvider implements vscode.WebviewViewProvider {
-    _extensionUri= vscode.extensions.getExtension("piersdeseilligny.betterfountain").extensionPath;
     
+    constructor(
+		private readonly _extensionUri: vscode.Uri,
+	) { }
+
     resolveWebviewView(webviewView: vscode.WebviewView, _context: vscode.WebviewViewResolveContext<unknown>, _token: vscode.CancellationToken): void | Thenable<void> {
        
         webviewView.webview.options = {
 			localResourceRoots: [
-				vscode.Uri.parse(this._extensionUri)
+				this._extensionUri
 			]
 		};
        
-        const cssDiskPath = vscode.Uri.file(path.join(this._extensionUri, 'out', 'webviews', 'cheatsheet.css'));
+        const cssDiskPath = vscode.Uri.joinPath(this._extensionUri, 'out', 'webviews', 'cheatsheet.css');
         const styleUri = webviewView.webview.asWebviewUri(cssDiskPath).toString()
 
         webviewView.webview.html = `<!DOCTYPE html>
@@ -24,7 +26,7 @@ export class FountainCheatSheetWebviewViewProvider implements vscode.WebviewView
             
            
             <title>Cheat Sheet</title>
-            <link rel='stylesheet' type='text/css' href='${styleUri}'>
+            <link rel="stylesheet" href="${styleUri}">
 
         </head>
         <body>
