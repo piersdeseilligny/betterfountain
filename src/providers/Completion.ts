@@ -218,7 +218,7 @@ export class FountainCompletionProvider implements vscode.CompletionItemProvider
 				var scenematch = currentline.match(/^((?:\*{0,3}_?)?(?:(?:int|ext|est|int\.?\/ext|i\.?\/e\.?).? ))/gi);
 				if (scenematch) {
 					var previousLabels = []
-					for (let index in parsedDocument.properties.sceneNames) {
+					for (let index = 0; index < parsedDocument.properties.sceneNames.length; index++) {
 						var spacepos = parsedDocument.properties.sceneNames[index].indexOf(" ");
 						if (spacepos != -1) {
 							var thisLocation = parsedDocument.properties.sceneNames[index].slice(parsedDocument.properties.sceneNames[index].indexOf(" ")).trimLeft();
