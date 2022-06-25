@@ -43,6 +43,7 @@
 		"onCommand:fountain:exporthtml",
 		"onCommand:fountain.exportpdfdebug",
 		"onCommand:fountain.exportpdfcustom",
+		"onView:fountain-cheatsheet",
 		"onWebviewPanel:fountainPreview"
 	],
 	"main": "./out/extension",
