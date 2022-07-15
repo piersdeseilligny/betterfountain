@@ -97,6 +97,7 @@ import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPan
 import { FountainOutlineTreeDataProvider } from "./providers/Outline";
 import { performance } from "perf_hooks";
 import { exportHtml } from "./providers/StaticHtml";
+import { FountainCheatSheetWebviewViewProvider } from "./providers/Cheatsheet";
 
 
 /**
@@ -217,6 +218,10 @@ export function activate(context: ExtensionContext) {
 	//Register command tree view
 	vscode.window.registerTreeDataProvider("fountain-commands", outlineViewProvider)
 	vscode.window.createTreeView("fountain-commands", { treeDataProvider: commandViewProvider });
+
+	//Register cheatsheet web view
+	const cheatsheetViewProvider: FountainCheatSheetWebviewViewProvider = new FountainCheatSheetWebviewViewProvider(context.extensionUri);
+	vscode.window.registerWebviewViewProvider("fountain-cheatsheet",cheatsheetViewProvider);
 
 	//Register for line duration length
 	durationStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);

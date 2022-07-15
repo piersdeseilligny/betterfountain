@@ -43,6 +43,7 @@
 		"onCommand:fountain:exporthtml",
 		"onCommand:fountain.exportpdfdebug",
 		"onCommand:fountain.exportpdfcustom",
+		"onView:fountain-cheatsheet",
 		"onWebviewPanel:fountainPreview"
 	],
 	"main": "./out/extension",
@@ -73,6 +74,11 @@
 				{
 					"id": "fountain-commands",
 					"name": "Commands"
+				},
+				{
+					"id": "fountain-cheatsheet",
+					"name": "Cheat Sheet",
+					"type": "webview"
 				}
 			]
 		},
@@ -428,7 +434,7 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
-		"compilewebviews": "copyfiles -u 2 webviews/src/*.html webviews/out && webpack --config './webviews/stats.webpack.config.js'",
+		"compilewebviews": "copyfiles -u 2 webviews/src/*.html webviews/src/cheatsheet.css webviews/out && webpack --config './webviews/stats.webpack.config.js'",
 		"compile": "tsc -p ./ && npm run compilewebviews && copyfiles -u 2 webviews/out/* out/webviews && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out",
 		"watch": "npm run compile",
 		"test": "node node_modules/jest/bin/jest.js",

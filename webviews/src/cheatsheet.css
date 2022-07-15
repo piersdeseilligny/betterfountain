@@ -1,0 +1,137 @@
+body {
+    padding: 0px;
+    user-select: none;
+}
+
+details > summary {
+    cursor: pointer;
+}
+
+details .example{
+    font-family: betterfountain-screenplayfont;
+}
+
+details.category>div{
+    position:relative;
+}
+
+details.category>div::before, details.cheat-item>p::before {
+    position: absolute;
+    content: '';
+    height: 100%;
+    width: 1px;
+    left:16px;
+    opacity:0.2;
+    background-color: var(--vscode-foreground);
+}
+details.cheat-item>p::before{
+    left:13px;
+    top:0;
+}
+details.cheat-item {
+    line-height: 16px;
+    padding: 3px 12px 3px 24px;
+}
+
+details.cheat-item > summary > span{
+    color:var(--vscode-foreground);
+    opacity:0.7;
+}
+details.cheat-item > summary > span.keyword{
+    opacity:1;
+    font-weight: bold;
+    color:#d38d58;
+}
+
+details.cheat-item > p {
+    font-size: small;
+    white-space: pre-wrap;
+    margin-left: -7px;
+    padding-left: 32px;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-right: -11px;
+    padding-top: 4px;
+    padding-bottom: 0px;
+    position:relative;
+}
+
+.category > summary {
+    line-height: 22px;
+    padding: 0 12px;
+}
+.category > summary:hover, details.cheat-item:hover {
+    background-color: var(--vscode-list-hoverBackground);
+}
+
+details > summary::before{
+    font-family: 'codicon';
+    font-size:14px;
+    content: '\eab6';
+    vertical-align: bottom;
+}
+::marker {
+    content:'';
+}
+details[open] > summary::before{
+    content:'\eab4';
+}
+
+.scene{
+    color:#569cd6;
+}
+.sequence{
+    font-weight: bold;
+    color:#569cd6;
+}
+.transition{
+    color:#b5cea8;
+}
+.character{
+color:#4ec9b0;
+}
+.dialogue{
+    color:#ce9178
+}
+.parenthetical{
+    color:#d7ba7d;
+}
+.caret{
+    color:#d7ba7d;
+}
+.tkey{
+    color:#569cd6;
+}
+.tvalue{
+color:#ce9178;
+}
+.centered{
+font-weight: bold;
+color:#569cd6;
+}
+.bold{
+    font-weight: bold;
+    color:#569cd6;
+}
+.italics{
+    font-style: italic;
+}
+.underline{
+text-decoration: underline;
+}
+.linebreak{
+
+}
+.note{
+color:#6a9955;
+}
+.boneyard{
+    color:#6a9955;
+}
+.synopse{
+    color:#6a9955;
+}
+.lyrics{
+    color:#ce9178;
+    font-style:italic;
+}
