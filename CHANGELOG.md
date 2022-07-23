@@ -1,5 +1,11 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.11.0** - *2022-07-23*
+    + Add cheatsheet to extension sidebar (Thanks @prasy-loyola for the PR!)
+    + Add setting to enable bold character names (Fix #165)
+    · Fix #169 (broken number scenes overwrite command)
+    · Fix #162 (scene autocomplete broken)
+
 ## **1.10.0** - *2022-03-06*
     + Add statistics for scenes (currently, barcode chart for int/ext and time of day - more to come!)
     + Add "Header:" and "Footer:" title page keys, which will apply to all pages (except the title page) (Issue #156)
