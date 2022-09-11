@@ -9,6 +9,8 @@
         --scenecolor-day: rgb(202 173 142);
         --scenecolor-dusk: rgba(92, 51, 167, 0.5);
         --scenecolor-night: rgb(116 85 173);
+        --scenecolor-evening: var(--scenecolor-dusk);
+        --scenecolor-morning: var(--scenecolor-dawn);
         --scenecolor-int: rgb(177 104 82);
         --scenecolor-ext: rgb(82 173 160);
         --scenecolor-mixed: rgb(138 61 61);
@@ -366,7 +368,7 @@
         transition: all 0.2s;
     }
     .dataTable tr:hover td{
-        color: white !important;
+        color: var(--vscode-textSeparatorForeground)  !important;
         transition:none;
     }
     .dataTables_paginate .paginate_button{
@@ -445,9 +447,9 @@
             <li data-group="scenes">
                 <span class="codicon codicon-output"></span>Scenes
             </li>
-            <!--<li data-group="locations">
+            <li data-group="locations">
                 <span class="codicon codicon-location"></span>Locations
-            </li>-->
+            </li>
         </ul>
        <!-- <div class="title"><span class="codicon codicon-book"></span>Reports</div> 
         <ul>
@@ -589,9 +591,17 @@
             <div id="durationStats-scenesummary" class="summary"></div>
             <div style="height:180px;box-sizing: border-box;" class="barcodechart" id="sceneStats-timechart"></div>
         </div>
-        <!--<div style="display:none" data-group="locations">
-            Locations
-        </div>-->
+        <div style="display:none" data-group="locations">
+            <h1><span class="codicon codicon-location"></span>Locations</h1>
+            <div class="flexgroup lengthstats">
+                <div class="flexitem minor">
+                    <div class="description">Locations</div>
+                    <div id="locationStats-count" class="number"></div>
+                </div>
+            </div>
+            <table id="locationStats-table" style="width:100%;margin-top:24px;">
+            </table>
+        </div>
     </div>
 </div>
 <script src="$STATSJS$"></script>

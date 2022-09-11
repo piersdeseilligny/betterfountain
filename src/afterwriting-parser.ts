@@ -1,4 +1,4 @@
-import { calculateDialogueDuration, trimCharacterExtension, last, trimCharacterForceSymbol } from "./utils";
+import { calculateDialogueDuration, trimCharacterExtension, last, trimCharacterForceSymbol, parseLocationInformation, slugify } from "./utils";
 import { token, create_token } from "./token";
 import { Range, Position } from "vscode";
 import { getFountainConfig } from "./configloader";
@@ -161,6 +161,13 @@ export function lexer(s: string, type: string, replacer:LexerReplacements, title
         s = s.trim();
     return s;
 }
+export class Location {
+    scene_number: number;
+    name: string;
+    interior: boolean;
+    exterior: boolean;
+    time_of_day: string;
+}
 export class StructToken {
     text: string;
     isnote: boolean;
@@ -182,6 +189,7 @@ export class screenplayProperties {
     lengthAction: number; //Length of the action character count
     lengthDialogue: number; //Length of the dialogue character count
     characters: Map<string, number[]>;
+    locations: Map<string, Location[]>;
     structure: StructToken[];
 }
 export interface parseoutput {
@@ -227,6 +235,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 lengthAction: 0,
                 lengthDialogue: 0,
                 characters: new Map<string, number[]>(),
+                locations: new Map<string, Location[]>(),
                 structure: []
             }
         };
@@ -487,6 +496,29 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 result.properties.scenes.push({ scene: thistoken.number, text:thistoken.text, line: thistoken.line, actionLength: 0, dialogueLength: 0 })
                 result.properties.sceneLines.push(thistoken.line);
                 result.properties.sceneNames.push(thistoken.text);
+
+                console.log("Getting location info");
+                let location = parseLocationInformation(thistoken.text);
+                if (location) {
+                    
+                    let locationslug = slugify(location.name);
+                    console.log(`location: ${locationslug} = ${location.name}`, location);
+                    if (result.properties.locations.has(locationslug)) {
+                        console.log("Already got previous instances of location");
+                        const values = result.properties.locations.get(locationslug);
+                        if (values.findIndex(it => it.scene_number == scene_number) == -1) {
+                            values.push({
+                                scene_number: scene_number,
+                                ...location
+                            });
+                        }
+                        result.properties.locations.set(locationslug, values);
+                    }
+                    else {
+                        console.log("totally new location");
+                        result.properties.locations.set(locationslug, [{scene_number,...location}]);
+                    }
+                }
                 scene_number++;
                 
             } else if (thistoken.text.length && thistoken.text[0] === "!") {

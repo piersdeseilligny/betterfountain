@@ -8,13 +8,38 @@ import * as fs from "fs";
 
 //var syllable = require('syllable');
 
+export function slugify(text: string): string
+{
+  return text.toString().toLowerCase()
+    .replace(/\s+/g, '-')           // Replace spaces with -
+    .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+    .replace(/^-+/, '')             // Trim - from start of text
+    .replace(/-+$/, '');            // Trim - from end of text
+}
+
 /**
  * Trims character extensions, for example the parantheses part in `JOE (on the radio)`
  */
 export const trimCharacterExtension = (character: string): string => character.replace(/[ \t]*(\(.*\))[ \t]*([ \t]*\^)?$/, "");
 
+export const parseLocationInformation = (scene_heading: string) => {
+	const regex = /^(?<interior>EST|INT.?\/EXT|INT|EXT|I.|E.).?\s*(?<name>(?:[^-–—−]+[-–—−]??)*?)[-–—−]\s*(?<time_of_day>[^-–—−]+?)$/i;
+
+	const match = regex.exec(scene_heading) as any; // TODO
+	if (match != null && match?.groups) {
+		return {
+			name: match.groups.name.trim(),
+			interior: match.groups.interior.indexOf('I') != -1,
+			exterior: match.groups.interior.indexOf('EX') != -1|| match.groups.interior.indexOf('E.')!= -1,
+			time_of_day: match.groups.time_of_day.trim()
+		}
+	}
+	return null;
+}
+
 /**
- * Trims the `@` symbol necesary in character names if they contain lower-case letters, i.e. `@McCONNOR`
+ * Trims the `@` symbol necessary in character names if they contain lower-case letters, i.e. `@McCONNOR`
  */
 export const trimCharacterForceSymbol = (character: string): string => character.replace(/^[ \t]*@/, "");
 

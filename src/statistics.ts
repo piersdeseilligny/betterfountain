@@ -14,6 +14,13 @@ interface dialoguePerCharacter {
     [x: string]: string[]
 }
 
+type locationStatisticPerLocation = {
+    name: string,
+    scene_numbers: number[],
+    times_of_day: string[],
+    color: string,
+};
+
 type dialogueStatisticPerCharacter = {
     name: string
     speakingParts: number
@@ -80,6 +87,11 @@ type durationStatistics = {
     monologues:number
 }
 
+type locationStatistics = {
+    locations: locationStatisticPerLocation[],
+    locationsCount: number
+}
+
 type characterStatistics = {
     characters: dialogueStatisticPerCharacter[],
     complexity: number,
@@ -93,6 +105,7 @@ type sceneStatistics = {
 
 type screenPlayStatistics = {
     characterStats: characterStatistics,
+    locationStats: locationStatistics,
     sceneStats: sceneStatistics,
     lengthStats: lengthStatistics
     durationStats: durationStatistics
@@ -206,6 +219,33 @@ const createCharacterStatistics = (parsed: parseoutput): characterStatistics => 
     }
 }
 
+const createLocationStatistics = (parsed: parseoutput): locationStatistics => {
+    const locationSlugs = [...parsed.properties.locations.keys()];
+    return {
+        locationsCount: locationSlugs.length,
+        locations: locationSlugs.map((location_slug: string) => {
+            const references = parsed.properties.locations.get(location_slug);
+            const times_of_day = references
+                .map(it => locationtime(it.time_of_day))
+                .filter((v, i, a) => a.indexOf(v) === i);
+            const interior = references.some(it => it.interior);
+            const exterior = references.some(it => it.exterior);
+            let interior_exterior = 'other';
+            if (interior && exterior) interior_exterior = 'mixed'
+            else if (interior) interior_exterior ='int' 
+            else if (exterior) interior_exterior = 'ext';
+            return {
+                color: rgbToHex(wordToColor(location_slug)),
+                name: references[0].name,
+                scene_numbers: references.map(reference => reference.scene_number),
+                number_of_scenes: references.length,
+                times_of_day,
+                interior_exterior
+            }
+        })
+    }
+}
+
 const createSceneStatistics = (parsed: parseoutput): sceneStatistics => {
     const sceneStats: singleSceneStatistic[] = []
     parsed.tokens.forEach ((tok) => {
@@ -221,29 +261,43 @@ const createSceneStatistics = (parsed: parseoutput): sceneStatistics => {
     }
 }
 
-function locationtype(val:RegExpExecArray):'int'|'ext'|'mixed'|'other'{
-    if(val && val[1]){
-        if(/i(nt)?\.?\/e(xt)?\.?/i.test(val[1])){
+function locationtype(val:string):'int'|'ext'|'mixed'|'other'{
+    if(val){
+        if(/i(nt)?\.?\/e(xt)?\.?/i.test(val)){
             return "mixed"
         }
-        else if(/i(nt)?\.?/i.test(val[1])){
+        else if(/i(nt)?\.?/i.test(val)){
             return "int"
         }
-        else if(/e(xt)?\.?/i.test(val[1])){
+        else if(/e(xt)?\.?/i.test(val)){
             return "ext"
         }
     }
     return "other";
 }
-function locationtime(val:RegExpExecArray):string{
-    if(val && val[2]){
-        var dash = val[2].lastIndexOf(" - ");
-        if(dash === -1) dash = val[2].lastIndexOf(" – ");
-        if(dash === -1) dash = val[2].lastIndexOf(" — ");
-        if(dash === -1) dash = val[2].lastIndexOf(" − ");
+function afterdash(val:string):string{
+    if(val){
+        var dash = val.lastIndexOf(" - ");
+        if(dash === -1) dash = val.lastIndexOf(" – ");
+        if(dash === -1) dash = val.lastIndexOf(" — ");
+        if(dash === -1) dash = val.lastIndexOf(" − ");
         if (dash !== -1) {
-            return val[2].substring(dash+3).toLowerCase();
+            return val.substring(dash+3)
         }
+    }
+    return null;
+}
+function locationtime(val:string):string{
+    if(val){
+        return val.toLowerCase()
+            .replace(/\s+/g, ' ')
+            .replace(/\.$/g, '')
+            .replace(/[^\w ]+/g, '')
+            .replace(/  +/g, ' ')
+            .trim()
+            .replace(/^(the)?\s*(next|following)\b/i, '')
+            .replace(/^(early|late)\b/i, '')
+            .trim()
     }
     return "unspecified";
 }
@@ -310,8 +364,8 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
             scenes[scenes.length-1].endline = scene.line-1;
         }
         var deconstructedSlug = regex.scene_heading.exec(scene.text);
-        var scenetype = locationtype(deconstructedSlug);
-        var scenetime = locationtime(deconstructedSlug);
+        var scenetype = locationtype(deconstructedSlug?.[1]);
+        var scenetime = locationtime(afterdash(deconstructedSlug?.[2]));
         scenes.push({
             type: scenetype,
             line:scene.line,
@@ -394,6 +448,7 @@ export const retrieveScreenPlayStatistics = async (script: string, parsed: parse
     return {
         characterStats: createCharacterStatistics(parsed),
         sceneStats: createSceneStatistics(parsed),
+        locationStats: createLocationStatistics(parsed),
         lengthStats: createLengthStatistics(script, pdfstats, parsed),
         durationStats: createDurationStatistics(parsed),
         pdfmap: JSON.stringify(pdfmap),

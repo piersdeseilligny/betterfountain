@@ -304,10 +304,33 @@ function updateStats(){
     document.getElementById("characterStats-monologues").innerText = state.stats.characterStats.monologues ? state.stats.characterStats.monologues : 0;
     document.getElementById("characterStats-complexity").innerText = state.stats.characterStats.complexity ? state.stats.characterStats.complexity.toFixed(1) : 0;
 
+
+
+    let renderIntExt = function(data,type,row){
+        switch (type) {
+            case "display": return `${data}.`.toUpperCase();
+            case "sort":    return data;
+            default:        return data
+        }
+    };
+    let renderTimesOfDay = function(data,type,row){
+        switch (type) {
+            case "display": return data.map(it=>it.toUpperCase()).join(", ");
+            case "sort":    return data;
+            default:        return data
+        }
+    };
     let renderDuration = function(data,type,row){
         switch (type) {
             case "display": return secondsToString(data);
             case "sort":    return -data;
+            default:        return data
+        }
+    };
+    let renderInteger = function(data,type,row){
+        switch (type) {
+            case "display": return data ? data.toFixed(0) : 0;
+            case "sort":    return data;
             default:        return data
         }
     };
@@ -359,6 +382,26 @@ function updateStats(){
         syncVisibility();
     });
     syncVisibility();
+
+    
+    let locationsTable = $("#locationStats-table").DataTable({
+        data: state.stats.locationStats.locations,
+        columns: [
+            { data:'name', name:"name", title:"Name" },
+            { data:'number_of_scenes', name:"number_of_scenes", title:"Number of Scenes", render: renderInteger},
+            { data:'times_of_day', name:"times_of_day", title:"Time", render: renderTimesOfDay, className: 'location-time'},
+            { data:'interior_exterior', name:"interior_exterior", title:"INT./EXT.", render: renderIntExt, className: 'location-type'},
+        ],
+        createdRow:function(row,data,dataIndex){
+            if(data.color){
+                $(row).find("td").first().css("color", data.color);
+                $(row).find("td.location-time")
+                    .html(data.times_of_day.map(it => $(`<span>${it.toUpperCase()}.</span>`).css('color', `var(--scenecolor-${it}`)));
+                $(row).find("td.location-type").first().css("color", `var(--scenecolor-${data.interior_exterior})`);
+            }
+        }
+    });
+    document.getElementById("locationStats-count").innerText = state.stats.locationStats.locationsCount;
 
 
 
