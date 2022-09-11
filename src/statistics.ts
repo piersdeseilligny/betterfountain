@@ -277,7 +277,7 @@ function locationtype(val:string):'int'|'ext'|'mixed'|'other'{
 }
 function afterdash(val:string):string{
     if(val){
-        var dash = val.lastIndexOf(" - ");
+        let dash = val.lastIndexOf(" - ");
         if(dash === -1) dash = val.lastIndexOf(" – ");
         if(dash === -1) dash = val.lastIndexOf(" — ");
         if(dash === -1) dash = val.lastIndexOf(" − ");
@@ -364,19 +364,19 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
             scenes[scenes.length-1].endline = scene.line-1;
         }
         var deconstructedSlug = regex.scene_heading.exec(scene.text);
-        var scenetype = locationtype(deconstructedSlug?.[1]);
-        var scenetime = locationtime(afterdash(deconstructedSlug?.[2]));
+        const sceneType = locationtype(deconstructedSlug?.[1]);
+        const sceneTime = locationtime(afterdash(deconstructedSlug?.[2]));
         scenes.push({
-            type: scenetype,
+            type: sceneType,
             line:scene.line,
             endline:65500,
-            time: scenetime,
+            time: sceneTime,
             scene:scene.text
         });
-        let currentLength = scenepropDurations.has('type_'+scenetype) ? scenepropDurations.get('type_'+scenetype) : 0;
-        scenepropDurations.set('type_'+scenetype, currentLength+scene.actionLength+scene.dialogueLength);
-        currentLength = scenepropDurations.has('time_'+scenetime) ? scenepropDurations.get('time_'+scenetime) : 0;
-        scenepropDurations.set('time_'+scenetime, currentLength+scene.actionLength+scene.dialogueLength);
+        let currentLength = scenepropDurations.has('type_'+sceneType) ? scenepropDurations.get('type_'+sceneType) : 0;
+        scenepropDurations.set('type_'+sceneType, currentLength+scene.actionLength+scene.dialogueLength);
+        currentLength = scenepropDurations.has('time_'+sceneTime) ? scenepropDurations.get('time_'+sceneTime) : 0;
+        scenepropDurations.set('time_'+sceneTime, currentLength+scene.actionLength+scene.dialogueLength);
     });
     let characterDuration:dialoguechartitem[][] = [];
     let characterNames:string[] = [];

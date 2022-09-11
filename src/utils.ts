@@ -13,7 +13,7 @@ export function slugify(text: string): string
   return text.toString().toLowerCase()
     .replace(/\s+/g, '-')           // Replace spaces with -
     .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-    .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+    .replace(/-{2,}/g, '-')         // Replace multiple - with single -
     .replace(/^-+/, '')             // Trim - from start of text
     .replace(/-+$/, '');            // Trim - from end of text
 }
@@ -26,7 +26,7 @@ export const trimCharacterExtension = (character: string): string => character.r
 export const parseLocationInformation = (scene_heading: string) => {
 	const regex = /^(?<interior>EST|INT.?\/EXT|INT|EXT|I.|E.).?\s*(?<name>(?:[^-–—−]+[-–—−]??)*?)[-–—−]\s*(?<time_of_day>[^-–—−]+?)$/i;
 
-	const match = regex.exec(scene_heading) as any; // TODO
+	const match = regex.exec(scene_heading) as RegExpExecArray & {groups: {[k: string]: string}};
 	if (match != null && match?.groups) {
 		return {
 			name: match.groups.name.trim(),

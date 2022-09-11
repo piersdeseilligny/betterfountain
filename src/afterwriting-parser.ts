@@ -497,26 +497,21 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 result.properties.sceneLines.push(thistoken.line);
                 result.properties.sceneNames.push(thistoken.text);
 
-                console.log("Getting location info");
-                let location = parseLocationInformation(thistoken.text);
+                const location = parseLocationInformation(thistoken.text);
                 if (location) {
-                    
-                    let locationslug = slugify(location.name);
-                    console.log(`location: ${locationslug} = ${location.name}`, location);
-                    if (result.properties.locations.has(locationslug)) {
-                        console.log("Already got previous instances of location");
-                        const values = result.properties.locations.get(locationslug);
+                    const locationSlug = slugify(location.name);
+                    if (result.properties.locations.has(locationSlug)) {
+                        const values = result.properties.locations.get(locationSlug);
                         if (values.findIndex(it => it.scene_number == scene_number) == -1) {
                             values.push({
                                 scene_number: scene_number,
                                 ...location
                             });
                         }
-                        result.properties.locations.set(locationslug, values);
+                        result.properties.locations.set(locationSlug, values);
                     }
                     else {
-                        console.log("totally new location");
-                        result.properties.locations.set(locationslug, [{scene_number,...location}]);
+                        result.properties.locations.set(locationSlug, [{scene_number,...location}]);
                     }
                 }
                 scene_number++;

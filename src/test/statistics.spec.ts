@@ -47,7 +47,7 @@ const fountainConfig: FountainConfig  = {
 }
 
 const bigFishAssertions = async(script: string) => {
-    var parsed = afterparser.parse("", {}, false);
+    const parsed = afterparser.parse("", {}, false);
     const stats = await retrieveScreenPlayStatistics(script, parsed, fountainConfig, exportConfig)
     expect(stats.lengthStats.words).toBe(24818)
     expect(stats.characterStats.characterCount).toBe(42)
@@ -64,7 +64,7 @@ const bigFishAssertions = async(script: string) => {
 }
 
 const brickAndSteelAssertions = async (script: string) => {
-    var parsed = afterparser.parse("", {}, false);
+    const parsed = afterparser.parse("", {}, false);
     const stats = await retrieveScreenPlayStatistics(script, parsed, fountainConfig, exportConfig)
     expect(stats.lengthStats.words).toBe(394)
     expect(stats.characterStats.characters.length).toBe(5)
@@ -102,7 +102,7 @@ describe("Statistics", () => {
     })
 
     it("Blank Canvas script", async () => {
-        var parsed = afterparser.parse("", {}, false);
+        const parsed = afterparser.parse("", {}, false);
         const stats = await retrieveScreenPlayStatistics("", parsed, fountainConfig, exportConfig)
         expect(stats.characterStats.characterCount).toBe(0)
         expect(stats.sceneStats.scenes.length).toBe(0)
@@ -113,7 +113,7 @@ describe("Statistics", () => {
     })
 
     it("Almost Blank Canvas script", async () => {
-        var parsed = afterparser.parse("2134wrdfhf sdhj;dfshl", {}, false);
+        const parsed = afterparser.parse("2134wrdfhf sdhj;dfshl", {}, false);
         const stats = await retrieveScreenPlayStatistics("2134wrdfhf sdhj;dfshl", parsed, fountainConfig, exportConfig)
         expect(stats.characterStats.characterCount).toBe(0)
         expect(stats.sceneStats.scenes.length).toBe(0)
