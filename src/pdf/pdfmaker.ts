@@ -861,6 +861,5 @@ export var get_pdf_stats = async function (opts: Options): Promise<pdfstats> {
     });
 
     await generate(doc, opts, stats.linemap);
-    console.log(stats.linemap);
     return stats;
 }

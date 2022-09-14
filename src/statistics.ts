@@ -123,6 +123,7 @@ function gradeToAge(grade:number) {
 
 const createCharacterStatistics = (parsed: parseoutput): characterStatistics => {
     const dialoguePieces: dialoguePiece[] = [];
+
     for (var i=0; i<parsed.tokens.length; i++)
     {
         while (i<parsed.tokens.length && parsed.tokens[i].type==="character")
@@ -419,7 +420,6 @@ const createLengthStatistics = (script: string, pdf:pdfstats, parsed:parseoutput
 
 const createDurationStatistics = (parsed: parseoutput): durationStatistics => {
     let lengthcharts =  getLengthChart(parsed);
-    console.log("Created duration stats");
     return {
         dialogue: parsed.lengthDialogue,
         action: parsed.lengthAction,
@@ -443,15 +443,20 @@ function mapToObject(map:any):any{
 }
 
 export const retrieveScreenPlayStatistics = async (script: string, parsed: parseoutput, config:FountainConfig, exportconfig:ExportConfig): Promise<screenPlayStatistics> => {
-    let pdfstats = await GeneratePdf("$STATS$", config, exportconfig, parsed, undefined);
-    let pdfmap = mapToObject(pdfstats.linemap);
-    return {
+    const stats = {
         characterStats: createCharacterStatistics(parsed),
         sceneStats: createSceneStatistics(parsed),
         locationStats: createLocationStatistics(parsed),
-        lengthStats: createLengthStatistics(script, pdfstats, parsed),
         durationStats: createDurationStatistics(parsed),
-        pdfmap: JSON.stringify(pdfmap),
         structure: parsed.properties.structure
+    };
+
+    let pdfstats = await GeneratePdf("$STATS$", config, exportconfig, parsed, undefined);
+    let pdfmap = mapToObject(pdfstats.linemap);
+    
+    return {
+        ...stats,
+        lengthStats: createLengthStatistics(script, pdfstats, parsed),
+        pdfmap: JSON.stringify(pdfmap),
     }
 }

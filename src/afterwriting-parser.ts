@@ -854,6 +854,5 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     while (result.tokens.length > 0 && result.tokens[result.tokens.length - 1].type === "separator") {
         result.tokens.pop();
     }
-
     return result;
 };
