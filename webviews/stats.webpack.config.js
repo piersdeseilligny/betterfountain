@@ -6,6 +6,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'out'),
     filename: 'stats.bundle.js',
+    hashFunction: "xxhash64"
   },
   optimization: {
     minimize: false
