@@ -133,7 +133,7 @@
 							"paper"
 						],
 						"description": "The theme to be used in the live preview",
-						"default": "paper"
+						"default": "vscode"
 					},
 					"fountain.general.previewTexture": {
 						"type": "boolean",
@@ -253,7 +253,7 @@
 							"right",
 							"both"
 						],
-						"default": "none",
+						"default": "both",
 						"description": "Location of scene numbers"
 					},
 					"fountain.pdf.eachSceneOnNewPage": {
