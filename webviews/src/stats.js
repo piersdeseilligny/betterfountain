@@ -349,6 +349,7 @@ function updateStats(){
     };
     let characterTable = TableChart.render("#characterStats-table", {
         data: state.stats.characterStats.characters,
+        unit:"characters",
         columns: [
             { data:'name', name:"name", title:"Name", alwaysvisible:true },
             { data:'secondsSpoken', name:"duration", title:"Duration", render:renderDuration },
@@ -384,8 +385,9 @@ function updateStats(){
     syncVisibility();
 
     
-    let locationsTable = $("#locationStats-table").DataTable({
+    let locationsTable = TableChart.render("#locationStats-table", {
         data: state.stats.locationStats.locations,
+        unit:"locations",
         columns: [
             { data:'name', name:"name", title:"Name" },
             { data:'number_of_scenes', name:"number_of_scenes", title:"Number of Scenes", render: renderInteger},
