@@ -239,6 +239,7 @@ const createLocationStatistics = (parsed: parseoutput): locationStatistics => {
                 color: rgbToHex(wordToColor(location_slug)),
                 name: references[0].name,
                 scene_numbers: references.map(reference => reference.scene_number),
+                scene_lines: references.map(reference => reference.line),
                 number_of_scenes: references.length,
                 times_of_day,
                 interior_exterior

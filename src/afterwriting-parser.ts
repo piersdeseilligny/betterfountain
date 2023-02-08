@@ -167,6 +167,7 @@ export class Location {
     interior: boolean;
     exterior: boolean;
     time_of_day: string;
+    line:number;
 }
 export class StructToken {
     text: string;
@@ -506,13 +507,14 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         if (values.findIndex(it => it.scene_number == scene_number) == -1) {
                             values.push({
                                 scene_number: scene_number,
+                                line: thistoken.line,
                                 ...location
                             });
                         }
                         result.properties.locations.set(locationSlug, values);
                     }
                     else {
-                        result.properties.locations.set(locationSlug, [{scene_number,...location}]);
+                        result.properties.locations.set(locationSlug, [{scene_number, line:thistoken.line, ...location}]);
                     }
                 }
                 scene_number++;
