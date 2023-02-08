@@ -397,12 +397,27 @@ function updateStats(){
         createdRow:function(row,data,dataIndex){
             if(data.color){
                 $(row).find("td").first().css("color", data.color);
-                $(row).find("td.location-time")
-                    .html(data.times_of_day.map(it => $(`<span>${it.toUpperCase()}.</span>`).css('color', `var(--scenecolor-${it}`)));
+                $(row).find("td.location-time").html(data.times_of_day.map((it, index) => {
+                    let output = `<span>${it.toUpperCase()}`;
+                    index < data.times_of_day.length-1 ? output += ", </span>" : output += "</span>";
+                    return $(output).css('color', `var(--scenecolor-${it}`);
+                }));
                 $(row).find("td.location-type").first().css("color", `var(--scenecolor-${data.interior_exterior})`);
             }
         }
     });
+    locationsTable.on('mouseenter', 'tbody tr', function () {
+        var rowData = locationsTable.row(this).data();
+        for (let i = 0; i < rowData.scene_lines.length; i++) {
+            $(`#sceneStats-timechart [data-x="${encodeURIComponent(rowData.scene_lines[i])}"]`).addClass("hover");
+        }
+      });
+      locationsTable.on('mouseleave', 'tbody tr', function () {
+        var rowData = locationsTable.row(this).data();
+        for (let i = 0; i < rowData.scene_lines.length; i++) {
+            $(`#sceneStats-timechart [data-x="${encodeURIComponent(rowData.scene_lines[i])}"]`).removeClass("hover");
+        }
+      });
     document.getElementById("locationStats-count").innerText = state.stats.locationStats.locationsCount;
 
 
