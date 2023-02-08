@@ -454,7 +454,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             } else if (result.properties.firstTokenLine == Infinity) {
                 result.properties.firstTokenLine = thistoken.line;
             }
-            if (thistoken.text.match(regex.scene_heading)) {
+            let sceneHeadingMatch = thistoken.text.match(regex.scene_heading);
+            if (sceneHeadingMatch) {
                 thistoken.text = thistoken.text.replace(/^\./, "");
                 if (cfg.each_scene_on_new_page && scene_number !== 1) {
                     var page_break = create_token();
@@ -497,7 +498,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 result.properties.sceneLines.push(thistoken.line);
                 result.properties.sceneNames.push(thistoken.text);
 
-                const location = parseLocationInformation(thistoken.text);
+                const location = parseLocationInformation(sceneHeadingMatch);
                 if (location) {
                     const locationSlug = slugify(location.name);
                     if (result.properties.locations.has(locationSlug)) {

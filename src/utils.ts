@@ -23,16 +23,15 @@ export function slugify(text: string): string
  */
 export const trimCharacterExtension = (character: string): string => character.replace(/[ \t]*(\(.*\))[ \t]*([ \t]*\^)?$/, "");
 
-export const parseLocationInformation = (scene_heading: string) => {
-	const regex = /^(?<interior>EST|INT.?\/EXT|INT|EXT|I.|E.).?\s*(?<name>(?:[^-–—−]+[-–—−]??)*?)[-–—−]\s*(?<time_of_day>[^-–—−]+?)$/i;
-
-	const match = regex.exec(scene_heading) as RegExpExecArray & {groups: {[k: string]: string}};
-	if (match != null && match?.groups) {
+export const parseLocationInformation = (scene_heading:RegExpMatchArray) => {
+	//input group 1 is int/ext, group 2 is location and time, group 3 is scene number
+	let splitLocationFromTime = scene_heading[2].match(/(.*)[-–—−](.*)/)
+	if (scene_heading != null && scene_heading.length>=3) {
 		return {
-			name: match.groups.name.trim(),
-			interior: match.groups.interior.indexOf('I') != -1,
-			exterior: match.groups.interior.indexOf('EX') != -1|| match.groups.interior.indexOf('E.')!= -1,
-			time_of_day: match.groups.time_of_day.trim()
+			name: splitLocationFromTime ? splitLocationFromTime[1].trim() : scene_heading[2].trim(),
+			interior: scene_heading[1].indexOf('I') != -1,
+			exterior: scene_heading[1].indexOf('EX') != -1|| scene_heading[1].indexOf('E.')!= -1,
+			time_of_day: splitLocationFromTime ? splitLocationFromTime[2].trim() : ""
 		}
 	}
 	return null;
