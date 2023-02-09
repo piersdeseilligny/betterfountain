@@ -8,13 +8,37 @@ import * as fs from "fs";
 
 //var syllable = require('syllable');
 
+export function slugify(text: string): string
+{
+  return text.toString().toLowerCase()
+    .replace(/\s+/g, '-')           // Replace spaces with -
+    .replace(/[^\w-]+/g, '')       // Remove all non-word chars
+    .replace(/-{2,}/g, '-')         // Replace multiple - with single -
+    .replace(/^-+/, '')             // Trim - from start of text
+    .replace(/-+$/, '');            // Trim - from end of text
+}
+
 /**
  * Trims character extensions, for example the parantheses part in `JOE (on the radio)`
  */
 export const trimCharacterExtension = (character: string): string => character.replace(/[ \t]*(\(.*\))[ \t]*([ \t]*\^)?$/, "");
 
+export const parseLocationInformation = (scene_heading:RegExpMatchArray) => {
+	//input group 1 is int/ext, group 2 is location and time, group 3 is scene number
+	let splitLocationFromTime = scene_heading[2].match(/(.*)[-–—−](.*)/)
+	if (scene_heading != null && scene_heading.length>=3) {
+		return {
+			name: splitLocationFromTime ? splitLocationFromTime[1].trim() : scene_heading[2].trim(),
+			interior: scene_heading[1].indexOf('I') != -1,
+			exterior: scene_heading[1].indexOf('EX') != -1|| scene_heading[1].indexOf('E.')!= -1,
+			time_of_day: splitLocationFromTime ? splitLocationFromTime[2].trim() : ""
+		}
+	}
+	return null;
+}
+
 /**
- * Trims the `@` symbol necesary in character names if they contain lower-case letters, i.e. `@McCONNOR`
+ * Trims the `@` symbol necessary in character names if they contain lower-case letters, i.e. `@McCONNOR`
  */
 export const trimCharacterForceSymbol = (character: string): string => character.replace(/^[ \t]*@/, "");
 

@@ -1,4 +1,4 @@
-import { calculateDialogueDuration, trimCharacterExtension, last, trimCharacterForceSymbol } from "./utils";
+import { calculateDialogueDuration, trimCharacterExtension, last, trimCharacterForceSymbol, parseLocationInformation, slugify } from "./utils";
 import { token, create_token } from "./token";
 import { Range, Position } from "vscode";
 import { getFountainConfig } from "./configloader";
@@ -161,6 +161,14 @@ export function lexer(s: string, type: string, replacer:LexerReplacements, title
         s = s.trim();
     return s;
 }
+export class Location {
+    scene_number: number;
+    name: string;
+    interior: boolean;
+    exterior: boolean;
+    time_of_day: string;
+    line:number;
+}
 export class StructToken {
     text: string;
     isnote: boolean;
@@ -182,6 +190,7 @@ export class screenplayProperties {
     lengthAction: number; //Length of the action character count
     lengthDialogue: number; //Length of the dialogue character count
     characters: Map<string, number[]>;
+    locations: Map<string, Location[]>;
     structure: StructToken[];
 }
 export interface parseoutput {
@@ -227,6 +236,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 lengthAction: 0,
                 lengthDialogue: 0,
                 characters: new Map<string, number[]>(),
+                locations: new Map<string, Location[]>(),
                 structure: []
             }
         };
@@ -445,7 +455,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             } else if (result.properties.firstTokenLine == Infinity) {
                 result.properties.firstTokenLine = thistoken.line;
             }
-            if (thistoken.text.match(regex.scene_heading)) {
+            let sceneHeadingMatch = thistoken.text.match(regex.scene_heading);
+            if (sceneHeadingMatch) {
                 thistoken.text = thistoken.text.replace(/^\./, "");
                 if (cfg.each_scene_on_new_page && scene_number !== 1) {
                     var page_break = create_token();
@@ -487,6 +498,25 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 result.properties.scenes.push({ scene: thistoken.number, text:thistoken.text, line: thistoken.line, actionLength: 0, dialogueLength: 0 })
                 result.properties.sceneLines.push(thistoken.line);
                 result.properties.sceneNames.push(thistoken.text);
+
+                const location = parseLocationInformation(sceneHeadingMatch);
+                if (location) {
+                    const locationSlug = slugify(location.name);
+                    if (result.properties.locations.has(locationSlug)) {
+                        const values = result.properties.locations.get(locationSlug);
+                        if (values.findIndex(it => it.scene_number == scene_number) == -1) {
+                            values.push({
+                                scene_number: scene_number,
+                                line: thistoken.line,
+                                ...location
+                            });
+                        }
+                        result.properties.locations.set(locationSlug, values);
+                    }
+                    else {
+                        result.properties.locations.set(locationSlug, [{scene_number, line:thistoken.line, ...location}]);
+                    }
+                }
                 scene_number++;
                 
             } else if (thistoken.text.length && thistoken.text[0] === "!") {
@@ -827,6 +857,5 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     while (result.tokens.length > 0 && result.tokens[result.tokens.length - 1].type === "separator") {
         result.tokens.pop();
     }
-
     return result;
 };

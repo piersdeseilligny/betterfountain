@@ -304,10 +304,33 @@ function updateStats(){
     document.getElementById("characterStats-monologues").innerText = state.stats.characterStats.monologues ? state.stats.characterStats.monologues : 0;
     document.getElementById("characterStats-complexity").innerText = state.stats.characterStats.complexity ? state.stats.characterStats.complexity.toFixed(1) : 0;
 
+
+
+    let renderIntExt = function(data,type,row){
+        switch (type) {
+            case "display": return `${data}.`.toUpperCase();
+            case "sort":    return data;
+            default:        return data
+        }
+    };
+    let renderTimesOfDay = function(data,type,row){
+        switch (type) {
+            case "display": return data.map(it=>it.toUpperCase()).join(", ");
+            case "sort":    return data;
+            default:        return data
+        }
+    };
     let renderDuration = function(data,type,row){
         switch (type) {
             case "display": return secondsToString(data);
             case "sort":    return -data;
+            default:        return data
+        }
+    };
+    let renderInteger = function(data,type,row){
+        switch (type) {
+            case "display": return data ? data.toFixed(0) : 0;
+            case "sort":    return data;
             default:        return data
         }
     };
@@ -326,6 +349,7 @@ function updateStats(){
     };
     let characterTable = TableChart.render("#characterStats-table", {
         data: state.stats.characterStats.characters,
+        unit:"characters",
         columns: [
             { data:'name', name:"name", title:"Name", alwaysvisible:true },
             { data:'secondsSpoken', name:"duration", title:"Duration", render:renderDuration },
@@ -359,6 +383,42 @@ function updateStats(){
         syncVisibility();
     });
     syncVisibility();
+
+    
+    let locationsTable = TableChart.render("#locationStats-table", {
+        data: state.stats.locationStats.locations,
+        unit:"locations",
+        columns: [
+            { data:'name', name:"name", title:"Name" },
+            { data:'number_of_scenes', name:"number_of_scenes", title:"Number of Scenes", render: renderInteger},
+            { data:'times_of_day', name:"times_of_day", title:"Time", render: renderTimesOfDay, className: 'location-time'},
+            { data:'interior_exterior', name:"interior_exterior", title:"INT./EXT.", render: renderIntExt, className: 'location-type'},
+        ],
+        createdRow:function(row,data,dataIndex){
+            if(data.color){
+                $(row).find("td").first().css("color", data.color);
+                $(row).find("td.location-time").html(data.times_of_day.map((it, index) => {
+                    let output = `<span>${it.toUpperCase()}`;
+                    index < data.times_of_day.length-1 ? output += ", </span>" : output += "</span>";
+                    return $(output).css('color', `var(--scenecolor-${it}`);
+                }));
+                $(row).find("td.location-type").first().css("color", `var(--scenecolor-${data.interior_exterior})`);
+            }
+        }
+    });
+    locationsTable.on('mouseenter', 'tbody tr', function () {
+        var rowData = locationsTable.row(this).data();
+        for (let i = 0; i < rowData.scene_lines.length; i++) {
+            $(`#sceneStats-timechart [data-x="${encodeURIComponent(rowData.scene_lines[i])}"]`).addClass("hover");
+        }
+      });
+      locationsTable.on('mouseleave', 'tbody tr', function () {
+        var rowData = locationsTable.row(this).data();
+        for (let i = 0; i < rowData.scene_lines.length; i++) {
+            $(`#sceneStats-timechart [data-x="${encodeURIComponent(rowData.scene_lines[i])}"]`).removeClass("hover");
+        }
+      });
+    document.getElementById("locationStats-count").innerText = state.stats.locationStats.locationsCount;
 
 
 

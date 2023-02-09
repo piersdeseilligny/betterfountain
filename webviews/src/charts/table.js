@@ -7,9 +7,9 @@ define(function (require) {
             language: {
                 search: "",
                 searchPlaceholder: "Search",
-                info:"Showing _START_ to _END_ of _TOTAL_ characters",
-                lengthMenu:"Show _MENU_ characters",
-                zeroRecords:"No matching characters found",
+                info:`Showing _START_ to _END_ of _TOTAL_ ${options.unit}`,
+                lengthMenu:`Show _MENU_ ${options.unit}`,
+                zeroRecords:`No matching ${options.unit} found`,
                 paginate: {
                     next:"&nbsp;Next",
                     previous:"Previous&nbsp;"
@@ -39,8 +39,8 @@ define(function (require) {
         let SELECTOR_MORE = `${id}_wrapper .charttable.morebtn`;
         let SELECTOR_MOREBTN = `${id}_wrapper .chartableoptsdd`;
 
-        $(SELECTOR_LENGTHMENU).html('<div class="chartinfo">Show<a class="hyperbtn visiblecharsdd" href="#">&nbsp;<span>10</span><i class="codicon codicon-chevron-down" style="vertical-align: bottom;"></i></a>&nbsp;characters</div>');
-        $(SELECTOR_MORE).html('<a class="smallbtn chartableoptsdd" style="text-align: center;float: right;height: 24px;line-height: 24px;" href="#"><i class="codicon codicon-ellipsis"></></a>');
+        $(SELECTOR_LENGTHMENU).html(`<div class="chartinfo">Show<a class="hyperbtn visiblecharsdd" href="#">&nbsp;<span>10</span><i class="codicon codicon-chevron-down" style="vertical-align: bottom;"></i></a>&nbsp;${options.unit}</div>`);
+        $(SELECTOR_MORE).html(`<a class="smallbtn chartableoptsdd" style="text-align: center;float: right;height: 24px;line-height: 24px;" href="#"><i class="codicon codicon-ellipsis"></></a>`);
         
         function showItemsGenerator(amount){
             return {

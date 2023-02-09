@@ -78,7 +78,7 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, e
         config.print_footer = footer;
 
     parsedDocument.lines = liner.line(parsedDocument.tokens, {
-        print: print.print_profiles[config.print_profile],
+        print: print.print_profiles[config.print_profile || "a4"],
         text_more: config.text_more,
         text_contd: config.text_contd,
         split_dialogue: true
@@ -87,7 +87,7 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, e
     var pdf_options: pdfmaker.Options = {
         filepath: outputpath,
         parsed: parsedDocument,
-        print: print.print_profiles[config.print_profile],
+        print: print.print_profiles[config.print_profile || "a4"],
         config: config,
         font: font,
         exportconfig:exportconfig

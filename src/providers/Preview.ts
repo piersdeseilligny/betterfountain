@@ -71,8 +71,11 @@ export function createPreviewPanel(editor:vscode.TextEditor, dynamic:boolean): v
     return preview;
 }
 
-const webviewHtml = fs.readFileSync(assetsPath() + path.sep + "webviews" + path.sep + "preview.html", 'utf8');
-
+let webviewHtml: string | null = null;
+function loadWebViewHtml() {
+    if(!webviewHtml) webviewHtml = fs.readFileSync(assetsPath() + path.sep + "webviews" + path.sep + "preview.html", 'utf8');
+    return webviewHtml;
+}
 
 function loadWebView(docuri: vscode.Uri, preview:vscode.WebviewPanel, dynamic:boolean) {
     let id = Date.now()+Math.floor((Math.random()*1000));
@@ -134,7 +137,7 @@ function loadWebView(docuri: vscode.Uri, preview:vscode.WebviewPanel, dynamic:bo
     })
 
     
-    preview.webview.html = webviewHtml.replace(/\$ROOTDIR\$/g, preview.webview.asWebviewUri(vscode.Uri.file(assetsPath())).toString());
+    preview.webview.html = loadWebViewHtml().replace(/\$ROOTDIR\$/g, preview.webview.asWebviewUri(vscode.Uri.file(assetsPath())).toString());
     preview.webview.postMessage({ command: 'setstate', uri: docuri.toString(), dynamic: dynamic })
     var config = getFountainConfig(docuri);
     preview.webview.postMessage({ command: 'updateconfig', content: config })

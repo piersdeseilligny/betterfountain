@@ -75,7 +75,12 @@ export function createStatisticsPanel(editor:vscode.TextEditor): vscode.WebviewP
     return statspanel;
 }
 
-const statsHtml = fs.readFileSync(assetsPath() + path.sep + "webviews" + path.sep + "stats.html", 'utf8');
+let statsHtml: string | null = null;
+function loadStatsHtml() {
+    if(!statsHtml) statsHtml = fs.readFileSync(assetsPath() + path.sep + "webviews" + path.sep + "stats.html", 'utf8');
+    return statsHtml;
+}
+
 
 async function loadWebView(docuri: vscode.Uri, statspanel:vscode.WebviewPanel) {
     let id = Date.now()+Math.floor((Math.random()*1000));
@@ -86,8 +91,9 @@ async function loadWebView(docuri: vscode.Uri, statspanel:vscode.WebviewPanel) {
     const cssDiskPath = vscode.Uri.file(path.join(extensionpath, 'node_modules', 'vscode-codicons', 'dist', 'codicon.css'));
     const jsDiskPath = vscode.Uri.file(path.join(extensionpath, 'out', 'webviews', 'stats.bundle.js'));
 
-    statspanel.webview.html = statsHtml.replace("$CODICON_CSS$", statspanel.webview.asWebviewUri(cssDiskPath).toString())
-                                       .replace("$STATSJS$", statspanel.webview.asWebviewUri(jsDiskPath).toString())
+    statspanel.webview.html = loadStatsHtml()
+        .replace("$CODICON_CSS$", statspanel.webview.asWebviewUri(cssDiskPath).toString())
+        .replace("$STATSJS$", statspanel.webview.asWebviewUri(jsDiskPath).toString())
 
     var config = getFountainConfig(docuri);
     statspanel.webview.postMessage({ command: 'setstate', uri: docuri.toString() });
