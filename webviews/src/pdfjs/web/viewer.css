@@ -1187,15 +1187,15 @@
   --main-color: var(--vscode-editor-foreground);
   --body-bg-color: var(--vscode-editor-background);
   --progressBar-color: var(--vscode-progressBar-background);
-  --progressBar-bg-color: rgba(40, 40, 43, 1);
-  --progressBar-blend-color: rgba(20, 68, 133, 1);
+  --progressBar-bg-color: transparent;
+  --progressBar-blend-color: transparent;
   --scrollbar-color: var(--vscode-scrollbarSlider-activeBackground);
   --scrollbar-bg-color: var(--vscode-scrollbarSlider-background);
   --toolbar-icon-bg-color: var(--vscode-icon-foreground);
   --toolbar-icon-hover-bg-color: var(--vscode-icon-foreground);
 
-  --sidebar-narrow-bg-color: var(--vscode-sidebar-background);
-  --sidebar-toolbar-bg-color: var(--vscode-sidebar-background);
+  --sidebar-narrow-bg-color: var(--vscode-sideBar-background);
+  --sidebar-toolbar-bg-color: var(--vscode-sideBar-Background);
   --toolbar-bg-color: var(--vscode-tab-activeBackground);
   --toolbar-border-color: var(--vscode-tab-border);
   --button-hover-color: var(--vscode-toolbar-hoverBackground);
@@ -1207,18 +1207,20 @@
   --field-color: var(--vscode-input-foreground);
   --field-bg-color: var(--vscode-input-background);
   --field-border-color: var(--vscode-input-border);
-  --treeitem-color: rgba(255, 255, 255, 0.8);
-  --treeitem-hover-color: rgba(255, 255, 255, 0.9);
-  --treeitem-selected-color: rgba(255, 255, 255, 0.9);
-  --treeitem-selected-bg-color: rgba(255, 255, 255, 0.25);
-  --sidebaritem-bg-color: rgba(255, 255, 255, 0.15);
-  --doorhanger-bg-color: var(--vscode-tab-activeBackground);
-  --doorhanger-border-color: rgba(39, 39, 43, 1);
-  --doorhanger-hover-color: rgba(249, 249, 250, 1);
-  --doorhanger-hover-bg-color: rgba(93, 94, 98, 1);
-  --doorhanger-separator-color: rgba(92, 92, 97, 1);
-  --dialog-button-bg-color: rgba(92, 92, 97, 1);
-  --dialog-button-hover-bg-color: rgba(115, 115, 115, 1);
+  --treeitem-color: var(--vscode-foreground);
+  --treeitem-hover-color: var(--vscode-list-hoverForeground);
+  --treeitem-hover-bg-color: var(--vscode-list-hoverBackground);
+  --treeitem-selected-color: var(--vscode-list-activeSelectionForeground);
+  --treeitem-selected-bg-color: var(--vscode-list-activeSelectionBackground);
+  --sidebaritem-bg-color: transparent;
+  --doorhanger-bg-color: var(--vscode-sideBar-background);
+  --doorhanger-border-color: var(--vscode-sideBar-border);
+  --doorhanger-hover-color: var(--vscode-list-hoverForeground);
+  --doorhanger-hover-bg-color: var(--vscode-list-hoverBackground);
+  --doorhanger-separator-color: var(--vscode-list-hoverForeground);
+  --dialog-button-color: var(--vscode-button-foreground);
+  --dialog-button-bg-color: var(--vscode-button-background);
+  --dialog-button-hover-bg-color: var(--vscode-button-hoverBackground);
 
   /* This image is used in <input> elements, which unfortunately means that
    * the `mask-image` approach used with all of the other images doesn't work
@@ -1377,7 +1379,7 @@ body {
 
 #sidebarContent {
   top: 32px;
-  bottom: 0;
+  bottom: 22px;
   inset-inline-start: 0;
   overflow: auto;
   position: absolute;
@@ -1390,7 +1392,7 @@ body {
   position: absolute;
   top: 32px;
   right: 0;
-  bottom: 0;
+  bottom: 23px;
   left: 0;
   outline: none;
 }
@@ -1793,19 +1795,7 @@ body {
     0 0 0 1px var(--doorhanger-border-color);
   border: var(--doorhanger-border-color-whcm);
 }
-.doorHanger:after,
-.doorHanger:before,
-.doorHangerRight:after,
-.doorHangerRight:before {
-  bottom: 100%;
-  border: 8px solid rgba(0, 0, 0, 0);
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  pointer-events: none;
-  opacity: var(--doorhanger-triangle-opacity-whcm);
-}
+
 [dir="ltr"] .doorHanger:after {
   left: 10px;
 }
@@ -2155,7 +2145,7 @@ body {
      -moz-appearance: none;
           appearance: none;
   width: inherit;
-  height: 28px;
+  height: 24px;
   color: var(--main-color);
   margin: 0;
   padding: 1px 0 2px;
@@ -2502,7 +2492,7 @@ a.secondaryToolbarButton[href="#"] {
 
 .toolbarField {
   padding: 2px 6px;
-  margin: 6px 0;
+  margin: 7px 0;
   border-radius: 2px;
   background-color: var(--field-bg-color);
   background-clip: padding-box;
@@ -2778,7 +2768,7 @@ a:focus > .thumbnail > .thumbnailSelectionRing,
 .treeItemToggler:hover + a,
 .treeItemToggler:hover ~ .treeItems,
 .treeItem > a:hover {
-  background-color: var(--sidebaritem-bg-color);
+  background-color: var(--treeitem-hover-bg-color);
   background-clip: padding-box;
   border-radius: 2px;
   color: var(--treeitem-hover-color);
@@ -2788,7 +2778,7 @@ a:focus > .thumbnail > .thumbnailSelectionRing,
   width: auto;
   margin: 3px 4px 2px !important;
   padding: 2px 11px;
-  color: var(--main-color);
+  color: var(--dialog-button-color);
   background-color: var(--dialog-button-bg-color);
   border: var(--dialog-button-border) !important;
 }

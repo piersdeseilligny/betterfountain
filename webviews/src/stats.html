@@ -1,6 +1,6 @@
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="$CODICON_CSS$">
+    $HEADLINKS$
     <style>
     body {
         animation: fadein 0s;
@@ -43,6 +43,13 @@
 
     tbody>tr:nth-child(even){
         background-color:rgba(255,255,255,0.025);
+    }
+
+    .maincontent{
+        bottom:23px;
+        top:0;
+        left:0;
+        right:0;
     }
 
     td, th {
@@ -188,17 +195,6 @@
     #maincontent.isactive .sidenav li.active{
         color: var(--vscode-list-activeSelectionForeground);
         background-color:var(--vscode-list-activeSelectionBackground)
-    }
-
-    #versionIndicator.loading{
-        color:var(--vscode-gitDecoration-addedResourceForeground);
-    }
-    @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
-    #versionIndicator.loading .codicon-sync {
-        animation:spin 1.5s linear infinite;
-    }
-    #versionIndicator.stale{
-        color:var(--vscode-gitDecoration-modifiedResourceForeground);
     }
 
     .splitview #content{
@@ -464,13 +460,6 @@
                 <span class="codicon codicon-location"></span>Locations
             </li>
         </ul>-->
-        <ul class="footer">
-            <li id="versionIndicator" class="loading">
-                <span class="codicon codicon-sync"></span>
-                <span class="btntitle">Loading</span>
-                <span class="details">Please wait...</span>
-            </li>
-        </ul>
     </div>
     <div id="content" class="content">
         <div data-group="overview">
@@ -606,6 +595,12 @@
         </div>-->
     </div>
 </div>
-<script src="$STATSJS$"></script>
+<div class="statusbar" class="loading">
+    <div id="versionIndicator">
+      <span class="codicon codicon-sync"></span>
+      <span class="btntitle">Loading</span>
+      <span class="details">Please wait...</span>
+    </div>
+  </div>
 </body>
 </html>

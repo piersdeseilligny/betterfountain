@@ -84,6 +84,10 @@ I will probably add these features when I have time, but if you're up for the ch
 
 * The statistics panel uses [`d3`](https://d3js.org), covered by the [BSD-3-Clause License](https://github.com/d3/d3/blob/master/LICENSE), and [`DataTables`](https://www.datatables.net/), covered by the [MIT License](https://www.datatables.net/license/mit).
 
+* The PDF Previewer uses [Mozilla's PDF.JS](https://github.com/mozilla/pdf.js), covered by the [Apache-2.0 License](https://github.com/mozilla/pdf.js/blob/master/LICENSE)
+
+* The PDF Previewer borrows some code from [@tomoki1207]()'s [vscode-pdfviewer](https://github.com/tomoki1207/vscode-pdfviewer) extension, covered by the [MIT License](https://github.com/tomoki1207/vscode-pdfviewer/blob/main/LICENSE)
+
 * The project was built using Microsoft's [language server example extension](https://github.com/Microsoft/vscode-extension-samples/tree/master/lsp-sample) as a boilerplate.
 
 * The default font used in the preview and in the exported PDF is ["Courier Prime"](https://quoteunquoteapps.com/courierprime/), more specifically [a version](http://dimkanovikov.pro/courierprime/) which adds support for Azerbaijani, Belorussian, Kazakh, Russian, and Ukrainian

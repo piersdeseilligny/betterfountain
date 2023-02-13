@@ -1,0 +1,51 @@
+.statusbar{
+    height:22px;
+    bottom:0;
+    position: absolute;
+    width:100%;
+    background-color: var(--vscode-statusBar-background);
+    color: var(--vscode-statusBar-foreground);
+    border-bottom:
+    solid 1px rgba(0,0,0,0.15);
+    font-size: 12px;
+    line-height:22px;
+    user-select:none;
+    transition: background-color .35s ease-out;
+    /* padding-left:7px; */
+  }
+#versionIndicator{
+  margin-left:7px;
+  padding:0 7px;
+  display:inline-block;
+  cursor:pointer;
+}
+#pageCounter {
+  position: absolute;
+  /* float: right; */
+  display: inline-block;
+  right: 7px;
+  padding: 0px 7px;
+}
+#versionIndicator:hover, #pageCounter:hover{
+  background-color: var(--vscode-statusBarItem-hoverBackground);
+  color: var(--vscode-statusBarItem-hoverForeground);
+}
+#versionIndicator .btntitle{
+  font-weight:600;
+}
+#versionIndicator .details{
+  opacity:0.75;
+}
+#versionIndicator .codicon{
+  vertical-align: text-bottom;
+  font-size: 14px;
+}
+
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+.statusbar.loading .codicon-sync {
+    animation:spin 1.5s linear infinite;
+}
+.statusbar.stale{
+    color:var(--vscode-statusBarItem-errorForeground);
+    background-color:var(--vscode-statusBarItem-errorBackground);
+}

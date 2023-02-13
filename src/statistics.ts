@@ -2,7 +2,7 @@ import { parseoutput, regex, StructToken } from "./afterwriting-parser"
 import { GeneratePdf } from "./pdf/pdf"
 import { ExportConfig, FountainConfig } from "./configloader"
 import { pdfstats } from "./pdf/pdfmaker"
-import { calculateDialogueDuration, isMonologue, rgbToHex, wordToColor, median } from "./utils"
+import { calculateDialogueDuration, isMonologue, rgbToHex, wordToColor, median, mapToObject } from "./utils"
 import readabilityScores = require("readability-scores")
 
 type dialoguePiece = {
@@ -433,14 +433,6 @@ const createDurationStatistics = (parsed: parseoutput): durationStatistics => {
         characternames: lengthcharts.characternames,
         monologues:lengthcharts.monologues
     }
-}
-
-function mapToObject(map:any):any{
-    let jsonObject:any = {};  
-    map.forEach((value:any, key:any) => {  
-        jsonObject[key] = value  
-    });  
-    return jsonObject;
 }
 
 export const retrieveScreenPlayStatistics = async (script: string, parsed: parseoutput, config:FountainConfig, exportconfig:ExportConfig): Promise<screenPlayStatistics> => {

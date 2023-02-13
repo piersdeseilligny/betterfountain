@@ -339,6 +339,14 @@
       <div id="viewerContainer" tabindex="0">
         <div id="viewer" class="pdfViewer"></div>
       </div>
+      <div class="statusbar" class="loading">
+        <div id="versionIndicator">
+          <span class="codicon codicon-sync"></span>
+          <span class="btntitle">Loading</span>
+          <span class="details">Please wait...</span>
+        </div>
+        <div id="pageCounter"></div>
+      </div>
     </div> <!-- mainContainer -->
     <div id="dialogContainer">
       <dialog id="passwordDialog">
@@ -436,107 +444,112 @@
     </div> <!-- dialogContainer -->
   </div> <!-- outerContainer -->
   <div id="printContainer"></div>
-  <li id="versionIndicator" style="position:absolute;" class="loading">
-    <span class="codicon codicon-sync"></span>
-    <span class="btntitle">Loading</span>
-    <span class="details">Please wait...</span>
-  </li>
+
   <input type="file" id="fileInput" class="hidden">
   <script>
-    function versionIndicator(){
+    loading = false;
+    function versionIndicator() {
+      console.log("Active version is " + state.activeversion);
+      console.log("Latest version is " + state.latestversion);
       //version indicator stuff
-}
+      document.querySelector(".statusbar").classList.remove("loading");
+      document.querySelector(".statusbar").classList.remove("stale");
+      if (loading) {
+        document.querySelector(".statusbar").classList.add("loading");
+        document.querySelector("#versionIndicator .btntitle").textContent = "Loading";
+        document.querySelector("#versionIndicator .details").textContent = "Please wait...";
+        document.querySelector("#pageCounter").textContent = "";
+      }
+      else if (state.latestversion == state.activeversion) {
+        document.querySelector("#versionIndicator .btntitle").textContent = "Refresh";
+        document.querySelector("#versionIndicator .details").textContent = "Up to date";
+        document.querySelector("#pageCounter").textContent = state.pagecount;
+      }
+      else {
+        document.querySelector(".statusbar").classList.add("stale");
+        document.querySelector("#versionIndicator .btntitle").textContent = "Refresh";
+        document.querySelector("#versionIndicator .details").textContent = "The screenplay has been edited";
+        document.querySelector("#pageCounter").textContent = "";
+      }
+    }
+    document.getElementById("versionIndicator").addEventListener('click', () => {
+      loading = true;
+      versionIndicator();
+      vscode.postMessage({ command: 'refresh', uri: state.docuri });
+    });
 
-      function cursorTools(name) {
-        if (name === 'hand') {
+    document.getElementById("pageCounter").addEventListener('click', () => {
+      vscode.postMessage({ command: 'openstats', uri: state.docuri });
+    });
+
+    function cursorTools(name) {
+      if (name === 'hand') {
+        return 1
+      }
+      return 0
+    }
+    function scrollMode(name) {
+      switch (name) {
+        case 'vertical':
+          return 0
+        case 'horizontal':
           return 1
-        }
-        return 0
+        case 'wrapped':
+          return 2
+        default:
+          return -1
       }
-      function scrollMode(name) {
-        switch (name) {
-          case 'vertical':
-            return 0
-          case 'horizontal':
-            return 1
-          case 'wrapped':
-            return 2
-          default:
-            return -1
-        }
+    }
+    function spreadMode(name) {
+      switch (name) {
+        case 'none':
+          return 0
+        case 'odd':
+          return 1
+        case 'even':
+          return 2
+        default:
+          return -1
       }
-      function spreadMode(name) {
-        switch (name) {
-          case 'none':
-            return 0
-          case 'odd':
-            return 1
-          case 'even':
-            return 2
-          default:
-            return -1
-        }
-      }
-      function loadPdf() {
-        var pdfData = state.pdfAsBase64;
-        /*PDFViewerApplicationOptions.set('cMapUrl', config.cMapUrl)
-        PDFViewerApplicationOptions.set('standardFontDataUrl', config.standardFontDataUrl)
-        const loadOpts = {
-          url: config.path,
-          useWorkerFetch: false,
-          cMapUrl: config.cMapUrl,
-          cMapPacked: true,
-          standardFontDataUrl: config.standardFontDataUrl
-        }*/
-        PDFViewerApplication.initializedPromise.then(() => {
-          /*
-          const defaults = config.defaults
-          const optsOnLoad = () => {
-            PDFViewerApplication.pdfCursorTools.switchTool(cursorTools(defaults.cursor))
-            PDFViewerApplication.pdfViewer.currentScaleValue = defaults.scale
-            PDFViewerApplication.pdfViewer.scrollMode = scrollMode(defaults.scrollMode)
-            PDFViewerApplication.pdfViewer.spreadMode = spreadMode(defaults.spreadMode)
-            if (defaults.sidebar) {
-              PDFViewerApplication.pdfSidebar.open()
-            } else {
-              PDFViewerApplication.pdfSidebar.close()
-            }
-            PDFViewerApplication.eventBus.off('documentloaded', optsOnLoad)
-          }
-          PDFViewerApplication.eventBus.on('documentloaded', optsOnLoad)
-*/
-          // load() cannot be called before pdf.js is initialized
-          // open() makes sure pdf.js is initialized before load()
-          //console.log("PDF DATA IS");
-          //console.log(pdfData);
-          //PDFViewerApplication.open({file:`C:\\Users\\piers\\repos\\GitHub\\betterfountain\\screenplays\\Aliens.pdf`});
-          PDFViewerApplication.open({data:base64ToUint8Array(pdfData)});
-        })
-/*
-        window.addEventListener('message', async function () {
-          // Prevents flickering of page when PDF is reloaded
-          const oldResetView = PDFViewerApplication.pdfViewer._resetView
-          PDFViewerApplication.pdfViewer._resetView = function () {
-            this._firstPageCapability = (0, pdfjsLib.createPromiseCapability)()
-            this._onePageRenderedCapability = (0, pdfjsLib.createPromiseCapability)()
-            this._pagesCapability = (0, pdfjsLib.createPromiseCapability)()
+    }
+    async function loadPdf() {
+      var pdfData = state.pdfAsBase64;
+      /*PDFViewerApplicationOptions.set('cMapUrl', config.cMapUrl)
+      PDFViewerApplicationOptions.set('standardFontDataUrl', config.standardFontDataUrl)
+      const loadOpts = {
+        url: config.path,
+        useWorkerFetch: false,
+        cMapUrl: config.cMapUrl,
+        cMapPacked: true,
+        standardFontDataUrl: config.standardFontDataUrl
+      }*/
+      /* const oldResetView = PDFViewerApplication.pdfViewer._resetView
+       PDFViewerApplication.pdfViewer._resetView = function () {
+         this._firstPageCapability = (0, pdfjsLib.createPromiseCapability)()
+         this._onePageRenderedCapability = (0, pdfjsLib.createPromiseCapability)()
+         this._pagesCapability = (0, pdfjsLib.createPromiseCapability)()
+         this.viewer.textContent = ""
+       }*/
 
-            this.viewer.textContent = ""
-          }
+      // Changing the fingerprint fools pdf.js into keeping scroll position
 
-          // Changing the fingerprint fools pdf.js into keeping scroll position
-          const doc = await pdfjsLib.getDocument(loadOpts).promise
-          doc._pdfInfo.fingerprints = [config.path]
-          PDFViewerApplication.load(doc)
+      //PDFViewerApplication.pdfViewer._resetView = oldResetView;
 
-          PDFViewerApplication.pdfViewer._resetView = oldResetView
-        });*/
-      }
+      PDFViewerApplication.initializedPromise.then(async () => {
+        PDFViewerApplication.pdfSidebar.close()
+        const doc = await pdfjsLib.getDocument({ data: base64ToUint8Array(pdfData) }).promise
+        doc._pdfInfo.fingerprints = ['constantFingerprint'];
+        PDFViewerApplication.load(doc)
+      });
+
+    }
 
 
     const vscode = acquireVsCodeApi();
     var state = {
       pdfAsBase64: "",
+      linemap: new Map(),
+      pagecount: 0,
       latestversion: undefined,
       activeversion: undefined,
       docuri: "",
@@ -548,6 +561,13 @@
       state = previousState;
       updatePdf();
       versionIndicator();
+    }
+    function objectToMap(jsonObject) {
+      let map = new Map()
+      for (var value in jsonObject) {
+        map.set(value, jsonObject[value]);
+      }
+      return map;
     }
 
     function base64ToUint8Array(base64) {
@@ -562,6 +582,21 @@
       console.log("Update PDF was called");
       loadPdf();
     }
+    function getEights(input) {
+      let output = "";
+      switch (input) {
+        case 0: return "";
+        case 1: output += "\u00B9"; break;
+        case 2: output += "\u00B2"; break;
+        case 3: output += "\u00B3"; break;
+        case 4: output += "\u2074"; break;
+        case 5: output += "\u2075"; break;
+        case 6: output += "\u2076"; break;
+        case 7: output += "\u2077"; break;
+        case 8: output += "\u2078"; break;
+      }
+      return output + "\u2044\u2088";
+    }
 
     window.addEventListener('message', event => {
       console.log("Got message");
@@ -574,6 +609,20 @@
       }
       if (event.data.command == 'updatepdf') {
         state.pdfAsBase64 = event.data.content;
+        state.linemap = objectToMap(JSON.parse(event.data.linemap));
+
+        let wholePage = Math.floor(event.data.pagecount);
+        let fractionalPage = getEights(Math.round((event.data.pagecount - wholePage) * 8));
+        if (fractionalPage == "\u2078\u2044\u2088") //page eigth is 8/8
+        {
+          fractionalPage = "";
+          wholePage++;
+        }
+        if (wholePage == "0" && fractionalPage != "") {
+          wholePage = "";
+        }
+        state.pagecount = wholePage + fractionalPage + " Pages";
+
         state.activeversion = event.data.version;
         loading = false;
         updateState = true;
@@ -585,6 +634,15 @@
           updateState = true;
         }
       } else if (event.data.command == 'updatecaret') {
+        let lineInfo = state.linemap.get(event.data.content.toString());
+        if (lineInfo && lineInfo.page !== undefined) {
+          console.log(lineInfo);
+          PDFViewerApplication.page = lineInfo.page + 1;
+        }
+        else if (state.linemap && event.data.content < parseInt(state.linemap.entries().next().value)) {
+          //It's the title page
+          PDFViewerApplication.page = 1;
+        }
         //update caret position
       } else if (event.data.command == 'updateselection') {
         //update selection

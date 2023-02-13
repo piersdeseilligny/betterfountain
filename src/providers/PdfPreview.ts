@@ -3,9 +3,11 @@ import * as path from 'path';
 import * as fs from "fs";
 import { getEditor, activeFountainDocument } from "../extension";
 import { FountainConfig, getFountainConfig } from "../configloader";
-import { assetsPath } from "../utils";
+import { assetsPath, mapToObject, resolveAsUri } from "../utils";
 import * as afterparser from "../afterwriting-parser";
 import { GeneratePdf } from "../pdf/pdf";
+import { PdfAsBase64 } from "../pdf/pdfmaker";
+import { createStatisticsPanel } from "./Statistics";
 
 interface pdfpreviewPanel{
     uri:string;
@@ -24,7 +26,7 @@ export function getPdfPreviewPanels(docuri:vscode.Uri):pdfpreviewPanel[]{
     return selectedPanels;
 }
 
-export function updateDocumentVersion(docuri:vscode.Uri, version:Number){
+export function updateDocumentVersionPdfPreview(docuri:vscode.Uri, version:Number){
     for(let panel of getPdfPreviewPanels(docuri)){
         panel.panel.webview.postMessage({command:'updateversion', version:version});
     }
@@ -38,12 +40,14 @@ export function removePdfPreviewPanel(id:Number){
     }
 }
 
-export async function refreshPanel(pdfpanel:vscode.WebviewPanel, document:vscode.TextDocument, config:FountainConfig){
+export async function refreshPdfPanel(pdfpanel:vscode.WebviewPanel, document:vscode.TextDocument, config:FountainConfig){
     pdfpanel.webview.postMessage({ command:"updateversion", version:document.version, loading:true});
     var parsed = afterparser.parse(document.getText(), config, false);
     //Create PDF
-    let pdfAsBase64 = await GeneratePdf("$PREVIEW$", config, undefined, parsed, undefined);
-    pdfpanel.webview.postMessage({command:"updatepdf", version:document.version, content:pdfAsBase64})
+    let pdfAsBase64:PdfAsBase64 = await GeneratePdf("$PREVIEW$", config, undefined, parsed, undefined);
+    let linemap = JSON.stringify(mapToObject(pdfAsBase64.stats.linemap));
+    let pagecount = pdfAsBase64.stats.pagecount;
+    pdfpanel.webview.postMessage({command:"updatepdf", version:document.version, content:pdfAsBase64.data, linemap:linemap,pagecount:pagecount})
     //Post Update to panel
 }
 
@@ -66,7 +70,7 @@ export function createPdfPreviewPanel(editor:vscode.TextEditor): vscode.WebviewP
         //The pdf panel didn't already exist
         var panelname = path.basename(editor.document.fileName).replace(".fountain","");
         pdfpanel = vscode.window.createWebviewPanel(
-            'fountain-statistics', // Identifies the type of the webview. Used internally
+            'fountain-pdfpreview', // Identifies the type of the webview. Used internally
             panelname, // Title of the panel displayed to the user
             vscode.ViewColumn.Three, // Editor column to show the new webview panel in.
             { enableScripts: true,  });
@@ -81,21 +85,14 @@ function loadPdfPreviewHtml() {
     return pdfHtml;
 }
 
-const extensionpath = vscode.extensions.getExtension("piersdeseilligny.betterfountain").extensionPath;
-const resolveAsUri = (panel:vscode.WebviewPanel,...p: string[]):string => {
-    const uri = vscode.Uri.file(path.join(extensionpath, 'out', 'webviews', ...p));
-    return panel.webview.asWebviewUri(uri).toString();
-  };
-
 async function loadWebView(docuri: vscode.Uri, pdfpanel:vscode.WebviewPanel) {
     let id = Date.now()+Math.floor((Math.random()*1000));
     pdfPanels.push({uri:docuri.toString(),panel:pdfpanel, id:id });
-    
     const cspSource = pdfpanel.webview.cspSource;
     pdfpanel.webview.html = loadPdfPreviewHtml()
         .replace("$HEADLINKS$",
         `
-        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src ${cspSource}; script-src 'unsafe-inline' ${cspSource}; style-src 'unsafe-inline' ${cspSource}; img-src blob: data: ${cspSource};">
+        <meta http-equiv="Content-Security-Policy" content="default-src ${cspSource}; connect-src ${cspSource}; script-src 'unsafe-inline' ${cspSource}; style-src 'unsafe-inline' ${cspSource}; img-src blob: data: ${cspSource};">
         <link rel="resource" type="application/l10n" href="${resolveAsUri(
             pdfpanel,
             'lib',
@@ -103,10 +100,12 @@ async function loadWebView(docuri: vscode.Uri, pdfpanel:vscode.WebviewPanel) {
             'locale',
             'locale.properties'
           )}">
-      <link rel="stylesheet" href="${resolveAsUri(pdfpanel,'pdfjs', 'web', 'viewer.css')}">
-      <script src="${resolveAsUri(pdfpanel,'pdfjs', 'build', 'pdf.js')}"></script>
-      <script src="${resolveAsUri(pdfpanel,'pdfjs', 'build', 'pdf.worker.js')}"></script>
-      <script src="${resolveAsUri(pdfpanel,'pdfjs', 'web', 'viewer.js')}"></script>`);
+      <link rel="stylesheet" href="${resolveAsUri(pdfpanel, 'out', 'webviews', 'pdfjs', 'web', 'viewer.css')}">
+      <link rel="stylesheet" href="${resolveAsUri(pdfpanel, 'out', 'webviews', 'common.css')}">
+      <link rel="stylesheet" href="${resolveAsUri(pdfpanel,'node_modules', '@vscode/codicons', 'dist', 'codicon.css')}">
+      <script src="${resolveAsUri(pdfpanel,'out', 'webviews', 'pdfjs', 'build', 'pdf.js')}"></script>
+      <script src="${resolveAsUri(pdfpanel,'out', 'webviews', 'pdfjs', 'build', 'pdf.worker.js')}"></script>
+      <script src="${resolveAsUri(pdfpanel,'out', 'webviews', 'pdfjs', 'web', 'viewer.js')}"></script>`);
 
     var config = getFountainConfig(docuri);
     pdfpanel.webview.postMessage({ command: 'setstate', uri: docuri.toString() });
@@ -158,7 +157,10 @@ async function loadWebView(docuri: vscode.Uri, pdfpanel:vscode.WebviewPanel) {
             //save ui persistence
         }
         if(message.command== "refresh"){
-            refreshPanel(pdfpanel, editor.document, config);
+            refreshPdfPanel(pdfpanel, editor.document, config);
+        }
+        if(message.command="openstats"){
+            createStatisticsPanel(getEditor(message.content));
         }
     });
     pdfpanel.onDidDispose(()=>{
@@ -166,7 +168,7 @@ async function loadWebView(docuri: vscode.Uri, pdfpanel:vscode.WebviewPanel) {
     })
 
 
-    refreshPanel(pdfpanel, editor.document, config);
+    refreshPdfPanel(pdfpanel, editor.document, config);
 }
 
 vscode.workspace.onDidChangeConfiguration(change => {

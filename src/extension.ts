@@ -93,12 +93,12 @@ import { FountainSymbolProvider } from "./providers/Symbols";
 import { showDecorations, clearDecorations } from "./providers/Decorations";
 
 import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToUpdate } from "./providers/Preview";
-import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer, getStatisticsPanels, refreshPanel, updateDocumentVersion } from "./providers/Statistics";
+import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer, getStatisticsPanels, refreshStatsPanel, updateDocumentVersionStats } from "./providers/Statistics";
 import { FountainOutlineTreeDataProvider } from "./providers/Outline";
 import { performance } from "perf_hooks";
 import { exportHtml } from "./providers/StaticHtml";
 import { FountainCheatSheetWebviewViewProvider } from "./providers/Cheatsheet";
-import { createPdfPreviewPanel } from "./providers/PdfPreview";
+import { createPdfPreviewPanel, FountainPdfPanelserializer, getPdfPreviewPanels, refreshPdfPanel, updateDocumentVersionPdfPreview } from "./providers/PdfPreview";
 
 
 /**
@@ -383,6 +383,7 @@ export function activate(context: ExtensionContext) {
 		parseDocument(vscode.window.activeTextEditor.document);
 
 	vscode.window.registerWebviewPanelSerializer('fountain-preview', new FountainPreviewSerializer());
+	vscode.window.registerWebviewPanelSerializer('fountain-pdfpreview', new FountainPdfPanelserializer());
 	vscode.window.registerWebviewPanelSerializer('fountain-statistics', new FountainStatsPanelSerializer());
 }
 
@@ -433,7 +434,8 @@ export function activate(context: ExtensionContext) {
 vscode.workspace.onDidChangeTextDocument(change => {
 	if (change.document.languageId=="fountain"){
 		parseDocument(change.document);
-		updateDocumentVersion(change.document.uri, change.document.version);
+		updateDocumentVersionPdfPreview(change.document.uri, change.document.version);
+		updateDocumentVersionStats(change.document.uri, change.document.version);
 	}
 });
 
@@ -567,7 +569,13 @@ vscode.workspace.onDidSaveTextDocument(e =>{
 	if(config.refresh_stats_on_save){
 		let statsPanel = getStatisticsPanels(e.uri);
 		for (const sp of statsPanel) {
-			refreshPanel(sp.panel, e, config);
+			refreshStatsPanel(sp.panel, e, config);
+		}
+	}
+	if(config.refresh_pdfpreview_on_save){
+		let pdfPanels = getPdfPreviewPanels(e.uri);
+		for (const pp of pdfPanels) {
+			refreshPdfPanel(pp.panel, e, config);
 		}
 	}
 });

@@ -153,31 +153,32 @@ window.addEventListener('resize', event=>{
     }
 });
 
-function versionIndicator(){
-    $("#versionIndicator").removeClass('loading');
-    $("#versionIndicator").removeClass('stale');
-    if(loading){
-        $("#versionIndicator").addClass('loading');
-        $("#versionIndicator .btntitle").text("Loading");
-        $("#versionIndicator .details").text('Please wait...');
+function versionIndicator() {
+    console.log("Active version is " + state.activeversion);
+    console.log("Latest version is " + state.latestversion);
+    //version indicator stuff
+    document.querySelector(".statusbar").classList.remove("loading");
+    document.querySelector(".statusbar").classList.remove("stale");
+    if (loading) {
+      document.querySelector(".statusbar").classList.add("loading");
+      document.querySelector("#versionIndicator .btntitle").textContent = "Loading";
+      document.querySelector("#versionIndicator .details").textContent = "Please wait...";
     }
-    else if(state.latestversion == state.activeversion){
-        
-        $("#versionIndicator .btntitle").text("Refresh");
-        $("#versionIndicator .details").text('Up to date');
+    else if (state.latestversion == state.activeversion) {
+      document.querySelector("#versionIndicator .btntitle").textContent = "Refresh";
+      document.querySelector("#versionIndicator .details").textContent = "Up to date";
     }
-    else{
-        $("#versionIndicator").addClass('stale');
-        $("#versionIndicator .btntitle").text("Refresh");
-        $("#versionIndicator .details").text('The screenplay has been edited');
+    else {
+      document.querySelector(".statusbar").classList.add("stale");
+      document.querySelector("#versionIndicator .btntitle").textContent = "Refresh";
+      document.querySelector("#versionIndicator .details").textContent = "The screenplay has been edited";
     }
-}
-
-$("#versionIndicator").on('click', function(){
+  }
+  document.getElementById("versionIndicator").addEventListener('click', ()=>{
     loading = true;
     versionIndicator();
-    vscode.postMessage({command: 'refresh', uri:state.docuri });
-});
+    vscode.postMessage({ command: 'refresh', uri: state.docuri });
+  });
 
 function getEights(input){
     let output = "";
@@ -244,7 +245,6 @@ function updateStats(){
     if(wholePage == "0" && fractionalPage != ""){
         wholePage = "";
         document.getElementById("lengthStats-pagesFractional").style.opacity="1";
-
     }
     document.getElementById("lengthStats-pagesWhole").innerText = wholePage;
     document.getElementById("lengthStats-pagesFractional").innerText = fractionalPage;
