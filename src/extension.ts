@@ -98,6 +98,7 @@ import { FountainOutlineTreeDataProvider } from "./providers/Outline";
 import { performance } from "perf_hooks";
 import { exportHtml } from "./providers/StaticHtml";
 import { FountainCheatSheetWebviewViewProvider } from "./providers/Cheatsheet";
+import { createPdfPreviewPanel } from "./providers/PdfPreview";
 
 
 /**
@@ -239,13 +240,17 @@ export function activate(context: ExtensionContext) {
 		createPreviewPanel(vscode.window.activeTextEditor,false);
 		telemetry.reportTelemetry("command:fountain.livepreviewstatic");
 	}));
+	//Register for PDF preview
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.pdfpreview', () => {
+		// Create and show a new dynamic webview for the active text editor
+		createPdfPreviewPanel(getEditor(activeFountainDocument()));
+	}));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
 		createStatisticsPanel(getEditor(activeFountainDocument()));
 	}));
 
 	//Jump to line command
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.jumpto', (args) => {
-		
 		let editor = getEditor(activeFountainDocument());
 		let range = editor.document.lineAt(Number(args)).range;
 		editor.selection = new vscode.Selection(range.start, range.start);

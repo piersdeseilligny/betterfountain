@@ -6,7 +6,6 @@ import { FountainConfig, getFountainConfig } from "../configloader";
 import { assetsPath } from "../utils";
 import * as afterparser from "../afterwriting-parser";
 import { retrieveScreenPlayStatistics } from "../statistics";
-import * as telemetry from "../telemetry";
 
 interface statisticsPanel{
     uri:string;
@@ -70,7 +69,6 @@ export function createStatisticsPanel(editor:vscode.TextEditor): vscode.WebviewP
             vscode.ViewColumn.Three, // Editor column to show the new webview panel in.
             { enableScripts: true,  });
     }
-    telemetry.reportTelemetry("command:fountain.shiftScenes");
     loadWebView(editor.document.uri, statspanel);
     return statspanel;
 }

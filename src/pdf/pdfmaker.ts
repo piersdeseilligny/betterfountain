@@ -9,6 +9,8 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
 import * as he from 'he';
 import * as addTextbox from 'textbox-for-pdfkit';
 import { regex } from "../afterwriting-parser";
+import { Base64Encode } from "base64-stream";
+
 // import * as blobUtil from "blob-util";
 export class Options {
     filepath: string;
@@ -862,4 +864,32 @@ export var get_pdf_stats = async function (opts: Options): Promise<pdfstats> {
 
     await generate(doc, opts, stats.linemap);
     return stats;
+}
+
+const toBase64 = (doc:any) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const stream = doc.pipe(new Base64Encode());
+
+            let base64Value = '';
+            stream.on('data', (chunk:any) => {
+                base64Value += chunk;
+            });
+            
+            stream.on('end', () => {
+                resolve(base64Value);
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
+export var get_pdf_base64 = async function(opts:Options): Promise<string> {
+    var doc = await initDoc(opts);
+    await generate(doc, opts);
+    doc.end();
+    var result:any = await toBase64(doc);
+    return result;
 }

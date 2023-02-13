@@ -39,6 +39,7 @@
 	"activationEvents": [
 		"onLanguage:fountain",
 		"onCommand:fountain.livepreview",
+		"onCommand:fountain.pdfpreview",
 		"onCommand:fountain.exportpdf",
 		"onCommand:fountain:exporthtml",
 		"onCommand:fountain.exportpdfdebug",
@@ -95,11 +96,12 @@
 					"when": "view == fountain-outline"
 				}
 			],
-				"commandPalette": [
+			"commandPalette": [
 				{
 					"command": "fountain.jumpto",
 					"when": "false"
-				}]
+				}
+			]
 		},
 		"configuration": [
 			{
@@ -323,6 +325,10 @@
 				"category": "Fountain"
 			},
 			{
+				"command": "fountain.pdfpreview",
+				"title": "Show screenplay PDF Preview (not real-time)"
+			},
+			{
 				"command": "fountain.livepreviewstatic",
 				"title": "Show screenplay live preview (For the current document only)",
 				"category": "Fountain"
@@ -391,6 +397,12 @@
 				"when": "editorLangId == fountain"
 			},
 			{
+				"command": "fountain.pdfpreview",
+				"key": "ctrl+shift+v+p",
+				"mac": "cmd+shift+v+p",
+				"when": "editorLangId == fountain"
+			},
+			{
 				"command": "fountain.exportpdf",
 				"key": "ctrl+shift+b",
 				"mac": "cmd+shift+b",
@@ -440,12 +452,13 @@
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compilewebviews": "copyfiles -u 2 webviews/src/*.html webviews/src/cheatsheet.css webviews/out && webpack --config './webviews/stats.webpack.config.js'",
-		"compile": "tsc -p ./ && npm run compilewebviews && copyfiles -u 2 webviews/out/* out/webviews && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out",
+		"compile": "tsc -p ./ && npm run compilewebviews && copyfiles -u 2 webviews/out/* out/webviews && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out && copyfiles -u 2 webviews/src/pdfjs/** out/webviews/",
 		"watch": "npm run compile",
 		"test": "node node_modules/jest/bin/jest.js",
 		"open-in-browser": "vscode-test-web --extensionDevelopmentPath=. ."
 	},
 	"devDependencies": {
+		"@types/base64-stream": "^1.0.2",
 		"@types/d3": "^5.16.4",
 		"@types/diff": "^4.0.2",
 		"@types/he": "^1.1.2",
@@ -472,6 +485,7 @@
 		"webpack-cli": "^3.3.12"
 	},
 	"dependencies": {
+		"base64-stream": "^1.0.0",
 		"blob": "0.1.0",
 		"diff": "^5.0.0",
 		"font-finder": "^1.1.0",
