@@ -3,10 +3,9 @@ import * as path from 'path';
 import * as fs from "fs";
 import { getEditor, activeFountainDocument } from "../extension";
 import { FountainConfig, getFountainConfig } from "../configloader";
-import { assetsPath } from "../utils";
+import { assetsPath, resolveAsUri } from "../utils";
 import * as afterparser from "../afterwriting-parser";
 import { retrieveScreenPlayStatistics } from "../statistics";
-import * as telemetry from "../telemetry";
 
 interface statisticsPanel{
     uri:string;
@@ -25,7 +24,7 @@ export function getStatisticsPanels(docuri:vscode.Uri):statisticsPanel[]{
     return selectedPanels;
 }
 
-export function updateDocumentVersion(docuri:vscode.Uri, version:Number){
+export function updateDocumentVersionStats(docuri:vscode.Uri, version:Number){
     for(let panel of getStatisticsPanels(docuri)){
         panel.panel.webview.postMessage({command:'updateversion', version:version});
     }
@@ -39,7 +38,7 @@ export function removeStatisticsPanel(id:Number){
     }
 }
 
-export async function refreshPanel(statspanel:vscode.WebviewPanel, document:vscode.TextDocument, config:FountainConfig){
+export async function refreshStatsPanel(statspanel:vscode.WebviewPanel, document:vscode.TextDocument, config:FountainConfig){
     statspanel.webview.postMessage({ command:"updateversion", version:document.version, loading:true});
     var parsed = afterparser.parse(document.getText(), config, false);
     const stats = await retrieveScreenPlayStatistics(document.getText(), parsed, config, undefined);
@@ -70,7 +69,6 @@ export function createStatisticsPanel(editor:vscode.TextEditor): vscode.WebviewP
             vscode.ViewColumn.Three, // Editor column to show the new webview panel in.
             { enableScripts: true,  });
     }
-    telemetry.reportTelemetry("command:fountain.shiftScenes");
     loadWebView(editor.document.uri, statspanel);
     return statspanel;
 }
@@ -86,14 +84,10 @@ async function loadWebView(docuri: vscode.Uri, statspanel:vscode.WebviewPanel) {
     let id = Date.now()+Math.floor((Math.random()*1000));
     statsPanels.push({uri:docuri.toString(),panel:statspanel, id:id });
 
-    let extensionpath = vscode.extensions.getExtension("piersdeseilligny.betterfountain").extensionPath;
-
-    const cssDiskPath = vscode.Uri.file(path.join(extensionpath, 'node_modules', 'vscode-codicons', 'dist', 'codicon.css'));
-    const jsDiskPath = vscode.Uri.file(path.join(extensionpath, 'out', 'webviews', 'stats.bundle.js'));
-
-    statspanel.webview.html = loadStatsHtml()
-        .replace("$CODICON_CSS$", statspanel.webview.asWebviewUri(cssDiskPath).toString())
-        .replace("$STATSJS$", statspanel.webview.asWebviewUri(jsDiskPath).toString())
+    statspanel.webview.html = loadStatsHtml().replace("$HEADLINKS$",
+        `<link rel="stylesheet" href="${resolveAsUri(statspanel,'node_modules', '@vscode/codicons', 'dist', 'codicon.css')}">
+        <script src="${resolveAsUri(statspanel,'out', 'webviews', 'stats.bundle.js')}" defer></script>
+        <link rel="stylesheet" href="${resolveAsUri(statspanel,'out', 'webviews', 'common.css')}">`)
 
     var config = getFountainConfig(docuri);
     statspanel.webview.postMessage({ command: 'setstate', uri: docuri.toString() });
@@ -145,7 +139,7 @@ async function loadWebView(docuri: vscode.Uri, statspanel:vscode.WebviewPanel) {
             //save ui persistence
         }
         if(message.command== "refresh"){
-            refreshPanel(statspanel, editor.document, config);
+            refreshStatsPanel(statspanel, editor.document, getFountainConfig(docuri));
         }
     });
     statspanel.onDidDispose(()=>{
@@ -153,7 +147,7 @@ async function loadWebView(docuri: vscode.Uri, statspanel:vscode.WebviewPanel) {
     })
 
 
-    refreshPanel(statspanel, editor.document, config);
+    refreshStatsPanel(statspanel, editor.document, config);
 }
 
 vscode.workspace.onDidChangeConfiguration(change => {

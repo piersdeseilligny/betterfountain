@@ -95,6 +95,8 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, e
 
     if(outputpath=="$STATS$") 
         return pdfmaker.get_pdf_stats(pdf_options);
+    else if(outputpath=="$PREVIEW$")
+        return pdfmaker.get_pdf_base64(pdf_options)
     else
         pdfmaker.get_pdf(pdf_options, progress);
 }

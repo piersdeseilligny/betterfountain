@@ -395,7 +395,23 @@ export function wordToColor(word: string, s:number = 0.5, v:number = 1): Array<n
 	const n = 5; //so that colors are spread apart
 	const h = nPearsonHash(word, n)/2**(8-n);
 	return HSVToRGB(h, s, v)
+}
 
+const extensionpath = vscode.extensions.getExtension("piersdeseilligny.betterfountain").extensionPath;
+export function resolveAsUri(panel:vscode.WebviewPanel,...p: string[]):string {
+    const uri = vscode.Uri.file(path.join(extensionpath, ...p));
+    return panel.webview.asWebviewUri(uri).toString();
+  };
+
+export function getAssetsUri(iconName:string):vscode.Uri{
+	return vscode.Uri.file(path.join(extensionpath, "assets", iconName+".svg"));
+}
+export function mapToObject(map:any):any{
+    let jsonObject:any = {};  
+    map.forEach((value:any, key:any) => {  
+        jsonObject[key] = value  
+    });  
+    return jsonObject;
 }
 
 function componentToHex(c:number) {

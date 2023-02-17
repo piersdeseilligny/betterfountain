@@ -64,7 +64,7 @@ export function createPreviewPanel(editor:vscode.TextEditor, dynamic:boolean): v
         preview = vscode.window.createWebviewPanel(
             'fountain-preview', // Identifies the type of the webview. Used internally
             previewname, // Title of the panel displayed to the user
-            vscode.ViewColumn.Three, // Editor column to show the new webview panel in.
+            vscode.ViewColumn.Two, // Editor column to show the new webview panel in.
             { enableScripts: true, retainContextWhenHidden:true });
     }
     loadWebView(editor.document.uri, preview, dynamic);
@@ -141,6 +141,7 @@ function loadWebView(docuri: vscode.Uri, preview:vscode.WebviewPanel, dynamic:bo
     preview.webview.postMessage({ command: 'setstate', uri: docuri.toString(), dynamic: dynamic })
     var config = getFountainConfig(docuri);
     preview.webview.postMessage({ command: 'updateconfig', content: config })
+    
 
     var editor = getEditor(docuri);
     if(editor){

@@ -16,7 +16,7 @@ export class FountainCheatSheetWebviewViewProvider implements vscode.WebviewView
        
         const cssDiskPath = vscode.Uri.joinPath(this._extensionUri, 'out', 'webviews', 'cheatsheet.css');
         const styleUri = webviewView.webview.asWebviewUri(cssDiskPath).toString();
-        const codiconDiskPath = vscode.Uri.joinPath(this._extensionUri, 'node_modules', 'vscode-codicons', 'dist', 'codicon.css');
+        const codiconDiskPath = vscode.Uri.joinPath(this._extensionUri, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css');
         const codiconUri = webviewView.webview.asWebviewUri(codiconDiskPath).toString();
 
         const fontUri = webviewView.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'out', 'courierprime', 'courier-prime.ttf')).toString();

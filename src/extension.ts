@@ -26,6 +26,10 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		treeExportHtml.iconPath = new vscode.ThemeIcon("export");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
 		treeLivePreview.iconPath = new vscode.ThemeIcon("open-preview");
+		treeLivePreview.tooltip = "A real-time but approximate preview of the rendered PDF"
+		const treePdfPreview = new vscode.TreeItem("Show PDF preview");
+		treePdfPreview.iconPath = new vscode.ThemeIcon("file-pdf");
+		treePdfPreview.tooltip = "An exact preview of the rendered PDF (not real-time)";
 		const numberScenesOverwrite = new vscode.TreeItem("Number scenes - overwrite");
 		numberScenesOverwrite.tooltip = 'Replaces existing scene numbers.';
 		numberScenesOverwrite.iconPath = new vscode.ThemeIcon("list-ordered");
@@ -58,6 +62,10 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			command: 'fountain.livepreviewstatic',
 			title: ''
 		};
+		treePdfPreview.command = {
+			command:'fountain.pdfpreview',
+			title:''
+		};
 		numberScenesOverwrite.command = {
 			command: 'fountain.overwriteSceneNumbers',
 			title: ''
@@ -75,6 +83,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		elements.push(treeExportPdfCustom);
 		elements.push(treeExportHtml);
 		elements.push(treeLivePreview);
+		elements.push(treePdfPreview);
 		elements.push(statistics);
 		elements.push(numberScenesOverwrite);
 		elements.push(numberScenesUpdate);
@@ -93,11 +102,12 @@ import { FountainSymbolProvider } from "./providers/Symbols";
 import { showDecorations, clearDecorations } from "./providers/Decorations";
 
 import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToUpdate } from "./providers/Preview";
-import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer, getStatisticsPanels, refreshPanel, updateDocumentVersion } from "./providers/Statistics";
+import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer, getStatisticsPanels, refreshStatsPanel, updateDocumentVersionStats } from "./providers/Statistics";
 import { FountainOutlineTreeDataProvider } from "./providers/Outline";
 import { performance } from "perf_hooks";
 import { exportHtml } from "./providers/StaticHtml";
 import { FountainCheatSheetWebviewViewProvider } from "./providers/Cheatsheet";
+import { createPdfPreviewPanel, FountainPdfPanelserializer, getPdfPreviewPanels, refreshPdfPanel, updateDocumentVersionPdfPreview } from "./providers/PdfPreview";
 
 
 /**
@@ -239,13 +249,17 @@ export function activate(context: ExtensionContext) {
 		createPreviewPanel(vscode.window.activeTextEditor,false);
 		telemetry.reportTelemetry("command:fountain.livepreviewstatic");
 	}));
+	//Register for PDF preview
+	context.subscriptions.push(vscode.commands.registerCommand('fountain.pdfpreview', () => {
+		// Create and show a new dynamic webview for the active text editor
+		createPdfPreviewPanel(getEditor(activeFountainDocument()));
+	}));
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.statistics', async () => {
 		createStatisticsPanel(getEditor(activeFountainDocument()));
 	}));
 
 	//Jump to line command
 	context.subscriptions.push(vscode.commands.registerCommand('fountain.jumpto', (args) => {
-		
 		let editor = getEditor(activeFountainDocument());
 		let range = editor.document.lineAt(Number(args)).range;
 		editor.selection = new vscode.Selection(range.start, range.start);
@@ -378,6 +392,7 @@ export function activate(context: ExtensionContext) {
 		parseDocument(vscode.window.activeTextEditor.document);
 
 	vscode.window.registerWebviewPanelSerializer('fountain-preview', new FountainPreviewSerializer());
+	vscode.window.registerWebviewPanelSerializer('fountain-pdfpreview', new FountainPdfPanelserializer());
 	vscode.window.registerWebviewPanelSerializer('fountain-statistics', new FountainStatsPanelSerializer());
 }
 
@@ -428,7 +443,8 @@ export function activate(context: ExtensionContext) {
 vscode.workspace.onDidChangeTextDocument(change => {
 	if (change.document.languageId=="fountain"){
 		parseDocument(change.document);
-		updateDocumentVersion(change.document.uri, change.document.version);
+		updateDocumentVersionPdfPreview(change.document.uri, change.document.version);
+		updateDocumentVersionStats(change.document.uri, change.document.version);
 	}
 });
 
@@ -562,7 +578,13 @@ vscode.workspace.onDidSaveTextDocument(e =>{
 	if(config.refresh_stats_on_save){
 		let statsPanel = getStatisticsPanels(e.uri);
 		for (const sp of statsPanel) {
-			refreshPanel(sp.panel, e, config);
+			refreshStatsPanel(sp.panel, e, config);
+		}
+	}
+	if(config.refresh_pdfpreview_on_save){
+		let pdfPanels = getPdfPreviewPanels(e.uri);
+		for (const pp of pdfPanels) {
+			refreshPdfPanel(pp.panel, e, config);
 		}
 	}
 });

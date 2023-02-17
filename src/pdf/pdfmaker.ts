@@ -9,6 +9,8 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
 import * as he from 'he';
 import * as addTextbox from 'textbox-for-pdfkit';
 import { regex } from "../afterwriting-parser";
+import { Base64Encode } from "base64-stream";
+
 // import * as blobUtil from "blob-util";
 export class Options {
     filepath: string;
@@ -851,6 +853,10 @@ export type pdfstats = {
     pagecountReal: number,
     linemap: Map<number, lineStruct> //the structure of each line
 }
+export type PdfAsBase64 = {
+    data:string;
+    stats:pdfstats;
+}
 
 export var get_pdf_stats = async function (opts: Options): Promise<pdfstats> {
     var doc = await initDoc(opts);
@@ -862,4 +868,39 @@ export var get_pdf_stats = async function (opts: Options): Promise<pdfstats> {
 
     await generate(doc, opts, stats.linemap);
     return stats;
+}
+
+const toBase64 = (doc:any):Promise<string> => {
+    return new Promise((resolve, reject) => {
+        try {
+            const stream = doc.pipe(new Base64Encode());
+
+            let base64Value = '';
+            stream.on('data', (chunk:any) => {
+                base64Value += chunk;
+            });
+            
+            stream.on('end', () => {
+                resolve(base64Value);
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+
+export var get_pdf_base64 = async function(opts:Options): Promise<PdfAsBase64> {
+    var doc = await initDoc(opts);
+    let stats: pdfstats = { pagecount: 1, pagecountReal: 1, linemap: new Map<number, lineStruct>() };
+    stats.pagecount = opts.parsed.lines.length / opts.print.lines_per_page;
+    doc.on('pageAdded', () => {
+        stats.pagecountReal++;
+    });
+    await generate(doc, opts, stats.linemap);
+    doc.end();
+    return{
+        data: await toBase64(doc),
+        stats: stats
+    }
 }

@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 
 export class FountainConfig{
     refresh_stats_on_save: boolean;
+    refresh_pdfpreview_on_save:boolean;
     number_scenes_on_save: boolean;
     embolden_scene_headers:boolean;
     embolden_character_names:boolean;
@@ -86,6 +87,7 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
     return {
         number_scenes_on_save: generalConfig.numberScenesOnSave,
         refresh_stats_on_save: generalConfig.refreshStatisticsOnSave,
+        refresh_pdfpreview_on_save: generalConfig.refreshPdfPreviewOnSave,
         embolden_scene_headers: pdfConfig.emboldenSceneHeaders,
         embolden_character_names: pdfConfig.emboldenCharacterNames,
         show_page_numbers: pdfConfig.showPageNumbers,
