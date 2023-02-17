@@ -483,7 +483,7 @@
 		"jest": "^24.9.0",
 		"jquery": "^3.6.0",
 		"style-loader": "^1.3.0",
-		"ts-jest": "^24.3.0",
+		"ts-jest": "^29.0.5",
 		"typescript": "^4.9.5",
 		"vscode-test": "^1.6.1",
 		"webpack": "^5.54.0",
