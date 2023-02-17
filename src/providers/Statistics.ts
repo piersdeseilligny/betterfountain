@@ -139,7 +139,7 @@ async function loadWebView(docuri: vscode.Uri, statspanel:vscode.WebviewPanel) {
             //save ui persistence
         }
         if(message.command== "refresh"){
-            refreshStatsPanel(statspanel, editor.document, config);
+            refreshStatsPanel(statspanel, editor.document, getFountainConfig(docuri));
         }
     });
     statspanel.onDidDispose(()=>{

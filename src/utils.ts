@@ -402,6 +402,10 @@ export function resolveAsUri(panel:vscode.WebviewPanel,...p: string[]):string {
     const uri = vscode.Uri.file(path.join(extensionpath, ...p));
     return panel.webview.asWebviewUri(uri).toString();
   };
+
+export function getAssetsUri(iconName:string):vscode.Uri{
+	return vscode.Uri.file(path.join(extensionpath, "assets", iconName+".svg"));
+}
 export function mapToObject(map:any):any{
     let jsonObject:any = {};  
     map.forEach((value:any, key:any) => {  

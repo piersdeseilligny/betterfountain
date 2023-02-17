@@ -45,6 +45,10 @@
 .statusbar.loading .codicon-sync {
     animation:spin 1.5s linear infinite;
 }
+.statusbar.loading{
+  color:var(--vscode-statusBarItem-warningForeground);
+  background-color:var(--vscode-statusBarItem-warningBackground);
+}
 .statusbar.stale{
     color:var(--vscode-statusBarItem-errorForeground);
     background-color:var(--vscode-statusBarItem-errorBackground);

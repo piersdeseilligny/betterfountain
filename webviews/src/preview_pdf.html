@@ -32,14 +32,14 @@
               <span data-l10n-id="document_outline_label">Document Outline</span>
             </button>
             <button id="viewAttachments" class="toolbarButton" title="Show Attachments" tabindex="4"
-              data-l10n-id="attachments" role="radio" aria-checked="false" aria-controls="attachmentsView">
-              <span data-l10n-id="attachments_label">Attachments</span>
-            </button>
-            <button id="viewLayers" class="toolbarButton"
-              title="Show Layers (double-click to reset all layers to the default state)" tabindex="5"
-              data-l10n-id="layers" role="radio" aria-checked="false" aria-controls="layersView">
-              <span data-l10n-id="layers_label">Layers</span>
-            </button>
+            data-l10n-id="attachments" role="radio" aria-checked="false" aria-controls="attachmentsView">
+            <span data-l10n-id="attachments_label">Attachments</span>
+          </button>
+          <button id="viewLayers" class="toolbarButton"
+            title="Show Layers (double-click to reset all layers to the default state)" tabindex="5"
+            data-l10n-id="layers" role="radio" aria-checked="false" aria-controls="layersView">
+            <span data-l10n-id="layers_label">Layers</span>
+          </button>
           </div>
         </div>
         <div id="toolbarSidebarRight">
@@ -559,6 +559,7 @@
     const previousState = vscode.getState();
     if (previousState != undefined) {
       state = previousState;
+      state.linemap = objectToMap(state.linemap_obj);
       updatePdf();
       versionIndicator();
     }
@@ -603,13 +604,16 @@
       let updateState = false;
       if (event.data.command == 'updateversion') {
         state.latestversion = event.data.version;
+        state.docuri = event.data.uri;
+        console.log("URI is " + event.data.uri + " (updateversion)");
         loading = event.data.loading;
         versionIndicator();
         updateState = true;
       }
       if (event.data.command == 'updatepdf') {
         state.pdfAsBase64 = event.data.content;
-        state.linemap = objectToMap(JSON.parse(event.data.linemap));
+        state.linemap_obj = JSON.parse(event.data.linemap);
+        state.linemap = objectToMap(state.linemap_obj);
 
         let wholePage = Math.floor(event.data.pagecount);
         let fractionalPage = getEights(Math.round((event.data.pagecount - wholePage) * 8));
@@ -631,6 +635,7 @@
       } else if (event.data.command == 'setstate') {
         if (event.data.uri !== undefined) {
           state.docuri = event.data.uri;
+          console.log("URI is " + event.data.uri + " (setstate)");
           updateState = true;
         }
       } else if (event.data.command == 'updatecaret') {

@@ -26,9 +26,9 @@ https://piersdeseilligny.com/work/everything-else/betterfountain/
     * Includes scenes and sections as PDF bookmarks, for easy navigation in your reader of choice
     * Possible to highlight any specified characters in the PDF
 * Full screenplay outline
-    * Includes sections, scenes, notes, and synopses (the visiblity of each type of item being easily and quickly toggleable)
+    * Includes sections, scenes, notes, and synopses (the visibility of each type of item being easily and quickly toggleable)
 * "Folding" scenes and sections
-* Live preview of the formatted screenplay
+* Screenplay layout preview (choice between a real-time approximation, or an exact PDF Preview)
 * Advanced interactive statistics about your screenplay
 * Custom font support (Add "Font:" at the top of your .fountain screenplay, with the other title page keys, followed by the name of a font installed on your system)
 * Approximation of a screenplay's duration (in the status bar)
@@ -38,6 +38,14 @@ https://piersdeseilligny.com/work/everything-else/betterfountain/
     * Scroll-sync preview, with active line indication/selection
 
 ![Screenshot of Statistics pages](https://piersdeseilligny.com/assets/Dark_plusstats_ns_2d4ab6dc54.PNG)
+
+### Live preview or PDF Preview?
+
+BetterFountain now offers two different ways of previewing your screenplay
+![Screenshot of previews](https://imgur.com/21g0PUO)
+
+* The *Live preview* (right) is an approximation of the screenplay's layout, which updates in real-time as you're typing, and scrolls alongside the editor. However it doesn't include page breaks, and isn't pixel-perfect identical to your exported PDF.
+* The *PDF Preview* (centre) is exactly identical to your rendered PDF (including page breaks), and moving the caret in the text editor will navigate to the corresponding page (as will double-clicking a chart in the statistics page). However it does not update as you are typing, only when the .fountain document is saved, or when you refresh the preview from its status bar.
 
 ## Why?
 
@@ -55,9 +63,7 @@ And to get an approximate duration of your screenplay, just look at your status 
 
 Here are some features I would like to add, but don't really have time to right now, in an approximate order of difficulty/priority:
 
-* Fountain cheat sheet panel
-
-* More statistics (a 'Scenes' section, and per-character reports)
+* More statistics (per-character reports)
 
 * PDF Export panel, with more advanced features presented in a more user-friendly way
 

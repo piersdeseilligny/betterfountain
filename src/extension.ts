@@ -26,6 +26,10 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		treeExportHtml.iconPath = new vscode.ThemeIcon("export");
 		const treeLivePreview = new vscode.TreeItem("Show live preview");
 		treeLivePreview.iconPath = new vscode.ThemeIcon("open-preview");
+		treeLivePreview.tooltip = "A real-time but approximate preview of the rendered PDF"
+		const treePdfPreview = new vscode.TreeItem("Show PDF preview");
+		treePdfPreview.iconPath = new vscode.ThemeIcon("file-pdf");
+		treePdfPreview.tooltip = "An exact preview of the rendered PDF (not real-time)";
 		const numberScenesOverwrite = new vscode.TreeItem("Number scenes - overwrite");
 		numberScenesOverwrite.tooltip = 'Replaces existing scene numbers.';
 		numberScenesOverwrite.iconPath = new vscode.ThemeIcon("list-ordered");
@@ -58,6 +62,10 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 			command: 'fountain.livepreviewstatic',
 			title: ''
 		};
+		treePdfPreview.command = {
+			command:'fountain.pdfpreview',
+			title:''
+		};
 		numberScenesOverwrite.command = {
 			command: 'fountain.overwriteSceneNumbers',
 			title: ''
@@ -75,6 +83,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		elements.push(treeExportPdfCustom);
 		elements.push(treeExportHtml);
 		elements.push(treeLivePreview);
+		elements.push(treePdfPreview);
 		elements.push(statistics);
 		elements.push(numberScenesOverwrite);
 		elements.push(numberScenesUpdate);

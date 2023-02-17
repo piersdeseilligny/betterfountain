@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from "fs";
 import { getEditor, activeFountainDocument } from "../extension";
 import { FountainConfig, getFountainConfig } from "../configloader";
-import { assetsPath, mapToObject, resolveAsUri } from "../utils";
+import { assetsPath, getAssetsUri, mapToObject, resolveAsUri } from "../utils";
 import * as afterparser from "../afterwriting-parser";
 import { GeneratePdf } from "../pdf/pdf";
 import { PdfAsBase64 } from "../pdf/pdfmaker";
@@ -28,7 +28,7 @@ export function getPdfPreviewPanels(docuri:vscode.Uri):pdfpreviewPanel[]{
 
 export function updateDocumentVersionPdfPreview(docuri:vscode.Uri, version:Number){
     for(let panel of getPdfPreviewPanels(docuri)){
-        panel.panel.webview.postMessage({command:'updateversion', version:version});
+        panel.panel.webview.postMessage({command:'updateversion', version:version, uri:docuri.toString()});
     }
 }
 
@@ -41,7 +41,7 @@ export function removePdfPreviewPanel(id:Number){
 }
 
 export async function refreshPdfPanel(pdfpanel:vscode.WebviewPanel, document:vscode.TextDocument, config:FountainConfig){
-    pdfpanel.webview.postMessage({ command:"updateversion", version:document.version, loading:true});
+    pdfpanel.webview.postMessage({ command:"updateversion", version:document.version, loading:true, uri:document.uri.toString()});
     var parsed = afterparser.parse(document.getText(), config, false);
     //Create PDF
     let pdfAsBase64:PdfAsBase64 = await GeneratePdf("$PREVIEW$", config, undefined, parsed, undefined);
@@ -72,8 +72,9 @@ export function createPdfPreviewPanel(editor:vscode.TextEditor): vscode.WebviewP
         pdfpanel = vscode.window.createWebviewPanel(
             'fountain-pdfpreview', // Identifies the type of the webview. Used internally
             panelname, // Title of the panel displayed to the user
-            vscode.ViewColumn.Three, // Editor column to show the new webview panel in.
-            { enableScripts: true,  });
+            vscode.ViewColumn.Two, // Editor column to show the new webview panel in.
+            { enableScripts: true });
+        pdfpanel.iconPath = getAssetsUri("file-pdf");
     }
     loadWebView(editor.document.uri, pdfpanel);
     return pdfpanel;
@@ -157,10 +158,10 @@ async function loadWebView(docuri: vscode.Uri, pdfpanel:vscode.WebviewPanel) {
             //save ui persistence
         }
         if(message.command== "refresh"){
-            refreshPdfPanel(pdfpanel, editor.document, config);
+            refreshPdfPanel(pdfpanel, editor.document, getFountainConfig(docuri));
         }
         if(message.command="openstats"){
-            createStatisticsPanel(getEditor(message.content));
+            createStatisticsPanel(getEditor(vscode.Uri.parse(message.uri)));
         }
     });
     pdfpanel.onDidDispose(()=>{
@@ -176,7 +177,7 @@ vscode.workspace.onDidChangeConfiguration(change => {
         pdfPanels.forEach(p => {
             var config = getFountainConfig(vscode.Uri.parse(p.uri));
                 p.panel.webview.postMessage({ command: 'updateconfig', content: config })
-                p.panel.webview.postMessage({command:'updateversion', version:-1});
+                p.panel.webview.postMessage({command:'updateversion', version:-1, uri:p.uri});
         });
     }
 })
