@@ -144,9 +144,20 @@
 					},
 					"fountain.general.previewTexture": {
 						"type": "boolean",
-						"default": true,
+						"default": false,
 						"description": "Noise texture on the live preview (absent from PDF)"
-					}
+					},
+					"fountain.renderCursor": {
+						"type": "boolean",
+						"default": true,
+						"description": "Render only a certain number of lines around the cursor"
+					},
+					"fountain.numLines": {
+						"type": "integer",
+						"default": 500,
+						"description": "Number of lines to render around the cursor"
+					  }
+					
 				}
 			},
 			{

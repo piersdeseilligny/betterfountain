@@ -120,6 +120,52 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         synchronized_markup_and_preview: generalConfig.synchronizedMarkupAndPreview,
         preview_theme: generalConfig.previewTheme,
         preview_texture: generalConfig.previewTexture,
-        parenthetical_newline_helper:  generalConfig.parentheticalNewLineHelper
+        parenthetical_newline_helper:  generalConfig.parentheticalNewLineHelper,
+        numLines: generalConfig.get("numLines", 500), // new config property
     }
 }
+
+// Render preview with cursor
+function renderCursor(activateCursor: boolean, numLines: number): void {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      return;
+    }
+    
+    if (!activateCursor) {
+      renderPreview();
+      return;
+    }
+    
+    const cursorPos = getCursorPosition();
+    const startLine = Math.max(0, cursorPos.line - Math.floor(numLines / 2));
+    const endLine = Math.min(editor.document.lineCount - 1, startLine + numLines - 1);
+    const visibleRange = new vscode.Range(startLine, 0, endLine, editor.document.lineAt(endLine).text.length);
+    editor.revealRange(visibleRange, vscode.TextEditorRevealType.InCenter);
+    renderPreview();
+  }
+  
+  // Get the cursor position
+  function getCursorPosition(): vscode.Position {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      return new vscode.Position(0, 0);
+    }
+  
+    return editor.selection.active;
+  }
+  
+  // Render preview
+  function renderPreview(): void {
+    // Your code to render the preview here
+  }
+  
+  // Activate the extension
+  export function activate(context: vscode.ExtensionContext) {
+    const config = vscode.workspace.getConfiguration('fountain');
+    const activateCursor = config.get<boolean>('renderCursor', true);
+    const numLines = config.get<number>('numLines', 500);
+  
+    // Call renderCursor with the settings
+    renderCursor(activateCursor, numLines);
+  }
