@@ -120,6 +120,8 @@ export var getFountainConfig = function(docuri:vscode.Uri):FountainConfig{
         synchronized_markup_and_preview: generalConfig.synchronizedMarkupAndPreview,
         preview_theme: generalConfig.previewTheme,
         preview_texture: generalConfig.previewTexture,
-        parenthetical_newline_helper:  generalConfig.parentheticalNewLineHelper
+        parenthetical_newline_helper:  generalConfig.parentheticalNewLineHelper,
+        renderCursor: generalConfig.renderCursor,
+        numLines: generalConfig.numLines
     }
 }

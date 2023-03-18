@@ -213,3 +213,17 @@ export class FountainPreviewSerializer implements vscode.WebviewPanelSerializer 
       //webviewPanel.webview.postMessage({ command: 'updateScript', content: state.screenplay_html });
     }
   }
+  function renderCursor(activateCursor: boolean, numLines: number): void {
+    if (!activateCursor) {
+      renderPreview();
+      return;
+    }
+    
+    const cursorPos = getCursorPosition();
+    const startLine = Math.max(0, cursorPos.line - Math.floor(numLines / 2));
+    const endLine = Math.min(editor.lineCount - 1, startLine + numLines - 1);
+    const visibleRange = new vscode.Range(startLine, 0, endLine, editor.document.lineAt(endLine).text.length);
+    editor.revealRange(visibleRange, vscode.TextEditorRevealType.InCenter);
+    renderPreview();
+  }
+  

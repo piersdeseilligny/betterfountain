@@ -146,7 +146,17 @@
 						"type": "boolean",
 						"default": true,
 						"description": "Noise texture on the live preview (absent from PDF)"
-					}
+					},
+					"fountain.renderCursor": {
+						"type": "boolean",
+						"default": true,
+						"description": "Render only a certain number of lines around the cursor"
+					},
+					"fountain.numLines": {
+						"type": "integer",
+						"default": 500,
+						"description": "Number of lines to render around the cursor"
+					  }
 				}
 			},
 			{
