@@ -1,7 +1,7 @@
 .statusbar{
     height:22px;
     bottom:0;
-    position: absolute;
+    position: fixed;
     width:100%;
     background-color: var(--vscode-statusBar-background);
     color: var(--vscode-statusBar-foreground);
@@ -17,6 +17,7 @@
   margin-left:7px;
   padding:0 7px;
   display:inline-block;
+  position: fixed;
   cursor:pointer;
 }
 #pageCounter {
