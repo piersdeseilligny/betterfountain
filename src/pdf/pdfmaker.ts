@@ -263,7 +263,7 @@ async function initDoc(opts: Options) {
                     link: linkurl,
                     font: font,
                     underline: linkurl || doc.format_state.underline,
-                    color: doc.format_state.override_color ? doc.format_state.override_color : 'black'
+                    color: doc.format_state.override_color ? doc.format_state.override_color : color
                 });
             }
             currentIndex += elem.length;
