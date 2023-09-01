@@ -13,7 +13,7 @@ export class FountainCharacterTreeDataProvider implements vscode.TreeDataProvide
     return element;
   }
 
-  getChildren(element?: CharacterTreeItem): vscode.ProviderResult<any[]> {
+  getChildren(element?: CharacterTreeItem): vscode.ProviderResult<vscode.TreeItem[]> {
     if (element) {
       return element.children;
     }
@@ -21,7 +21,7 @@ export class FountainCharacterTreeDataProvider implements vscode.TreeDataProvide
       return this.treeRoot.children;
     } else {
       return []
-    };
+    }
   }
 
   update(): void {
