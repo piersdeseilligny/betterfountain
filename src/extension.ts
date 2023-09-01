@@ -228,8 +228,8 @@ export function activate(context: ExtensionContext) {
 	outlineViewProvider.treeView = vscode.window.createTreeView("fountain-outline", { treeDataProvider: outlineViewProvider, showCollapseAll: true });
 
   //Register for character tree view
-  vscode.window.registerTreeDataProvider("fountain-characters", outlineViewProvider)
-  outlineViewProvider.treeView = vscode.window.createTreeView("fountain-characters", { treeDataProvider: characterViewProvider, showCollapseAll: true });
+  vscode.window.registerTreeDataProvider("fountain-characters", characterViewProvider)
+  vscode.window.createTreeView("fountain-characters", { treeDataProvider: characterViewProvider, showCollapseAll: true });
 
 	//Register command tree view
 	vscode.window.registerTreeDataProvider("fountain-commands", outlineViewProvider)
@@ -332,6 +332,7 @@ export function activate(context: ExtensionContext) {
 			changeFountainUIPersistence("outline_visibleSections", visibleSections);
 			changeFountainUIPersistence("outline_visibleSynopses", visibleSynopses);
 			outlineViewProvider.update();
+      characterViewProvider.update();
 		});
 		quickpick.show();
 	}));
@@ -551,8 +552,10 @@ export function parseDocument(document: TextDocument) {
 	var editor = getEditor(document.uri);
 	if(editor) editor.setDecorations(decortypesDialogue, decorsDialogue)
 
-	if (document.languageId == "fountain")
+	if (document.languageId == "fountain") {
 		outlineViewProvider.update();
+    characterViewProvider.update();
+  }
 	updateStatus(output.lengthAction, output.lengthDialogue);
 	showDecorations(document.uri);
 
