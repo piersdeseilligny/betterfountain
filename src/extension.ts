@@ -104,6 +104,7 @@ import { showDecorations, clearDecorations } from "./providers/Decorations";
 import { createPreviewPanel, previews, FountainPreviewSerializer, getPreviewsToUpdate } from "./providers/Preview";
 import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer, getStatisticsPanels, refreshStatsPanel, updateDocumentVersionStats } from "./providers/Statistics";
 import { FountainOutlineTreeDataProvider } from "./providers/Outline";
+import { FountainCharacterTreeDataProvider } from "./providers/Characters";
 import { performance } from "perf_hooks";
 import { exportHtml } from "./providers/StaticHtml";
 import { FountainCheatSheetWebviewViewProvider } from "./providers/Cheatsheet";
@@ -134,6 +135,7 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 
 var durationStatus: vscode.StatusBarItem;
 const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
+const characterViewProvider: FountainCharacterTreeDataProvider = new FountainCharacterTreeDataProvider();
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
 var lastShiftedParseId = "";
 
@@ -224,6 +226,10 @@ export function activate(context: ExtensionContext) {
 	//Register for outline tree view
 	vscode.window.registerTreeDataProvider("fountain-outline", outlineViewProvider)
 	outlineViewProvider.treeView = vscode.window.createTreeView("fountain-outline", { treeDataProvider: outlineViewProvider, showCollapseAll: true });
+
+  //Register for character tree view
+  vscode.window.registerTreeDataProvider("fountain-characters", outlineViewProvider)
+  outlineViewProvider.treeView = vscode.window.createTreeView("fountain-characters", { treeDataProvider: characterViewProvider, showCollapseAll: true });
 
 	//Register command tree view
 	vscode.window.registerTreeDataProvider("fountain-commands", outlineViewProvider)
