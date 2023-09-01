@@ -15,6 +15,7 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 		//throw new Error("Method not implemented.");
 		return element;
 	}
+
 	getChildren(element?: OutlineTreeItem): vscode.ProviderResult<any[]> {
 		if (element)
 			return element.children;
@@ -22,14 +23,17 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 			return this.treeRoot.children;
 		else return [];
 	}
+
 	getParent(element: OutlineTreeItem): any {
 		// necessary for reveal() to work
 		return element.parent;
 	}
+
 	update(): void {
 		this.treeRoot = buildTree();
 		this.onDidChangeTreeDataEmitter.fire(void 0);
 	}
+  
 	reveal(): void {
 		const currentCursorLine = getEditor(activeFountainDocument()).selection.active.line;
 
