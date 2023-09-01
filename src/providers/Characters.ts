@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { activeParsedDocument } from '../extension';
+import { FSFormat } from '../utils/format';
 
 export class FountainCharacterTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
@@ -13,11 +14,14 @@ export class FountainCharacterTreeDataProvider implements vscode.TreeDataProvide
   }
 
   getChildren(element?: CharacterTreeItem): vscode.ProviderResult<any[]> {
-    if (element)
+    if (element) {
       return element.children;
-    if (this.treeRoot && this.treeRoot.children)
+    }
+    if (this.treeRoot && this.treeRoot.children) {
       return this.treeRoot.children;
-    else return [];
+    } else {
+      return []
+    };
   }
 
   update(): void {
@@ -32,28 +36,36 @@ function buildCharacterTree(): CharacterTreeItem {
   root.children = [];
 
   for (const [character, wordCount] of characters.entries()) {
-    const child = new CharacterTreeItem(`${character}`, wordCount, root);
+    const child = new CharacterTreeItem(FSFormat.nameToNatural(character), wordCount, root);
     root.children.push(child);
   }
   return root;
 }
 
 class CharacterTreeItem extends vscode.TreeItem {
-  children: CharacterTreeItem[] = [];
-  lineNumber: number = 0;
+  children: vscode.TreeItem[] = [];
 
   constructor(label: string, public scenes: number[], public parent: CharacterTreeItem) {
-    super(label);
+    super(label, vscode.TreeItemCollapsibleState.Collapsed);
     if (scenes.length > 0) {
-      scenes = scenes.map(x => x - 1); // decrease needed to get correct scene number?
-      this.description = scenes.join(", ");
-      scenes = scenes.map(x => x - 1); // decrease to get correct index
-      this.lineNumber = activeParsedDocument().properties.sceneLines[scenes[0]];
-      this.command = {
-        command: 'fountain.jumpto',
-        title: '',
-        arguments: [this.lineNumber] 
+      this.description = `${scenes.length} scenes`;
+      for (const scene of scenes) {
+        const properties = activeParsedDocument().properties;
+        const sceneName = properties.sceneNames[scene-2];
+        const sceneLineNumber = properties.sceneLines[scene-2];
+        this.children.push(new SceneTreeItem(sceneName, sceneLineNumber, this));
       }
+    }
+  }
+}
+
+class SceneTreeItem extends vscode.TreeItem {
+  constructor(label: string, public lineNumber: number, public parent: CharacterTreeItem) {
+    super(label);
+    this.command = {
+      command: 'fountain.jumpto',
+      title: '',
+      arguments: [lineNumber] 
     }
   }
 }
