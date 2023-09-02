@@ -42,7 +42,7 @@ https://piersdeseilligny.com/work/everything-else/betterfountain/
 ### Live preview or PDF Preview?
 
 BetterFountain now offers two different ways of previewing your screenplay
-![Screenshot of previews](https://imgur.com/21g0PUO)
+![Screenshot of previews](https://i.imgur.com/21g0PUO.png)
 
 * The *Live preview* (right) is an approximation of the screenplay's layout, which updates in real-time as you're typing, and scrolls alongside the editor. However it doesn't include page breaks, and isn't pixel-perfect identical to your exported PDF.
 * The *PDF Preview* (centre) is exactly identical to your rendered PDF (including page breaks), and moving the caret in the text editor will navigate to the corresponding page (as will double-clicking a chart in the statistics page). However it does not update as you are typing, only when the .fountain document is saved, or when you refresh the preview from its status bar.
