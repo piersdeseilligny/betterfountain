@@ -1,5 +1,13 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.12.0** - *2023-02-17*
+    + Add PDF Preview
+    + Add location statistics (Thanks Oliver Paraskos!)
+    · Remove "jumpto" from command palette (as it's for internal use only)
+    · Change default live preview texture from "paper" to "vscode" (Thanks @geueds!)
+    · Change default location of scene numbers from "none" to "both" (Thanks @geueds!)
+
+
 ## **1.11.0** - *2022-07-23*
     + Add cheatsheet to extension sidebar (Thanks @prasy-loyola for the PR!)
     + Add setting to enable bold character names (Fix #165)
