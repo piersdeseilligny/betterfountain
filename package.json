@@ -72,6 +72,10 @@
 					"id": "fountain-outline",
 					"name": "Outline"
 				},
+        {
+          "id": "fountain-characters",
+          "name": "Characters"
+        },
 				{
 					"id": "fountain-commands",
 					"name": "Commands"
