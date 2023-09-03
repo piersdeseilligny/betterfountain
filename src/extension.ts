@@ -203,7 +203,7 @@ vscode.workspace.onDidChangeTextDocument(change => {
 
 vscode.workspace.onDidChangeConfiguration(change => {
   if (change.affectsConfiguration("fountain.general.parentheticalNewLineHelper")) {
-    let config = getFountainConfig(getActiveFountainDocument());
+    const config = getFountainConfig(getActiveFountainDocument());
     if (disposeTyping) disposeTyping.dispose();
     if (config.parenthetical_newline_helper) {
       registerTyping();
@@ -247,8 +247,8 @@ export function parseDocument(document: TextDocument) {
 
   clearDecorations();
 
-  var previewsToUpdate = getPreviewsToUpdate(document.uri)
-  var output = afterparser.parse(document.getText(), getFountainConfig(document.uri), previewsToUpdate.length > 0)
+  let previewsToUpdate = getPreviewsToUpdate(document.uri)
+  let output = afterparser.parse(document.getText(), getFountainConfig(document.uri), previewsToUpdate.length > 0)
 
 
   if (previewsToUpdate) {

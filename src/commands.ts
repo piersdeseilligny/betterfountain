@@ -68,15 +68,15 @@ export function shiftScenesUpDn (direction: number) {
   shiftScenes(editor, parsed, direction);
   telemetry.reportTelemetry("command:fountain.shiftScenes");
   lastShiftedParseId = parsed.parseTime + "_" + direction;
-};
+}
 
 export function debugTokens() {
-  let uri = getActiveFountainDocument();
-  let fountain = getEditor(uri).document.getText();
+  const uri = getActiveFountainDocument();
+  const fountain = getEditor(uri).document.getText();
   vscode.workspace.openTextDocument({ language: "json" })
     .then(doc => vscode.window.showTextDocument(doc))
     .then(editor => {
-      let editBuilder = (textEdit: vscode.TextEditorEdit) => {
+      const editBuilder = (textEdit: vscode.TextEditorEdit) => {
         textEdit.insert(new vscode.Position(0, 0), JSON.stringify(afterparser.parse(fountain, getFountainConfig(uri), false), null, 4));
       };
       return editor.edit(editBuilder, {
@@ -87,7 +87,7 @@ export function debugTokens() {
 }
 
 export function visibleItems() {
-  let quickpick = vscode.window.createQuickPick();
+  const quickpick = vscode.window.createQuickPick();
   quickpick.canSelectMany = true;
 
   quickpick.items = [{
@@ -133,8 +133,8 @@ export function visibleItems() {
 }
 
 export function jumpTo(args: any) {
-  let editor = getEditor(getActiveFountainDocument());
-  let range = editor.document.lineAt(Number(args)).range;
+  const editor = getEditor(getActiveFountainDocument());
+  const range = editor.document.lineAt(Number(args)).range;
   editor.selection = new vscode.Selection(range.start, range.start);
   editor.revealRange(range, vscode.TextEditorRevealType.AtTop);
   //If live screenplay is visible scroll to it with

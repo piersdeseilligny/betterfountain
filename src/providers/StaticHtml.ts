@@ -7,7 +7,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 export async function exportHtml(){
-	var editor = getEditor(getActiveFountainDocument());
+	let editor = getEditor(getActiveFountainDocument());
 	var filename = editor.document.fileName.replace(/(\.(((better)?fountain)|spmd|txt))$/, '');
 	var saveuri = vscode.Uri.file(filename);
 	let filepath = await vscode.window.showSaveDialog(

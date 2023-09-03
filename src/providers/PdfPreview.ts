@@ -109,12 +109,12 @@ async function loadWebView(docuri: vscode.Uri, pdfpanel: vscode.WebviewPanel) {
       <script src="${resolveAsUri(pdfpanel, 'out', 'webviews', 'pdfjs', 'build', 'pdf.worker.js')}"></script>
       <script src="${resolveAsUri(pdfpanel, 'out', 'webviews', 'pdfjs', 'web', 'viewer.js')}"></script>`);
 
-  var config = getFountainConfig(docuri);
+  let config = getFountainConfig(docuri);
   pdfpanel.webview.postMessage({ command: 'setstate', uri: docuri.toString() });
   pdfpanel.webview.postMessage({ command: 'updateconfig', content: config });
 
-  var editor = getEditor(getActiveFountainDocument());
-  var config = getFountainConfig(getActiveFountainDocument());
+  const editor = getEditor(getActiveFountainDocument());
+  config = getFountainConfig(getActiveFountainDocument());
 
   pdfpanel.webview.onDidReceiveMessage(async message => {
     if (message.command == "revealLine") {

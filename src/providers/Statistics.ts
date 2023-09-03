@@ -90,12 +90,12 @@ async function loadWebView(docuri: vscode.Uri, statspanel: vscode.WebviewPanel) 
         <script src="${resolveAsUri(statspanel, 'out', 'webviews', 'stats.bundle.js')}" defer></script>
         <link rel="stylesheet" href="${resolveAsUri(statspanel, 'out', 'webviews', 'common.css')}">`)
 
-  var config = getFountainConfig(docuri);
+  let config = getFountainConfig(docuri);
   statspanel.webview.postMessage({ command: 'setstate', uri: docuri.toString() });
   statspanel.webview.postMessage({ command: 'updateconfig', content: config });
 
-  var editor = getEditor(getActiveFountainDocument());
-  var config = getFountainConfig(getActiveFountainDocument());
+  const editor = getEditor(getActiveFountainDocument());
+  config = getFountainConfig(getActiveFountainDocument());
 
   statspanel.webview.onDidReceiveMessage(async message => {
     if (message.command == "revealLine") {

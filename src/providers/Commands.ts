@@ -5,7 +5,8 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		//throw new Error("Method not implemented.");
 		return element;
 	}
-	getChildren(/*element?: vscode.TreeItem*/): vscode.ProviderResult<any[]> {
+
+	getChildren(): vscode.ProviderResult<vscode.TreeItem[]> {
 		const elements: vscode.TreeItem[] = [];
 		const treeExportPdf = new vscode.TreeItem("Export PDF");
 		treeExportPdf.iconPath = new vscode.ThemeIcon("export");
