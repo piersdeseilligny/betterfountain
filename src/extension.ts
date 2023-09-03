@@ -242,7 +242,6 @@ export function activate(context: ExtensionContext) {
 			changeFountainUIPersistence("outline_visibleSections", visibleSections);
 			changeFountainUIPersistence("outline_visibleSynopses", visibleSynopses);
 			outlineViewProvider.update();
-      characterViewProvider.update();
 		});
 		quickpick.show();
 	}));
