@@ -1,7 +1,7 @@
 
 import * as vscode from 'vscode';
 import { token } from '../token';
-import { getEditor } from '../extension';
+import { getEditor } from '../utils';
 
 var decortype_DialogueNumbers = vscode.window.createTextEditorDecorationType({
 

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as afterparser from '../afterwriting-parser';
-import { activeFountainDocument, activeParsedDocument, getEditor } from '../extension';
+import { activeParsedDocument } from '../extension';
+import { getActiveFountainDocument, getEditor } from '../utils';
 import * as config from '../configloader';
 
 export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
@@ -35,7 +36,7 @@ export class FountainOutlineTreeDataProvider implements vscode.TreeDataProvider<
 	}
   
 	reveal(): void {
-		const currentCursorLine = getEditor(activeFountainDocument()).selection.active.line;
+		const currentCursorLine = getEditor(getActiveFountainDocument()).selection.active.line;
 
 		// find the closest node without going past the current cursor
 		const closestNode = this.treeRoot
