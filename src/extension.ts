@@ -332,8 +332,6 @@ vscode.workspace.onDidSaveTextDocument(e => {
   }
 });
 
-
-
 vscode.workspace.onDidCloseTextDocument(e => {
   parsedDocuments.delete(e.uri.toString());
 });
