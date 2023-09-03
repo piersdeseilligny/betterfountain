@@ -19,6 +19,7 @@ import { exportHtml } from "./providers/StaticHtml";
 import { FountainCheatSheetWebviewViewProvider } from "./providers/Cheatsheet";
 import { createPdfPreviewPanel, FountainPdfPanelserializer, getPdfPreviewPanels, refreshPdfPanel, updateDocumentVersionPdfPreview } from "./providers/PdfPreview";
 import * as commands from "./commands";
+import { FountainLocationTreeDataProvider } from "./providers/Locations";
 
 /**
  * Approximates length of the screenplay based on the overall length of dialogue and action tokens
@@ -39,7 +40,8 @@ function updateStatus(lengthAction: number, lengthDialogue: number): void {
 
 var durationStatus: vscode.StatusBarItem;
 export const outlineViewProvider: FountainOutlineTreeDataProvider = new FountainOutlineTreeDataProvider();
-const characterViewProvider: FountainCharacterTreeDataProvider = new FountainCharacterTreeDataProvider();
+const charactersViewProvider: FountainCharacterTreeDataProvider = new FountainCharacterTreeDataProvider();
+const locationsViewProvider: FountainLocationTreeDataProvider = new FountainLocationTreeDataProvider();
 const commandViewProvider: FountainCommandTreeDataProvider = new FountainCommandTreeDataProvider();
 
 
@@ -55,7 +57,8 @@ export function activate(context: ExtensionContext) {
   telemetry.initTelemetry();
 
   registerOutlineTreeView();
-  registerCharacterTreeView();
+  registerCharactersTreeView();
+  registerLocationsTreeView();
   registerCommandTreeView();
   registerCheatsheetWebView();
 
@@ -130,9 +133,14 @@ export function activate(context: ExtensionContext) {
     vscode.window.createTreeView("fountain-commands", { treeDataProvider: commandViewProvider });
   }
   
-  function registerCharacterTreeView() {
-    vscode.window.registerTreeDataProvider("fountain-characters", characterViewProvider);
-    vscode.window.createTreeView("fountain-characters", { treeDataProvider: characterViewProvider, showCollapseAll: true });
+  function registerCharactersTreeView() {
+    vscode.window.registerTreeDataProvider("fountain-characters", charactersViewProvider);
+    vscode.window.createTreeView("fountain-characters", { treeDataProvider: charactersViewProvider, showCollapseAll: true });
+  }
+
+  function registerLocationsTreeView() {
+    vscode.window.registerTreeDataProvider("fountain-locations", locationsViewProvider);
+    vscode.window.createTreeView("fountain-locations", { treeDataProvider: locationsViewProvider, showCollapseAll: true });
   }
   
   function registerOutlineTreeView() {
@@ -289,7 +297,8 @@ export function parseDocument(document: TextDocument) {
 
   if (document.languageId == "fountain") {
     outlineViewProvider.update();
-    characterViewProvider.update();
+    charactersViewProvider.update();
+    locationsViewProvider.update();
   }
   updateStatus(output.lengthAction, output.lengthDialogue);
   showDecorations(document.uri);

@@ -76,6 +76,10 @@
           "id": "fountain-characters",
           "name": "Characters"
         },
+        {
+          "id": "fountain-locations",
+          "name": "Locations"
+        },
 				{
 					"id": "fountain-commands",
 					"name": "Commands"
