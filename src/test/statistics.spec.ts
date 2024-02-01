@@ -55,7 +55,7 @@ const fountainConfig: FountainConfig  = {
     preview_texture: false,
     text_more:undefined as unknown as string,
     text_contd:undefined as unknown as string,
-    text_scene_continuation: undefined as unknown as string,
+    text_scene_continued: undefined as unknown as string,
     scene_continuation_top: false,
     scene_continuation_bottom: false,
     parenthetical_newline_helper: false,
