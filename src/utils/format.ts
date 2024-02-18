@@ -24,4 +24,27 @@ export class FSFormat {
     }
     return naturalName;
   }
+
+  /**
+   * Converts a location name to a natural name.
+   * Example: "big-white-house" -> "Big White House"
+   * @param name The name to convert
+   */
+  static locationToNatural(name: string): string {
+    let naturalName = "";
+    let capitalizeNext = true;
+    for (let i = 0; i < name.length; i++) {
+      const c = name.charAt(i);
+      if (c === "-") {
+        naturalName += " ";
+        capitalizeNext = true;
+      } else if (capitalizeNext) {
+        naturalName += c.toUpperCase();
+        capitalizeNext = false;
+      } else {
+        naturalName += c.toLowerCase();
+      }
+    }
+    return naturalName;
+  }
 }

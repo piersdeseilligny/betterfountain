@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import * as path from 'path';
 import * as fs from "fs";
-import { parsedDocuments, diagnostics, diagnosticCollection, getEditor, parseDocument } from "../extension";
+import { parsedDocuments, diagnostics, diagnosticCollection, parseDocument } from "../extension";
 import { getFountainConfig } from "../configloader";
 import { TopmostLineMonitor, getVisibleLine } from "../utils/topMostLineMonitor";
-import { assetsPath } from "../utils";
+import { assetsPath, getEditor } from "../utils";
 
 interface preview{
     uri:string;

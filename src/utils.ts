@@ -1,10 +1,47 @@
 import * as vscode from "vscode";
+import { previews } from "./providers/Preview";
 import { FountainStructureProperties } from "./extension";
 import * as parser from "./afterwriting-parser";
 import * as path from "path";
 import * as telemetry from "./telemetry";
 import * as sceneNumbering from './scenenumbering';
 import * as fs from "fs";
+
+/**
+ * @returns {vscode.Uri} relevant fountain document for the currently selected preview or text editor
+ */
+export function getActiveFountainDocument(): vscode.Uri {
+  //first check if any previews have focus
+  for (let i = 0; i < previews.length; i++) {
+    if (previews[i].panel.active)
+      return vscode.Uri.parse(previews[i].uri);
+  }
+  //no previews were active, is activeTextEditor a fountain document?
+  if (vscode.window.activeTextEditor != undefined && vscode.window.activeTextEditor.document.languageId == "fountain") {
+    return vscode.window.activeTextEditor.document.uri;
+  }
+  //As a last resort, check if there are any visible fountain text editors
+  for (let i = 0; i < vscode.window.visibleTextEditors.length; i++) {
+    if (vscode.window.visibleTextEditors[i].document.languageId == "fountain")
+      return vscode.window.visibleTextEditors[i].document.uri;
+  }
+  //all hope is lost
+  return undefined;
+}
+
+/**
+ * @param uri the uri of the fountain document to search for
+ * @returns the editor that is currently displaying the fountain document with the given uri
+ */
+export function getEditor(uri: vscode.Uri): vscode.TextEditor {
+  //search visible text editors
+  for (let i = 0; i < vscode.window.visibleTextEditors.length; i++) {
+    if (vscode.window.visibleTextEditors[i].document.uri.toString() == uri.toString())
+      return vscode.window.visibleTextEditors[i];
+  }
+  //the editor was not visible,
+  return undefined;
+}
 
 //var syllable = require('syllable');
 
@@ -401,7 +438,7 @@ const extensionpath = vscode.extensions.getExtension("piersdeseilligny.betterfou
 export function resolveAsUri(panel:vscode.WebviewPanel,...p: string[]):string {
     const uri = vscode.Uri.file(path.join(extensionpath, ...p));
     return panel.webview.asWebviewUri(uri).toString();
-  };
+  }
 
 export function getAssetsUri(iconName:string):vscode.Uri{
 	return vscode.Uri.file(path.join(extensionpath, "assets", iconName+".svg"));

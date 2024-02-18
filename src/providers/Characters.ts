@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { activeParsedDocument } from '../extension';
 import { FSFormat } from '../utils/format';
+import { SceneTreeItem } from './Scene';
 
 export class FountainCharacterTreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   public readonly onDidChangeTreeDataEmitter: vscode.EventEmitter<vscode.TreeItem | null> =
@@ -35,8 +36,8 @@ function buildCharacterTree(): CharacterTreeItem {
   const root = new CharacterTreeItem("Characters", [], null);
   root.children = [];
 
-  for (const [character, wordCount] of characters.entries()) {
-    const child = new CharacterTreeItem(FSFormat.nameToNatural(character), wordCount, root);
+  for (const [character, scenes] of characters.entries()) {
+    const child = new CharacterTreeItem(FSFormat.nameToNatural(character), scenes, root);
     root.children.push(child);
   }
   return root;
@@ -47,25 +48,12 @@ class CharacterTreeItem extends vscode.TreeItem {
 
   constructor(label: string, public scenes: number[], public parent: CharacterTreeItem) {
     super(label, vscode.TreeItemCollapsibleState.Collapsed);
-    if (scenes.length > 0) {
-      this.description = `${scenes.length} scenes`;
-      for (const scene of scenes) {
-        const properties = activeParsedDocument().properties;
-        const sceneName = properties.sceneNames[scene-2];
-        const sceneLineNumber = properties.sceneLines[scene-2];
-        this.children.push(new SceneTreeItem(sceneName, sceneLineNumber, this));
-      }
-    }
-  }
-}
-
-class SceneTreeItem extends vscode.TreeItem {
-  constructor(label: string, public lineNumber: number, public parent: CharacterTreeItem) {
-    super(label);
-    this.command = {
-      command: 'fountain.jumpto',
-      title: '',
-      arguments: [lineNumber] 
+    this.description = `${scenes.length} scenes`;
+    for (const scene of scenes) {
+      const properties = activeParsedDocument().properties;
+      const sceneName = properties.sceneNames[scene-2];
+      const sceneLineNumber = properties.sceneLines[scene-2];
+      this.children.push(new SceneTreeItem(sceneName, sceneLineNumber, this));
     }
   }
 }

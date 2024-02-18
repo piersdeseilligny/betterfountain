@@ -1,5 +1,5 @@
 import { getFountainConfig } from "../configloader";
-import { activeFountainDocument, getEditor } from "../extension";
+import { getActiveFountainDocument, getEditor } from "../utils";
 import * as afterparser from "../afterwriting-parser";
 import { fileToBase64, openFile, revealFile } from "../utils";
 import * as vscode from "vscode";
@@ -7,7 +7,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 export async function exportHtml(){
-	var editor = getEditor(activeFountainDocument());
+	let editor = getEditor(getActiveFountainDocument());
 	var filename = editor.document.fileName.replace(/(\.(((better)?fountain)|spmd|txt))$/, '');
 	var saveuri = vscode.Uri.file(filename);
 	let filepath = await vscode.window.showSaveDialog(
