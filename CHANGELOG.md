@@ -1,5 +1,11 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.13.0** - *2024-02-18*
+    + Add character and location outline panels (Thanks Christoph Daxerer, @DrChristophFH !)
+    · Fix stuttery scrolling behaviour of the live preview when typing on the last line of a document
+    · Fix custom "continued" text being ignored (Thanks @mig42!)
+    · Fix bold+italic text in live preview, and improve styling (Thanks Bernd Busse, @tryone144 !)
+    
 ## **1.12.0** - *2023-02-17*
     + Add PDF Preview
     + Add location statistics (Thanks Oliver Paraskos!)
