@@ -207,6 +207,7 @@ export interface parseoutput {
 export var parse = function (original_script: string, cfg: any, generate_html: boolean): parseoutput {
     var lastFountainEditor: vscode.Uri;
     var config = getFountainConfig(lastFountainEditor);
+    var emptytitlepage = true;
     var script = original_script,
         result: parseoutput = {
             title_page: {
@@ -436,6 +437,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                 if(keyformat){
                     thistoken.index = keyformat.index;
                     result.title_page[keyformat.position].push(thistoken);
+                    emptytitlepage = false;
                 }
                 title_page_started = true;
                 continue;
@@ -684,17 +686,13 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
     
     // tidy up separators
 
-    if(!title_page_started){
-        result.title_page = undefined;
-    }
-
     if (generate_html) {
         var html = [];
         var titlehtml = [];
         var header = undefined;
         var footer = undefined;
         //Generate html for title page
-        if(result.title_page){
+        if(!emptytitlepage){
             for (const section of Object.keys(result.title_page)) {
                 result.title_page[section].sort(helpers.sort_index);
                 titlehtml.push(`<div class="titlepagesection" data-position="${section}">`);
