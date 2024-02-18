@@ -33,7 +33,7 @@ export class FountainConfig{
     preview_texture:boolean;
     text_more:string;
     text_contd:string;
-    text_scene_continuation:string;
+    text_scene_continued:string;
     scene_continuation_top:boolean;
     scene_continuation_bottom:boolean;
     parenthetical_newline_helper:boolean;
