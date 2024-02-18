@@ -192,6 +192,7 @@ vscode.window.onDidChangeTextEditorSelection(change => {
         var selection = change.selections[0];
         previews.forEach(p => {
             if(p.uri == change.textEditor.document.uri.toString())
+                isScrolling = true;
                 p.panel.webview.postMessage({ command: 'showsourceline', content: selection.active.line, linescount: change.textEditor.document.lineCount, source: "click" });
         });
 	}
