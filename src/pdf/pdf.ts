@@ -81,7 +81,7 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, e
         print: print.print_profiles[config.print_profile || "a4"],
         text_more: config.text_more,
         text_contd: config.text_contd,
-        split_dialogue: true
+        split_dialogue: config.split_dialogue
     });
 
     var pdf_options: pdfmaker.Options = {
