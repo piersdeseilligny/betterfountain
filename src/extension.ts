@@ -81,6 +81,7 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdf', commands.exportPdf));
   context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfdebug', async () => commands.exportPdf(false, true)));
   context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfcustom', async () => commands.exportPdf(true, false, true)));
+  context.subscriptions.push(vscode.commands.registerCommand('fountain.exportpdfchanges', async () => commands.exportPdf(true, false, false, true)));
   context.subscriptions.push(vscode.commands.registerCommand('fountain.exporthtml', exportHtml));
   context.subscriptions.push(vscode.commands.registerCommand('fountain.overwriteSceneNumbers', overwriteSceneNumbers));
   context.subscriptions.push(vscode.commands.registerCommand('fountain.updateSceneNumbers', updateSceneNumbers));

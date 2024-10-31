@@ -394,6 +394,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
 
 
         thistoken = create_token(text, current, i, new_line_length);
+        thistoken.original_line = i + 1;
         current = thistoken.end + 1;
 
         
