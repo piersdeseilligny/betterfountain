@@ -8,7 +8,7 @@ import { GeneratePdf } from "./pdf/pdf";
 import { getActiveFountainDocument, getEditor, openFile, shiftScenes } from "./utils";
 import * as telemetry from "./telemetry";
 
-export async function exportPdf(showSaveDialog: boolean = true, openFileOnSave: boolean = false, highlightCharacters = false) {
+export async function exportPdf(showSaveDialog: boolean = true, openFileOnSave: boolean = false, highlightCharacters = false, highlightChanges = false) {
   var canceled = false;
   if (canceled) return;
   var editor = getEditor(getActiveFountainDocument());
@@ -19,7 +19,7 @@ export async function exportPdf(showSaveDialog: boolean = true, openFileOnSave: 
 
   var parsed = await afterparser.parse(editor.document.getText(), config, false);
 
-  var exportconfig: ExportConfig = { highlighted_characters: [] };
+  var exportconfig: ExportConfig = { highlighted_characters: [], highlighted_changes: { lines: [], highlightColor: []} };
   var filename = editor.document.fileName.replace(/(\.(((better)?fountain)|spmd|txt))$/, ''); //screenplay.fountain -> screenplay
   if (highlightCharacters) {
     var highlighted_characters = await vscode.window.showQuickPick(Array.from(parsed.properties.characters.keys()), { canPickMany: true });
@@ -33,6 +33,93 @@ export async function exportPdf(showSaveDialog: boolean = true, openFileOnSave: 
       }
       filename += '(' + filenameCharacters.map(v => v.replace(' ', '')).join(',') + ')'; //remove spaces from names and join
     }
+  }
+  if (highlightChanges) {
+    // Get the workspace folder of the active document
+    const docUri = editor.document.uri;
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(docUri);
+    if (!workspaceFolder) {
+      vscode.window.showErrorMessage('No workspace folder found.');
+      return;
+    }
+  
+    // Check if the workspace is a Git repository
+    const gitExtension = vscode.extensions.getExtension('vscode.git')?.exports;
+    const api = gitExtension?.getAPI(1);
+    if (!api) {
+      vscode.window.showErrorMessage('Git extension not found.');
+      return;
+    }
+  
+    const repo = api.repositories.find((r: { rootUri: { path: string; }; }) => r.rootUri.path === workspaceFolder.uri.path);
+    if (!repo) {
+      vscode.window.showErrorMessage('No Git repository found in the workspace.');
+      return;
+    }
+  
+    // Get the commits for the active document
+    const commits = await repo.log({ path: docUri.path, maxEntries: 100 });
+    if (!commits.length) {
+      vscode.window.showErrorMessage('No commits found in the Git repository.');
+      return;
+    }
+  
+    // Show the commits in a dropdown
+    const pickItems = commits.map((commit: { message: string; hash: string; }) => ({
+      label: commit.message,
+      description: commit.hash
+    }));
+    const selectedCommit: any = await vscode.window.showQuickPick(pickItems, { placeHolder: 'Select a commit' });
+    if (!selectedCommit) {
+      return;
+    }
+  
+    const commitHash = selectedCommit.description;
+    const diffOutput = await repo.diffWith(commitHash, docUri.path);
+
+    const lineNumbers: number[] = [];
+    const lines = diffOutput.split('\n');
+    let newLineNum = 0;
+    const hunkHeaderRegex = /^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/;
+  
+    for (const line of lines) {
+      if (line.startsWith('@@')) {
+        const match = hunkHeaderRegex.exec(line);
+        if (match) {
+          newLineNum = parseInt(match[1], 10) - 1;
+        }
+      } else if (line.startsWith('+') && !line.startsWith('+++')) {
+        newLineNum++;
+        lineNumbers.push(newLineNum);
+      } else if (line.startsWith('-') && !line.startsWith('---')) {
+        // Removed line, do not increment newLineNum
+      } else {
+        // Unchanged line
+        newLineNum++;
+      }
+    }
+
+    if (lineNumbers.length === 0) {
+      vscode.window.showInformationMessage('No added or changed lines found in the selected commit.');
+      return;
+    }
+
+    const highlightColor = await vscode.window.showQuickPick(['yellow', 'green', 'blue', 'red', 'magenta', 'cyan', 'orange', 'brown'], { placeHolder: 'Select a highlight color' }) as keyof typeof highlightColorMap;
+    const highlightColorMap = {
+      yellow: [255, 252, 82],
+      green: [117, 255, 82],
+      blue: [82, 194, 255],
+      red: [252, 101, 96],
+      magenta: [252, 114, 222],
+      cyan: [122, 250, 250],
+      orange: [252, 186, 78],
+      brown: [181, 140, 101]
+    };
+
+    exportconfig.highlighted_changes.highlightColor = highlightColorMap[highlightColor];
+    
+    exportconfig.highlighted_changes.lines = lineNumbers;
+
   }
   filename += '.pdf'; //screenplay -> screenplay.pdf
 

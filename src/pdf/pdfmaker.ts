@@ -684,6 +684,10 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
                         new_text_properties.bold = true;
                     }
                 };
+                if (!!expcfg && !!expcfg.highlighted_changes.lines && lline.token.original_line && expcfg.highlighted_changes.lines.includes(lline.token.original_line)) {
+                    new_text_properties.highlight = true;
+                    new_text_properties.highlightcolor = expcfg.highlighted_changes.highlightColor;
+                };
                 return new_text_properties
             }
 

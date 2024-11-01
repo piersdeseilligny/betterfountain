@@ -470,6 +470,9 @@
 		"test": "node node_modules/jest/bin/jest.js",
 		"open-in-browser": "vscode-test-web --extensionDevelopmentPath=. ."
 	},
+	"extensionDependencies": [
+		"vscode.git"
+	],
 	"devDependencies": {
 		"@types/base64-stream": "^1.0.2",
 		"@types/d3": "^5.16.4",

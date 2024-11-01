@@ -13,6 +13,8 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		//const treeExportPdfDebug = new vscode.TreeItem("Export PDF with default name");
 		const treeExportPdfCustom= new vscode.TreeItem("Export PDF with highlighted characters");
 		treeExportPdfCustom.iconPath = new vscode.ThemeIcon("export");
+		const treeExportPdfChanges = new vscode.TreeItem("Export PDF with highlighted changes");
+		treeExportPdfChanges.iconPath = new vscode.ThemeIcon("export");
 		const treeExportHtml = new vscode.TreeItem("Export HTML");
 		treeExportHtml.iconPath = new vscode.ThemeIcon("export");
 		treeExportHtml.tooltip = "Export live preview as .html document"
@@ -41,6 +43,10 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		};*/
 		treeExportPdfCustom.command = {
 			command: 'fountain.exportpdfcustom',
+			title: ''
+		};
+		treeExportPdfChanges.command = {
+			command: 'fountain.exportpdfchanges',
 			title: ''
 		};
 		treeExportHtml.command = {
@@ -74,6 +80,7 @@ export class FountainCommandTreeDataProvider implements vscode.TreeDataProvider<
 		elements.push(treeExportPdf);
 	//	elements.push(treeExportPdfDebug);
 		elements.push(treeExportPdfCustom);
+		elements.push(treeExportPdfChanges);
 		elements.push(treeExportHtml);
 		elements.push(treeLivePreview);
 		elements.push(treePdfPreview);

@@ -41,6 +41,7 @@ export class FountainConfig{
 
 export class ExportConfig {
     highlighted_characters: Array<String>;
+    highlighted_changes: { lines: Array<number>, highlightColor: Array<number> };
 }
 
 export type FountainUIPersistence = {
