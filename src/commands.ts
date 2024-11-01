@@ -104,7 +104,7 @@ export async function exportPdf(showSaveDialog: boolean = true, openFileOnSave: 
       return;
     }
 
-    const highlightColor = await vscode.window.showQuickPick(['yellow', 'green', 'blue', 'red', 'magenta', 'cyan', 'orange', 'brown'], { placeHolder: 'Select a highlight color' }) as keyof typeof highlightColorMap;
+    const highlightColor = await vscode.window.showQuickPick(['Only highlight changes with asterisks','yellow', 'green', 'blue', 'red', 'magenta', 'cyan', 'orange', 'brown'], { placeHolder: 'Select an optional highlight color:' }) as keyof typeof highlightColorMap;
     const highlightColorMap = {
       yellow: [255, 252, 82],
       green: [117, 255, 82],

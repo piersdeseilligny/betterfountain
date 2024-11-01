@@ -178,6 +178,9 @@ async function initDoc(opts: Options) {
         if (options.highlight) {
             doc.highlight(x * 72, (y * 72) + doc.currentLineHeight() / 2, doc.widthOfString(text), doc.currentLineHeight(), { color: options.highlightcolor });
         }
+        if(options.asteriskMargin){
+            doc.simple_text(' *',(print.page_width - print.right_margin)*72, (y * 72) + doc.currentLineHeight()/1.25);
+        }
 
         if (print.note.italic) {
             text = text.replace(/\[\[/g, '*[[').replace(/\]\]/g, ']]*');
@@ -667,7 +670,8 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
                 color: color,
                 highlight: false,
                 bold:false,
-                highlightcolor: [0, 0, 0]
+                highlightcolor: [0, 0, 0],
+                asteriskMargin:false,
             }
 
             function get_text_properties(lline = line, expcfg = exportcfg, old_text_properties = general_text_properties) {
@@ -685,8 +689,11 @@ async function generate(doc: any, opts: any, lineStructs?: Map<number, lineStruc
                     }
                 };
                 if (!!expcfg && !!expcfg.highlighted_changes.lines && lline.token.original_line && expcfg.highlighted_changes.lines.includes(lline.token.original_line)) {
-                    new_text_properties.highlight = true;
-                    new_text_properties.highlightcolor = expcfg.highlighted_changes.highlightColor;
+                    if(expcfg.highlighted_changes.highlightColor != undefined){
+                        new_text_properties.highlight = true;
+                        new_text_properties.highlightcolor = expcfg.highlighted_changes.highlightColor;
+                    }
+                    new_text_properties.asteriskMargin = true;
                 };
                 return new_text_properties
             }

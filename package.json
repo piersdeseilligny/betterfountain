@@ -367,6 +367,11 @@
 				"category": "Fountain"
 			},
 			{
+				"command": "fountain.exportpdfchanges",
+				"title": "Export screenplay PDF with highlighted changes",
+				"category": "Fountain"
+			},
+			{
 				"command": "fountain.jumpto",
 				"title": "Jump to line",
 				"category": "Fountain"
