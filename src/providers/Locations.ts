@@ -37,9 +37,11 @@ function buildLocationTree(): LocationTreeItem {
   const root = new LocationTreeItem("", [], null);
   root.children = [];
 
-  for (const [name, scenes] of locations) {
-    const child = new LocationTreeItem(FSFormat.locationToNatural(name), scenes, root);
-    root.children.push(child);
+  for (const [_, scenes] of locations) {
+    if(scenes.length > 0){
+      const child = new LocationTreeItem(FSFormat.locationToNatural(scenes[0].name), scenes, root);
+      root.children.push(child);
+    }
   }
   return root;
 }
