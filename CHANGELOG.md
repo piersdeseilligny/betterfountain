@@ -1,5 +1,8 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.14.1** - *2024-12-23*
+    · Fix non-ascii characters being removed from location names in the "Locations" tree view (Issue #222)
+
 ## **1.14.0** - *2024-11-01*
     + Add ability to export a PDF which highlights changes relative to a previous git commit (Thanks @jannikdonker for the PR!)
     · Fix split dialogue option not working in the PDF Export (thanks @re1re2!)
