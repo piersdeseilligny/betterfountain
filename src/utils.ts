@@ -366,7 +366,7 @@ export function revealFile(p:string){
 		cmd = `explorer.exe /select,${p}`
 	}
 	else if(process.platform == "darwin"){
-		cmd = `open -r ${p}`
+		cmd = `open -R ${p}`
 	}
 	else{
 		p = path.parse(p).dir;
