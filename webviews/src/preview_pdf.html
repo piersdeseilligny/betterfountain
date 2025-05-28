@@ -9,10 +9,17 @@
 
   <title>PDF.js viewer</title>
   $HEADLINKS$
+  <script>
+    document.addEventListener('DOMContentLoaded', () => document.getElementById('nightModeToggle').addEventListener('click', () => document.body[`${document.body.hasAttribute("nightmode") ? 'remove' : 'set'}Attribute`]('nightmode', '')));
+  </script>
 </head>
 <style>
   body {
     padding: 0;
+  }
+
+  body[nightmode] #viewerContainer {
+    filter: invert(0.9) hue-rotate(162deg);
   }
 </style>
 
@@ -283,6 +290,10 @@
                 </div>
                 <div id="editorModeSeparator" class="verticalToolbarSeparator"></div>
               </div>
+              <button id="nightModeToggle" class="toolbarButton" title="Toggle Night Mode"
+                tabindex="36" data-l10n-id="night_mode">
+                <span data-l10n-id="night_mode_label">Night Mode</span>
+              </button>
               <button id="secondaryToolbarToggle" class="toolbarButton" title="Tools" tabindex="48" data-l10n-id="tools"
                 aria-expanded="false" aria-controls="secondaryToolbar">
                 <span data-l10n-id="tools_label">Tools</span>
