@@ -6,7 +6,7 @@
 	"license": "MIT",
 	"aiKey": "0c2689ab-4ce9-416d-a585-c9765b7f4c88",
 	"icon": "icon.png",
-	"version": "1.14.1",
+	"version": "1.14.2",
 	"capabilities": {
 		"untrustedWorkspaces": {
 			"supported": true
@@ -34,7 +34,7 @@
 		"pdf"
 	],
 	"engines": {
-		"vscode": "^1.62.0"
+		"vscode": "^1.75.0"
 	},
 	"activationEvents": [
 		"onLanguage:fountain",
@@ -53,7 +53,7 @@
 		"configurationDefaults": {
 			"[fountain]": {
 				"editor.wordWrap": "on",
-				"editor.wordBasedSuggestions": false,
+				"editor.wordBasedSuggestions": "off",
 				"editor.suggestSelection": "first"
 			}
 		},
@@ -508,7 +508,7 @@
 	"dependencies": {
 		"@vscode/codicons": "^0.0.32",
 		"base64-stream": "^1.0.0",
-		"blob": "0.1.0",
+		"cross-blob": "^3.0.2",
 		"diff": "^5.0.0",
 		"font-finder": "^1.1.0",
 		"he": "^1.2.0",

@@ -1,5 +1,8 @@
 **If you like BetterFountain, please consider [sponsoring me on GitHub](https://github.com/sponsors/piersdeseilligny). I spend a lot of energy on this project, and any contribution would mean the world to me**
 
+## **1.14.2** - *2025-06-14*
+    · Fixed crash with VSCode 1.101
+
 ## **1.14.1** - *2024-12-23*
     · Fix non-ascii characters being removed from location names in the "Locations" tree view (Issue #222)
 

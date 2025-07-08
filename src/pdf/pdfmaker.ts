@@ -1,15 +1,16 @@
 // TODO: Extract pdfmaker to a separate library (+++++)
 
-import * as fountainconfig from "../configloader";
-import * as print from "./print";
-import * as path from 'path';
-import * as vscode from 'vscode';
-import helpers from "../helpers";
-import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../utils";
-import * as he from 'he';
-import * as addTextbox from 'textbox-for-pdfkit';
-import { regex } from "../afterwriting-parser";
-import { Base64Encode } from "base64-stream";
+import * as fountainconfig from "../configloader"; //ok
+import * as print from "./print";//ok
+import * as path from 'path'; //ok
+import * as vscode from 'vscode'; //ok
+import helpers from "../helpers"; //ok
+import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../utils"; //ok
+import * as he from 'he'; //ok
+import * as addTextbox from 'textbox-for-pdfkit'; //ok
+import { regex } from "../afterwriting-parser"; //ok
+import { Base64Encode } from "base64-stream"; //ok
+import Blob from "cross-blob";
 
 // import * as blobUtil from "blob-util";
 export class Options {
@@ -20,9 +21,8 @@ export class Options {
     font: string;
     exportconfig: fountainconfig.ExportConfig;
 }
-var PDFDocument = require('pdfkit'),
+var PDFDocument = require('pdfkit');
     //helper = require('../helpers'),
-    Blob = require('blob');
 
 var create_simplestream = function (filepath: string) {
     var simplestream: any = {
