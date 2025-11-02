@@ -391,7 +391,17 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
 };
 
 const getWordCount = (script: string): number => {
-    return ((script || '').match(/\S+/g) || []).length 
+    if (!script) return 0;
+
+    // Remove Fountain comments ([[ ... ]])
+    let cleaned = script.replace(/\[\[[\s\S]*?\]\]/g, '');
+
+    // Remove Fountain boneyards (/* ... */)
+    cleaned = cleaned.replace(/\/\*[\s\S]*?\*\//g, '');
+
+    // Count remaining words
+    const words = cleaned.match(/\S+/g);
+    return words ? words.length : 0;
 }
 const getCharacterCount = (script: string): number => {
     return script.length 
