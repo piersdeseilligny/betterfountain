@@ -204,7 +204,8 @@ export class Liner {
                 if (lines[i].token &&
                     lines[i].token.type === "character" &&
                     lines[i].token.dual === "left" &&
-                    lines[i].right_column === undefined) {
+                    lines[i].right_column === undefined &&
+                    lines[i].local_index === 0) {
                     return i;
                 }
             }
@@ -214,7 +215,8 @@ export class Liner {
             for (var i = index; i < lines.length; i++) {
                 if (lines[i].token &&
                     lines[i].token.type === "character" &&
-                    lines[i].token.dual === "right") {
+                    lines[i].token.dual === "right" &&
+                    lines[i].local_index === 0) {
                     return i;
                 }
             }
