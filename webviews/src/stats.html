@@ -1,606 +1,1535 @@
 <html>
+
 <head>
     $HEADLINKS$
     <style>
-    body {
-        animation: fadein 0s;
-        padding:0;
-        --scenecolor-dawn: rgb(202 173 142 / 50%);
-        --scenecolor-day: rgb(202 173 142);
-        --scenecolor-dusk: rgba(92, 51, 167, 0.5);
-        --scenecolor-night: rgb(116 85 173);
-        --scenecolor-evening: var(--scenecolor-dusk);
-        --scenecolor-morning: var(--scenecolor-dawn);
-        --scenecolor-int: rgb(177 104 82);
-        --scenecolor-ext: rgb(82 173 160);
-        --scenecolor-mixed: rgb(138 61 61);
-        --scenecolor-other: black;
-    }
-
-    @keyframes fadein {
-        from {
-            opacity:0;
+        body {
+            animation: fadein 0s;
+            padding: 0 0 23px !important;
+            --scenecolor-dawn: rgb(202 173 142 / 50%);
+            --scenecolor-day: rgb(202 173 142);
+            --scenecolor-dusk: rgba(92, 51, 167, 0.5);
+            --scenecolor-night: rgb(116 85 173);
+            --scenecolor-evening: var(--scenecolor-dusk);
+            --scenecolor-morning: var(--scenecolor-dawn);
+            --scenecolor-int: rgb(177 104 82);
+            --scenecolor-ext: rgb(82 173 160);
+            --scenecolor-mixed: rgb(138 61 61);
+            --scenecolor-other: black;
         }
-        to {
-            opacity:1;
+
+        @keyframes fadein {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
-    }
 
-    table {
-        border-collapse: collapse;
-        border: 1px solid;
-        border-color: var(--vscode-textSeparator-foreground);
-        table-layout: fixed;
-    }
+        table {
+            border-collapse: collapse;
+            border: 1px solid;
+            border-color: var(--vscode-textSeparator-foreground);
+            table-layout: fixed;
+        }
 
-    th {
-    	text-align: left;
-    	border-bottom: 1px solid;
-        border-color:var(--vscode-textSeparator-foreground);
-        cursor: pointer;
-        user-select: none;
-    }
+        th {
+            text-align: left;
+            border-bottom: 1px solid;
+            border-color: var(--vscode-textSeparator-foreground);
+            cursor: pointer;
+            user-select: none;
+        }
 
-    tbody>tr:nth-child(even){
-        background-color:rgba(255,255,255,0.025);
-    }
+        tbody>tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.025);
+        }
 
-    .maincontent{
-        bottom:23px;
-        top:0;
-        left:0;
-        right:0;
-    }
+        .maincontent {
+            bottom: 23px;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
 
-    td, th {
-        padding: 5px 10px;
-        position:relative;
-        overflow:hidden;
-    }
-    td:first-child {
-        font-weight: 600;
-    }
-    td:not(:first-child), th:not(:first-child){
-        border-left: solid 1px;
-        border-color:var(--vscode-textSeparator-foreground) !important;
-    }
-    th.sorting_asc:after, th.sorting_desc:after {
-        content: '\eab4';
-        font-family: 'codicon';
-        position: absolute;
-        right: 4px;
-        top:7px;
-        background: var(--vscode-editor-background);
-    }
-    th.sorting_desc:after {
-        content: '\eab7';
-    }
+        td,
+        th {
+            padding: 5px 10px;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .dataTables_length{
-        float: left;
-        margin-bottom: 12px;
-    }
-    .dataTables_filter{
-        float:right;
-        margin-bottom: 12px;
-        margin-right:5px;
-    }
+        td:first-child {
+            font-weight: 600;
+        }
 
-    .hyperbtn{
-        text-decoration: none;
-        outline:none !important;
-    }
-    .hyperbtn:hover{
-        opacity:0.6;
-    }
-    .chartinfo{
-        color: var(--vscode-input-placeholderForeground);
-        float: left;
-        margin-top: 8px;
-        margin-left: 10px;
-        user-select:none;
-    }
-    input{
-        background-color: var(--vscode-input-background);
-        outline: solid 1px;
-        border:none;
-        outline-color: transparent;
-        font-family: inherit;
-        color: var(--vscode-input-foreground);
-        height: 25px;
-        padding:3px;
-        padding-left:5px;
-        display:block;
-        outline-offset: -1px;
-        font-size:13px;
-    }
-    input::-webkit-search-cancel-button{
-        display:none;
-    }
-    input::placeholder{
-        color: var(--vscode-input-placeholderForeground);
-        user-select: none;
-    }
-    input:focus{
-        outline-color: var(--vscode-focusBorder);
-    }
+        td:not(:first-child),
+        th:not(:first-child) {
+            border-left: solid 1px;
+            border-color: var(--vscode-textSeparator-foreground) !important;
+        }
 
-    select{
-        background: transparent;
-        font-weight: 600;
-        outline:none;
-        border: none;
-        display: inline-block;
-        width: 40px;
-        color: var(--vscode-textLink-foreground);
-    }
-    option{
-        background: var(--vscode-menu-background);
-        border: none;
-        outline: none;
-        color: var(--vscode-menu-foreground);
-    }
+        th.sorting_asc:after,
+        th.sorting_desc:after {
+            content: '\eab4';
+            font-family: 'codicon';
+            position: absolute;
+            right: 4px;
+            top: 7px;
+            background: var(--vscode-editor-background);
+        }
 
-    .sidenav{
-        position:fixed;
-        width: 200px;
-        height:100%;
-        top:0;
-        background-color:var(--vscode-sideBar-background);
-        user-select: none;
-        display: flex;
-        flex-direction: column;
-    }
-    .sidenav .footer{
-        margin-top:auto;
-        margin-bottom:12px;
-    }
-    .sidenav .title{
-        margin-left: 24px;
-        margin-top: 24px;
-        margin-bottom: 6px;
-        font-size: 16px;
-        font-weight: 500;
-    }
-    .sidenav .title .codicon{
-        font-size:18px;
-    }
-    .sidenav ul{
-        list-style-type:none;
-        padding: 0;
-        margin:0;
-    }
-    .sidenav li{
-        cursor:pointer;
-        padding: 2px 24px 2px 24px;
-        color:var(--vscode-list-deemphasizedForeground);
-        line-height:24px;
-    }
-    .sidenav .codicon{
-        vertical-align: sub;
-        margin-right:6px;
-    }
-    .sidenav li:hover{
-        color:var(--vscode-list-hoverForeground);
-        background-color:var(--vscode-list-hoverBackground);
-    }
-    .sidenav li:active{
-        color: var(--vscode-list-inactiveSelectionForeground);
-    }
-    .sidenav li.active{
-        font-weight: 500;
-        color: var(--vscode-list-inactiveSelectionForeground);
-        background-color:var(--vscode-list-inactiveSelectionBackground)
-    }
-    #maincontent.isactive .sidenav li.active{
-        color: var(--vscode-list-activeSelectionForeground);
-        background-color:var(--vscode-list-activeSelectionBackground)
-    }
+        th.sorting_desc:after {
+            content: '\eab7';
+        }
 
-    .splitview #content{
-        margin-left:200px;
-        box-sizing:border-box;
-    }
-    #content > div{
-        margin: 0 24px 0px 48px;
-    }
-    .flexgroup{
-        display: flex;
-        flex-wrap: wrap;
-    }
-    .flexgroup{
-        margin-top:-12px;
-    }
+        .dataTables_length {
+            float: left;
+            margin-bottom: 12px;
+        }
 
-    .flexgroup.durationstats .flexitem{
-        margin-left: 0px;
-    }
-    .flexgroup.durationstats .description, .flexgroup.durationstats .number{
-        text-align: start;
-    }
-    .flexitem{
-        max-width:min-content;
-        margin-right: 43px;
-        margin-top:12px;
-    }
-    .flexitem:last-child{
-        margin-right: 0;
-    }
-    .flexitem .description{
-        text-align: center;
-        opacity: 0.75;
-        user-select: none;
-    }
-    .flexitem .number{
-        text-align: center;;
-        font-size: 22px;
-    }
-    .flexitem .minor .number{
-        font-size:16px;
-    }
-    #lengthStats-pagesFractional{
-        font-size: 0.75em;
-        transform: translate(2px,-2px);
-        display: inline-block;
-        opacity: 0.8;
-    }
-    h1{
-        font-weight: 500;
-        margin-top:24px;
-        margin-bottom:12px;
-        user-select: none;
-        position: relative;
-    }
-    h1 .codicon{
-        font-size: 20px !important;
-        position: absolute;
-        bottom: 5px;
-        left: -32px;
-    }
+        .dataTables_filter {
+            float: right;
+            margin-bottom: 12px;
+            margin-right: 5px;
+        }
 
-    .mouse-line{
-        fill: var(--vscode-panel-border);
-    }
-    .caret-line{
-        fill: var(--vscode-panel-border);
-    }
-    .selection-box{
-        fill:var(--vscode-editor-selectionBackground);
-    }
+        .hyperbtn {
+            text-decoration: none;
+            outline: none !important;
+        }
 
-    .durationstats-selection{
-        font-size:12px;
-        opacity:0.8;
-    }
-    #durationStats-lengthchart .chart-data[data-line="0"]{
-        stroke: var(--vscode-symbolIcon-constructorForeground);
-    }
-    #durationStats-action, #durationStats-action-hover, .durationstats-selection-action{
-        color: var(--vscode-symbolIcon-constructorForeground);
-    }
-    #durationStats-lengthchart .chart-data[data-line="1"]{
-        stroke: var(--vscode-symbolIcon-fieldForeground);
-    }
-    #durationStats-dialogue, #durationStats-dialogue-hoverm .durationstats-selection-dialogue{
-        color: var(--vscode-symbolIcon-fieldForeground);
-    }
-    .chart-container{
-        stroke:var(--vscode-panel-border);
-        fill:var(--vscode-panel-background);
-    }
-    .mouse-over-effects text{
-        fill:var(--vscode-breadcrumb-foreground);
-        background-color: var(--vscode-breadcrumb-background);
-    }
-    .durationstats-selection-action{
-        fill:var(--vscode-symbolIcon-constructorForeground) !important;
-    }
-    .durationstats-selection-dialogue{
-        fill:var(--vscode-symbolIcon-fieldForeground) !important;
-    }
-    tspan.chevron{
-        font: normal normal normal 16px/1 codicon;
-    }
+        .hyperbtn:hover {
+            opacity: 0.6;
+        }
 
-    svg .button, a.smallbtn{
-        font: normal normal normal 16px/1 codicon;
-        width:24px;
-        fill:var(--vscode-breadcrumb-foreground);
-        color:var(--vscode-breadcrumb-foreground);
-        user-select: none;
-        cursor: pointer;
-    }
-    svg .button:hover, a.smallbtn:hover{
-        fill:var(--vscode-breadcrumb-focusForeground);
-        color:var(--vscode-breadcrumb-focusForeground);
-    }
-    svg .button:active, a.smallbtn:active{
-        fill:var(--vscode-breadcrumb-activeSelectionForeground);
-        color:var(--vscode-breadcrumb-activeSelectionForeground);
-    }
+        .chartinfo {
+            color: var(--vscode-input-placeholderForeground);
+            float: left;
+            margin-top: 8px;
+            margin-left: 10px;
+            user-select: none;
+        }
 
-    .buttonseperator{
-        fill:var(--vscode-breadcrumb-foreground);
-        opacity:0.5;
-        transform: translateX(8px);
-    }
-    .footer .codicon{
-        font-size:18px;
-        color: var(--vscode-editorwarning-foreground) !important;
-    }
-    .footer .btntitle{
-        font-size: 16px;
-        font-weight: 500;
-        color: var(--vscode-editorwarning-foreground) !important;
-    }
-    .footer .details {
-        line-height: 16px;
-        display: block;
-        margin-left: 28px;
-        margin-right: -12px;
-    }
-    .footer li{
-        padding-top:12px;
-        padding-bottom: 12px;
-    }
-    #characterStats-lengthchart{
-        height:120px;
-    }
-    .deemphasize{
-        opacity:0.5;
-    }
-    .dataTables_paginate{
-        float:left;
-        margin-top: 10px;
-        margin-left: 5px;
-    }
-    .dataTables_info{
-        float:right;
-        margin-top: 10px;
-        margin-right: 5px;
-    }
-    .dataTable tr td{
-        color: var(--vscode-descriptionForeground);
-        transition: all 0.2s;
-    }
-    .dataTable tr:hover td{
-        color: var(--vscode-textSeparatorForeground)  !important;
-        transition:none;
-    }
-    .dataTables_paginate .paginate_button{
-        cursor: pointer;
-        padding: 2px;
-        font-size:13px;
-    }
-    a.paginate_button:not(.current):hover {
-        opacity: 0.6;
-    }
-    .dataTables_paginate .paginate_button.current{
-        cursor:default;
-        color: var(--vscode-descriptionForeground);
-        opacity:1;
-    }
-    .linechart [data-line], .barcodechart .chart-data-barcode {
-        transition: fill 0.2s, stroke 0.2s;
-    }
-    .linechart circle[data-line].hover,
-    .barcodechart .chart-data-barcode.hover {
-        fill:var(--vscode-foreground) !important;
-        transition:none;
-    }
-    .linechart path[data-line].hover{
-        stroke:var(--vscode-foreground) !important;
-        transition:none;
-    }
+        input {
+            background-color: var(--vscode-input-background);
+            outline: solid 1px;
+            border: none;
+            outline-color: transparent;
+            font-family: inherit;
+            color: var(--vscode-input-foreground);
+            height: 25px;
+            padding: 3px;
+            padding-left: 5px;
+            display: block;
+            outline-offset: -1px;
+            font-size: 13px;
+        }
 
-    .chart-data-barcode[data-y='int']{
-        fill: var(--scenecolor-int)
-    }
-    .chart-data-barcode[data-y='ext']{
-        fill:var(--scenecolor-ext)
-    }
-    .chart-data-barcode[data-y='mixed']{
-        fill:var(--scenecolor-mixed)
-    }
-    .chart-data-barcode[data-y='other']{
-        fill:var(--scenecolor-other)
-    }
-    .chart-data-barcode[data-y='morning'], .chart-data-barcode[data-y='dawn']{
-        fill:var(--scenecolor-dawn)
-    }
-    .chart-data-barcode[data-y='day']{
-        fill:var(--scenecolor-day)
-    }
-    .chart-data-barcode[data-y='evening'], .chart-data-barcode[data-y='dusk']{
-        fill: var(--scenecolor-dusk)
-    }
-    .chart-data-barcode[data-y='night']{
-        fill: var(--scenecolor-night)
-    }
+        input::-webkit-search-cancel-button {
+            display: none;
+        }
 
-    .summary{
-        margin: 6px 0 12px 0;
-        opacity:0.75;
-    }
-    .hidden{
-        display: none;
-    }
-    
+        input::placeholder {
+            color: var(--vscode-input-placeholderForeground);
+            user-select: none;
+        }
+
+        input:focus {
+            outline-color: var(--vscode-focusBorder);
+        }
+
+        select {
+            background: transparent;
+            font-weight: 600;
+            outline: none;
+            border: none;
+            display: inline-block;
+            width: 40px;
+            color: var(--vscode-textLink-foreground);
+        }
+
+        option {
+            background: var(--vscode-menu-background);
+            border: none;
+            outline: none;
+            color: var(--vscode-menu-foreground);
+        }
+
+        .sidenav {
+            position: fixed;
+            width: 200px;
+            height: 100%;
+            top: 0;
+            background-color: var(--vscode-sideBar-background);
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidenav .footer {
+            margin-top: auto;
+            margin-bottom: 12px;
+        }
+
+        .sidenav .title {
+            margin-left: 24px;
+            margin-top: 24px;
+            margin-bottom: 6px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .sidenav .title .codicon {
+            font-size: 18px;
+        }
+
+        .sidenav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidenav li {
+            cursor: pointer;
+            padding: 2px 24px 2px 24px;
+            color: var(--vscode-list-deemphasizedForeground);
+            line-height: 24px;
+        }
+
+        .sidenav .codicon {
+            vertical-align: sub;
+            margin-right: 6px;
+        }
+
+        .sidenav li:hover {
+            color: var(--vscode-list-hoverForeground);
+            background-color: var(--vscode-list-hoverBackground);
+        }
+
+        .sidenav li:active {
+            color: var(--vscode-list-inactiveSelectionForeground);
+        }
+
+        .sidenav li.active {
+            font-weight: 500;
+            color: var(--vscode-list-inactiveSelectionForeground);
+            background-color: var(--vscode-list-inactiveSelectionBackground)
+        }
+
+        #maincontent.isactive .sidenav li.active {
+            color: var(--vscode-list-activeSelectionForeground);
+            background-color: var(--vscode-list-activeSelectionBackground)
+        }
+
+        .splitview #content {
+            margin-left: 200px;
+            box-sizing: border-box;
+        }
+
+        #content>div {
+            margin: 0 24px 0px 48px;
+        }
+
+        .flexgroup {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .flexgroup {
+            margin-top: -12px;
+        }
+
+        .flexgroup.durationstats .flexitem {
+            margin-left: 0px;
+        }
+
+        .flexgroup.durationstats .description,
+        .flexgroup.durationstats .number {
+            text-align: start;
+        }
+
+        .flexitem {
+            max-width: min-content;
+            margin-right: 43px;
+            margin-top: 12px;
+        }
+
+        .flexitem:last-child {
+            margin-right: 0;
+        }
+
+        .flexitem .description {
+            text-align: center;
+            opacity: 0.75;
+            user-select: none;
+        }
+
+        .flexitem .number {
+            text-align: center;
+            ;
+            font-size: 22px;
+        }
+
+        .flexitem .minor .number {
+            font-size: 16px;
+        }
+
+        #lengthStats-pagesFractional {
+            font-size: 0.75em;
+            transform: translate(2px, -2px);
+            display: inline-block;
+            opacity: 0.8;
+        }
+
+        h1 {
+            font-weight: 500;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            user-select: none;
+            position: relative;
+        }
+
+        h1 .codicon {
+            font-size: 20px !important;
+            position: absolute;
+            bottom: 5px;
+            left: -32px;
+        }
+
+        .mouse-line {
+            fill: var(--vscode-panel-border);
+        }
+
+        .caret-line {
+            fill: var(--vscode-panel-border);
+        }
+
+        .selection-box {
+            fill: var(--vscode-editor-selectionBackground);
+        }
+
+        .durationstats-selection {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        #durationStats-lengthchart .chart-data[data-line="0"] {
+            stroke: var(--vscode-symbolIcon-constructorForeground);
+        }
+
+        #durationStats-action,
+        #durationStats-action-hover,
+        .durationstats-selection-action {
+            color: var(--vscode-symbolIcon-constructorForeground);
+        }
+
+        #durationStats-lengthchart .chart-data[data-line="1"] {
+            stroke: var(--vscode-symbolIcon-fieldForeground);
+        }
+
+        #durationStats-dialogue,
+        #durationStats-dialogue-hoverm .durationstats-selection-dialogue {
+            color: var(--vscode-symbolIcon-fieldForeground);
+        }
+
+        .chart-container {
+            stroke: var(--vscode-panel-border);
+            fill: var(--vscode-panel-background);
+        }
+
+        .mouse-over-effects text {
+            fill: var(--vscode-breadcrumb-foreground);
+            background-color: var(--vscode-breadcrumb-background);
+        }
+
+        .durationstats-selection-action {
+            fill: var(--vscode-symbolIcon-constructorForeground) !important;
+        }
+
+        .durationstats-selection-dialogue {
+            fill: var(--vscode-symbolIcon-fieldForeground) !important;
+        }
+
+        tspan.chevron {
+            font: normal normal normal 16px/1 codicon;
+        }
+
+        svg .button,
+        a.smallbtn {
+            font: normal normal normal 16px/1 codicon;
+            width: 24px;
+            fill: var(--vscode-breadcrumb-foreground);
+            color: var(--vscode-breadcrumb-foreground);
+            user-select: none;
+            cursor: pointer;
+        }
+
+        svg .button:hover,
+        a.smallbtn:hover {
+            fill: var(--vscode-breadcrumb-focusForeground);
+            color: var(--vscode-breadcrumb-focusForeground);
+        }
+
+        svg .button:active,
+        a.smallbtn:active {
+            fill: var(--vscode-breadcrumb-activeSelectionForeground);
+            color: var(--vscode-breadcrumb-activeSelectionForeground);
+        }
+
+        .buttonseperator {
+            fill: var(--vscode-breadcrumb-foreground);
+            opacity: 0.5;
+            transform: translateX(8px);
+        }
+
+        .footer .codicon {
+            font-size: 18px;
+            color: var(--vscode-editorwarning-foreground) !important;
+        }
+
+        .footer .btntitle {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--vscode-editorwarning-foreground) !important;
+        }
+
+        .footer .details {
+            line-height: 16px;
+            display: block;
+            margin-left: 28px;
+            margin-right: -12px;
+        }
+
+        .footer li {
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+
+        #characterStats-lengthchart {
+            height: 120px;
+        }
+
+        .deemphasize {
+            opacity: 0.5;
+        }
+
+        .dataTables_paginate {
+            float: left;
+            margin-top: 10px;
+            margin-left: 5px;
+        }
+
+        .dataTables_info {
+            float: right;
+            margin-top: 10px;
+            margin-right: 5px;
+        }
+
+        .dataTable tr td {
+            color: var(--vscode-descriptionForeground);
+            transition: all 0.2s;
+        }
+
+        .dataTable tr:hover td {
+            color: var(--vscode-textSeparatorForeground) !important;
+            transition: none;
+        }
+
+        .dataTables_paginate .paginate_button {
+            cursor: pointer;
+            padding: 2px;
+            font-size: 13px;
+        }
+
+        a.paginate_button:not(.current):hover {
+            opacity: 0.6;
+        }
+
+        .dataTables_paginate .paginate_button.current {
+            cursor: default;
+            color: var(--vscode-descriptionForeground);
+            opacity: 1;
+        }
+
+        .linechart [data-line],
+        .barcodechart .chart-data-barcode {
+            transition: fill 0.2s, stroke 0.2s;
+        }
+
+        .linechart circle[data-line].hover,
+        .barcodechart .chart-data-barcode.hover {
+            fill: var(--vscode-foreground) !important;
+            transition: none;
+        }
+
+        .linechart path[data-line].hover {
+            stroke: var(--vscode-foreground) !important;
+            transition: none;
+        }
+
+        .chart-data-barcode[data-y='int'] {
+            fill: var(--scenecolor-int)
+        }
+
+        .chart-data-barcode[data-y='ext'] {
+            fill: var(--scenecolor-ext)
+        }
+
+        .chart-data-barcode[data-y='mixed'] {
+            fill: var(--scenecolor-mixed)
+        }
+
+        .chart-data-barcode[data-y='other'] {
+            fill: var(--scenecolor-other)
+        }
+
+        .chart-data-barcode[data-y='morning'],
+        .chart-data-barcode[data-y='dawn'] {
+            fill: var(--scenecolor-dawn)
+        }
+
+        .chart-data-barcode[data-y='day'] {
+            fill: var(--scenecolor-day)
+        }
+
+        .chart-data-barcode[data-y='evening'],
+        .chart-data-barcode[data-y='dusk'] {
+            fill: var(--scenecolor-dusk)
+        }
+
+        .chart-data-barcode[data-y='night'] {
+            fill: var(--scenecolor-night)
+        }
+
+        .summary {
+            margin: 6px 0 12px 0;
+            opacity: 0.75;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* ===== RESPONSIVE LAYOUT SYSTEM ===== */
+
+        /* Compact duration stats for Status mode */
+        .duration-compact {
+            display: none;
+            font-size: 11px;
+            margin-left: 12px;
+        }
+
+        .duration-total {
+            margin-bottom: 2px;
+        }
+
+        .duration-breakdown {
+            font-size: 10px;
+        }
+
+        /* Panel annotations */
+        .panel-annotations {
+            display: none;
+            font-size: 10px;
+            opacity: 0.7;
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        /* Ensure statusbar is always stable and visible */
+        .statusbar {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 999 !important;
+            /* Lower than status mode bottom nav */
+            height: 23px !important;
+            min-height: 23px !important;
+            background-color: var(--vscode-statusBar-background) !important;
+        }
+
+        /* ===== NORMAL VIEW: Width > 800px AND Height > 260px ===== */
+        @media (min-width: 801px) and (min-height: 261px) {
+
+            /* Desktop side navigation - default styling applies */
+            .sidenav {
+                /* Keep default side positioning */
+                width: 200px;
+                height: 100%;
+                top: 0;
+                left: 0;
+                flex-direction: column;
+                border-top: none;
+            }
+
+            .sidenav .title {
+                display: block;
+                /* Show title section */
+            }
+
+            .sidenav ul {
+                flex-direction: column;
+            }
+
+            .sidenav li {
+                padding: 2px 24px;
+                font-size: inherit;
+                flex-direction: row;
+                text-align: left;
+            }
+
+            .sidenav .codicon {
+                margin-right: 6px;
+                margin-bottom: 0;
+                font-size: 16px;
+            }
+        }
+
+        /* ===== WIDE SCOREBOARD (ORANGE): Width 376px-800px AND Height > 260px (NOT status mode) ===== */
+        @media (min-width: 376px) and (max-width: 800px) and (min-height: 261px) {
+
+            /* Top navigation positioning */
+            .sidenav {
+                width: 100%;
+                height: 40px;
+                top: 0;
+                left: 0;
+                right: 0;
+                flex-direction: row;
+                border-top: 1px solid var(--vscode-panel-border);
+            }
+
+            .sidenav .title {
+                display: none;
+                /* Hide title section */
+            }
+
+            .sidenav ul {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                height: 100%;
+                width: 100%;
+            }
+
+            .sidenav li {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+                font-size: 12px;
+                text-align: center;
+                height: 40px;
+                box-sizing: border-box;
+                line-height: normal;
+            }
+
+            .sidenav .codicon {
+                font-size: 12px;
+                margin: 0 0 2px;
+                padding: 0;
+                line-height: 12px;
+                /* Match font size */
+                display: block;
+            }
+
+            .splitview #content {
+                margin-left: 0 !important;
+                margin-top: 40px !important;
+                /* Space for top navigation */
+                margin-bottom: 23px !important;
+                /* Space for statusbar only */
+            }
+
+            #content>div {
+                margin: 0 24px !important;
+            }
+
+            /* Fix header positioning under top nav */
+            #content div[data-group] h1 {
+                margin-top: 50px !important;
+                /* Space for top navigation */
+            }
+
+            /* Center content in flexgroups */
+            .flexgroup {
+                justify-content: center !important;
+            }
+
+            /* Look more like desktop with larger text and spacing */
+            h1 {
+                margin-top: 16px !important;
+                margin-bottom: 8px !important;
+                font-size: 18px !important;
+                position: relative !important;
+                text-align: center !important;
+            }
+
+            h1 .codicon {
+                font-size: 18px !important;
+                position: static !important;
+                /* Change from absolute to static for centering */
+                margin-right: 8px !important;
+                /* Add space between icon and text */
+                vertical-align: middle !important;
+            }
+
+            .flexitem {
+                margin-right: 32px !important;
+                margin-top: 8px !important;
+            }
+
+            .flexitem .number {
+                font-size: 20px !important;
+            }
+
+            .flexitem .minor .number {
+                font-size: 16px !important;
+            }
+
+            /* Slightly larger charts */
+            #durationStats-lengthchart {
+                height: 180px !important;
+            }
+
+            #characterStats-lengthchart {
+                height: 110px !important;
+            }
+
+            #sceneStats-timechart {
+                height: 160px !important;
+            }
+        }
+
+        /* ===== COMPACT SCOREBOARD (BLUE): Width 281px-375px AND Height > 260px (NOT status mode) ===== */
+        @media (min-width: 281px) and (max-width: 375px) and (min-height: 261px) {
+
+            /* Top navigation positioning */
+            .sidenav {
+                width: 100%;
+                height: 40px;
+                top: 0;
+                left: 0;
+                right: 0;
+                flex-direction: row;
+                border-top: 1px solid var(--vscode-panel-border);
+            }
+
+            .sidenav .title {
+                display: none;
+                /* Hide title section */
+            }
+
+            .sidenav ul {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                height: 100%;
+                width: 100%;
+            }
+
+            .sidenav li {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+                font-size: 11px;
+                text-align: center;
+                height: 40px;
+                box-sizing: border-box;
+                line-height: normal;
+            }
+
+            .sidenav .codicon {
+                font-size: 12px;
+                margin: 0 0 1px;
+                padding: 0;
+                line-height: 12px;
+                /* Match font size */
+                display: block;
+            }
+
+            .splitview #content {
+                margin-left: 0 !important;
+                margin-top: 40px !important;
+                /* Space for top navigation */
+                margin-bottom: 23px !important;
+                /* Space for statusbar only */
+            }
+
+            #content>div {
+                margin: 0 16px !important;
+            }
+
+            /* Fix header positioning under top nav */
+            #content div[data-group] h1 {
+                margin-top: 45px !important;
+                /* Space for top navigation */
+            }
+
+            /* Center content in flexgroups */
+            .flexgroup {
+                justify-content: center !important;
+            }
+
+            /* Keep horizontal layout but reduce spacing */
+            h1 {
+                margin-top: 12px !important;
+                margin-bottom: 6px !important;
+                font-size: 16px !important;
+                text-align: center !important;
+                position: relative !important;
+            }
+
+            h1 .codicon {
+                font-size: 16px !important;
+                position: static !important;
+                /* Change from absolute to static for centering */
+                margin-right: 8px !important;
+                /* Add space between icon and text */
+                vertical-align: middle !important;
+            }
+
+            .flexitem {
+                margin-right: 20px !important;
+                margin-top: 6px !important;
+            }
+
+            .flexitem .number {
+                font-size: 16px !important;
+            }
+
+            .flexitem .minor .number {
+                font-size: 13px !important;
+            }
+
+            /* Reduce chart heights */
+            #durationStats-lengthchart {
+                height: 140px !important;
+            }
+
+            #characterStats-lengthchart {
+                height: 90px !important;
+            }
+
+            #sceneStats-timechart {
+                height: 120px !important;
+            }
+        }
+
+        /* ===== PANEL VIEW (GREEN): Width <= 280px AND Height > 260px (NOT status mode) ===== */
+        @media (max-width: 280px) and (min-height: 261px) {
+
+            /* Top navigation positioning with icon-only design */
+            .sidenav {
+                width: 100%;
+                height: 30px;
+                top: 0;
+                left: 0;
+                right: 0;
+                flex-direction: row;
+                border-top: 1px solid var(--vscode-panel-border);
+            }
+
+            .sidenav .title {
+                display: none;
+                /* Hide title section */
+            }
+
+            .sidenav ul {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                height: 100%;
+                width: 100%;
+            }
+
+            .sidenav li {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+                font-size: 0;
+                /* Hide text for icon-only mode */
+                text-align: center;
+                height: 30px;
+                box-sizing: border-box;
+                line-height: 1;
+            }
+
+            .sidenav .codicon {
+                font-size: 14px;
+                margin: 0;
+                padding: 0;
+                line-height: 14px;
+                /* Match icon font size for proper centering */
+                display: block;
+            }
+
+            .splitview #content {
+                margin-left: 0 !important;
+                margin-top: 30px !important;
+                /* Match smaller navigation height */
+                margin-bottom: 23px !important;
+                /* Space for statusbar only */
+            }
+
+            #content>div {
+                margin: 0 8px !important;
+            }
+
+            /* Fix header positioning under top nav */
+            #content div[data-group] h1 {
+                margin-top: 35px !important;
+                /* Space for top navigation */
+            }
+
+            /* Vertical stacking for narrow panels */
+            .flexgroup {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                justify-content: center !important;
+            }
+
+            .flexitem {
+                margin-right: 0 !important;
+                margin-top: 6px !important;
+                max-width: none !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                padding: 6px 0 !important;
+                border-bottom: 1px solid var(--vscode-panel-border) !important;
+            }
+
+            .flexitem .main-row {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+            }
+
+            .flexitem .description {
+                text-align: left !important;
+                font-size: 12px !important;
+            }
+
+            .flexitem .number {
+                text-align: right !important;
+                font-size: 14px !important;
+            }
+
+            .flexitem .minor .number {
+                font-size: 12px !important;
+            }
+
+            /* Move annotations to new line */
+            .flexitem .panel-annotations {
+                display: block !important;
+                margin-top: 2px !important;
+            }
+
+            /* Hide charts in narrow panels */
+            .linechart,
+            .barcodechart {
+                display: none !important;
+            }
+
+            /* Compact headers */
+            h1 {
+                font-size: 14px !important;
+                margin: 8px 0 4px !important;
+            }
+
+            h1 .codicon {
+                font-size: 14px !important;
+                left: -20px !important;
+            }
+
+            /* Hide summary text and tables */
+            .summary,
+            table {
+                display: none !important;
+            }
+
+            /* Hide table controls in panel mode too */
+            .dataTables_length,
+            .dataTables_filter,
+            .dataTables_paginate,
+            .dataTables_info {
+                display: none !important;
+            }
+        }
+
+        /* ===== PANEL COMPACT: Width <= 280px AND Height 261px-400px ===== */
+        @media (max-width: 280px) and (min-height: 261px) and (max-height: 400px) {
+
+            /* Hide action/dialogue durations when too short */
+            .durationstats .flexitem.minor {
+                display: none !important;
+            }
+        }
+
+        /* ===== STATUS BAR VIEW (RED-ORANGE): Height <= 260px (overrides everything) ===== */
+        @media (max-height: 260px) {
+
+            /* Bottom navigation positioning for status mode */
+            .sidenav {
+                width: 100%;
+                height: 25px;
+                top: auto;
+                bottom: 23px;
+                /* Above statusbar */
+                left: 0;
+                right: 0;
+                flex-direction: row;
+                border-top: 1px solid var(--vscode-panel-border);
+                z-index: 1000;
+                /* Higher z-index to ensure it's on top */
+            }
+
+            .sidenav .title {
+                display: none;
+                /* Hide title section */
+            }
+
+            .sidenav ul {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                height: 100%;
+                width: 100%;
+            }
+
+            .sidenav li {
+                flex: 1;
+                display: flex;
+                flex-direction: row;
+                /* Inline layout for status mode */
+                align-items: center;
+                justify-content: center;
+                padding: 2px 8px;
+                font-size: 11px;
+                text-align: center;
+                height: 25px;
+                box-sizing: border-box;
+            }
+
+            .sidenav .codicon {
+                font-size: 12px;
+                margin-right: 4px;
+                margin-bottom: 0;
+                line-height: 1;
+                display: inline-block;
+            }
+
+            .splitview #content {
+                margin-left: 0 !important;
+                margin-bottom: 48px !important;
+                /* 25px bottom nav + 23px statusbar */
+            }
+
+            #content>div {
+                margin: 0 6px !important;
+            }
+
+            /* Hide everything except key stats */
+            .linechart,
+            .barcodechart,
+            .summary,
+            table,
+            h1 {
+                display: none !important;
+            }
+
+            /* Hide table controls in status mode */
+            .dataTables_length,
+            .dataTables_filter,
+            .dataTables_paginate,
+            .dataTables_info,
+            .chartinfo,
+            .hyperbtn,
+            .smallbtn {
+                display: none !important;
+            }
+
+            /* Single line layout with bigger text when there's room */
+            .flexgroup {
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                margin-top: 0 !important;
+            }
+
+            .flexitem {
+                margin: 0 3px !important;
+                text-align: center !important;
+                min-width: fit-content !important;
+            }
+
+            .flexitem .description {
+                font-size: 11px !important;
+                margin-bottom: 2px !important;
+            }
+
+            .flexitem .number {
+                font-size: 14px !important;
+            }
+
+            .flexitem .minor .number {
+                font-size: 12px !important;
+            }
+
+            /* Show compact duration in length stats */
+            .lengthstats .duration-compact {
+                display: block !important;
+                text-align: center !important;
+                margin: 4px 0 0 !important;
+                font-size: 11px !important;
+            }
+
+            /* Show expanded 2-line view by default */
+            .lengthstats .duration-expanded {
+                display: block;
+            }
+
+            .lengthstats .duration-flexitem {
+                display: none;
+            }
+
+            .lengthstats .duration-total {
+                font-size: 11px !important;
+                margin-bottom: 1px !important;
+                opacity: inherit;
+                color: inherit;
+                font-weight: inherit;
+            }
+
+            .lengthstats .duration-total span {
+                opacity: inherit;
+                color: inherit;
+                font-weight: inherit;
+            }
+
+            .lengthstats .duration-breakdown {
+                font-size: 9px !important;
+                opacity: inherit;
+                color: inherit;
+                font-weight: inherit;
+            }
+
+            /* Hide standalone duration section */
+            .durationstats {
+                display: none !important;
+            }
+
+            body {
+                padding: 3px !important;
+            }
+        }
+
+        /* ===== STATUS BIGGER TEXT: Height 100px-260px ===== */
+        @media (min-height: 100px) and (max-height: 260px) {
+            .flexitem .description {
+                font-size: 13px !important;
+            }
+
+            .flexitem .number {
+                font-size: 16px !important;
+            }
+
+            .flexitem .minor .number {
+                font-size: 14px !important;
+            }
+
+            .sidenav li {
+                font-size: 12px !important;
+                padding: 5px 10px !important;
+            }
+
+            .sidenav .codicon {
+                font-size: 14px !important;
+            }
+        }
+
+        /* ===== STATUS COMPACT: Height <= 260px AND Width <= 500px ===== */
+        @media (max-height: 260px) and (max-width: 500px) {
+
+            /* Hide expanded view and show flexitem view */
+            .lengthstats .duration-expanded {
+                display: none !important;
+            }
+
+            .lengthstats .duration-flexitem {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                text-align: center !important;
+                margin: 0 3px !important;
+                min-width: fit-content !important;
+            }
+
+            /* Transform duration to flexitem-style format */
+            .lengthstats .duration-compact {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                text-align: center !important;
+                margin: 0 3px !important;
+                min-width: fit-content !important;
+            }
+
+            /* Hide action/dialogue breakdown completely */
+            .lengthstats .duration-breakdown {
+                display: none !important;
+            }
+
+            /* Smaller text */
+            .flexitem .description {
+                font-size: 9px !important;
+            }
+
+            .flexitem .number {
+                font-size: 12px !important;
+            }
+
+            /* Icon-only bottom nav */
+            .sidenav li {
+                padding: 2px 4px !important;
+                font-size: 0 !important;
+            }
+
+            .sidenav .codicon {
+                font-size: 14px !important;
+                margin-right: 0 !important;
+            }
+        }
+
+        /* ===== STATUS MINIMAL: Width <= 300px (keep only Pages, Scenes, Duration) ===== */
+        @media (max-height: 260px) and (max-width: 300px) {
+
+            /* Progressive hiding: keep pages, scenes, total duration only */
+            .flexitem:not(:nth-child(1)):not(:nth-child(2)) {
+                display: none !important;
+            }
+
+            /* Hide expanded view and show flexitem view */
+            .lengthstats .duration-expanded {
+                display: none !important;
+            }
+
+            .lengthstats .duration-flexitem {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                text-align: center !important;
+                margin: 0 3px !important;
+                min-width: fit-content !important;
+            }
+
+            /* Transform duration to flexitem-style format */
+            .lengthstats .duration-compact {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                text-align: center !important;
+                margin: 0 3px !important;
+                min-width: fit-content !important;
+            }
+
+            /* Keep action/dialogue breakdown hidden */
+            .lengthstats .duration-breakdown {
+                display: none !important;
+            }
+        }
+
+        /* ===== FINAL STATUS MODE OVERRIDE: Ensure status mode always wins ===== */
+        @media (max-height: 260px) {
+
+            /* Force status mode positioning to override any conflicts */
+            body .statusbar {
+                position: fixed !important;
+                bottom: 0 !important;
+                z-index: 999 !important;
+                height: 23px !important;
+            }
+
+            body .sidenav {
+                position: fixed !important;
+                bottom: 23px !important;
+                z-index: 1000 !important;
+                height: 25px !important;
+                display: flex !important;
+            }
+
+            body .splitview #content {
+                margin-left: 0 !important;
+                margin-bottom: 48px !important;
+            }
+        }
     </style>
+    <script>
+        // Function to sync duration values between main and compact elements
+        function syncDurationValues() {
+            const totalElement = document.getElementById('durationStats-total');
+            const actionElement = document.getElementById('durationStats-action');
+            const dialogueElement = document.getElementById('durationStats-dialogue');
+
+            if (totalElement && totalElement.textContent !== '0') {
+                // Sync compact elements
+                const totalCompact = document.getElementById('durationStats-total-compact');
+                const actionCompact = document.getElementById('durationStats-action-compact');
+                const dialogueCompact = document.getElementById('durationStats-dialogue-compact');
+                const totalFlexitem = document.getElementById('durationStats-total-flexitem');
+
+                if (totalCompact) totalCompact.textContent = totalElement.textContent;
+                if (actionCompact && actionElement) actionCompact.textContent = actionElement.textContent;
+                if (dialogueCompact && dialogueElement) dialogueCompact.textContent = dialogueElement.textContent;
+                if (totalFlexitem) totalFlexitem.textContent = totalElement.textContent;
+            }
+        }
+
+        // Initialize navigation when DOM is ready
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set up duration value syncing with MutationObserver only
+            const observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.target.id && mutation.target.id.startsWith('durationStats-')) {
+                        syncDurationValues();
+                    }
+                });
+            });
+
+            // Observe changes to all duration elements
+            const durationElements = ['durationStats-total', 'durationStats-action', 'durationStats-dialogue'];
+            durationElements.forEach(function (id) {
+                const element = document.getElementById(id);
+                if (element) {
+                    observer.observe(element, { childList: true, characterData: true, subtree: true });
+                }
+            });
+
+            // Sync once on load in case values are already present
+            syncDurationValues();
+        });
+    </script>
 </head>
+
 <body>
-    
-<div id="maincontent" class="splitview">
-    <div class="sidenav" id="sidenav">
-        <div class="title"><span class="codicon codicon-pulse"></span>Statistics</div>
 
-        <ul>
-            <li data-group="overview" id="hello" class="active">
-                <span class="codicon codicon-star-empty"></span>Overview
-            </li>
-            <li data-group="characters">
-                <span class="codicon codicon-organization"></span>Characters
-            </li>
-            <li data-group="scenes">
-                <span class="codicon codicon-output"></span>Scenes
-            </li>
-            <!-- <li data-group="locations">
-                <span class="codicon codicon-location"></span>Locations
-            </li>-->
-        </ul>
-       <!-- <div class="title"><span class="codicon codicon-book"></span>Reports</div> 
-        <ul>
-            <li data-group="characters">
-                <span class="codicon codicon-organization"></span>Characters
-            </li>
-            <li data-group="scenes">
-                <span class="codicon codicon-output"></span>Scenes
-            </li>
-            <li data-group="locations">
-                <span class="codicon codicon-location"></span>Locations
-            </li>
-        </ul>-->
-    </div>
-    <div id="content" class="content">
-        <div data-group="overview">
-            <h1><span class="codicon codicon-symbol-ruler"></span>Length</h1>
-            <div class="flexgroup lengthstats">
-                <div class="flexitem">
-                    <div class="description" title="The length of the screenplay in pages, excluding the title page and any forced page breaks">Pages</div>
-                    <div class="number" title="The length of the screenplay in pages, excluding the title page and any forced page breaks"><span id="lengthStats-pagesWhole">0</span><span id="lengthStats-pagesFractional"></span></div>
-                    <div class="description" title="The length of the screenplay in pages that will be printed (including the title page and any forced page breaks)"><span id="lengthStats-pagesReal">0</span>&nbsp;printed</div>
-                </div>
-                <div class="flexitem">
-                    <div class="description">Scenes</div>
-                    <div id="lengthStats-scenes" class="number">0</div>
-                </div>
-                <div class="flexitem">
-                    <div class="description">Words</div>
-                    <div id="lengthStats-words" class="number">0</div>
-                </div>
-                <div class="flexitem">
-                    <div class="description">Characters</div>
-                    <div id="lengthStats-characters" class="number">0</div>
-                    <div class="description"><span id="lengthStats-characterswithoutwhitespace">0</span>&nbsp;without spaces</div>
-                </div>
-                <div class="flexitem">
-                    <div class="description">Lines</div>
-                    <div id="lengthStats-lines" class="number">0</div>
-                    <div class="description"><span id="lengthStats-lineswithoutwhitespace"></span>&nbsp;without spaces</div>
-                </div>
-
-            </div>
-            <h1><span class="codicon codicon-watch"></span>Duration</h1>
-            <div>
-                <div class="flexgroup durationstats">
+    <div id="maincontent" class="splitview">
+        <nav class="sidenav" id="sidenav">
+            <div class="title"><span class="codicon codicon-pulse"></span>Statistics</div>
+            <ul>
+                <li data-group="overview" id="hello" class="active">
+                    <span class="codicon codicon-dashboard"></span>Length
+                </li>
+                <li data-group="characters">
+                    <span class="codicon codicon-organization"></span>Characters
+                </li>
+                <li data-group="scenes">
+                    <span class="codicon codicon-output"></span>Scenes
+                </li>
+            </ul>
+        </nav>
+        <div id="content" class="content">
+            <div data-group="overview">
+                <h1><span class="codicon codicon-symbol-ruler"></span>Length</h1>
+                <div class="flexgroup lengthstats">
                     <div class="flexitem">
-                        <div class="description">Total</div>
-                        <div id="durationStats-total" class="number" style="font-weight: 600;">0</div>
+                        <div class="main-row">
+                            <div class="description"
+                                title="The length of the screenplay in pages, excluding the title page and any forced page breaks">
+                                Pages</div>
+                            <div class="number"
+                                title="The length of the screenplay in pages, excluding the title page and any forced page breaks">
+                                <span id="lengthStats-pagesWhole">0</span><span id="lengthStats-pagesFractional"></span>
+                            </div>
+                        </div>
+                        <div class="panel-annotations"
+                            title="The length of the screenplay in pages that will be printed (including the title page and any forced page breaks)">
+                            <span id="lengthStats-pagesReal">0</span>&nbsp;printed
+                        </div>
                     </div>
-                    <div class="flexitem minor">
-                        <div class="description">Action</div>
-                        <div id="durationStats-action" class="number">0</div>
+                    <div class="flexitem">
+                        <div class="description">Scenes</div>
+                        <div id="lengthStats-scenes" class="number">0</div>
                     </div>
-                    <div class="flexitem minor">
-                        <div class="description">Dialogue</div>
-                        <div id="durationStats-dialogue" class="number">0</div>
+                    <div class="flexitem">
+                        <div class="description">Words</div>
+                        <div id="lengthStats-words" class="number">0</div>
                     </div>
-                </div>
-                <div id="durationStats-summary" class="summary"></div>
-                <div style="height:200px;box-sizing: border-box;" class="linechart" id="durationStats-lengthchart"></div>
-            </div>
-        </div>
-        <div style="display:none" data-group="characters">
-            <h1><span class="codicon codicon-organization"></span>Characters</h1>
-            <div class="flexgroup lengthstats">
-                <div class="flexitem">
-                    <div class="description">Characters</div>
-                    <div id="characterStats-count" class="number">15</div>
-                </div>
-                <div class="flexitem">
-                    <div class="description">Monologues</div>
-                    <div id="characterStats-monologues" class="number">2</div>
-                </div>
-                <div class="flexitem" title="The median of each character's readability score, corresponding to the average age from which one could understand their dialogue.">
-                    <div class="description">Complexity</div>
-                    <div id="characterStats-complexity" class="number">0.0</div>
-                </div>
-            </div>
-            <div style="height:256px;box-sizing: border-box;" class="linechart" id="characterStats-lengthchart"></div>
-            <table id="characterStats-table" style="width:100%;margin-top:24px;">
-            </table>
+                    <div class="flexitem">
+                        <div class="main-row">
+                            <div class="description">Characters</div>
+                            <div id="lengthStats-characters" class="number">0</div>
+                        </div>
+                        <div class="panel-annotations"><span
+                                id="lengthStats-characterswithoutwhitespace">0</span>&nbsp;without spaces</div>
+                    </div>
+                    <div class="flexitem">
+                        <div class="main-row">
+                            <div class="description">Lines</div>
+                            <div id="lengthStats-lines" class="number">0</div>
+                        </div>
+                        <div class="panel-annotations"><span
+                                id="lengthStats-lineswithoutwhitespace"></span>&nbsp;without
+                            spaces</div>
+                    </div>
+                    <div class="duration-compact">
+                        <!-- Expanded 2-line view for wider screens -->
+                        <div class="duration-expanded">
+                            <div class="duration-total">
+                                Duration: <span id="durationStats-total-compact">0</span>
+                            </div>
+                            <div class="duration-breakdown">
+                                Action: <span id="durationStats-action-compact">0</span>,
+                                Dialogue: <span id="durationStats-dialogue-compact">0</span>
+                            </div>
+                        </div>
+                        <!-- Compact flexitem view for smaller screens -->
+                        <div class="duration-flexitem flexitem">
+                            <div class="description">Duration</div>
+                            <div class="number" id="durationStats-total-flexitem">0</div>
+                        </div>
+                    </div>
 
-        </div>
-        <div style="display:none" data-group="scenes">
-            <h1><span class="codicon codicon-output"></span>Scenes</h1>
-            <div class="flexgroup lengthstats">
-                <div class="flexitem minor">
-                    <div class="description">Scenes</div>
-                    <div id="sceneStats-count" class="number"></div>
                 </div>
-                <div class="flexitem minor">
-                    <div class="description">Locations</div>
-                    <div id="locationStats-count" class="number"></div>
-                </div>
-            </div>
-            <div class="flexgroup durationstats" style="margin-top:0;">
-                <div class="flexitem minor hidden">
-                    <div class="description">Interior</div>
-                    <div data-sceneprop="type_int" class="number" style="font-weight: 600;color:var(--scenecolor-int)">0</div>
-                </div>
-                <div class="flexitem minor hidden">
-                    <div class="description">Exterior</div>
-                    <div data-sceneprop="type_ext" class="number" style="font-weight: 600;color:var(--scenecolor-ext)">0</div>
-                </div>
-                <div class="flexitem minor hidden">
-                    <div class="description">Mixed</div>
-                    <div data-sceneprop="type_mixed" class="number" style="font-weight: 600;color:var(--scenecolor-mixed)">0</div>
-                </div>
-                <div class="flexitem minor hidden">
-                    <div class="description">Dawn</div>
-                    <div data-sceneprop="time_dawn" class="number" style="font-weight: 600;color:var(--scenecolor-dawn)">0</div>
-                </div>
-                <div class="flexitem minor hidden">
-                    <div class="description">Morning</div>
-                    <div data-sceneprop="time_morning" class="number" style="font-weight: 600;color:var(--scenecolor-morning)">0</div>
-                </div>
-                <div class="flexitem minor hidden">
-                    <div class="description">Day</div>
-                    <div data-sceneprop="time_day" class="number" style="font-weight: 600;color:var(--scenecolor-day)">0</div>
-                </div>
-                <div class="flexitem minor hidden">
-                    <div class="description">Evening</div>
-                    <div data-sceneprop="time_evening" class="number" style="font-weight: 600;color:var(--scenecolor-evening)">0</div>
-                </div>
-                <div class="flexitem minor hidden">
-                    <div class="description">Dusk</div>
-                    <div data-sceneprop="time_dusk" class="number" style="font-weight: 600;color:var(--scenecolor-dusk)">0</div>
-                </div>
-                <div class="flexitem minor hidden">
-                    <div class="description">Night</div>
-                    <div data-sceneprop="time_night" class="number" style="font-weight: 600;color:var(--scenecolor-night)">0</div>
+                <h1><span class="codicon codicon-watch"></span>Duration</h1>
+                <div>
+                    <div class="flexgroup durationstats">
+                        <div class="flexitem">
+                            <div class="description">Total</div>
+                            <div id="durationStats-total" class="number" style="font-weight: 600;">0</div>
+                        </div>
+                        <div class="flexitem minor">
+                            <div class="description">Action</div>
+                            <div id="durationStats-action" class="number">0</div>
+                        </div>
+                        <div class="flexitem minor">
+                            <div class="description">Dialogue</div>
+                            <div id="durationStats-dialogue" class="number">0</div>
+                        </div>
+                    </div>
+                    <div id="durationStats-summary" class="summary"></div>
+                    <div style="height:200px;box-sizing: border-box;" class="linechart" id="durationStats-lengthchart">
+                    </div>
                 </div>
             </div>
-            <div id="durationStats-scenesummary" class="summary"></div>
-            <div style="height:180px;box-sizing: border-box;" class="barcodechart" id="sceneStats-timechart"></div>
-            <table id="locationStats-table" style="width:100%;margin-top:24px;">
-            </table>
-        </div>
-       <!-- <div style="display:none" data-group="locations">
+            <div style="display:none" data-group="characters">
+                <h1><span class="codicon codicon-organization"></span>Characters</h1>
+                <div class="flexgroup lengthstats">
+                    <div class="flexitem">
+                        <div class="description">Characters</div>
+                        <div id="characterStats-count" class="number">15</div>
+                    </div>
+                    <div class="flexitem">
+                        <div class="description">Monologues</div>
+                        <div id="characterStats-monologues" class="number">2</div>
+                    </div>
+                    <div class="flexitem"
+                        title="The median of each character's readability score, corresponding to the average age from which one could understand their dialogue.">
+                        <div class="description">Complexity</div>
+                        <div id="characterStats-complexity" class="number">0.0</div>
+                    </div>
+                </div>
+                <div style="height:256px;box-sizing: border-box;" class="linechart" id="characterStats-lengthchart">
+                </div>
+                <table id="characterStats-table" style="width:100%;margin-top:24px;">
+                </table>
+
+            </div>
+            <div style="display:none" data-group="scenes">
+                <h1><span class="codicon codicon-output"></span>Scenes</h1>
+                <div class="flexgroup lengthstats">
+                    <div class="flexitem minor">
+                        <div class="description">Scenes</div>
+                        <div id="sceneStats-count" class="number"></div>
+                    </div>
+                    <div class="flexitem minor">
+                        <div class="description">Locations</div>
+                        <div id="locationStats-count" class="number"></div>
+                    </div>
+                </div>
+                <div class="flexgroup durationstats" style="margin-top:0;">
+                    <div class="flexitem minor hidden">
+                        <div class="description">Interior</div>
+                        <div data-sceneprop="type_int" class="number"
+                            style="font-weight: 600;color:var(--scenecolor-int)">0</div>
+                    </div>
+                    <div class="flexitem minor hidden">
+                        <div class="description">Exterior</div>
+                        <div data-sceneprop="type_ext" class="number"
+                            style="font-weight: 600;color:var(--scenecolor-ext)">0</div>
+                    </div>
+                    <div class="flexitem minor hidden">
+                        <div class="description">Mixed</div>
+                        <div data-sceneprop="type_mixed" class="number"
+                            style="font-weight: 600;color:var(--scenecolor-mixed)">0</div>
+                    </div>
+                    <div class="flexitem minor hidden">
+                        <div class="description">Dawn</div>
+                        <div data-sceneprop="time_dawn" class="number"
+                            style="font-weight: 600;color:var(--scenecolor-dawn)">0</div>
+                    </div>
+                    <div class="flexitem minor hidden">
+                        <div class="description">Morning</div>
+                        <div data-sceneprop="time_morning" class="number"
+                            style="font-weight: 600;color:var(--scenecolor-morning)">0</div>
+                    </div>
+                    <div class="flexitem minor hidden">
+                        <div class="description">Day</div>
+                        <div data-sceneprop="time_day" class="number"
+                            style="font-weight: 600;color:var(--scenecolor-day)">0</div>
+                    </div>
+                    <div class="flexitem minor hidden">
+                        <div class="description">Evening</div>
+                        <div data-sceneprop="time_evening" class="number"
+                            style="font-weight: 600;color:var(--scenecolor-evening)">0</div>
+                    </div>
+                    <div class="flexitem minor hidden">
+                        <div class="description">Dusk</div>
+                        <div data-sceneprop="time_dusk" class="number"
+                            style="font-weight: 600;color:var(--scenecolor-dusk)">0</div>
+                    </div>
+                    <div class="flexitem minor hidden">
+                        <div class="description">Night</div>
+                        <div data-sceneprop="time_night" class="number"
+                            style="font-weight: 600;color:var(--scenecolor-night)">0</div>
+                    </div>
+                </div>
+                <div id="durationStats-scenesummary" class="summary"></div>
+                <div style="height:180px;box-sizing: border-box;" class="barcodechart" id="sceneStats-timechart"></div>
+                <table id="locationStats-table" style="width:100%;margin-top:24px;">
+                </table>
+            </div>
+            <!-- <div style="display:none" data-group="locations">
             <h1><span class="codicon codicon-location"></span>Locations</h1>
             <div class="flexgroup lengthstats">
 
             </div>
 
         </div>-->
+        </div>
     </div>
-</div>
-<div class="statusbar" class="loading">
-    <div id="versionIndicator">
-      <span class="codicon codicon-sync"></span>
-      <span class="btntitle">Loading</span>
-      <span class="details">Please wait...</span>
+
+    <div class="statusbar" class="loading">
+        <div id="versionIndicator">
+            <span class="codicon codicon-sync"></span>
+            <span class="btntitle">Loading</span>
+            <span class="details">Please wait...</span>
+        </div>
     </div>
-  </div>
 </body>
+
 </html>
