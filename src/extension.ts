@@ -98,6 +98,7 @@ export function activate(context: ExtensionContext) {
   context.subscriptions.push(vscode.commands.registerCommand('fountain.shiftScenesDown', () => commands.shiftScenesUpDn(1)));
 
   vscode.workspace.onWillSaveTextDocument(e => {
+    if(e.document.languageId != "fountain") return;
     const config = getFountainConfig(e.document.uri);
     if (config.number_scenes_on_save === true) {
       overwriteSceneNumbers();
