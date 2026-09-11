@@ -220,6 +220,21 @@
           ]
         },
         {
+          "name": "markup.bolditalic.fountain",
+          "begin": "(?x)\r\n  (\\*\\*\\*)(?=\\S)                         # Open ***\r\n  (?=\r\n    (\r\n      <[^>]*+>                              # HTML tags\r\n      | (?<raw>`+)([^`]|(?!(?<!`)\\k<raw>(?!`))`)*+\\k<raw>  # Raw content\r\n      | \\\\[\\\\`*_{}\\[\\]()#.!+\\->]?+              # Escapes\r\n      | \\[\r\n        (\r\n          (?<square> [^\\[\\]\\\\] | \\\\. | \\[ \\g<square>*+ \\] )*+\r\n        )\r\n        \\]\r\n        (\r\n          ( [ ]? \\[[^\\]]*+\\] )                 # Reference Link\r\n          | ( \\( [ \\t]*+ <?(.*?)>? [ \\t]*+ ( (?<title>['\"]) (.*?) \\k<title> )? \\) )\r\n        )\r\n      | (?!(?<=\\S)\\1).                          # Everything besides *** closer\r\n    )++\r\n    (?<=\\S)\\1                                 # Close ***\r\n  )",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.markup.bolditalic.fountain"
+            }
+          },
+          "end": "(?<=\\S)(\\*\\*\\*)",
+          "patterns": [
+            {
+              "include": "#markup"
+            }
+          ]
+        },
+        {
           "name": "markup.bold.fountain",
           "begin": "(?x)\r\n                  (\\*\\*|__)(?=\\S)                        # Open\r\n                  (?=\r\n                     (\r\n                         <[^>]*+>                     # HTML tags\r\n                       | (?<raw>`+)([^`]|(?!(?<!`)\\k<raw>(?!`))`)*+\\k<raw>\r\n                                                   # Raw\r\n                       | \\\\[\\\\`*_{}\\[\\]()#.!+\\->]?+         # Escapes\r\n                       | \\[\r\n                        (\r\n                                (?<square>               # Named group\r\n                                 [^\\[\\]\\\\]            # Match most chars\r\n                                  | \\\\.                  # Escaped chars\r\n                                  | \\[ \\g<square>*+ \\]      # Nested brackets\r\n                                )*+\r\n                           \\]\r\n                           (\r\n                              (                    # Reference Link\r\n                                 [ ]?              # Optional space\r\n                                 \\[[^\\]]*+\\]          # Ref name\r\n                              )\r\n                             | (                   # Inline Link\r\n                                 \\(                # Opening paren\r\n                                    [ \\t]*+           # Optional whtiespace\r\n                                    <?(.*?)>?         # URL\r\n                                    [ \\t]*+           # Optional whtiespace\r\n                                    (              # Optional Title\r\n                                       (?<title>['\"])\r\n                                       (.*?)\r\n                                       \\k<title>\r\n                                    )?\r\n                                 \\)\r\n                              )\r\n                           )\r\n                        )\r\n                       | (?!(?<=\\S)\\1).                  # Everything besides\r\n                                                   # style closer\r\n                     )++\r\n                     (?<=\\S)\\1                        # Close\r\n                  )",
           "captures": {
@@ -269,64 +284,68 @@
       ]
     },
     "link-inline": {
-			"captures": {
+      "captures": {
         "1": {
-					"name": "punctuation.definition.tag"
-				},
+          "name": "punctuation.definition.tag"
+        },
         "3": {
-					"name": "punctuation.definition.tag"
-				},
+          "name": "punctuation.definition.tag"
+        },
         "5": {
-					"name": "punctuation.definition.tag"
-				},
+          "name": "punctuation.definition.tag"
+        },
         "6": {
-					"name": "punctuation.definition.tag"
-				},
+          "name": "punctuation.definition.tag"
+        },
         "10": {
-					"name": "punctuation.definition.tag"
-				},
-				"4": {
-					"name": "markup.underline.link.fountain",
-          "patterns":[
-            {"include":"#markup"},
-            {"include":"#link-inline"}
+          "name": "punctuation.definition.tag"
+        },
+        "4": {
+          "name": "markup.underline.link.fountain",
+          "patterns": [
+            {
+              "include": "#markup"
+            },
+            {
+              "include": "#link-inline"
+            }
           ]
-				},
-				"7": {
-					"name": "keyword"
-				}
-			},
+        },
+        "7": {
+          "name": "keyword"
+        }
+      },
       "match": "(!)?(\\[?(\\[)([^\\]\\[]*\\[?[^\\]\\[]*\\]?[^\\]\\[]*)(\\])(\\()(.+?)(?:\\s+([\"'])(.*?)\\4)?(\\)))",
-			"name": "meta.link.inline.fountain"
-		},
+      "name": "meta.link.inline.fountain"
+    },
     "title_page": {
       "begin": "^(?i)(title|credit|authors?|source|draft date|date|watermark|header|footer|contact|contact info|copyright|notes|font|revision|tl|tc|tr|cc|br|bl)(:)(.*(?:\\n   .*|\\n[^:\\n]+$)*)",
       "end": "^(?=(?i)(title|credit|authors?|source|draft date|date|watermark|header|footer|contact|contact info|copyright|notes|font|revision|tl|tc|tr|cc|br|bl)|$)",
-      "name":"string.other.title-page.fountain",
+      "name": "string.other.title-page.fountain",
       "captures": {
         "1": {
           "name": "keyword.other.title-page.fountain"
         },
-        "2":{
-          "name":"punctuation.definition.tag"
+        "2": {
+          "name": "punctuation.definition.tag"
         },
-        "3":{
-          "patterns":[
+        "3": {
+          "patterns": [
             {
-              "include":"#markup"
+              "include": "#markup"
             },
             {
-              "include":"#link-inline"
+              "include": "#link-inline"
             }
           ]
         }
       },
-      "patterns":[
+      "patterns": [
         {
-          "include":"#markup"
+          "include": "#markup"
         },
         {
-          "include":"#link-inline"
+          "include": "#link-inline"
         }
       ]
     }
