@@ -12,7 +12,7 @@ import { createStatisticsPanel } from "./Statistics";
 interface pdfpreviewPanel {
   uri: string;
   panel: vscode.WebviewPanel;
-  id: Number;
+  id: number;
 }
 
 export var pdfPanels: pdfpreviewPanel[] = [];
@@ -26,13 +26,13 @@ export function getPdfPreviewPanels(docuri: vscode.Uri): pdfpreviewPanel[] {
   return selectedPanels;
 }
 
-export function updateDocumentVersionPdfPreview(docuri: vscode.Uri, version: Number) {
+export function updateDocumentVersionPdfPreview(docuri: vscode.Uri, version: number) {
   for (let panel of getPdfPreviewPanels(docuri)) {
     panel.panel.webview.postMessage({ command: 'updateversion', version: version, uri: docuri.toString() });
   }
 }
 
-export function removePdfPreviewPanel(id: Number) {
+export function removePdfPreviewPanel(id: number) {
   for (var i = pdfPanels.length - 1; i >= 0; i--) {
     if (pdfPanels[i].id == id) {
       pdfPanels.splice(i, 1);
@@ -62,7 +62,7 @@ export function createPdfPreviewPanel(): vscode.WebviewPanel {
   presentpdfPanels.forEach(p => {
     if (p.uri == editor.document.uri.toString()) {
       //The pdf panel already exists
-      p.panel.reveal();
+      p.panel.reveal(p.panel.viewColumn, true);
       pdfpanel = p.panel;
     }
   });
@@ -159,7 +159,7 @@ async function loadWebView(docuri: vscode.Uri, pdfpanel: vscode.WebviewPanel) {
     if (message.command == "refresh") {
       refreshPdfPanel(pdfpanel, editor.document, getFountainConfig(docuri));
     }
-    if (message.command = "openstats") {
+    if (message.command === "openstats") {
       createStatisticsPanel();
     }
   });
