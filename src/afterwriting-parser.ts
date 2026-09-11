@@ -52,7 +52,7 @@ export const regex: { [index: string]: RegExp } = {
     centered: /^[ \t]*(?:> *)(.+)(?: *<)(\n.+)*/g,
 
     page_break: /^\={3,}$/,
-    line_break: /^ {2}$/,
+    line_break: /^ {2,}$/,
 
     note_inline: /(?:\[{2}(?!\[+))([\s\S]+?)(?:\]{2}(?!\[+))/g,
 
@@ -360,7 +360,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         token.time = calculateDialogueDuration(textWithoutNotes);
         if (!cfg.print_notes) {
             token.text = textWithoutNotes;
-            if(token.text.trim().length == 0) token.ignore = true;
+            if(token.text.trim().length == 0 && !regex.line_break.test(token.text)) token.ignore = true;
         }
         result.lengthDialogue += token.time;
     }
@@ -398,7 +398,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
         current = thistoken.end + 1;
 
         
-        if (text.trim().length === 0 && text !== "  ") {
+        if (text.trim().length === 0 && !regex.line_break.test(text)) {
             var skip_separator = (cfg.merge_multiple_empty_lines && last_was_separator) || (ignoredLastToken && result.tokens.length>1 && result.tokens[result.tokens.length-1].type == "separator");
 
             if(ignoredLastToken) ignoredLastToken=false;
@@ -565,10 +565,10 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             } else if (thistoken.text.match(regex.page_break)) {
                 thistoken.text = "";
                 thistoken.type = "page_break";
-            } else if (thistoken.text.match(regex.character) && i != lines_length && i != lines_length - 1 && ((lines[i + 1].trim().length == 0) ? (lines[i + 1] == "  ") : true)) {
-                // The last part of the above statement ('(lines[i + 1].trim().length == 0) ? (lines[i+1] == "  ") : false)')
+            } else if (thistoken.text.match(regex.character) && i != lines_length && i != lines_length - 1 && ((lines[i + 1].trim().length == 0) ? regex.line_break.test(lines[i + 1]) : true)) {
+                // The last part of the above statement ('(lines[i + 1].trim().length == 0) ? regex.line_break.test(lines[i + 1]) : false)')
                 // means that if the trimmed length of the following line (i+1) is equal to zero, the statement will only return 'true',
-                // and therefore consider the token as a character, if the content of the line is exactly two spaces.
+                // and therefore consider the token as a character, if the content of the line has at least two spaces.
                 // If the trimmed length is larger than zero, then it will be accepted as dialogue regardless
                 state = "dialogue";
                 thistoken.type = "character";
@@ -648,7 +648,7 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
             }
         }
 
-        if (thistoken.type != "action" && !(thistoken.type == "dialogue" && thistoken.text == "  ")) {
+        if (thistoken.type != "action" && !(thistoken.type == "dialogue" && regex.line_break.test(thistoken.text))) {
             thistoken.text = thistoken.text.trim();
         }
 
@@ -804,8 +804,8 @@ export var parse = function (original_script: string, cfg: any, generate_html: b
                         break;
                     case 'parenthetical': html.push('<p class="haseditorline parenthetical\" id="sourceline_' + current_token.line + '" >' + current_token.html + '</p>'); break;
                     case 'dialogue':
-                        if (current_token.text == "  ")
-                            html.push('<br>');
+                        if (regex.line_break.test(current_token.text))
+                            html.push('<br class="haseditorline" id="sourceline_' + current_token.line + '">');
                         else
                             html.push('<p class="haseditorline" id="sourceline_' + current_token.line + '">' + current_token.html + '</p>');
                         break;

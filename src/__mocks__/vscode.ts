@@ -106,6 +106,10 @@ return {
 };
 }
 
+const extensions = {
+  getExtension: jest.fn(() => ({ extensionPath: "" })),
+}
+
 export {
   CodeLens,
   Position,
@@ -122,4 +126,5 @@ export {
   debug,
   commands,
   EventEmitter,
+  extensions,
 }

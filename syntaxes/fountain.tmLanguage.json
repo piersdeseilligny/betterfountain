@@ -80,7 +80,7 @@
     "dialogue": {
       "contentName": "string",
       "begin": "^[ \\t]*(?![#!]|(\\[\\[)|(SUPERIMPOSE:))(((?!@)[^\\p{Ll}\\r\\n]*?\\p{Lu}[^\\p{Ll}\\r\\n]*?)|((@)[^\\r\\n]*?))(\\(.*\\))?(\\s*\\^)?$",
-      "end": "^$",
+      "end": "^(?! {2,}\\r?$)[ \\t]*\\r?$",
       "beginCaptures": {
         "3": {
           "name": "entity.name.type"
