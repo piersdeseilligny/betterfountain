@@ -536,6 +536,10 @@
       //PDFViewerApplication.pdfViewer._resetView = oldResetView;
 
       PDFViewerApplication.initializedPromise.then(async () => {
+        PDFViewerApplication.isViewerEmbedded = true;
+        if (PDFViewerApplication.pdfViewer) {
+          PDFViewerApplication.pdfViewer.focus = () => {};
+        }
         PDFViewerApplication.pdfSidebar.close()
         const doc = await pdfjsLib.getDocument({ data: base64ToUint8Array(pdfData) }).promise
         doc._pdfInfo.fingerprints = ['constantFingerprint'];
