@@ -456,7 +456,11 @@
 					".fountain",
 					".spmd"
 				],
-				"configuration": "./language-configuration.json"
+				"configuration": "./language-configuration.json",
+				"icon": {
+			        "light": "assets/fountain.svg",
+			        "dark": "assets/fountain.svg"
+			      }
 			}
 		],
 		"grammars": [
