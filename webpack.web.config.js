@@ -13,7 +13,7 @@ module.exports = {
   resolve: {
     alias: {
       pdfkit$: path.resolve(__dirname, 'node_modules/pdfkit/js/pdfkit.standalone.js'),
-      [path.resolve(__dirname, 'src/telemetry.ts')]: path.resolve(__dirname, 'src/telemetry.web.ts')
+      './telemetry$': path.resolve(__dirname, 'src/telemetry.web.ts')
     },
     extensions: ['.ts', '.js'],
     mainFields: ['browser', 'module', 'main'],

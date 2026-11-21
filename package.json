@@ -469,10 +469,10 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
+		"compilewebviews": "copyfiles -u 2 webviews/src/*.html webviews/src/*.css webviews/out && webpack --config ./webviews/stats.webpack.config.js",
 		"compile": "tsc -p ./ && npm run compilewebviews && copyfiles -u 2 webviews/out/* out/webviews && copyfiles -u 1 src/courierprime/*.ttf out && copyfiles -u 1 src/noisetexture.png out && copyfiles -u 2 \"webviews/src/pdfjs/**\" out/webviews && npm run compile-web",
 		"compile-web": "webpack --config webpack.web.config.js",
 		"watch-web": "webpack --config webpack.web.config.js --watch",
-		"compilewebviews": "copyfiles -u 2 webviews/src/*.html webviews/src/*.css webviews/out && webpack --config ./webviews/stats.webpack.config.js",
 		"watch": "npm run compile",
 		"test": "node node_modules/jest/bin/jest.js",
 		"open-in-browser": "vscode-test-web --extensionDevelopmentPath=. ."

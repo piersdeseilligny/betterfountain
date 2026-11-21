@@ -228,15 +228,15 @@ export function activeParsedDocument(): afterparser.parseoutput | undefined {
 }
 
 export class FountainStructureProperties {
-  scenes!: { scene: number; line: number }[];
-  sceneLines!: number[];
-  sceneNames!: string[];
-  titleKeys!: string[];
-  firstTokenLine!: number;
-  fontLine!: number;
-  lengthAction!: number; //Length of the action character count
-  lengthDialogue!: number; //Length of the dialogue character count
-  characters!: Map<string, number[]>;
+  scenes: { scene: number; line: number }[];
+  sceneLines: number[];
+  sceneNames: string[];
+  titleKeys: string[];
+  firstTokenLine: number;
+  fontLine: number;
+  lengthAction: number; //Length of the action character count
+  lengthDialogue: number; //Length of the dialogue character count
+  characters: Map<string, number[]>;
 }
 
 var fontTokenExisted: boolean = false;
@@ -246,7 +246,7 @@ let parseTelemetryLimiter = 5;
 let parseTelemetryFrequency = 5;
 
 export function parseDocument(document: TextDocument) {
-  let t0 = Date.now()
+  let t0 = performance.now()
 
   clearDecorations();
 
@@ -306,7 +306,7 @@ export function parseDocument(document: TextDocument) {
   updateStatus(output.lengthAction, output.lengthDialogue);
   showDecorations(document.uri);
 
-  let t1 = Date.now()
+  let t1 = performance.now()
   let parseTime = t1 - t0;
   if (parseTelemetryLimiter == parseTelemetryFrequency) {
     telemetry.reportTelemetry("afterparser.parsing", undefined, { linecount: document.lineCount, parseduration: parseTime });

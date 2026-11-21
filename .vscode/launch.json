@@ -1,41 +1,44 @@
+// A launch configuration that compiles the extension and then opens it inside a new window
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Run Extension (Node)",
-      "type": "extensionHost",
-      "request": "launch",
-      "runtimeExecutable": "${execPath}",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}",
-        "--disable-extensions"
-      ],
-      "outFiles": ["${workspaceFolder}/out/**/*.js"],
-      "preLaunchTask": "npm: compile"
-    },
-    {
-      "name": "Run Extension in Web Host",
-      "type": "extensionHost",
-      "debugWebWorkerHost": true,
-      "request": "launch",
-      "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionDevelopmentKind=web"
-      ],
-      "outFiles": ["${workspaceFolder}/out/web/**/*.js"],
-      "preLaunchTask": "npm: watch-web"
-    },
-    {
-      "name": "Debug Jest Tests",
-      "type": "node",
-      "request": "launch",
-      "runtimeArgs": [
-        "--inspect-brk",
-        "${workspaceRoot}/node_modules/jest/bin/jest.js",
-        "--runInBand"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
-    }
-  ]
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Run Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}",
+		"--disable-extensions"
+			],
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js"
+			],
+			"preLaunchTask": "npm: compile"
+		},
+	{
+		"name": "Run Extension in Web Host",
+		"type": "extensionHost",
+		"debugWebWorkerHost": true,
+		"request": "launch",
+		"args": [
+			"--extensionDevelopmentPath=${workspaceFolder}",
+			"--extensionDevelopmentKind=web"
+		],
+		"outFiles": ["${workspaceFolder}/out/web/**/*.js"],
+		"preLaunchTask": "npm: watch-web"
+	},
+		{
+			"name": "Debug Jest Tests",
+			"type": "node",
+			"request": "launch",
+			"runtimeArgs": [
+				"--inspect-brk",
+				"${workspaceRoot}/node_modules/jest/bin/jest.js",
+				"--runInBand"
+			],
+			"console": "integratedTerminal",
+			"internalConsoleOptions": "neverOpen",
+		}
+	]
 }

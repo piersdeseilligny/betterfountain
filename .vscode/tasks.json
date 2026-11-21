@@ -1,11 +1,11 @@
 {
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "type": "npm",
-      "script": "watch",
-      "problemMatcher": "$tsc-watch",
-      "isBackground": true,
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "watch",
+			"problemMatcher": "$tsc-watch",
+			"isBackground": true,
 			"presentation": {
 				"reveal": "never"
 			},
@@ -14,20 +14,22 @@
 				"isDefault": true
 			}
 		},
-    {
-      "type": "npm",
-      "script": "watch-web",
-      "problemMatcher": {
-        "base": "$tsc-watch",
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": "^\\s*$",
-          "endsPattern": "webpack .*compiled (?:successfully|with \\d+ (?:errors|error))"
-        }
-      },
-      "isBackground": true,
-      "presentation": {"reveal": "never"},
-      "group": "build"
-    }
-  ]
+		{
+			"type": "npm",
+			"script": "watch-web",
+			"problemMatcher": {
+				"base": "$tsc-watch",
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^\\s*$",
+					"endsPattern": "^webpack .* compiled (?:successfully|with \\d+ (?:errors?|warnings?)(?: and \\d+ (?:errors?|warnings?))?) in \\d+ ms$"
+				}
+			},
+			"isBackground": true,
+			"presentation": {
+				"reveal": "never"
+			},
+			"group": "build"
+		}
+	]
 }

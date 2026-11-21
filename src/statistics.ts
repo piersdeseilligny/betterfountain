@@ -48,7 +48,7 @@ type lengthStatistics = {
 
 type lengthchartitem = {
     line:number,
-    scene:string | undefined,
+    scene:string,
     length:number
 }
 
@@ -117,8 +117,8 @@ function age(value:number) {
     var max = 22
     return value > max ? max : value
   }
-function gradeToAge(grade:number | undefined) {
-    return grade === undefined ? 0 : age(Math.round(grade + 5))
+function gradeToAge(grade:number) {
+    return age(Math.round(grade + 5))
 }
 
 const createCharacterStatistics = (parsed: parseoutput): characterStatistics => {
@@ -225,7 +225,7 @@ const createLocationStatistics = (parsed: parseoutput): locationStatistics => {
     return {
         locationsCount: locationSlugs.length,
         locations: locationSlugs.map((location_slug: string) => {
-            const references = parsed.properties.locations.get(location_slug) ?? [];
+            const references = parsed.properties.locations.get(location_slug);
             const times_of_day = references
                 .map(it => locationtime(it.time_of_day))
                 .filter((v, i, a) => a.indexOf(v) === i);
@@ -237,7 +237,7 @@ const createLocationStatistics = (parsed: parseoutput): locationStatistics => {
             else if (exterior) interior_exterior = 'ext';
             return {
                 color: rgbToHex(wordToColor(location_slug)),
-                name: references[0]?.name ?? location_slug,
+                name: references[0].name,
                 scene_numbers: references.map(reference => reference.scene_number),
                 scene_lines: references.map(reference => reference.line),
                 number_of_scenes: references.length,
@@ -277,7 +277,7 @@ function locationtype(val:string):'int'|'ext'|'mixed'|'other'{
     }
     return "other";
 }
-function afterdash(val:string | undefined):string | null{
+function afterdash(val:string):string{
     if(val){
         let dash = val.lastIndexOf(" - ");
         if(dash === -1) dash = val.lastIndexOf(" – ");
@@ -331,14 +331,15 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
             }
             else if(element.type == "dialogue"){
                 dialogue.push({line:element.line, length: previousLengthDialogue, scene:currentScene });
-                let currentCharacter = characters.get(element.character) ?? [];
+                let currentCharacter = characters.get(element.character);
                 let dialogueLength = 0;
                 let wordsLength = 0;
                 let wordcount = getWordCount(element.text);
                 let time = Number(element.time);
-                if (currentCharacter.length === 0) {
-                    characters.set(element.character, currentCharacter);
-                } else {
+                if(!currentCharacter){
+                    characters.set(element.character, []);
+                }
+                else if(currentCharacter.length>0){
                     dialogueLength = currentCharacter[currentCharacter.length-1].lengthTimeGlobal;
                     wordsLength = currentCharacter[currentCharacter.length-1].lengthWordsGlobal;
                 }
@@ -347,7 +348,7 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
                     monologue=true;
                     monologues++;
                 }
-                currentCharacter.push({
+                characters.get(element.character).push({
                     line:element.line, 
                     lengthTime:element.time, 
                     lengthWords:wordcount,
@@ -365,8 +366,8 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
             scenes[scenes.length-1].endline = scene.line-1;
         }
         var deconstructedSlug = regex.scene_heading.exec(scene.text);
-        const sceneType = locationtype(deconstructedSlug?.[1] ?? "");
-        const sceneTime = locationtime(afterdash(deconstructedSlug?.[2]) ?? "");
+        const sceneType = locationtype(deconstructedSlug?.[1]);
+        const sceneTime = locationtime(afterdash(deconstructedSlug?.[2]));
         scenes.push({
             type: sceneType,
             line:scene.line,
@@ -374,10 +375,10 @@ const getLengthChart = (parsed:parseoutput):{action:lengthchartitem[], dialogue:
             time: sceneTime,
             scene:scene.text
         });
-        let currentLength = scenepropDurations.get('type_'+sceneType) ?? 0;
-        scenepropDurations.set('type_'+sceneType, currentLength + (scene.actionLength ?? 0) + (scene.dialogueLength ?? 0));
-        currentLength = scenepropDurations.get('time_'+sceneTime) ?? 0;
-        scenepropDurations.set('time_'+sceneTime, currentLength + (scene.actionLength ?? 0) + (scene.dialogueLength ?? 0));
+        let currentLength = scenepropDurations.has('type_'+sceneType) ? scenepropDurations.get('type_'+sceneType) : 0;
+        scenepropDurations.set('type_'+sceneType, currentLength+scene.actionLength+scene.dialogueLength);
+        currentLength = scenepropDurations.has('time_'+sceneTime) ? scenepropDurations.get('time_'+sceneTime) : 0;
+        scenepropDurations.set('time_'+sceneTime, currentLength+scene.actionLength+scene.dialogueLength);
     });
     let characterDuration:dialoguechartitem[][] = [];
     let characterNames:string[] = [];

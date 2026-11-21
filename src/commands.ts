@@ -4,6 +4,7 @@ import { previews } from "./providers/Preview";
 import { getFountainConfig, ExportConfig, changeFountainUIPersistence, uiPersistence } from "./configloader";
 import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
+import { GeneratePdf } from "./pdf/pdf";
 import { getActiveFountainDocument, getEditor, openFile, shiftScenes } from "./utils";
 import * as telemetry from "./telemetry";
 import { Buffer } from "buffer";
@@ -135,7 +136,6 @@ export async function exportPdf(showSaveDialog: boolean = true, openFileOnSave: 
     filepath = saveuri;
   }
   if (filepath == undefined) return;
-  const { GeneratePdf } = await import("./pdf/pdf");
   await vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async (progress) => {
     if (vscode.env.uiKind === vscode.UIKind.Web) {
       const result = await GeneratePdf("$PREVIEW$", config, exportconfig, parsed, undefined) as { data: string };
