@@ -110,6 +110,13 @@ window.addEventListener('message', event => {
         versionIndicator();
         updateState = true;
     }
+    if (event.data.command == 'updateStatsError') {
+        loading = false;
+        updateState = true;
+        versionIndicator();
+        document.querySelector('#versionIndicator .btntitle').textContent = 'Statistics failed';
+        document.querySelector('#versionIndicator .details').textContent = event.data.content || 'Unable to calculate statistics.';
+    }
     if (event.data.command == 'updateStats') {
         state.stats = event.data.content;
         state.activeversion = event.data.version;

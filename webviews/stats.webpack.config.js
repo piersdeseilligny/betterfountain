@@ -25,5 +25,6 @@ module.exports = {
       jQuery:"jquery"
     })
   ],
-  devtool: 'eval-cheap-source-map'
+  // VS Code webviews disallow eval in their Content Security Policy.
+  devtool: false
 };

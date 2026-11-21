@@ -112,7 +112,7 @@ async function initDoc(opts: Options) {
          doc.registerFont('ScriptOblique', fonts.italic.src, fonts.italic.family);
      }
      else {*/
-    const isWebHost = vscode.env?.uiKind === vscode.UIKind?.Web || (typeof process !== 'undefined' && (process as any).browser === true);
+    const isWebHost = (vscode.env?.uiKind !== undefined && vscode.UIKind?.Web !== undefined && vscode.env.uiKind === vscode.UIKind.Web) || (typeof process !== 'undefined' && (process as any).browser === true && !!vscode.extensions?.getExtension('piersdeseilligny.betterfountain')?.extensionUri);
     if (isWebHost) {
         const fontNames = ['courier-prime.ttf', 'courier-prime-bold.ttf', 'courier-prime-bold-italic.ttf', 'courier-prime-italic.ttf'];
         const fontKeys = ['ScriptNormal', 'ScriptBold', 'ScriptBoldOblique', 'ScriptOblique'];
