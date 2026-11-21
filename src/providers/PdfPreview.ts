@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import * as path from 'path';
-import * as fs from "fs";
 import { getEditor, getActiveFountainDocument } from "../utils";
 import { FountainConfig, getFountainConfig } from "../configloader";
-import { assetsPath, getAssetsUri, mapToObject, resolveAsUri } from "../utils";
+import { getAssetsUri, mapToObject, resolveAsUri } from "../utils";
 import * as afterparser from "../afterwriting-parser";
+import { Buffer } from "buffer";
 import { GeneratePdf } from "../pdf/pdf";
 import { PdfAsBase64 } from "../pdf/pdfmaker";
 import { createStatisticsPanel } from "./Statistics";
@@ -82,8 +82,13 @@ export function createPdfPreviewPanel(): vscode.WebviewPanel {
 }
 
 let pdfHtml: string | null = null;
-function loadPdfPreviewHtml() {
-  if (!pdfHtml) pdfHtml = fs.readFileSync(assetsPath() + path.sep + "webviews" + path.sep + "preview_pdf.html", 'utf8');
+async function loadPdfPreviewHtml() {
+  if (!pdfHtml) {
+    const extension = vscode.extensions.getExtension('piersdeseilligny.betterfountain');
+    if (!extension) throw new Error('Unable to locate Better Fountain extension assets.');
+    const htmlUri = vscode.Uri.joinPath(extension.extensionUri, 'out', 'webviews', 'preview_pdf.html');
+    pdfHtml = Buffer.from(await vscode.workspace.fs.readFile(htmlUri)).toString('utf8');
+  }
   return pdfHtml;
 }
 
@@ -92,7 +97,8 @@ async function loadWebView(docuri: vscode.Uri, pdfpanel: vscode.WebviewPanel) {
   pdfPanels.push({ uri: docuri.toString(), panel: pdfpanel, id: id });
   const cspSource = pdfpanel.webview.cspSource;
   const nonce = Array.from({ length: 32 }, () => Math.floor(Math.random() * 36).toString(36)).join('');
-  pdfpanel.webview.html = loadPdfPreviewHtml()
+  const previewHtml = await loadPdfPreviewHtml();
+  pdfpanel.webview.html = previewHtml
     .replace(/\$CSP_SOURCE\$/g, cspSource)
     .replace(/\$CSP_NONCE\$/g, nonce)
     .replace("$HEADLINKS$",
@@ -108,7 +114,6 @@ async function loadWebView(docuri: vscode.Uri, pdfpanel: vscode.WebviewPanel) {
       <link rel="stylesheet" href="${resolveAsUri(pdfpanel, 'out', 'webviews', 'common.css')}">
       <link rel="stylesheet" href="${resolveAsUri(pdfpanel, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css')}">
       <script src="${resolveAsUri(pdfpanel, 'out', 'webviews', 'pdfjs', 'build', 'pdf.js')}"></script>
-      <script src="${resolveAsUri(pdfpanel, 'out', 'webviews', 'pdfjs', 'build', 'pdf.worker.js')}"></script>
       <script src="${resolveAsUri(pdfpanel, 'out', 'webviews', 'pdfjs', 'web', 'viewer.js')}"></script>`);
 
   let config = getFountainConfig(docuri);

@@ -537,6 +537,8 @@
       //PDFViewerApplication.pdfViewer._resetView = oldResetView;
 
       PDFViewerApplication.initializedPromise.then(async () => {
+        // The worker is loaded by PDF.js as a Worker, not as a script in this page.
+        pdfjsLib.GlobalWorkerOptions.workerSrc = document.querySelector('script[src*="/build/pdf.js"]').src.replace(/pdf\.js(?:\?.*)?$/, 'pdf.worker.js');
         PDFViewerApplication.isViewerEmbedded = true;
         if (PDFViewerApplication.pdfViewer) {
           PDFViewerApplication.pdfViewer.focus = () => {};

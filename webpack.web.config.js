@@ -12,8 +12,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      './pdf/pdf$': path.resolve(__dirname, 'src/pdf/pdf.web.ts'),
-      '../pdf/pdf$': path.resolve(__dirname, 'src/pdf/pdf.web.ts'),
+      pdfkit$: path.resolve(__dirname, 'node_modules/pdfkit/js/pdfkit.standalone.js'),
       [path.resolve(__dirname, 'src/telemetry.ts')]: path.resolve(__dirname, 'src/telemetry.web.ts')
     },
     extensions: ['.ts', '.js'],
@@ -22,7 +21,11 @@ module.exports = {
       fs: false,
       child_process: false,
       perf_hooks: false,
-      path: require.resolve('path-browserify')
+      path: require.resolve('path-browserify'),
+      buffer: require.resolve('buffer/'),
+      process: require.resolve('process/browser'),
+      stream: require.resolve('stream-browserify'),
+      util: require.resolve('util/')
     }
   },
   module: {
@@ -34,6 +37,7 @@ module.exports = {
   },
   externals: { vscode: 'commonjs vscode' },
   plugins: [
+    new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'], process: 'process/browser' }),
     new webpack.IgnorePlugin({ resourceRegExp: /^font-finder$/ }),
     new webpack.IgnorePlugin({ resourceRegExp: /^username$/ })
   ],

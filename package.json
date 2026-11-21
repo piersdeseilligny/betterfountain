@@ -515,8 +515,10 @@
 		"path-browserify": "^1.0.1",
 		"pdfkit": "^0.12.3",
 		"readability-scores": "^1.0.8",
+		"stream-browserify": "^3.0.0",
 		"textbox-for-pdfkit": "^0.2.1",
 		"username": "^5.1.0",
+		"util": "^0.12.5",
 		"vscode-extension-telemetry": "^0.3.2"
 	}
 }

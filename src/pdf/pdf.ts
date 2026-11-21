@@ -5,7 +5,7 @@ import * as helpers from "../helpers";
 import * as fliner from "./liner";
 import * as vscode from "vscode";
 
-//Creates the PDF, or returns stats if output path is "$STATS$"
+// Creates the PDF, or returns stats/base64 data for the preview paths.
 export var GeneratePdf = function (outputpath: string, config: FountainConfig, exportconfig : ExportConfig, parsedDocument: any, progress?: vscode.Progress<{ message?: string; increment?: number; }> ):any {
 
     if(progress) progress.report({message: "Converting to individual lines", increment: 25});
@@ -26,7 +26,7 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, e
                 font = parsedDocument.title_page['hidden'][index].text;
         }
     }
-    var current_index = 0, previous_type: string = null;
+    var current_index = 0, previous_type: string | null = null;
 
     // tidy up separators
     let invisibleSections = [];
@@ -97,6 +97,11 @@ export var GeneratePdf = function (outputpath: string, config: FountainConfig, e
         return pdfmaker.get_pdf_stats(pdf_options);
     else if(outputpath=="$PREVIEW$")
         return pdfmaker.get_pdf_base64(pdf_options)
-    else
-        pdfmaker.get_pdf(pdf_options, progress);
+    else if (vscode.env.uiKind === vscode.UIKind.Web) {
+        return pdfmaker.get_pdf_base64({ ...pdf_options, filepath: "" });
+    } else if (progress) {
+        return pdfmaker.get_pdf(pdf_options, progress);
+    } else {
+        return pdfmaker.get_pdf(pdf_options, { report: () => undefined });
+    }
 }

@@ -6,13 +6,9 @@ import * as vscode from 'vscode';
 import * as afterparser from "./afterwriting-parser";
 import { getActiveFountainDocument, getEditor, openFile, shiftScenes } from "./utils";
 import * as telemetry from "./telemetry";
+import { Buffer } from "buffer";
 
 export async function exportPdf(showSaveDialog: boolean = true, openFileOnSave: boolean = false, highlightCharacters = false, highlightChanges = false) {
-  // PDF generation depends on Node APIs and is unavailable in the browser extension host.
-  if (vscode.env.uiKind === vscode.UIKind.Web) {
-    vscode.window.showErrorMessage('PDF export is not available in the web version of Better Fountain.');
-    return;
-  }
   var canceled = false;
   if (canceled) return;
   var editor = getEditor(getActiveFountainDocument());
@@ -140,10 +136,16 @@ export async function exportPdf(showSaveDialog: boolean = true, openFileOnSave: 
   }
   if (filepath == undefined) return;
   const { GeneratePdf } = await import("./pdf/pdf");
-  vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async (progress) => {
-    GeneratePdf(filepath.fsPath, config, exportconfig, parsed, progress);
+  await vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async (progress) => {
+    if (vscode.env.uiKind === vscode.UIKind.Web) {
+      const result = await GeneratePdf("$PREVIEW$", config, exportconfig, parsed, undefined) as { data: string };
+      await vscode.workspace.fs.writeFile(filepath, Buffer.from(result.data, 'base64'));
+      vscode.window.showInformationMessage('Exported PDF successfully.');
+    } else {
+      await GeneratePdf(filepath.fsPath, config, exportconfig, parsed, progress);
+      if (openFileOnSave) openFile(filepath.fsPath);
+    }
   });
-  if (openFileOnSave) { openFile(filepath.fsPath); }
 }
 
 var lastShiftedParseId = "";
