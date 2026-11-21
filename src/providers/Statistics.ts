@@ -85,7 +85,9 @@ async function loadWebView(docuri: vscode.Uri, statspanel: vscode.WebviewPanel) 
   let id = Date.now() + Math.floor((Math.random() * 1000));
   statsPanels.push({ uri: docuri.toString(), panel: statspanel, id: id });
 
-  statspanel.webview.html = loadStatsHtml().replace("$HEADLINKS$",
+  statspanel.webview.html = loadStatsHtml()
+    .replace(/\$CSP_SOURCE\$/g, statspanel.webview.cspSource)
+    .replace("$HEADLINKS$",
     `<link rel="stylesheet" href="${resolveAsUri(statspanel, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css')}">
         <script src="${resolveAsUri(statspanel, 'out', 'webviews', 'stats.bundle.js')}" defer></script>
         <link rel="stylesheet" href="${resolveAsUri(statspanel, 'out', 'webviews', 'common.css')}">`)

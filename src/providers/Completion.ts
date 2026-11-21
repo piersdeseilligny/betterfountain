@@ -1,25 +1,13 @@
 import * as vscode from "vscode";
 import { parsedDocuments } from "../extension";
 import { getCharactersWhoSpokeBeforeLast, addForceSymbolToCharacter } from "../utils";
-import username = require("username");
 import { titlePageDisplay } from "../afterwriting-parser";
 var fontnames: any[];
-const fontFinder = require('font-finder');
 var userfullname: string;
 
-//Load fonts for autocomplete
-(async () => {
-    	var fontlist = await fontFinder.list()
-	fontnames = Object.keys(fontlist);
-})();
-
-//Get user's full name for author autocomplete
-(async () => {
-	userfullname = await username();
-	if (userfullname.length > 0) {
-		userfullname = userfullname.charAt(0).toUpperCase() + userfullname.slice(1)
-	}
-})();
+// System fonts and usernames are not accessible in the browser extension host.
+fontnames = [];
+userfullname = "";
 
 function TimeofDayCompletion(input: string, addspace: boolean, sort: string): vscode.CompletionItem {
 	return {
@@ -115,6 +103,7 @@ function TitlePageKey(info:TitlePageKeyComplete): vscode.CompletionItem {
 export class FountainCompletionProvider implements vscode.CompletionItemProvider {
 	provideCompletionItems(document: vscode.TextDocument, position: vscode.Position,/* token: CancellationToken, context: CompletionContext*/): vscode.CompletionItem[] {
 		var parsedDocument = parsedDocuments.get(document.uri.toString());
+		if (!parsedDocument) return [];
 		var completes: vscode.CompletionItem[] = [];
 		var currentline = document.getText(new vscode.Range(new vscode.Position(position.line, 0), position));
 		var prevLine = document.getText(new vscode.Range(new vscode.Position(position.line - 1, 0), position)).trimRight();

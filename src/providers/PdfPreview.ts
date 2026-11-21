@@ -91,10 +91,12 @@ async function loadWebView(docuri: vscode.Uri, pdfpanel: vscode.WebviewPanel) {
   let id = Date.now() + Math.floor((Math.random() * 1000));
   pdfPanels.push({ uri: docuri.toString(), panel: pdfpanel, id: id });
   const cspSource = pdfpanel.webview.cspSource;
+  const nonce = Array.from({ length: 32 }, () => Math.floor(Math.random() * 36).toString(36)).join('');
   pdfpanel.webview.html = loadPdfPreviewHtml()
+    .replace(/\$CSP_SOURCE\$/g, cspSource)
+    .replace(/\$CSP_NONCE\$/g, nonce)
     .replace("$HEADLINKS$",
       `
-        <meta http-equiv="Content-Security-Policy" content="default-src ${cspSource}; connect-src ${cspSource}; script-src 'unsafe-inline' ${cspSource}; style-src 'unsafe-inline' ${cspSource}; img-src blob: data: ${cspSource};">
         <link rel="resource" type="application/l10n" href="${resolveAsUri(
         pdfpanel,
         'lib',

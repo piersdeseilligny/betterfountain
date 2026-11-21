@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="google" content="notranslate">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src $CSP_SOURCE$ data: blob:; style-src $CSP_SOURCE$ 'unsafe-inline'; font-src $CSP_SOURCE$ data:; script-src $CSP_SOURCE$ 'nonce-$CSP_NONCE$'; worker-src $CSP_SOURCE$ blob:;">
 
   <title>PDF.js viewer</title>
   $HEADLINKS$
@@ -446,7 +447,7 @@
   <div id="printContainer"></div>
 
   <input type="file" id="fileInput" class="hidden">
-  <script>
+  <script nonce="$CSP_NONCE$">
     loading = false;
     function versionIndicator() {
       console.log("Active version is " + state.activeversion);
