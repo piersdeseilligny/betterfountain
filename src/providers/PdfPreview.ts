@@ -114,6 +114,7 @@ async function loadWebView(docuri: vscode.Uri, pdfpanel: vscode.WebviewPanel) {
       <link rel="stylesheet" href="${resolveAsUri(pdfpanel, 'out', 'webviews', 'common.css')}">
       <link rel="stylesheet" href="${resolveAsUri(pdfpanel, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css')}">
       <script src="${resolveAsUri(pdfpanel, 'out', 'webviews', 'pdfjs', 'build', 'pdf.js')}"></script>
+      <script src="${resolveAsUri(pdfpanel, 'out', 'webviews', 'pdfjs', 'build', 'pdf.worker.js')}"></script>
       <script src="${resolveAsUri(pdfpanel, 'out', 'webviews', 'pdfjs', 'web', 'viewer.js')}"></script>`);
 
   let config = getFountainConfig(docuri);
