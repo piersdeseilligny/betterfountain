@@ -16,6 +16,18 @@
 			],
 			"preLaunchTask": "npm: compile"
 		},
+	{
+		"name": "Run Extension in Web Host",
+		"type": "extensionHost",
+		"debugWebWorkerHost": true,
+		"request": "launch",
+		"args": [
+			"--extensionDevelopmentPath=${workspaceFolder}",
+			"--extensionDevelopmentKind=web"
+		],
+		"outFiles": ["${workspaceFolder}/out/web/**/*.js"],
+		"preLaunchTask": "npm: watch-web"
+	},
 		{
 			"name": "Debug Jest Tests",
 			"type": "node",

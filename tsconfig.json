@@ -9,7 +9,7 @@
 		"target": "es6",
 		"outDir": "out",
 		"rootDir": "src",
-		"lib": [ "es6" ],
+		"lib": [ "es6", "dom" ],
 		"sourceMap": true
 	},
 	"include": [

@@ -1,11 +1,11 @@
 import * as vscode from "vscode";
 import * as path from 'path';
-import * as fs from "fs";
 import { getEditor, getActiveFountainDocument } from "../utils";
 import { FountainConfig, getFountainConfig } from "../configloader";
-import { assetsPath, resolveAsUri } from "../utils";
+import { resolveAsUri } from "../utils";
 import * as afterparser from "../afterwriting-parser";
 import { retrieveScreenPlayStatistics } from "../statistics";
+import { Buffer } from "buffer";
 
 interface statisticsPanel {
   uri: string;
@@ -40,9 +40,18 @@ export function removeStatisticsPanel(id: Number) {
 
 export async function refreshStatsPanel(statspanel: vscode.WebviewPanel, document: vscode.TextDocument, config: FountainConfig) {
   statspanel.webview.postMessage({ command: "updateversion", version: document.version, loading: true });
-  var parsed = afterparser.parse(document.getText(), config, false);
-  const stats = await retrieveScreenPlayStatistics(document.getText(), parsed, config, undefined);
-  statspanel.webview.postMessage({ command: 'updateStats', content: stats, version: document.version });
+  try {
+    const script = document.getText();
+    const parsed = afterparser.parse(script, config, false);
+    const stats = await retrieveScreenPlayStatistics(script, parsed, config, undefined);
+    statspanel.webview.postMessage({ command: 'updateStats', content: stats, version: document.version });
+  } catch (error) {
+    console.error('Failed to refresh screenplay statistics:', error);
+    statspanel.webview.postMessage({
+      command: 'updateStatsError',
+      content: error instanceof Error ? error.message : String(error),
+    });
+  }
 }
 
 export function createStatisticsPanel(): vscode.WebviewPanel {
@@ -75,8 +84,13 @@ export function createStatisticsPanel(): vscode.WebviewPanel {
 }
 
 let statsHtml: string | null = null;
-function loadStatsHtml() {
-  if (!statsHtml) statsHtml = fs.readFileSync(assetsPath() + path.sep + "webviews" + path.sep + "stats.html", 'utf8');
+async function loadStatsHtml() {
+  if (!statsHtml) {
+    const extension = vscode.extensions.getExtension('piersdeseilligny.betterfountain');
+    if (!extension) throw new Error('Unable to locate Better Fountain extension assets.');
+    const htmlUri = vscode.Uri.joinPath(extension.extensionUri, 'out', 'webviews', 'stats.html');
+    statsHtml = Buffer.from(await vscode.workspace.fs.readFile(htmlUri)).toString('utf8');
+  }
   return statsHtml;
 }
 
@@ -85,7 +99,10 @@ async function loadWebView(docuri: vscode.Uri, statspanel: vscode.WebviewPanel) 
   let id = Date.now() + Math.floor((Math.random() * 1000));
   statsPanels.push({ uri: docuri.toString(), panel: statspanel, id: id });
 
-  statspanel.webview.html = loadStatsHtml().replace("$HEADLINKS$",
+  const html = await loadStatsHtml();
+  statspanel.webview.html = html
+    .replace(/\$CSP_SOURCE\$/g, statspanel.webview.cspSource)
+    .replace("$HEADLINKS$",
     `<link rel="stylesheet" href="${resolveAsUri(statspanel, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css')}">
         <script src="${resolveAsUri(statspanel, 'out', 'webviews', 'stats.bundle.js')}" defer></script>
         <link rel="stylesheet" href="${resolveAsUri(statspanel, 'out', 'webviews', 'common.css')}">`)

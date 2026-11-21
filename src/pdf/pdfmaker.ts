@@ -2,6 +2,7 @@
 
 import * as fountainconfig from "../configloader"; //ok
 import * as print from "./print";//ok
+import { Buffer } from "buffer";
 import * as path from 'path'; //ok
 import * as vscode from 'vscode'; //ok
 import helpers from "../helpers"; //ok
@@ -9,8 +10,6 @@ import { openFile, revealFile, trimCharacterExtension, wordToColor } from "../ut
 import * as he from 'he'; //ok
 import * as addTextbox from 'textbox-for-pdfkit'; //ok
 import { regex } from "../afterwriting-parser"; //ok
-import { Base64Encode } from "base64-stream"; //ok
-import Blob from "cross-blob";
 
 // import * as blobUtil from "blob-util";
 export class Options {
@@ -83,10 +82,7 @@ var create_simplestream = function (filepath: string) {
                 });
 
             } else {
-                simplestream.blob = new Blob(simplestream.chunks, {
-                    type: "application/pdf"
-                });
-                // simplestream.url = blobUtil.createObjectURL(this.blob);
+                // No filesystem destination: return the generated chunks to the caller.
                 this.callback(simplestream);
             }
         }
@@ -116,16 +112,25 @@ async function initDoc(opts: Options) {
          doc.registerFont('ScriptOblique', fonts.italic.src, fonts.italic.family);
      }
      else {*/
-    const fontFinder = require('font-finder');
-
-    //Load Courier Prime by default, and replace the variants if requested and available
-    var fp = __dirname.slice(0, __dirname.lastIndexOf(path.sep)) + path.sep + 'courierprime' + path.sep
-    doc.registerFont('ScriptNormal', fp + 'courier-prime.ttf');
-    doc.registerFont('ScriptBold', fp + 'courier-prime-bold.ttf');
-    doc.registerFont('ScriptBoldOblique', fp + 'courier-prime-bold-italic.ttf');
-    doc.registerFont('ScriptOblique', fp + 'courier-prime-italic.ttf');
-    if (opts.font != "Courier Prime") {
-        var variants = await fontFinder.listVariants(opts.font);
+    const isWebHost = (vscode.env?.uiKind !== undefined && vscode.UIKind?.Web !== undefined && vscode.env.uiKind === vscode.UIKind.Web) || (typeof process !== 'undefined' && (process as any).browser === true && !!vscode.extensions?.getExtension('piersdeseilligny.betterfountain')?.extensionUri);
+    if (isWebHost) {
+        const fontNames = ['courier-prime.ttf', 'courier-prime-bold.ttf', 'courier-prime-bold-italic.ttf', 'courier-prime-italic.ttf'];
+        const fontKeys = ['ScriptNormal', 'ScriptBold', 'ScriptBoldOblique', 'ScriptOblique'];
+        const extensionUri = vscode.extensions.getExtension('piersdeseilligny.betterfountain')?.extensionUri;
+        if (!extensionUri) throw new Error('Unable to locate Better Fountain extension fonts.');
+        for (let i = 0; i < fontNames.length; i++) {
+            const bytes = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(extensionUri, 'out', 'courierprime', fontNames[i]));
+            doc.registerFont(fontKeys[i], bytes);
+        }
+    } else {
+        const fontFinder = require('font-finder');
+        var fp = __dirname.slice(0, __dirname.lastIndexOf(path.sep)) + path.sep + 'courierprime' + path.sep
+        doc.registerFont('ScriptNormal', fp + 'courier-prime.ttf');
+        doc.registerFont('ScriptBold', fp + 'courier-prime-bold.ttf');
+        doc.registerFont('ScriptBoldOblique', fp + 'courier-prime-bold-italic.ttf');
+        doc.registerFont('ScriptOblique', fp + 'courier-prime-italic.ttf');
+        if (opts.font != "Courier Prime") {
+            var variants = await fontFinder.listVariants(opts.font);
         variants.forEach((variant: any) => {
             switch (variant.style) {
                 case "regular":
@@ -142,6 +147,7 @@ async function initDoc(opts: Options) {
                     break;
             }
         });
+        }
     }
 
     doc.font('ScriptNormal');
@@ -883,20 +889,17 @@ export var get_pdf_stats = async function (opts: Options): Promise<pdfstats> {
 
 const toBase64 = (doc:any):Promise<string> => {
     return new Promise((resolve, reject) => {
-        try {
-            const stream = doc.pipe(new Base64Encode());
-
-            let base64Value = '';
-            stream.on('data', (chunk:any) => {
-                base64Value += chunk;
-            });
-            
-            stream.on('end', () => {
-                resolve(base64Value);
-            });
-        } catch (e) {
-            reject(e);
-        }
+        const chunks: Uint8Array[] = [];
+        doc.on('data', (chunk: Uint8Array) => chunks.push(chunk));
+        doc.on('error', reject);
+        doc.on('end', () => {
+            const length = chunks.reduce((total, chunk) => total + chunk.length, 0);
+            const bytes = new Uint8Array(length);
+            let offset = 0;
+            for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+            resolve(Buffer.from(bytes).toString('base64'));
+        });
+        doc.end();
     });
 };
 
@@ -909,7 +912,6 @@ export var get_pdf_base64 = async function(opts:Options): Promise<PdfAsBase64> {
         stats.pagecountReal++;
     });
     await generate(doc, opts, stats.linemap);
-    doc.end();
     return{
         data: await toBase64(doc),
         stats: stats

@@ -1,10 +1,9 @@
 import * as vscode from "vscode";
 import * as path from 'path';
-import * as fs from "fs";
 import { parsedDocuments, diagnostics, diagnosticCollection, parseDocument } from "../extension";
 import { getFountainConfig } from "../configloader";
 import { TopmostLineMonitor, getVisibleLine } from "../utils/topMostLineMonitor";
-import { assetsPath, getEditor } from "../utils";
+import { getEditor } from "../utils";
 
 interface preview{
     uri:string;
@@ -41,12 +40,12 @@ export function getPreviewsToUpdate(docuri:vscode.Uri):preview[]{
     return selectedPreviews;
 }
 
-export function createPreviewPanel(editor:vscode.TextEditor, dynamic:boolean): vscode.WebviewPanel{
+export function createPreviewPanel(editor:vscode.TextEditor, dynamic:boolean): vscode.WebviewPanel | undefined{
 	if(editor.document.languageId!="fountain"){
 		vscode.window.showErrorMessage("You can only preview Fountain documents as a screenplay!");
 		return undefined;
     }
-    let preview:vscode.WebviewPanel;
+    let preview:vscode.WebviewPanel | undefined;
     let presentPreviews = getPreviewPanels(editor.document.uri);
     presentPreviews.forEach(p => {
         if(p.uri == editor.document.uri.toString() && p.dynamic == dynamic){
@@ -67,26 +66,35 @@ export function createPreviewPanel(editor:vscode.TextEditor, dynamic:boolean): v
             vscode.ViewColumn.Two, // Editor column to show the new webview panel in.
             { enableScripts: true, retainContextWhenHidden:true });
     }
+    if (!preview) return undefined;
     loadWebView(editor.document.uri, preview, dynamic);
     return preview;
 }
 
-let webviewHtml: string | null = null;
-function loadWebViewHtml() {
-    if(!webviewHtml) webviewHtml = fs.readFileSync(assetsPath() + path.sep + "webviews" + path.sep + "preview.html", 'utf8');
+let webviewHtml: string | undefined;
+async function loadWebViewHtml(): Promise<string> {
+    if (!webviewHtml) {
+        const extension = vscode.extensions.getExtension('piersdeseilligny.betterfountain');
+        if (!extension) throw new Error('Unable to locate Better Fountain extension assets.');
+        const htmlUri = vscode.Uri.joinPath(extension.extensionUri, 'out', 'webviews', 'preview.html');
+        const htmlBytes = await vscode.workspace.fs.readFile(htmlUri);
+        webviewHtml = new TextDecoder().decode(htmlBytes);
+    }
     return webviewHtml;
 }
 
-function loadWebView(docuri: vscode.Uri, preview:vscode.WebviewPanel, dynamic:boolean) {
+async function loadWebView(docuri: vscode.Uri, preview:vscode.WebviewPanel, dynamic:boolean) {
     let id = Date.now()+Math.floor((Math.random()*1000));
     previews.push({uri:docuri.toString(), dynamic:dynamic, panel:preview, id:id });
 
 	preview.webview.onDidReceiveMessage(async message => {
         if (message.command == "updateFontResult") {
-            if (message.content == false && parsedDocuments.get(vscode.Uri.parse(message.uri).toString()).properties.fontLine != -1) {
+            const messageDocument = parsedDocuments.get(vscode.Uri.parse(message.uri).toString());
+            const currentDocument = parsedDocuments.get(docuri.toString());
+            if (message.content == false && messageDocument && currentDocument && messageDocument.properties.fontLine != -1) {
                 //The font could not be rendered
                 diagnostics.length = 0;
-                diagnostics.push(new vscode.Diagnostic(new vscode.Range(new vscode.Position(parsedDocuments.get(vscode.Uri.parse(message.uri).toString()).properties.fontLine, 0), new vscode.Position(parsedDocuments.get(docuri.toString()).properties.fontLine, 5)), "This font could not be rendered in the live preview. Is it installed?", vscode.DiagnosticSeverity.Error));
+                diagnostics.push(new vscode.Diagnostic(new vscode.Range(new vscode.Position(messageDocument.properties.fontLine, 0), new vscode.Position(currentDocument.properties.fontLine, 5)), "This font could not be rendered in the live preview. Is it installed?", vscode.DiagnosticSeverity.Error));
                 diagnosticCollection.set(vscode.Uri.parse(message.uri), diagnostics);
             }
             else {
@@ -137,7 +145,14 @@ function loadWebView(docuri: vscode.Uri, preview:vscode.WebviewPanel, dynamic:bo
     })
 
     
-    preview.webview.html = loadWebViewHtml().replace(/\$ROOTDIR\$/g, preview.webview.asWebviewUri(vscode.Uri.file(assetsPath())).toString());
+    const extension = vscode.extensions.getExtension('piersdeseilligny.betterfountain');
+    if (!extension) throw new Error('Unable to locate Better Fountain extension assets.');
+    const assetsUri = vscode.Uri.joinPath(extension.extensionUri, 'out');
+    const nonce = Array.from({ length: 32 }, () => Math.floor(Math.random() * 36).toString(36)).join('');
+    preview.webview.html = (await loadWebViewHtml())
+        .replace(/\$ROOTDIR\$/g, preview.webview.asWebviewUri(assetsUri).toString())
+        .replace(/\$CSP_SOURCE\$/g, preview.webview.cspSource)
+        .replace(/\$CSP_NONCE\$/g, nonce);
     preview.webview.postMessage({ command: 'setstate', uri: docuri.toString(), dynamic: dynamic })
     var config = getFountainConfig(docuri);
     preview.webview.postMessage({ command: 'updateconfig', content: config })
@@ -186,14 +201,15 @@ vscode.workspace.onDidChangeConfiguration(change => {
 })
 
 vscode.window.onDidChangeTextEditorSelection(change => {
-	if(change.textEditor.document.languageId == "fountain")
-	var config = getFountainConfig(change.textEditor.document.uri);
+	if (change.textEditor.document.languageId !== "fountain") return;
+	const config = getFountainConfig(change.textEditor.document.uri);
 	if (config.synchronized_markup_and_preview) {
-        var selection = change.selections[0];
+        const selection = change.selections[0];
         previews.forEach(p => {
-            if(p.uri == change.textEditor.document.uri.toString())
+            if (p.uri === change.textEditor.document.uri.toString()) {
                 isScrolling = true;
                 p.panel.webview.postMessage({ command: 'showsourceline', content: selection.active.line, linescount: change.textEditor.document.lineCount, source: "click" });
+            }
         });
 	}
 })

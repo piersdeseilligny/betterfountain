@@ -14,7 +14,6 @@ import { createPreviewPanel, FountainPreviewSerializer, getPreviewsToUpdate } fr
 import { createStatisticsPanel, FountainStatsPanelserializer as FountainStatsPanelSerializer, getStatisticsPanels, refreshStatsPanel, updateDocumentVersionStats } from "./providers/Statistics";
 import { FountainOutlineTreeDataProvider } from "./providers/Outline";
 import { FountainCharacterTreeDataProvider } from "./providers/Characters";
-import { performance } from "perf_hooks";
 import { exportHtml } from "./providers/StaticHtml";
 import { FountainCheatSheetWebviewViewProvider } from "./providers/Cheatsheet";
 import { createPdfPreviewPanel, FountainPdfPanelserializer, getPdfPreviewPanels, refreshPdfPanel, updateDocumentVersionPdfPreview } from "./providers/PdfPreview";
@@ -68,10 +67,12 @@ export function activate(context: ExtensionContext) {
 
   //Register Commands
   context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreview', () => {
+    if (!vscode.window.activeTextEditor) return;
     createPreviewPanel(vscode.window.activeTextEditor, true);
     telemetry.reportTelemetry("command:fountain.livepreview");
   }));
   context.subscriptions.push(vscode.commands.registerCommand('fountain.livepreviewstatic', () => {
+    if (!vscode.window.activeTextEditor) return;
     createPreviewPanel(vscode.window.activeTextEditor, false);
     telemetry.reportTelemetry("command:fountain.livepreviewstatic");
   }));
@@ -160,7 +161,7 @@ function registerTyping() {
         //Automatically skip to the next line at the end of parentheticals
         if (args.text == "\n") {
           const editor = vscode.window.activeTextEditor;
-          if (editor.selection.isEmpty) {
+          if (editor && editor.selection.isEmpty) {
             const position = editor.selection.active;
             var linetext = editor.document.getText(new vscode.Range(new vscode.Position(position.line, 0), new vscode.Position(position.line, 256)));
             if (position.character == linetext.length - 1) {
@@ -216,7 +217,7 @@ vscode.workspace.onDidChangeConfiguration(change => {
 export var parsedDocuments = new Map<string, afterparser.parseoutput>();
 let lastParsedUri = "";
 
-export function activeParsedDocument(): afterparser.parseoutput {
+export function activeParsedDocument(): afterparser.parseoutput | undefined {
   var texteditor = getEditor(getActiveFountainDocument());
   if (texteditor) {
     return parsedDocuments.get(texteditor.document.uri.toString());
@@ -271,12 +272,12 @@ export function parseDocument(document: TextDocument) {
   var tokenlength = 0;
   const decorsDialogue: vscode.DecorationOptions[] = [];
   tokenlength = 0;
-  parsedDocuments.get(document.uri.toString()).properties.titleKeys = [];
+  output.properties.titleKeys = [];
   var fontTokenExists = false;
   if (output.title_page) {
     while (tokenlength < output.title_page['hidden'].length) {
       if (output.title_page['hidden'][tokenlength].type == "font" && output.title_page['hidden'][tokenlength].text.trim() != "") {
-        parsedDocuments.get(document.uri.toString()).properties.fontLine = output.title_page['hidden'][tokenlength].line;
+        output.properties.fontLine = output.title_page['hidden'][tokenlength].line;
         var fontname = output.title_page['hidden'][tokenlength].text;
         previewsToUpdate.forEach(p => {
           p.panel.webview.postMessage({ command: 'updateFont', content: fontname });

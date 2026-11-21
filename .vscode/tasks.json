@@ -13,6 +13,23 @@
 				"kind": "build",
 				"isDefault": true
 			}
+		},
+		{
+			"type": "npm",
+			"script": "watch-web",
+			"problemMatcher": {
+				"base": "$tsc-watch",
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^\\s*$",
+					"endsPattern": "^webpack .* compiled (?:successfully|with \\d+ (?:errors?|warnings?)(?: and \\d+ (?:errors?|warnings?))?) in \\d+ ms$"
+				}
+			},
+			"isBackground": true,
+			"presentation": {
+				"reveal": "never"
+			},
+			"group": "build"
 		}
 	]
 }

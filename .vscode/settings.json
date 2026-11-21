@@ -10,4 +10,5 @@
 	"npm.exclude": ["**/client", "**/server"],
 	"npm.enableScriptExplorer": true,
 	"editor.formatOnSave": false,
+	"js/ts.tsdk.path": "./node_modules/typescript/lib",
 }

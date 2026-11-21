@@ -7,6 +7,7 @@ import * as afterparser from "./afterwriting-parser";
 import { GeneratePdf } from "./pdf/pdf";
 import { getActiveFountainDocument, getEditor, openFile, shiftScenes } from "./utils";
 import * as telemetry from "./telemetry";
+import { Buffer } from "buffer";
 
 export async function exportPdf(showSaveDialog: boolean = true, openFileOnSave: boolean = false, highlightCharacters = false, highlightChanges = false) {
   var canceled = false;
@@ -43,11 +44,11 @@ export async function exportPdf(showSaveDialog: boolean = true, openFileOnSave: 
       return;
     }
   
-    // Check if the workspace is a Git repository
+    // Git is optional: web hosts may not provide vscode.git.
     const gitExtension = vscode.extensions.getExtension('vscode.git')?.exports;
     const api = gitExtension?.getAPI(1);
     if (!api) {
-      vscode.window.showErrorMessage('Git extension not found.');
+      vscode.window.showErrorMessage('Git change highlighting is unavailable because the Git extension is not installed or enabled.');
       return;
     }
   
@@ -135,10 +136,16 @@ export async function exportPdf(showSaveDialog: boolean = true, openFileOnSave: 
     filepath = saveuri;
   }
   if (filepath == undefined) return;
-  vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async (progress) => {
-    GeneratePdf(filepath.fsPath, config, exportconfig, parsed, progress);
+  await vscode.window.withProgress({ title: "Exporting PDF...", location: vscode.ProgressLocation.Notification }, async (progress) => {
+    if (vscode.env.uiKind === vscode.UIKind.Web) {
+      const result = await GeneratePdf("$PREVIEW$", config, exportconfig, parsed, undefined) as { data: string };
+      await vscode.workspace.fs.writeFile(filepath, Buffer.from(result.data, 'base64'));
+      vscode.window.showInformationMessage('Exported PDF successfully.');
+    } else {
+      await GeneratePdf(filepath.fsPath, config, exportconfig, parsed, progress);
+      if (openFileOnSave) openFile(filepath.fsPath);
+    }
   });
-  if (openFileOnSave) { openFile(filepath.fsPath); }
 }
 
 var lastShiftedParseId = "";
